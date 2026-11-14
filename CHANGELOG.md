@@ -5,6 +5,15 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Czech, thanks to @DJjohn07: every card, page, dialog and editor form, the settings panel's language list and the
+  integration's own texts, with the naming words the automatic dashboards and the appliance cards read a Czech house
+  by, as written or as an entity id writes them (a name's ř is read as r). It says Home Assistant's own words where
+  Home Assistant names the same thing (Zapnuto, Vypnuto), counts in the forms Czech gives a whole number (2 až 4
+  zařízení, 5 zařízení), and greets "Dobré ráno" until 9:00, "Dobrý den" through the day and "Dobrý večer" from
+  18:00; "Dobrou noc" is a farewell before sleep and never shows.
+
 ### Development
 
 - The settings panel's tests wait for what they wait on (a section's own file landing, a save's writes done, the apply
