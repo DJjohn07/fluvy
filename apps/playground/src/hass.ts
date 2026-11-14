@@ -97,6 +97,12 @@ const MEASURE_WORDS: Record<string, Record<string, string>> = {
     power: 'Výkon',
     atmospheric_pressure: 'Atmosferický tlak',
   },
+  cs: {
+    temperature: 'Teplota',
+    humidity: 'Vlhkost vzduchu',
+    power: 'Výkon',
+    atmospheric_pressure: 'Atmosférický tlak',
+  },
   pl: {
     temperature: 'Temperatura',
     humidity: 'Wilgotność',
@@ -139,6 +145,7 @@ const OPENING_WORDS: Record<string, readonly [string, string]> = {
   'pt-PT': ['Aberto', 'Fechada'],
   tr: ['Açık', 'Kapalı'],
   ja: ['開', '閉'],
+  cs: ['Otevřeno', 'Zavřeno'],
   pl: ['otwarto', 'zamknięto'],
   'zh-Hans': ['已打开', '已关闭'],
   ru: ['Открыто', 'Закрыто'],
@@ -157,6 +164,7 @@ const MOTION_WORDS: Record<string, readonly [string, string]> = {
   tr: ['Algılandı', 'Temiz'],
   ja: ['検出', 'クリア'],
   sk: ['Zistené', 'Čisté'],
+  cs: ['Detekováno', 'Nedetekováno'],
   pl: ['wykryto', 'brak'],
   'zh-Hans': ['已触发', '未触发'],
   ru: ['Обнаружено', 'Не обнаружено'],

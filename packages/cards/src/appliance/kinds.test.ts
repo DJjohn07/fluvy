@@ -148,7 +148,7 @@ describe('what an appliance is', () => {
     expect(kindOf(signals({ platform: 'matter', tops: [250] }))).toMatchObject({ kind: 'oven' });
   });
 
-  it('reads a name in any of the sixteen languages, accents or none, the more particular kind first', () => {
+  it('reads a name in any of the seventeen languages, accents or none, the more particular kind first', () => {
     const names: ReadonlyArray<readonly [string, string]> = [
       ['Washing machine', 'washer'],
       ['Waschmaschine', 'washer'],
@@ -273,6 +273,26 @@ describe('what an appliance is', () => {
       ['Dávkovač krmiva', 'feeder'],
       ['Fontána pre zvieratá', 'fountain'],
       ['Mačacia toaleta', 'litter_box'],
+      // Czech, with its accents or as an entity id carries it
+      ['Pračka', 'washer'],
+      ['Pračka se sušičkou', 'washer_dryer'],
+      ['Myčka nádobí', 'dishwasher'],
+      ['Sušička', 'dryer'],
+      ['Mikrovlnná trouba', 'microwave'],
+      ['Trouba', 'oven'],
+      ['Indukční deska', 'hob'],
+      ['Digestoř', 'hood'],
+      ['Vinotéka', 'wine'],
+      ['Lednice', 'fridge'],
+      ['lednice_kuchyne', 'fridge'],
+      ['Mraznička', 'freezer'],
+      ['Kávovar', 'coffee'],
+      ['Rychlovarná konvice', 'kettle'],
+      ['Horkovzdušná fritéza', 'air_fryer'],
+      ['Topinkovač', 'toaster'],
+      ['Sendvičovač', 'sandwich_maker'],
+      ['Dávkovač krmiva', 'feeder'],
+      ['Kočičí toaleta', 'litter_box'],
       // Simplified Chinese, its Han anywhere in the name
       ['洗衣机', 'washer'],
       ['洗烘一体机', 'washer_dryer'],
