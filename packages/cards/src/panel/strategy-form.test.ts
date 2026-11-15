@@ -165,7 +165,6 @@ describe('the form Home Assistant’s pencil opens on an automatic dashboard (#1
       'thermostat_variant',
       'thermostat_state',
       'scenes_max',
-      'name_lines',
       'names',
     ]);
     expect(wall.fields().data['scenes_max']).toBe('4');
