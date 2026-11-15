@@ -224,7 +224,7 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `room_name_position` | `bottom` (default), `top` | home, rooms | where a room's photo carries its name: at its foot beside the quick actions, or at its top, the foot then theirs alone; the panel offers it while the rooms may be photos |
 | `room_readout_style` | `row` (default), `wrap` | home, rooms | a photo's readouts on one row, what does not hold giving way (the words to icons, the figures' size, their units), or wrapped so the words stay, as before 1.19 |
 | `room_readout_labels` | `auto` (default: words while they hold, icons where they would not), `words`, `icons`, `none` | home, rooms | how a photo's readouts are labelled |
-| `names` | `auto` (default), `entity`, `full` | home, rooms, security, wall | how the dashboard names what it names by entity (1.22): as it always did, each by its entity's own name (*Dining table sensor Motion* is *Motion*, two alike on one card told apart by their devices), or by Home Assistant's friendly name everywhere ([names](#names)) |
+| `names` | `auto` (default), `entity`, `full` | home, rooms, security, wall, lights, climate | how the dashboard names what it names by entity (1.22): as it always did, each by its entity's own name (*Dining table sensor Motion* is *Motion*, two alike on one card told apart by their devices), or by Home Assistant's friendly name everywhere ([names](#names)) |
 | `areas` | a list of area ids | wall | the rooms the wall shows, in that order, an empty one kept (default: every room with something in it) |
 | `camera_refresh` | `5`, `10` (default), `30` | security | seconds between the cameras' stills |
 | `scenes_max` | `4`, `6` (default), `8` | wall | how many scenes the wall offers as chips |

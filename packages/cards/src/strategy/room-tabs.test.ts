@@ -458,6 +458,8 @@ describe('the Lights and the Climate dashboards (#202)', () => {
       'tile_switch',
       'scenes_style',
       'greeting_tabs',
+      'names',
+      'name_lines',
       'background',
       'caps',
       'exclude',
@@ -466,6 +468,8 @@ describe('the Lights and the Climate dashboards (#202)', () => {
       'thermostat_variant',
       'thermostat_state',
       'greeting_tabs',
+      'names',
+      'name_lines',
       'background',
       'caps',
       'exclude',
@@ -513,6 +517,7 @@ describe('the Lights and the Climate dashboards (#202)', () => {
       'thermostat_variant',
       'thermostat_state',
       'greeting_tabs',
+      'names',
     ]);
   });
 });

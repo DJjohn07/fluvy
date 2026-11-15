@@ -334,7 +334,7 @@ export const TEMPLATES: readonly Template[] = [
       { key: 'lights', icon: 'fluvy:bulb', title: 'strategy.all_lights', build: lightsView },
       ['scenes', 'lights'],
     ),
-    options: [TILES, SWITCHES, SCENES, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
+    options: [TILES, SWITCHES, SCENES, GREETING_TABS, NAMES, NAME_LINES, BACKGROUND, CAPS, EXCLUDE],
   },
   {
     id: 'climate',
@@ -349,7 +349,16 @@ export const TEMPLATES: readonly Template[] = [
       { key: 'climate', icon: 'fluvy:thermo', title: 'strategy.whole_home', build: climateView },
       ['thermostats', 'fans', 'readings'],
     ),
-    options: [THERMOSTAT, THERMOSTAT_STATE, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
+    options: [
+      THERMOSTAT,
+      THERMOSTAT_STATE,
+      GREETING_TABS,
+      NAMES,
+      NAME_LINES,
+      BACKGROUND,
+      CAPS,
+      EXCLUDE,
+    ],
   },
 ];
 
