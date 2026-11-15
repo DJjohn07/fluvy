@@ -579,12 +579,14 @@ export class FluvyEnergySankeyCard extends Card<EnergySankeyCardConfig> {
         const open = entity ? () => this.tap(entity, { action: 'more-info' }) : undefined;
         const light = (): void => this.light(l.key);
         const rest = (): void => this.light();
-        // every word is reached by the keyboard, to lift what it names; a meter's opens it too
+        // every word is reached by the keyboard, to lift what it names; a meter's is a button that opens it, the others
+        // the diagram's words for their node, read as one
         return html`<span
           class="en-sk-label ${l.end ? 'is-end' : ''} ${open ? 'fv-row--tap' : ''}"
           data-key=${l.key}
           style="left:${l.x}px;top:${l.y}px;width:${l.w}px"
-          role=${open ? 'button' : nothing}
+          role=${open ? 'button' : 'img'}
+          aria-label=${open ? nothing : `${words.name} ${words.value} ${words.unit}`.trim()}
           tabindex="0"
           @pointerenter=${light}
           @pointerleave=${rest}

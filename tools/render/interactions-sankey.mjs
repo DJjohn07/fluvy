@@ -194,6 +194,36 @@ const drawing = (card) =>
       (await card.locator('.en-sk-label:not([tabindex="0"])').count()) === 0,
     JSON.stringify(kept),
   );
+  // reached by the keyboard's Tab, the word wears the focus ring, and says what it is: a meter's a button, a figure
+  // worked out an image named by its words
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  const reached = await card.evaluate((c) => {
+    const focused = c.shadowRoot.activeElement;
+    const style = focused ? getComputedStyle(focused) : null;
+    return {
+      key: focused?.dataset.key,
+      visible: focused?.matches(':focus-visible') ?? false,
+      ring: style ? `${style.outlineStyle} ${style.outlineWidth}` : '',
+      roles: [...c.shadowRoot.querySelectorAll('.en-sk-label')].map((l) => [
+        l.dataset.key,
+        l.getAttribute('role'),
+        l.getAttribute('aria-label'),
+      ]),
+    };
+  });
+  const unmeasured = reached.roles.find(([key]) => key === 'unmeasured');
+  check(
+    'a word the keyboard reaches wears the focus ring, and says what it is: a button that opens its meter, else an image of its words',
+    reached.key === 'unmeasured' &&
+      reached.visible &&
+      reached.ring === 'solid 2px' &&
+      reached.roles.every(([, role]) => role === 'button' || role === 'img') &&
+      reached.roles.some(([, role]) => role === 'button') &&
+      unmeasured?.[1] === 'img' &&
+      /^\S.* \d[\d.,]* kWh$/.test(unmeasured?.[2] ?? ''),
+    JSON.stringify(reached),
+  );
   await card.locator('.en-sk-label[data-key="unmeasured"]').blur();
 
   // a meter goes down while the card is on screen: the head says so
