@@ -4,7 +4,7 @@ import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import { houseHeightOf } from '../house-heights.js';
 import { familiesDefined } from '../index.js';
 import { cardForm, drawEditor, shownNames } from '../shared/fixtures/editor.js';
-import { FluvyScenesCard, type ScenesCardConfig } from './scenes-card.js';
+import { FluvyScenesCard, scenesHeight, type ScenesCardConfig } from './scenes-card.js';
 
 // the index fetches the families: they land before this file's page goes
 afterAll(() => familiesDefined);
@@ -93,6 +93,25 @@ const drawn = (card: HTMLElement): string[] =>
   );
 const height = (config: Omit<ScenesCardConfig, 'type'>): number =>
   FluvyScenesCard.layoutHeight({ type: 'custom:fluvy-scenes-card', ...config });
+
+describe('the scenes card as chips, its height (1.22)', () => {
+  // four short names fill one row of four; a glyph before each name widens every chip past a quarter of the row
+  const SCENES = ['Dawn', 'Film', 'Night', 'Away'].map((name) => ({
+    entity: `scene.${name.toLowerCase()}`,
+    name,
+  }));
+  const height = (icon?: string): number =>
+    scenesHeight({
+      type: 'custom:fluvy-scenes-card',
+      variant: 'chips',
+      scenes: SCENES.map((scene) => (icon ? { ...scene, icon } : scene)),
+    });
+
+  it('counts the glyph a scene gives its chip, so the rows it wraps to are the rows it declares', () => {
+    expect(height()).toBe(84);
+    expect(height('mdi:weather-sunny')).toBe(128);
+  });
+});
 
 describe('the scenes card in groups', () => {
   afterEach(() => {

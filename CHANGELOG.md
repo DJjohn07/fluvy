@@ -208,6 +208,8 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - Where it went: a word with no meter behind it (the house, what is not measured) is read by a screen reader as its name
   and figure, where it took a tab stop with no role and no name.
 - A Tiles or Scenes card in groups keeps its height while its groups load, so nothing under it moves as they land.
+- A Scenes card of chips whose scenes have icons of their own declares the rows its chips wrap to, where it counted
+  them without their icons and reserved a row too few.
 - The Energy period card's sheet: a finger on its scrim no longer moves the page under it, as with every other sheet.
 - A details sheet opens at the size its card is drawn at, never at a transform passing over the card as it is tapped.
 - Two copies of one scene on a Scenes card that take the card's double tap are two buttons: a tap on each runs each

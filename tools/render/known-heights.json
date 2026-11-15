@@ -356,6 +356,48 @@
       "reason": "the legend's items follow the Energy dashboard's sources (live)"
     },
     {
+      "frame": "gallery/alerts · chips",
+      "tag": "fluvy-alerts-card",
+      "declared": 88,
+      "drawn": 132,
+      "reason": "the chips are sized by the alerts' words and counts (live): one row is declared"
+    },
+    {
+      "frame": "gallery/expander",
+      "tag": "fluvy-expander-card",
+      "declared": 84,
+      "drawn": 640,
+      "reason": "open: it declares its head, as the dashboard plans it folded; what it holds is the person’s to open"
+    },
+    {
+      "frame": "gallery/expander · plain",
+      "tag": "fluvy-expander-card",
+      "declared": 44,
+      "drawn": 608,
+      "reason": "open: it declares its head, as the dashboard plans it folded; what it holds is the person’s to open"
+    },
+    {
+      "frame": "gallery/map · map",
+      "tag": "fluvy-map-card",
+      "declared": 384,
+      "drawn": 228,
+      "reason": "the playground has no map element: the zones stand in (Home Assistant draws the map)"
+    },
+    {
+      "frame": "gallery/printer",
+      "tag": "fluvy-printer-card",
+      "declared": 528,
+      "drawn": 704,
+      "reason": "the printer's filament trays (AMS, CFS, ACE) are the device's own: not counted"
+    },
+    {
+      "frame": "gallery/printer · compact",
+      "tag": "fluvy-printer-card",
+      "declared": 192,
+      "drawn": 248,
+      "reason": "at rest, failed, finished or heating the job is not drawn: the printing height is reserved (the on height)"
+    },
+    {
       "frame": "history-bars/#44 · a monthly rain gauge",
       "tag": "fluvy-history-bars-card",
       "declared": 484,

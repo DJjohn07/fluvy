@@ -34,7 +34,15 @@ import type { SceneChip } from '../shared/groups.js';
 
 import { FontsSettled } from '../shared/fonts.js';
 import { columnsOf, ITEM_ALIASES, type AliasSpec, type Columns } from '../shared/config.js';
-import { chipRows, EMPTY, rowsOf, textWidth, type NameOf } from '../shared/heights.js';
+import {
+  CHIP_GLYPH,
+  chipRows,
+  COLUMN,
+  EMPTY,
+  rowsOf,
+  textWidth,
+  type NameOf,
+} from '../shared/heights.js';
 import {
   asksGroups,
   awaitingGroups,
@@ -147,12 +155,24 @@ export function scenesHeight(
           entity.slice(entity.indexOf('.') + 1).replace(/_/g, ' '),
       ),
     );
-  // as chips: the card's 20 round each group's rows of 44, its label over them
+  // as chips: the card's 20 round each group's rows of 44, its label over them; a scene's own glyph widens its chip
   if (config.variant === 'chips')
     return (
       head +
       40 +
-      groups.reduce((height, group) => height + chipRows(names(group)) * 44, 0) +
+      groups.reduce(
+        (height, group) =>
+          height +
+          chipRows(
+            names(group),
+            'full',
+            COLUMN,
+            undefined,
+            group.items.some(({ icon }) => icon) ? CHIP_GLYPH : 0,
+          ) *
+            44,
+        0,
+      ) +
       groupsHeight(groups, 16)
     );
   const asked = columnsOf(config.columns, 'auto');
