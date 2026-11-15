@@ -775,7 +775,8 @@
     "thermostat": "Klimatyzacja, podgrzewacz wody lub nawilżacz na tarczy, z trybami, ustawieniami i prędkościami wentylatora.",
     "vehicle": "Samochód elektryczny: bateria, zasięg i limit ładowania, kiedy będzie pełny, gdzie jest, a jego zamek, klimatyzacja, ładowanie, bagażnik i szyby w jednym wierszu. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG i inne.",
     "items": "Pozycje atrybutu listy czujnika, wiersz na każdą (loty nad głową, odjazdy, przesyłki), z ustawieniem lotów dla FlightRadar24.",
-    "chart": "Dowolny szereg czasowy na jednym wykresie (historia, statystyki, lista w atrybucie jak ceny Nordpool lub prognoza słoneczna albo prognoza pogody), od przeszłości do przyszłości z zaznaczonym teraz, progami w ich kolorach i znalezionymi najtańszymi godzinami."
+    "chart": "Dowolny szereg czasowy na jednym wykresie (historia, statystyki, lista w atrybucie jak ceny Nordpool lub prognoza słoneczna albo prognoza pogody), od przeszłości do przyszłości z zaznaczonym teraz, progami w ich kolorach i znalezionymi najtańszymi godzinami.",
+    "swipe": "Dowolne karty, po jednej na stronę, przewijane przesunięciem palca lub znacznikami stron pod nimi: obok siebie na szerokim ekranie, od ostatniej z powrotem do pierwszej."
   },
   "bars": {
     "levels": "Poziomy",
@@ -3373,7 +3374,8 @@
     "thermostat": "Termostat",
     "vehicle": "Pojazd",
     "items": "Pozycje",
-    "chart": "Wykres"
+    "chart": "Wykres",
+    "swipe": "Przesuwanie"
   },
   "weather": {
     "feels_like": "Odczuwalna",
@@ -3438,6 +3440,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Inna karta otwiera ją, zwija lub przełącza tą akcją w swoim YAML: {action}",
     "editor.icon_color": "Kolor ikony"
+  },
+  "swipe": {
+    "page": "Strona {n} z {count}",
+    "pages": "Strony",
+    "previous": "Poprzednia strona",
+    "next": "Następna strona",
+    "counter": "{n} / {count}",
+    "empty": "Brak kart",
+    "editor.cards": "Karty",
+    "editor.cards_helper": "Jedna na stronę, w tej kolejności",
+    "editor.style": "Styl",
+    "editor.o_card": "Jedna karta",
+    "editor.columns": "Karty obok siebie",
+    "editor.gap": "Odstęp między kartami (px)",
+    "editor.start": "Strona pokazywana jako pierwsza",
+    "editor.show_indicators": "Pokaż znaczniki stron",
+    "editor.loop": "Z ostatniej strony z powrotem na pierwszą",
+    "editor.remember": "Zapamiętaj stronę",
+    "editor.o_session": "Do zamknięcia karty przeglądarki",
+    "editor.autoplay": "Przewijaj sama co (sekundy)",
+    "editor.autoplay_helper": "0: przewija tylko człowiek. Czeka, dopóki jest na niej palec, kursor lub fokus"
   },
   "web": {
     "card": "Strona WWW",

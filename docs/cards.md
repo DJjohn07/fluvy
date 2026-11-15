@@ -1,6 +1,6 @@
 # The cards
 
-Sixty-six cards, listed as **Fluvy · …** in the card picker, each with a live preview and an editor form. The form is
+Sixty-seven cards, listed as **Fluvy · …** in the card picker, each with a live preview and an editor form. The form is
 the reference for a card's options: it shows what the card does by default, and a default you leave as it is is never
 written into the configuration. It shows an option only where it acts — in the style chosen, with the card's other
 options as they are — and an option it hides keeps its value for when it acts again. In YAML, a card is
@@ -1526,6 +1526,93 @@ Coming from expander-card, the buttons that open one go on working: Fluvy answer
 | `show-button-users`                              | `show_chevron: false` hides it for everybody                                            |
 | `expander-card: {data: {expander-card-id, ...}}` | works as it is; Fluvy's own is `fluvy_expander: {id, action}`                           |
 
+## Swipe
+
+The Swipe card holds any cards, one a page, in a row that a finger or a trackpad turns: a wall tablet's cameras, a
+room's cards, the house's energy without a long column of it. The row is the browser's own scroll, snapped page by
+page, so no frame of it is drawn by script. Only the page in view and the next one on each side are in the page; the
+others are built the first time they come near and leave again as the row goes on, so ten cameras cost what three
+do. `cards` are any cards, as a stack's: Fluvy's, Home Assistant's own or a custom one. A card hidden by its own
+`visibility` is no page and has no mark.
+
+Under the cards stand its page marks: a bar for each page, the one it is on lit, each a button to its page
+(`show_indicators: false` draws none). Where the width holds fewer marks than there are pages (eight pages in half a
+section), a counter, "3 / 8", stands between a turn back and a turn on. The next page glides in; a mark further on
+fades the row out and in where it stands. The keys turn it too: the arrows, Home and End on the marks, and an arrow
+from a page whose control does not keep it (a ruler keeps its own). A screen reader hears each page as a group, "Page
+2 of 4", and where a turn came to.
+
+A drag that sets off on a ruler, a dial, a slider, a map or a row that scrolls sideways (a row of chips) is theirs,
+never the card's, as is one on anything marked `data-swipe="off"`. A drag that leans down scrolls the page, and a
+swipe past the first or the last page never turns the browser's history.
+
+`loop: true` goes round: on from the last page is the first, back from the first is the last, the next page always
+beside the one in view, never a rewind. `start` is the page it opens on, counted from 1. A swipe never writes the
+config: where you left it is kept in this browser tab while it is open (`remember: session`, the default), so a reload
+or a view opened again shows the same page; `remember: off` opens on `start` every time. `autoplay` turns it by
+itself every so many seconds (3 at least), for a wall's cameras: from the last page it goes on to the first, it waits
+while a finger, the pointer or the focus is on it and while it is out of sight, a turn of its own is neither said nor
+remembered, and with reduced motion it never turns by itself.
+
+`style: card` (the default) draws the cards on one surface, as the Expander holds them: they draw none of their own
+and stand in the card's column, the marks on the surface under them. `plain` leaves each card its own surface, the
+marks on the page. `columns` shows up to four cards side by side, as many as the width holds (each 148 wide at least:
+one on a phone, two or more across a desktop), the row then turning a card at a time; `slides_per_view`, as other
+swipe cards call it, is read as `columns`. `gap` is the room between the cards in px, from one page to the next too:
+40 on the surface (each card's 20), 16 on the page, 40 at most. `color` lights the mark of the page it is on, and the
+cards of Fluvy's it holds that name no colour of their own; `card_color`, `card_opacity` and `card_border` are the
+surface's.
+
+It declares its tallest card's height, and the marks under it (24 on the surface, 44 on the page), and it stands as
+tall as the tallest of its pages has stood at its width, so turning to a shorter page never moves what is under it. A
+card with no surface of its own (a tile, a set of tiles, a row of chips) keeps the surface's 20 round it there: 40
+taller than it declares, the one height a config cannot say; `plain` draws it as declared. In the editor its cards
+are edited in Home Assistant's own stack editor, a tab a page, as the Expander's are.
+
+```yaml
+type: custom:fluvy-swipe-card
+loop: true
+autoplay: 8
+cards:
+  - type: custom:fluvy-camera-card
+    entity: camera.driveway
+  - type: custom:fluvy-camera-card
+    entity: camera.garden
+  - type: custom:fluvy-camera-card
+    entity: camera.garage
+```
+
+The rooms each on their own surface, opening on the kitchen every time, turned by a finger alone:
+
+```yaml
+type: custom:fluvy-swipe-card
+style: plain
+start: 2
+remember: off
+show_indicators: false
+cards:
+  - type: custom:fluvy-room-card
+    area: living_room
+  - type: custom:fluvy-room-card
+    area: kitchen
+  - type: custom:fluvy-room-card
+    area: bedroom
+```
+
+The house's energy three side by side on a desktop, a card further each turn, its mark in teal:
+
+```yaml
+type: custom:fluvy-swipe-card
+columns: 3
+gap: 24
+color: teal
+cards:
+  - type: custom:fluvy-grid-card
+  - type: custom:fluvy-batteries-card
+  - type: custom:fluvy-production-card
+  - type: custom:fluvy-energy-flow-card
+```
+
 ## Chart
 
 The chart card draws any time series (#68) — a sensor's history, its long-term statistics, a list in its attributes or
@@ -2038,6 +2125,7 @@ Every card with its picture, in light or dark as your GitHub is. A card’s page
 | <a href="cards/chips.md"><picture><source media="(prefers-color-scheme: dark)" srcset="images/cards/chips-dark.webp"><img src="images/cards/chips-light.webp" width="160" alt=""></picture></a> | [**Chips**](cards/chips.md)<br>`custom:fluvy-chips-card`<br>[Try it live](https://acosta290.github.io/fluvy/?card=chips) | A row of chips that navigate between views or open entities. |
 | <a href="cards/heading.md"><picture><source media="(prefers-color-scheme: dark)" srcset="images/cards/heading-dark.webp"><img src="images/cards/heading-light.webp" width="160" alt=""></picture></a> | [**Heading**](cards/heading.md)<br>`custom:fluvy-heading-card`<br>[Try it live](https://acosta290.github.io/fluvy/?card=heading) | A section title with its count and a link. |
 | <a href="cards/expander.md"><picture><source media="(prefers-color-scheme: dark)" srcset="images/cards/expander-dark.webp"><img src="images/cards/expander-light.webp" width="160" alt=""></picture></a> | [**Expander**](cards/expander.md)<br>`custom:fluvy-expander-card`<br>[Try it live](https://acosta290.github.io/fluvy/?card=expander) | Any cards folded away under a head: a tap opens them, on one surface or each on its own. |
+| <a href="cards/swipe.md"><picture><source media="(prefers-color-scheme: dark)" srcset="images/cards/swipe-dark.webp"><img src="images/cards/swipe-light.webp" width="160" alt=""></picture></a> | [**Swipe**](cards/swipe.md)<br>`custom:fluvy-swipe-card` | Any cards, one a page, turned by a swipe or the page marks under them: side by side on a wide screen, round from the last to the first. |
 | <a href="cards/web.md"><picture><source media="(prefers-color-scheme: dark)" srcset="images/cards/web-dark.webp"><img src="images/cards/web-light.webp" width="160" alt=""></picture></a> | [**Web page**](cards/web.md)<br>`custom:fluvy-web-card`<br>[Try it live](https://acosta290.github.io/fluvy/?card=web) | A web page on a plate — a map, a chart, a site of your own — under a head, in a frame or bare; sandboxed as Home Assistant’s iframe card is. |
 
 ## Scenes, actions and helpers

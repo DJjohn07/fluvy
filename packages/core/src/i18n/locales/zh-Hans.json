@@ -704,7 +704,8 @@
     "thermostat": "空调、热水器或加湿器做成旋钮：模式、预设与风速。",
     "vehicle": "电动车：电量、续航与充电上限、充满时间、位置，以及一行内的门锁、空调、充电、后备箱与车窗。支持 Tesla、BMW、Renault、Volvo、Kia、Hyundai、Volkswagen、Škoda、Polestar、MG 等。",
     "items": "传感器列表属性里的条目，每行一条——头顶航班、出发、快递——内置 FlightRadar24 航班预设。",
-    "chart": "任意时间序列画在一张图上：历史、统计、属性里的列表（Nordpool 电价、光伏预报）或天气预报；过去到未来并标出现在，阈值按颜色分段，并找出最便宜的时段。"
+    "chart": "任意时间序列画在一张图上：历史、统计、属性里的列表（Nordpool 电价、光伏预报）或天气预报；过去到未来并标出现在，阈值按颜色分段，并找出最便宜的时段。",
+    "swipe": "任意卡片，每页一张，滑动或点按下方的页标翻页：宽屏上并排显示，也可从最后一页回到第一页。"
   },
   "chart-card": {
     "title": "图表",
@@ -1603,7 +1604,8 @@
     "thermostat": "温控器",
     "vehicle": "车辆",
     "items": "清单",
-    "chart": "图表"
+    "chart": "图表",
+    "swipe": "滑动"
   },
   "alarm": {
     "arm_home": "在家布防",
@@ -3317,6 +3319,27 @@
     "editor.id": "ID",
     "editor.id_helper": "其他卡片在 YAML 中使用此动作即可展开、收起或切换它：{action}",
     "editor.icon_color": "图标颜色"
+  },
+  "swipe": {
+    "page": "第 {n} 页，共 {count} 页",
+    "pages": "页面",
+    "previous": "上一页",
+    "next": "下一页",
+    "counter": "{n} / {count}",
+    "empty": "还没有卡片",
+    "editor.cards": "卡片",
+    "editor.cards_helper": "每页一张，按此顺序",
+    "editor.style": "样式",
+    "editor.o_card": "一张卡片",
+    "editor.columns": "并排卡片数",
+    "editor.gap": "卡片间距（px）",
+    "editor.start": "首先显示的页",
+    "editor.show_indicators": "显示页标",
+    "editor.loop": "从最后一页回到第一页",
+    "editor.remember": "记住页面",
+    "editor.o_session": "标签页打开期间",
+    "editor.autoplay": "自动翻页间隔（秒）",
+    "editor.autoplay_helper": "0：仅由人翻页。手指、指针或焦点在其上时暂停"
   },
   "web": {
     "card": "网页",

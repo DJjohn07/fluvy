@@ -41,6 +41,7 @@ import { COLOURED, dims } from './shared/light.js';
 import { headLines } from './shared/head-lines.js';
 import type { NameOf } from './shared/heights.js';
 import { statTilesHeight, type StatTilesCardConfig } from './stat-tiles/stat-tiles-card.js';
+import { swipeHeight } from './swipe-family.js';
 import type { ThermostatCardConfig } from './thermostat/thermostat-card.js';
 import { tilesHeight, type TilesCardConfig } from './tiles/tiles-card.js';
 import { updatesHeight, type UpdatesCardConfig } from './updates/updates-card.js';
@@ -352,6 +353,10 @@ const batteries = (config: LovelaceCardConfig, hass: HomeAssistant): number =>
 const charger = (config: LovelaceCardConfig, hass: HomeAssistant): number =>
   chargerHeight(config, listAttr(hass, config['mode'], 'options'));
 
+/** The cards a swipe card holds, each counted with the house: its tallest is its own. */
+const swipe = (config: LovelaceCardConfig, hass: HomeAssistant): number =>
+  swipeHeight(config, (card, fallback) => houseHeightOf(card, fallback, hass));
+
 /** A card's height counted with the house; its config is the card's own. */
 type HouseHeight = (config: never, hass: HomeAssistant) => number;
 
@@ -384,6 +389,7 @@ const HOUSE: ReadonlyMap<string, HouseHeight> = new Map<string, HouseHeight>([
   ['fluvy-ev-charger-card', charger],
   ['fluvy-appliance-card', applianceHouseHeight],
   ['fluvy-appliances-card', appliancesHouseHeight],
+  ['fluvy-swipe-card', swipe],
 ]);
 
 /**

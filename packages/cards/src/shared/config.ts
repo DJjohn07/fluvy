@@ -80,10 +80,11 @@ export const COMMON_ALIASES: AliasSpec = {
     move('trend_hours', 'hours'),
     move('accent', 'color'),
   ],
-  // the keys whose values are on/off words: a tint, the flow's motion, where the alerts' snoozes are kept, a
-  // thermostat's modes, a schedule target's verb, the commands an appliance asks before (`confirm: [stop, off]`)
+  // the keys whose values are on/off words: a tint, the flow's motion, where the alerts' snoozes are kept and where
+  // an Expander's or a Swipe card's memory is (`remember: off`), a thermostat's modes, a schedule target's verb, the
+  // commands an appliance asks before (`confirm: [stop, off]`)
   upgrade: (config) => {
-    let next = words(config, ['tint', 'motion', 'snooze']);
+    let next = words(config, ['tint', 'motion', 'snooze', 'remember']);
     for (const key of ['modes', 'targets', 'confirm']) {
       const list = next[key];
       if (!Array.isArray(list)) continue;

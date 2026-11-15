@@ -31,10 +31,14 @@ export function expanderGap(config: LovelaceCardConfig): number {
 
 /**
  * Its cards side by side in a width: as many as asked for (1, the default, to 4) while each stands `EXPANDER_COLUMN`
- * wide at least — on the surface, its column and the padding it turns out.
+ * wide at least — on the surface, its column and the padding it turns out. `gap` is the room between them where
+ * another card that holds cards keeps its own (the Swipe card's).
  */
-export function expanderColumns(config: LovelaceCardConfig, width: number): number {
-  const gap = expanderGap(config);
+export function expanderColumns(
+  config: LovelaceCardConfig,
+  width: number,
+  gap = expanderGap(config),
+): number {
   const out = plain(config) ? 0 : PADS;
   let columns = Math.min(4, Math.max(1, Math.round(Number(config['columns'])) || 1));
   while (columns > 1 && (width - out - (columns - 1) * gap) / columns + out < EXPANDER_COLUMN)

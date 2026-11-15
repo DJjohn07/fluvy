@@ -42,7 +42,7 @@ pnpm build
 ```
 
 The bundle is one ES module, `fluvy.js`, that imports `chunks/core-<hash>.js` (everything a page needs) and fetches
-`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,about,expander,expander-editor,sidebar,slider,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
+`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,about,expander,expander-editor,swipe,sidebar,slider,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
 on demand — the Activity page, the History page, our history in Home Assistant's details dialog (the first time a dialog
 shows it), the settings panel (and Customise, the first time one of its dashboards is customised; a dashboard's
 sidebar, the first time its section is opened), what they
@@ -53,7 +53,7 @@ from their configs alone), wall mode (on a device that is a wall), the chart eng
 sensor card in core reaches it through `src/shared/chart-load.ts`, the energy family, the History page and the Chart
 card import it from their own chunks), a room's quick actions (fetched as the bundle starts too: the room card in
 core reaches them through `loadQuickActions`; and what says what a thermostat is doing, which a tile and a room's row
-asked to say it reach through `doingReading`, in the Thermostat card's chunk), the weather, calendar, template, Energy period and usage, web page, Expander, Slider, Vacuum, Thermostat, remote, Vehicle, items and
+asked to say it reach through `doingReading`, in the Thermostat card's chunk), the weather, calendar, template, Energy period and usage, web page, Expander, Swipe, Slider, Vacuum, Thermostat, remote, Vehicle, items and
 chart cards and the media, energy, devices, appliances, automations and alerts families (fetched as the bundle starts:
 their cards are announced in core — `src/energy-family.ts` and its siblings, their tags and heights — and defined as
 `src/energy-cards.ts` and its siblings land; Home Assistant builds a card again the moment its tag is defined), the
@@ -106,7 +106,8 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `web` | 8 KB | the web page card, its address and rounds rules, its English |
 | `about` | 4 KB | what each card is (1.22, #193): the line the card picker's search reads and Customise's list says under each name, in English; fetched as the bundle starts, with the families |
 | `expander` | 8 KB | the Expander card, what holds the cards it folds, what remembers how it was left, its English |
-| `expander-editor` | 4 KB | the Expander card's editor: its form, Home Assistant's stack editor under it |
+| `expander-editor` | 4 KB | the Expander card's editor: its form, Home Assistant's stack editor under it; the Swipe card's, built on it |
+| `swipe` | 8 KB | the Swipe card (1.22, #206): what remembers where it was left, what a finger's drag is theirs on, its English; it holds its cards with the Expander's chunk |
 | `sidebar` | 10 KB | a dashboard's own sidebar (1.21, #187): the element beside the views, what reads `fluvy_sidebar:` and puts it in Home Assistant's view row, its English; fetched by the first dashboard whose configuration asks for one |
 | `slider` | 8 KB | the Slider card on the tile's, its English |
 | `vacuum` | 8 KB | the Vacuum card: the robot's and the mower's (1.20: it left core), which robots a hand can drive and how (#178), the drive pad's English |
@@ -436,7 +437,7 @@ cp -a usr/lib/x86_64-linux-gnu/. ~/.cache/ms-playwright/webkit-*/minibrowser-wpe
 
 ### The facts guard
 
-`tools/docs/src/facts.ts` (part of `pnpm check`) reads every count the prose spells — "sixty-six cards", "fifteen
+`tools/docs/src/facts.ts` (part of `pnpm check`) reads every count the prose spells — "sixty-seven cards", "fifteen
 palettes", "seven automatic dashboards", "eighteen languages", "six tabs", in any case, in words or in digits — in the
 README, `CONTRIBUTING.md`, the package description, `docs/*.md`, `packages/cards/README.md` and the design language,
 and holds it to the catalogue, `PALETTE_NAMES`, the strategy's templates, `LANGUAGE_CODES` and the panel's `TABS`;

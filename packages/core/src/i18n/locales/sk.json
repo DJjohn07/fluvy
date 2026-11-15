@@ -722,7 +722,8 @@
     "thermostat": "Klimatizácia, ohrievač vody alebo zvlhčovač vzduchu na ciferníku, s režimami, predvoľbami a rýchlosťami ventilátora.",
     "vehicle": "Elektromobil: batéria, dojazd a limit nabitia, kedy bude nabitý, kde je, a zámok, klimatizácia, nabíjanie, kufor a okná v jednom riadku. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG a ďalšie.",
     "items": "Položky atribútu zoznamu snímača, riadok pre každú (lety nad hlavou, odchody, zásielky), s predvoľbou letov pre FlightRadar24.",
-    "chart": "Akýkoľvek časový rad v jednom grafe (história, štatistiky, zoznam v atribúte ako ceny Nordpool alebo solárna predpoveď, alebo predpoveď počasia), od minulosti po budúcnosť s vyznačeným teraz, prahy v ich farbách a nájdené najlacnejšie hodiny."
+    "chart": "Akýkoľvek časový rad v jednom grafe (história, štatistiky, zoznam v atribúte ako ceny Nordpool alebo solárna predpoveď, alebo predpoveď počasia), od minulosti po budúcnosť s vyznačeným teraz, prahy v ich farbách a nájdené najlacnejšie hodiny.",
+    "swipe": "Ľubovoľné karty, jedna na stranu, listované potiahnutím prsta alebo značkami strán pod nimi: na širokej obrazovke vedľa seba, od poslednej opäť k prvej."
   },
   "chart-card": {
     "title": "Graf",
@@ -1883,7 +1884,8 @@
     "thermostat": "Termostat",
     "vehicle": "Vozidlo",
     "items": "Položky",
-    "chart": "Graf"
+    "chart": "Graf",
+    "swipe": "Listovanie"
   },
   "alarm": {
     "arm_home": "Zaistiť doma",
@@ -3374,6 +3376,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Iná karta ju otvorí, zbalí alebo prepne touto akciou vo svojom YAML: {action}",
     "editor.icon_color": "Farba ikony"
+  },
+  "swipe": {
+    "page": "Strana {n} z {count}",
+    "pages": "Strany",
+    "previous": "Predchádzajúca strana",
+    "next": "Nasledujúca strana",
+    "counter": "{n} / {count}",
+    "empty": "Zatiaľ žiadne karty",
+    "editor.cards": "Karty",
+    "editor.cards_helper": "Jedna na stranu, v tomto poradí",
+    "editor.style": "Štýl",
+    "editor.o_card": "Jedna karta",
+    "editor.columns": "Karty vedľa seba",
+    "editor.gap": "Medzera medzi kartami (px)",
+    "editor.start": "Strana zobrazená ako prvá",
+    "editor.show_indicators": "Zobraziť značky strán",
+    "editor.loop": "Z poslednej strany opäť na prvú",
+    "editor.remember": "Pamätať si stranu",
+    "editor.o_session": "Kým je stránka otvorená",
+    "editor.autoplay": "Listovať samo každých (sekúnd)",
+    "editor.autoplay_helper": "0: listuje iba človek. Čaká, kým je na nej prst, ukazovateľ alebo fokus"
   },
   "web": {
     "card": "Webová stránka",

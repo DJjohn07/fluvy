@@ -44,8 +44,8 @@ function changed(table: Table, key: string, open: boolean | undefined): Table {
   );
 }
 
-/** A short text of any length, as a key (FNV-1a, in base 36). */
-function hash(text: string): string {
+/** A short text of any length, as a key (FNV-1a, in base 36): the Swipe card's are made the same way. */
+export function hash(text: string): string {
   let h = 0x811c9dc5;
   for (let i = 0; i < text.length; i++) {
     h ^= text.charCodeAt(i);

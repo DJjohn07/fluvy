@@ -1291,7 +1291,7 @@ describe('custom:fluvy-home strategy', () => {
     // and the remote card (#143): which television, which remote entity and which receiver its volume goes to are
     // the person's to say, and a player's own card stands for a television on the dashboards; one scene's tile too,
     // the dashboards gathering the scenes on one Scenes card (#172); and the Expander card (#180), which folds away
-    // the cards a person chooses to
+    // the cards a person chooses to; and the Swipe card (#206), whose pages are the person's to choose
     const byHand = new Set([
       'custom:fluvy-scene-card',
       'custom:fluvy-automations-card',
@@ -1306,6 +1306,7 @@ describe('custom:fluvy-home strategy', () => {
       'custom:fluvy-slider-card',
       'custom:fluvy-vehicle-card',
       'custom:fluvy-expander-card',
+      'custom:fluvy-swipe-card',
     ]);
     expect(
       CATALOGUE.map(([tag]) => `custom:${tag}`).filter(

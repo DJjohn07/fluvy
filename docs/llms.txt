@@ -52,6 +52,7 @@ To write a card’s configuration, read its page: it has the card’s picture, t
 - [Chips](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/chips.md): `custom:fluvy-chips-card`. A row of chips that navigate between views or open entities.
 - [Heading](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/heading.md): `custom:fluvy-heading-card`. A section title with its count and a link.
 - [Expander](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/expander.md): `custom:fluvy-expander-card`. Any cards folded away under a head: a tap opens them, on one surface or each on its own.
+- [Swipe](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/swipe.md): `custom:fluvy-swipe-card`. Any cards, one a page, turned by a swipe or the page marks under them: side by side on a wide screen, round from the last to the first.
 - [Web page](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/web.md): `custom:fluvy-web-card`. A web page on a plate — a map, a chart, a site of your own — under a head, in a frame or bare; sandboxed as Home Assistant’s iframe card is.
 
 ## Scenes, actions and helpers

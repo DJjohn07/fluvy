@@ -2047,7 +2047,8 @@
     "thermostat": "Climatisation, chauffe-eau ou humidificateur sur un cadran, avec modes, préréglages et vitesses de ventilation.",
     "vehicle": "Une voiture électrique : sa batterie, son autonomie et sa limite de charge, quand elle sera pleine, où elle est, et sa serrure, sa climatisation, sa charge, son coffre et ses vitres sur une ligne. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG et d’autres.",
     "items": "Les éléments de l’attribut liste d’un capteur, une ligne chacun (vols au-dessus, départs, livraisons), avec un préréglage de vols pour FlightRadar24.",
-    "chart": "Toute série temporelle sur un graphique (historique, statistiques, une liste dans un attribut comme les prix de Nordpool ou une prévision solaire, ou les prévisions d’une météo), du passé au futur avec maintenant marqué, les seuils dans leurs couleurs et les heures les moins chères trouvées."
+    "chart": "Toute série temporelle sur un graphique (historique, statistiques, une liste dans un attribut comme les prix de Nordpool ou une prévision solaire, ou les prévisions d’une météo), du passé au futur avec maintenant marqué, les seuils dans leurs couleurs et les heures les moins chères trouvées.",
+    "swipe": "N’importe quelles cartes, une par page, qu’on fait défiler d’un balayage ou par les repères de page en dessous : côte à côte sur un grand écran, de la dernière à nouveau à la première."
   },
   "time": {
     "minutes_ago": "il y a {n} min",
@@ -2514,7 +2515,8 @@
     "thermostat": "Thermostat",
     "vehicle": "Véhicule",
     "items": "Éléments",
-    "chart": "Graphique"
+    "chart": "Graphique",
+    "swipe": "Balayage"
   },
   "appliance": {
     "kind_washer": "Lave-linge",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Une autre carte l’ouvre, la referme ou la bascule avec cette action dans son YAML : {action}",
     "editor.icon_color": "Couleur de l’icône"
+  },
+  "swipe": {
+    "page": "Page {n} sur {count}",
+    "pages": "Pages",
+    "previous": "Page précédente",
+    "next": "Page suivante",
+    "counter": "{n} / {count}",
+    "empty": "Pas encore de cartes",
+    "editor.cards": "Cartes",
+    "editor.cards_helper": "Une par page, dans cet ordre",
+    "editor.style": "Style",
+    "editor.o_card": "Une seule carte",
+    "editor.columns": "Cartes côte à côte",
+    "editor.gap": "Espace entre les cartes (px)",
+    "editor.start": "Page affichée en premier",
+    "editor.show_indicators": "Afficher les repères de page",
+    "editor.loop": "De la dernière page à nouveau à la première",
+    "editor.remember": "Mémoriser la page",
+    "editor.o_session": "Tant que l’onglet est ouvert",
+    "editor.autoplay": "Tourner seule toutes les (secondes)",
+    "editor.autoplay_helper": "0 : seule une personne la fait tourner. Attend tant qu’un doigt, le pointeur ou le focus est dessus"
   },
   "web": {
     "card": "Page web",

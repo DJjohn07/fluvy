@@ -202,10 +202,10 @@ const ABOUT = /\/packages\/(cards\/src\/about\.ts|core\/src\/i18n\/locales\/en\/
 
 /**
  * The Expander card's editor (1.20, #180: its form, and the element that sets Home Assistant's own stack editor under
- * it for the cards it holds): fetched the first time an expander is edited, never by a dashboard. Named before the
- * forms and the card, whose patterns would take it.
+ * it for the cards it holds) and the Swipe card's, built on it (1.22, #206): fetched the first time either is edited,
+ * never by a dashboard. Named before the forms and the cards, whose patterns would take them.
  */
-const EXPANDER_EDITOR = /\/packages\/cards\/src\/expander\/expander-editor\.ts$/;
+const EXPANDER_EDITOR = /\/packages\/cards\/src\/(expander\/expander|swipe\/swipe)-editor\.ts$/;
 
 /**
  * The Expander card (1.20, #180: its card, what holds the cards it folds, what remembers how it was left, and its
@@ -214,6 +214,15 @@ const EXPANDER_EDITOR = /\/packages\/cards\/src\/expander\/expander-editor\.ts$/
  */
 const EXPANDER =
   /\/packages\/(cards\/src\/(expander-cards\.ts|expander\/)|core\/src\/i18n\/locales\/en\/expander\.json)/;
+
+/**
+ * The Swipe card (1.22, #206: its card, what remembers where it was left, what a finger's drag is theirs on, and its
+ * English; its editor goes with the Expander's): fetched as the bundle starts and defined as it lands, as the Expander
+ * is (`swipe-family.ts` stays in core: the name, the height). It holds its cards as the Expander does, with the
+ * Expander's chunk.
+ */
+const SWIPE =
+  /\/packages\/(cards\/src\/(swipe-cards\.ts|swipe\/)|core\/src\/i18n\/locales\/en\/swipe\.json)/;
 
 /**
  * A dashboard's own sidebar (1.21, #187: the element beside the views, what reads `fluvy_sidebar:`, what puts it in
@@ -415,7 +424,7 @@ const FORMS =
  * every page carries, the weather card, the calendar card, the media, the chart engine, the Chart card, the Energy period card, energy
  * (the history bars' readings on their own), devices (the cameras' sheet on its own), appliances (their pictures on
  * their own), automations and alerts families (each sheet on its own), the template card, the web page card, what each
- * card is, the Expander card (its editor on its own, before the forms), a dashboard's own sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours, a room's quick actions, the cards' editor, the
+ * card is, the Expander card (its editor on its own, before the forms, with the Swipe card's), the Swipe card, a dashboard's own sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours, a room's quick actions, the cards' editor, the
  * fields every editor is built of, the view icons, what a see-through card wears, what a quiet one wears, the slider
  * styles, the switch styles, the page's background, this device's sidebar beside the page, a list in groups, the icon set's other part, what only the chunks fetched later share, and everything else (Fluvy's packages and Lit) in `core`. The bundle's own entry stays in `fluvy.js`. Rolldown processes the groups in this order; the priorities only say so out loud.
  * @type {readonly Group[]}
@@ -454,6 +463,7 @@ export const GROUPS = [
   { name: 'web', test: WEB },
   { name: 'about', test: ABOUT },
   { name: 'expander', test: EXPANDER },
+  { name: 'swipe', test: SWIPE },
   { name: 'sidebar', test: SIDEBAR },
   { name: 'slider', test: SLIDER },
   { name: 'ring', test: RING },

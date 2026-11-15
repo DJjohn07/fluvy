@@ -2047,7 +2047,8 @@
     "thermostat": "Clima, scaldabagno o umidificatore su una manopola, con modalità, preimpostazioni e velocità della ventola.",
     "vehicle": "Un’auto elettrica: batteria, autonomia e limite di carica, quando sarà piena, dove si trova, e serratura, clima, ricarica, bagagliaio e finestrini in una riga. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG e altre.",
     "items": "Gli elementi dell’attributo elenco di un sensore, una riga ciascuno (voli sopra di te, partenze, consegne), con una preimpostazione voli per FlightRadar24.",
-    "chart": "Qualsiasi serie temporale su un grafico (storico, statistiche, un elenco in un attributo come i prezzi di Nordpool o una previsione solare, o le previsioni di un meteo), dal passato al futuro con l’adesso segnato, le soglie nei loro colori e le ore più economiche trovate."
+    "chart": "Qualsiasi serie temporale su un grafico (storico, statistiche, un elenco in un attributo come i prezzi di Nordpool o una previsione solare, o le previsioni di un meteo), dal passato al futuro con l’adesso segnato, le soglie nei loro colori e le ore più economiche trovate.",
+    "swipe": "Qualsiasi scheda, una per pagina, sfogliate con uno scorrimento o con i segni di pagina sotto: affiancate su uno schermo largo, dall’ultima di nuovo alla prima."
   },
   "time": {
     "minutes_ago": "{n} min fa",
@@ -2514,7 +2515,8 @@
     "thermostat": "Termostato",
     "vehicle": "Veicolo",
     "items": "Elementi",
-    "chart": "Grafico"
+    "chart": "Grafico",
+    "swipe": "Scorrimento"
   },
   "appliance": {
     "kind_washer": "Lavatrice",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Un’altra scheda la apre, la chiude o la commuta con questa azione nel suo YAML: {action}",
     "editor.icon_color": "Colore dell’icona"
+  },
+  "swipe": {
+    "page": "Pagina {n} di {count}",
+    "pages": "Pagine",
+    "previous": "Pagina precedente",
+    "next": "Pagina successiva",
+    "counter": "{n} / {count}",
+    "empty": "Ancora nessuna scheda",
+    "editor.cards": "Schede",
+    "editor.cards_helper": "Una per pagina, in quest’ordine",
+    "editor.style": "Stile",
+    "editor.o_card": "Una scheda",
+    "editor.columns": "Schede affiancate",
+    "editor.gap": "Spazio tra le schede (px)",
+    "editor.start": "Pagina mostrata per prima",
+    "editor.show_indicators": "Mostra i segni di pagina",
+    "editor.loop": "Dall’ultima pagina di nuovo alla prima",
+    "editor.remember": "Ricorda la pagina",
+    "editor.o_session": "Per questa sessione del browser",
+    "editor.autoplay": "Sfoglia da sola ogni (secondi)",
+    "editor.autoplay_helper": "0: la sfoglia solo una persona. Attende finché un dito, il puntatore o il focus è su di essa"
   },
   "web": {
     "card": "Pagina web",

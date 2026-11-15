@@ -840,6 +840,7 @@
     "thermostat": "Thermostat",
     "vehicle": "Vehicle",
     "items": "Items",
-    "chart": "Chart"
+    "chart": "Chart",
+    "swipe": "Swipe"
   }
 }

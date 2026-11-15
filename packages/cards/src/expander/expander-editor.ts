@@ -96,7 +96,7 @@ export const keys = configKeys<ExpanderCardConfig>()([
 
 /** The lists of cards the config holds, in the order the editor shows them: its head's, then what it folds. */
 const LISTS = ['head_cards', 'cards'] as const;
-type ListKey = (typeof LISTS)[number];
+export type ListKey = (typeof LISTS)[number];
 
 /** Each choice's word: the editor's own, or the options' where they have it. */
 const STYLE_WORDS: Readonly<Record<ExpanderStyle, MessageKey>> = {
@@ -365,6 +365,9 @@ class CardList {
  * the stack editor's card picker reads.
  */
 export class FluvyExpanderEditor extends FluvyRowsEditor {
+  /** The lists of cards it edits in Home Assistant's stack editor, in its order (the Swipe card's has one). */
+  static cardLists: readonly ListKey[] = LISTS;
+
   static override properties = {
     ...FluvyRowsEditor.properties,
     lovelace: { attribute: false },
@@ -381,7 +384,7 @@ export class FluvyExpanderEditor extends FluvyRowsEditor {
   whole: RowsEditorSpec | undefined;
   /** The form without the code fields of the lists held, by those: one object each, so the base keeps what it worked out. */
   private readonly forms = new Map<string, RowsEditorSpec>();
-  private readonly lists = LISTS.map(
+  private readonly lists = (this.constructor as typeof FluvyExpanderEditor).cardLists.map(
     (key) =>
       new CardList(
         key,
@@ -441,6 +444,13 @@ export class FluvyExpanderEditor extends FluvyRowsEditor {
     this.heading_ = true;
   };
 
+  /** What a list of cards is called over it, and the line under that where it has one. */
+  protected listWords(key: ListKey): readonly [title: string, helper?: string] {
+    return key === 'head_cards'
+      ? [s(this.hass, 'editor.head_cards'), s(this.hass, 'editor.head_cards_helper')]
+      : [s(this.hass, 'editor.cards')];
+  }
+
   protected override render(): TemplateResult | typeof nothing {
     const form = super.render();
     const config = this.config;
@@ -451,9 +461,10 @@ export class FluvyExpanderEditor extends FluvyRowsEditor {
       if (!stack) return nothing;
       const head = list.key === 'head_cards';
       const folded = head && !this.heading_ && !listed(config, list.key).length;
+      const [title, helper] = this.listWords(list.key);
       return html`<div class="list">
-        <p class="list__title">${s(this.hass, `editor.${list.key}`)}</p>
-        ${head ? html`<p class="list__helper">${s(this.hass, 'editor.head_cards_helper')}</p>` : nothing}
+        <p class="list__title">${title}</p>
+        ${helper ? html`<p class="list__helper">${helper}</p>` : nothing}
         ${
           folded
             ? html`<div class="more">
@@ -471,16 +482,19 @@ if (!customElements.get('fluvy-expander-editor'))
 
 /**
  * The base's editor of the expander (`base`: its form, lists and defaults) as the expander's own, which holds the
- * cards too. Where Home Assistant can define its stack editor, it waits a moment for it, so the editor opens on it
- * and not on the code field it would replace.
+ * cards too — or as another card's that holds cards (`tag`: the Swipe card's). Where Home Assistant can define its
+ * stack editor, it waits a moment for it, so the editor opens on it and not on the code field it would replace.
  */
-export async function withCards(base: HTMLElement): Promise<HTMLElement> {
+export async function withCards(
+  base: HTMLElement,
+  tag = 'fluvy-expander-editor',
+): Promise<HTMLElement> {
   if (typeof window.loadCardHelpers === 'function')
     await Promise.race([
       stackEditor().catch(() => undefined),
       new Promise((resolve) => setTimeout(resolve, GRACE)),
     ]);
-  const editor = document.createElement('fluvy-expander-editor') as FluvyExpanderEditor;
+  const editor = document.createElement(tag) as FluvyExpanderEditor;
   editor.whole = (base as FluvyRowsEditor).spec;
   editor.spec = editor.whole;
   return editor;

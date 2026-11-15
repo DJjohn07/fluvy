@@ -1152,7 +1152,8 @@
     "thermostat": "Termosztát",
     "vehicle": "Jármű",
     "items": "Elemek",
-    "chart": "Diagram"
+    "chart": "Diagram",
+    "swipe": "Lapozó"
   },
   "activity": {
     "title": "Tevékenység",
@@ -1859,7 +1860,8 @@
     "thermostat": "Klíma, vízmelegítő vagy párásító egy tárcsán, üzemmódokkal, előbeállításokkal és ventilátorfokozatokkal.",
     "vehicle": "Egy villanyautó: akkuja, hatótávja és töltési limitje, mikor lesz tele, hol van, valamint a zár, a klíma, a töltés, a csomagtartó és az ablakok egy sorban. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG és mások.",
     "items": "Egy érzékelő listaattribútumának elemei, elemenként egy sor (járatok a fejed fölött, indulások, csomagok), FlightRadar24-járatok előbeállítással.",
-    "chart": "Bármely idősor egy diagramon (előzmények, statisztikák, egy attribútumban lévő lista, mint a Nordpool árai vagy egy napelemes előrejelzés, vagy egy időjárás előrejelzése), a múlttól a jövőig a jelen megjelölésével, a küszöbértékek a színeikben és a legolcsóbb órák megtalálva."
+    "chart": "Bármely idősor egy diagramon (előzmények, statisztikák, egy attribútumban lévő lista, mint a Nordpool árai vagy egy napelemes előrejelzés, vagy egy időjárás előrejelzése), a múlttól a jövőig a jelen megjelölésével, a küszöbértékek a színeikben és a legolcsóbb órák megtalálva.",
+    "swipe": "Bármilyen kártyák, oldalanként egy, húzással vagy az alattuk lévő oldaljelekkel lapozva: széles kijelzőn egymás mellett, az utolsótól újra az elsőig."
   },
   "chart-card": {
     "title": "Diagram",
@@ -3176,6 +3178,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Egy másik kártya a YAML-jében ezzel a művelettel nyitja ki, csukja be vagy váltja át: {action}",
     "editor.icon_color": "Az ikon színe"
+  },
+  "swipe": {
+    "page": "{n}. oldal / {count}",
+    "pages": "Oldalak",
+    "previous": "Előző oldal",
+    "next": "Következő oldal",
+    "counter": "{n} / {count}",
+    "empty": "Még nincsenek kártyák",
+    "editor.cards": "Kártyák",
+    "editor.cards_helper": "Oldalanként egy, ebben a sorrendben",
+    "editor.style": "Stílus",
+    "editor.o_card": "Egy kártya",
+    "editor.columns": "Kártyák egymás mellett",
+    "editor.gap": "Kártyák közti távolság (px)",
+    "editor.start": "Elsőként mutatott oldal",
+    "editor.show_indicators": "Oldaljelek megjelenítése",
+    "editor.loop": "Az utolsó oldalról újra az elsőre",
+    "editor.remember": "Oldal megjegyzése",
+    "editor.o_session": "Amíg a lap nyitva van",
+    "editor.autoplay": "Magától lapoz ennyi másodpercenként",
+    "editor.autoplay_helper": "0: csak ember lapozza. Vár, amíg ujj, mutató vagy fókusz van rajta"
   },
   "web": {
     "card": "Weboldal",

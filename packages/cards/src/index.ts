@@ -44,6 +44,7 @@ import { ITEMS_FAMILY } from './items-family.js';
 import { MEDIA_FAMILY } from './media-family.js';
 import { REMOTE_FAMILY } from './remote-family.js';
 import { SLIDER_FAMILY } from './slider-family.js';
+import { SWIPE_FAMILY } from './swipe-family.js';
 import { VACUUM_FAMILY } from './vacuum-family.js';
 import { VEHICLE_FAMILY } from './vehicle-family.js';
 import { TEMPLATE_FAMILY } from './template-family.js';
@@ -103,8 +104,9 @@ type Family = readonly [
 ];
 
 /**
- * The weather, calendar, template, web page, Expander, Slider, Vacuum, Thermostat, remote, items and chart cards, the
- * Energy period and Energy usage cards, and the media, energy, devices, automations, appliances and alerts families.
+ * The weather, calendar, template, web page, Expander, Slider, Vacuum, Thermostat, remote, items, chart and Swipe
+ * cards, the Energy period and Energy usage cards, and the media, energy, devices, automations, appliances and alerts
+ * families.
  */
 const FAMILIES: readonly Family[] = [
   [WEATHER_FAMILY, () => import('./weather-cards.js')],
@@ -126,6 +128,7 @@ const FAMILIES: readonly Family[] = [
   [VEHICLE_FAMILY, () => import('./vehicle-cards.js')],
   [ITEMS_FAMILY, () => import('./items-cards.js')],
   [CHART_FAMILY, () => import('./chart-cards.js')],
+  [SWIPE_FAMILY, () => import('./swipe-cards.js')],
 ];
 
 // the families: listed and measured now, their elements fetched at once and defined as they land

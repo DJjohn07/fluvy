@@ -1152,7 +1152,8 @@
     "thermostat": "サーモスタット",
     "vehicle": "車両",
     "items": "項目",
-    "chart": "グラフ"
+    "chart": "グラフ",
+    "swipe": "スワイプ"
   },
   "activity": {
     "title": "アクティビティ",
@@ -1859,7 +1860,8 @@
     "thermostat": "空調、給湯器、加湿器をダイヤルで。モード、プリセット、風量付き。",
     "vehicle": "電気自動車：バッテリー、航続距離と充電上限、満充電の時刻、現在地、そしてロック、空調、充電、トランク、窓を1行に。Tesla、BMW、Renault、Volvo、Kia、Hyundai、Volkswagen、Škoda、Polestar、MGなど。",
     "items": "センサーのリスト属性の項目を1行ずつ（上空のフライト、出発便、配達）。FlightRadar24用のフライトプリセット付き。",
-    "chart": "あらゆる時系列を1つのグラフに（履歴、統計、Nordpoolの価格や太陽光予報のような属性内のリスト、天気の予報）。過去から未来まで現在を示し、しきい値をその色で、最も安い時間帯を見つけます。"
+    "chart": "あらゆる時系列を1つのグラフに（履歴、統計、Nordpoolの価格や太陽光予報のような属性内のリスト、天気の予報）。過去から未来まで現在を示し、しきい値をその色で、最も安い時間帯を見つけます。",
+    "swipe": "どんなカードも1ページに1枚、スワイプか下のページマークでめくれます。広い画面では横に並べ、最後のページから最初へ戻ることもできます。"
   },
   "alarm": {
     "arm_home": "在宅警戒",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "ほかのカードのYAMLにこのアクションを書くと、開く・閉じる・切り替えができます：{action}",
     "editor.icon_color": "アイコンの色"
+  },
+  "swipe": {
+    "page": "{count}ページ中{n}ページ目",
+    "pages": "ページ",
+    "previous": "前のページ",
+    "next": "次のページ",
+    "counter": "{n} / {count}",
+    "empty": "カードはまだありません",
+    "editor.cards": "カード",
+    "editor.cards_helper": "1ページに1枚、この順番で",
+    "editor.style": "スタイル",
+    "editor.o_card": "1枚のカード",
+    "editor.columns": "横に並べるカード",
+    "editor.gap": "カードの間隔（px）",
+    "editor.start": "最初に表示するページ",
+    "editor.show_indicators": "ページマークを表示",
+    "editor.loop": "最後のページから最初へ戻る",
+    "editor.remember": "ページを記憶",
+    "editor.o_session": "タブを開いている間",
+    "editor.autoplay": "自動でめくる間隔（秒）",
+    "editor.autoplay_helper": "0：人がめくるときだけ。指、ポインター、フォーカスがある間は待ちます"
   },
   "web": {
     "card": "Webページ",

@@ -2047,7 +2047,8 @@
     "thermostat": "Climatização, termoacumulador ou humidificador num mostrador, com modos, predefinições e velocidades da ventoinha.",
     "vehicle": "Um carro elétrico: a sua bateria, autonomia e limite de carga, quando estará cheio, onde está, e o fecho, a climatização, a carga, a bagageira e os vidros numa linha. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG e mais.",
     "items": "Os itens do atributo de lista de um sensor, uma linha cada (voos por cima, partidas, entregas), com uma predefinição de voos para o FlightRadar24.",
-    "chart": "Qualquer série temporal num gráfico (histórico, estatísticas, uma lista num atributo como os preços do Nordpool ou uma previsão solar, ou a previsão de uma meteorologia), do passado ao futuro com o agora marcado, os limiares nas suas cores e as horas mais baratas encontradas."
+    "chart": "Qualquer série temporal num gráfico (histórico, estatísticas, uma lista num atributo como os preços do Nordpool ou uma previsão solar, ou a previsão de uma meteorologia), do passado ao futuro com o agora marcado, os limiares nas suas cores e as horas mais baratas encontradas.",
+    "swipe": "Quaisquer cartões, um por página, passados ao deslizar ou pelas marcas de página por baixo: lado a lado num ecrã largo, do último de volta ao primeiro."
   },
   "time": {
     "minutes_ago": "há {n} min",
@@ -2514,7 +2515,8 @@
     "thermostat": "Termóstato",
     "vehicle": "Veículo",
     "items": "Itens",
-    "chart": "Gráfico"
+    "chart": "Gráfico",
+    "swipe": "Deslizar"
   },
   "appliance": {
     "kind_washer": "Máquina de lavar roupa",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Outro cartão abre-o, fecha-o ou alterna-o com esta ação no seu YAML: {action}",
     "editor.icon_color": "Cor do ícone"
+  },
+  "swipe": {
+    "page": "Página {n} de {count}",
+    "pages": "Páginas",
+    "previous": "Página anterior",
+    "next": "Página seguinte",
+    "counter": "{n} / {count}",
+    "empty": "Ainda sem cartões",
+    "editor.cards": "Cartões",
+    "editor.cards_helper": "Um por página, por esta ordem",
+    "editor.style": "Estilo",
+    "editor.o_card": "Um cartão",
+    "editor.columns": "Cartões lado a lado",
+    "editor.gap": "Espaço entre cartões (px)",
+    "editor.start": "Página mostrada primeiro",
+    "editor.show_indicators": "Mostrar as marcas de página",
+    "editor.loop": "Da última página de volta à primeira",
+    "editor.remember": "Lembrar a página",
+    "editor.o_session": "Enquanto o separador estiver aberto",
+    "editor.autoplay": "Passar sozinho a cada (segundos)",
+    "editor.autoplay_helper": "0: só uma pessoa passa. Espera enquanto um dedo, o ponteiro ou o foco estiver nele"
   },
   "web": {
     "card": "Página web",

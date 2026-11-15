@@ -294,8 +294,9 @@ describe('the editors’ contract', () => {
     '$tag: offers its look out of reach wherever it offers its opacity, but on a card that shows no entity (#126)',
     ({ tag, editor }) => {
       const shown = names(editor.getConfigForm().schema);
-      // a web page, and an expander: the entities its head counts are never out of reach on it, only fewer
-      const none = tag === 'fluvy-web-card' || tag === 'fluvy-expander-card';
+      // a web page, an expander (the entities its head counts are never out of reach on it, only fewer) and a swipe
+      // card, whose cards say their own
+      const none = ['fluvy-web-card', 'fluvy-expander-card', 'fluvy-swipe-card'].includes(tag);
       expect(shown.includes('unavailable')).toBe(shown.includes('card_opacity') && !none);
       expect(editor.base.includes('unavailable')).toBe(
         editor.base.includes('card_opacity') && !none,

@@ -3364,6 +3364,84 @@ open it by its name: each a key, and a config without them draws as it did.
   carries only its name, its height and the three figures of its layout that height is counted with
   (`expander-family.ts`), and the two rules a held card reads (`fluvy/surfaces.css`).
 
+## Swipe (1.22, #206)
+
+The Swipe card holds any cards, one a page, in a row a finger or a trackpad turns: a wall's cameras, a room's cards,
+the house's energy. It is light by construction, as the owner asked of a gesture after the swipe between views (1.2.0,
+gone in 1.2.1): the row is the browser's own scroll, snapped a page at a time (`scroll-snap-type: x mandatory`, each
+page `scroll-snap-stop: always`), so no frame of a swipe is drawn by script; where it is is read where a page crosses
+half the row and where one shows whole (an intersection observer on the row, never a scroll listener); only the
+pages in view and the next one on each side hold their cards.
+
+- **The row.** Its pages side by side in the card's column, `gap` apart (on the surface 40, a card's 20 on each side
+  of the line between them; on the page 16, a section's; 40 at most, on the 4 grid), half the gap standing outside
+  the first and the last, so a page's card reaches the column's edges and the next one is never seen at rest. It
+  never scrolls past its ends into the page (`overscroll-behavior-x: contain`), so a swipe past the last page never
+  turns the browser's history. `columns` shows up to four cards at once, as many as the width holds at the Expander's
+  least width (148): one on a phone, two or more across a desktop; the row then turns a card at a time.
+- **The marks.** Under the cards, centred, a row of targets of 44, one a stop: in each a bar 16 by 4 (radius 2) in
+  the strong hairline's ink, the stop it is on 28 wide and lit in the card's colour (the palette's accent by
+  default), the bar growing in its place (the house's base duration; at once with reduced motion). Not dots, and not
+  options: each is a button to its page, its name "Page 2 of 4", the lit one `aria-current`, and only the lit one a
+  stop of the Tab key (the arrows go along them). On the surface the row's 44 take the 20 under the cards', so a bar
+  stands 20 under them and 20 over the surface's edge: the card is its cards and 24; the row reaches 12 into the
+  surface's padding at each side, a target at its end keeping its glyph on the column's edge; on the page the row is 44 under
+  them, in the ink the page's background asks for (the lit bar the page's ink over a background, the accent without
+  one). `show_indicators: false` draws none, and one stop draws none.
+- **The counter.** Where the width holds fewer targets than there are stops (seven fit a phone's column, three half a
+  section), the marks give way to "3 / 12" (13/600, tabular, in the secondary ink) between a turn back and a turn on:
+  chevrons of 20 in targets of 44, no round of their own, in the marks' room, so the card keeps its height; a turn
+  that cannot go further (the first, the last, without `loop`) is faded.
+- **Turning.** A finger or a trackpad turns it as the browser scrolls; a mark or a turn glides to the next page
+  (smooth scroll), and to one further fades the row out (120 ms) and in (180 ms) where it stands, never a long slide
+  past pages that are not built. The page a person turns to is the one it is on at once: its mark lit, its
+  neighbours built. With reduced motion every turn is at once.
+- **Going round (`loop`).** The pages are laid out round the one it is on (CSS `order`: it stands in the row's
+  middle), so the next one is always beside it and a swipe from the last goes on to the first; once the row is at
+  rest it is laid out again round the page it came to, the row standing where it stood against that page, so nothing
+  moves. Never a rewind.
+- **What a finger keeps.** A drag that sets off on what takes a sideways drag for itself is that thing's: a ruler or a
+  dial (their `touch-action` already says so), Home Assistant's sliders and map, a field, a row that scrolls sideways
+  (a row of chips, at its end too), anything marked `data-swipe="off"` — the rule the swipe between views kept. The
+  row holds still under such a finger (it scrolls no way sideways until the finger lifts). A drag that leans down is
+  the page's scroll.
+- **The keys and a reader.** The arrows turn it on the marks, Home and End go to the first and the last, the focus
+  going with the lit mark; an arrow from a page turns it where no control there keeps the arrows (a ruler, a field, a
+  slider, a list of choices), the focus going to the page it came to. Each page is a group named by its place ("Page
+  2 of 4"); those out of view are inert; where a turn comes to rest is said in a polite live region.
+- **Its cards.** Any cards, held as the Expander holds them (`held.ts`: Home Assistant's own wrapper, so any card
+  works, with its own `visibility`). On one surface (`style: card`, the default) they draw none of their own and
+  stand in the column, turned out by their padding (Home Assistant's by the Expander's table of its cards); what
+  stands on the page elsewhere (a tile, a set of tiles, chips) stands on the card here in the surface's 20 and keeps
+  its own surface. `plain` leaves each card its own surface, the row on the page. A card it holds is built the first
+  time its page comes near (in view, or the next on either side) and leaves the page as the row goes on, told nothing
+  of the house meanwhile; a card with conditions of its own is built from the first frame, so the row knows whether
+  it is a page. A card hidden by its conditions, or by itself, is no page and has no mark, and stays built to show
+  itself again; every card hidden, the swipe card hides, as a stack does.
+- **By itself (`autoplay`).** A wall's cameras may turn by themselves, a page every so many seconds (3 at least, time
+  to read one), on to the first from the last (a fade where the row does not go round). The clock waits while a
+  finger, the pointer or the focus is on the card and while it is out of sight or the page is hidden, starts again
+  where a person turned it, and never runs with reduced motion or in the editor's preview; its own turns are neither
+  said nor remembered.
+- **Where it stands.** It opens on `start` (counted from 1). A swipe never writes the config: where a person left it
+  is kept in this tab while it is open (`remember: session`, by the view and the cards' types and entities, the
+  page it starts on never kept), so a reload or a view opened again shows the same page; `remember: off` keeps
+  nothing.
+- **Heights** are the config's: its tallest card as each declares itself (with the house, where the automatic
+  dashboard reads it so) and its marks (24 on the surface, 44 on the page). It stands as tall as the tallest of its
+  pages has stood at its width (a shorter page leaves room under its card, top-aligned), so turning a page never moves
+  what is under it. A card with no surface held on the surface keeps the surface's 20 round it: 40 taller than it
+  declares, the one drift a config cannot say.
+- **Colour.** `color` is the lit mark's, and that of the cards of Fluvy's it holds that name none; `card_color`,
+  `card_opacity` (see-through: one blur, its cards draw no box) and `card_border` are the surface's.
+- **Editor.** Fluvy's form: the style and the cards side by side; with two cards or more, the room between them, the
+  page it opens on, the marks, going round, where it is remembered and its clock; the colours, and the surface's own on a
+  surface. Under it the cards in Home Assistant's stack editor, a tab a page ("Cards", "One a page, in this order"),
+  the Expander's own editor with its one list; the code field where that editor is not to be had.
+- Its chunk is its own (`swipe`, which reaches the Expander's for `held.ts`), its editor with the Expander's
+  (`expander-editor`): every page carries only its name, its height and the figures that height is counted with
+  (`swipe-family.ts`).
+
 ## Groups by room (1.21)
 
 Which room a light or a scene belongs to (#189, asked by @darrenhaken, whose own card grouped his scenes by room as

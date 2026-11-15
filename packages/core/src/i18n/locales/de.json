@@ -2047,7 +2047,8 @@
     "thermostat": "Klima, Warmwasserbereiter oder Luftbefeuchter auf einem Drehregler, mit Modi, Voreinstellungen und Lüfterstufen.",
     "vehicle": "Ein Elektroauto: Akku, Reichweite und Ladelimit, wann es voll ist, wo es ist, und Schloss, Klima, Laden, Kofferraum und Fenster in einer Zeile. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG und mehr.",
     "items": "Die Einträge des Listenattributs eines Sensors, eine Zeile je Eintrag (Flüge über dir, Abfahrten, Lieferungen), mit einer Flug-Voreinstellung für FlightRadar24.",
-    "chart": "Jede Zeitreihe in einem Diagramm (Verlauf, Statistik, eine Liste in einem Attribut wie die Preise von Nordpool oder eine Solarprognose, oder die Vorhersage eines Wetters), von der Vergangenheit bis in die Zukunft mit markiertem Jetzt, Schwellenwerte in ihren Farben und die günstigsten Stunden gefunden."
+    "chart": "Jede Zeitreihe in einem Diagramm (Verlauf, Statistik, eine Liste in einem Attribut wie die Preise von Nordpool oder eine Solarprognose, oder die Vorhersage eines Wetters), von der Vergangenheit bis in die Zukunft mit markiertem Jetzt, Schwellenwerte in ihren Farben und die günstigsten Stunden gefunden.",
+    "swipe": "Beliebige Karten, eine pro Seite, zum Wischen oder über die Seitenmarken darunter: auf breiten Bildschirmen nebeneinander, von der letzten wieder zur ersten."
   },
   "time": {
     "minutes_ago": "vor {n} min",
@@ -2514,7 +2515,8 @@
     "thermostat": "Thermostat",
     "vehicle": "Fahrzeug",
     "items": "Einträge",
-    "chart": "Diagramm"
+    "chart": "Diagramm",
+    "swipe": "Wischen"
   },
   "appliance": {
     "kind_washer": "Waschmaschine",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Eine andere Karte öffnet oder schließt ihn oder schaltet ihn um, mit dieser Aktion in ihrem YAML: {action}",
     "editor.icon_color": "Symbolfarbe"
+  },
+  "swipe": {
+    "page": "Seite {n} von {count}",
+    "pages": "Seiten",
+    "previous": "Vorherige Seite",
+    "next": "Nächste Seite",
+    "counter": "{n} / {count}",
+    "empty": "Noch keine Karten",
+    "editor.cards": "Karten",
+    "editor.cards_helper": "Eine pro Seite, in dieser Reihenfolge",
+    "editor.style": "Stil",
+    "editor.o_card": "Eine Karte",
+    "editor.columns": "Karten nebeneinander",
+    "editor.gap": "Abstand zwischen Karten (px)",
+    "editor.start": "Zuerst gezeigte Seite",
+    "editor.show_indicators": "Seitenmarken anzeigen",
+    "editor.loop": "Von der letzten Seite wieder zur ersten",
+    "editor.remember": "Seite merken",
+    "editor.o_session": "Solange der Tab offen ist",
+    "editor.autoplay": "Selbst weiterblättern alle (Sekunden)",
+    "editor.autoplay_helper": "0: Nur eine Person blättert. Wartet, solange ein Finger, der Zeiger oder der Fokus darauf liegt"
   },
   "web": {
     "card": "Webseite",

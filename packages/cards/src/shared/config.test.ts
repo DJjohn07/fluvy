@@ -100,6 +100,11 @@ describe('normaliseConfig', () => {
     expect(
       normaliseConfig({ ...base, tint: true, motion: false, snooze: false }, COMMON_ALIASES),
     ).toEqual({ ...base, tint: 'on', motion: 'off', snooze: 'off' });
+    // an Expander's or a Swipe card's `remember: off`, where it keeps nothing
+    expect(normaliseConfig({ ...base, remember: false }, COMMON_ALIASES)).toEqual({
+      ...base,
+      remember: 'off',
+    });
     expect(normaliseConfig({ ...base, tint: false }, COMMON_ALIASES)).toEqual({
       ...base,
       tint: 'off',

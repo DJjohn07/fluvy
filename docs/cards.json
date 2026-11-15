@@ -14810,6 +14810,139 @@
       ]
     },
     {
+      "type": "custom:fluvy-swipe-card",
+      "name": "Swipe",
+      "description": "Any cards, one a page, turned by a swipe or the page marks under them: side by side on a wide screen, round from the last to the first.",
+      "section": "Structure and navigation",
+      "page": "cards/swipe.md",
+      "layout": {
+        "key": "style",
+        "values": [
+          "card",
+          "plain"
+        ],
+        "default": "card"
+      },
+      "layouts": {},
+      "keys": [
+        {
+          "key": "style",
+          "label": "Style",
+          "does": "Draws the card on its own surface, or plain on the page.",
+          "type": "choice",
+          "default": "card",
+          "values": {
+            "card": "One card",
+            "plain": "Plain"
+          }
+        },
+        {
+          "key": "columns",
+          "label": "Cards side by side",
+          "does": "How many items stand side by side in a row.",
+          "type": "choice",
+          "default": "1",
+          "values": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4"
+          }
+        },
+        {
+          "key": "gap",
+          "label": "Room between cards (px)",
+          "does": "The room between the cards it holds, in pixels.",
+          "type": "number",
+          "default": 40,
+          "range": "0 to 40, in steps of 4"
+        },
+        {
+          "key": "start",
+          "label": "Page shown first",
+          "type": "number",
+          "default": 1,
+          "range": "1 or more"
+        },
+        {
+          "key": "show_indicators",
+          "label": "Show the page marks",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "loop",
+          "label": "Go round from the last page",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "key": "remember",
+          "label": "Remember the page",
+          "does": "Where the way it was left open or folded is kept: this device, the person, or nowhere.",
+          "type": "choice",
+          "default": "session",
+          "values": {
+            "session": "While the tab is open",
+            "off": "Off"
+          }
+        },
+        {
+          "key": "autoplay",
+          "label": "Turn by itself every (seconds)",
+          "helper": "0: only a person turns it. It waits while a finger, the pointer or the focus is on it",
+          "type": "number",
+          "default": 0,
+          "range": "0 to 3600"
+        },
+        {
+          "key": "color",
+          "label": "Colour",
+          "does": "The card’s colour: its circle, its accents and its tints wear it. Left out, the colour of what it shows.",
+          "type": "colour"
+        },
+        {
+          "key": "card_color",
+          "label": "Card colour",
+          "does": "Paints the card’s surface in a colour of your own.",
+          "type": "colour"
+        },
+        {
+          "key": "card_opacity",
+          "label": "Card opacity",
+          "does": "How see-through the card’s surface is, in percent.",
+          "helper": "Untouched: every card’s, from Fluvy’s settings",
+          "type": "number",
+          "default": 100,
+          "range": "0 % to 100 %, in steps of 5"
+        },
+        {
+          "key": "card_border",
+          "label": "Card border",
+          "does": "Draws the card’s hairline border, or leaves it out.",
+          "helper": "Untouched: every card’s, from Fluvy’s settings",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "key": "cards",
+          "label": "Cards",
+          "does": "The cards the Expander holds and shows while it is open: any card, Fluvy’s or not.",
+          "type": "object"
+        }
+      ],
+      "older_names": [
+        {
+          "from": "slides_per_view",
+          "to": "columns"
+        },
+        {
+          "from": "accent",
+          "to": "color"
+        }
+      ]
+    },
+    {
       "type": "custom:fluvy-web-card",
       "name": "Web page",
       "description": "A web page on a plate — a map, a chart, a site of your own — under a head, in a frame or bare; sandboxed as Home Assistant’s iframe card is.",

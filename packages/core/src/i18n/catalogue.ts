@@ -26,6 +26,7 @@ import type sidebar from './locales/en/sidebar.json';
 import type sidebarEditor from './locales/en/sidebar-editor.json';
 import type slider from './locales/en/slider.json';
 import type strategy from './locales/en/strategy.json';
+import type swipe from './locales/en/swipe.json';
 import type template from './locales/en/template.json';
 import type vacuum from './locales/en/vacuum.json';
 import type vehicle from './locales/en/vehicle.json';
@@ -67,6 +68,7 @@ export type Catalogue = typeof core &
   typeof sidebarEditor &
   typeof slider &
   typeof strategy &
+  typeof swipe &
   typeof template &
   typeof vacuum &
   typeof vehicle &

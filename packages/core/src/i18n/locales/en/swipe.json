@@ -1,0 +1,23 @@
+{
+  "swipe": {
+    "page": "Page {n} of {count}",
+    "pages": "Pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "counter": "{n} / {count}",
+    "empty": "No cards yet",
+    "editor.cards": "Cards",
+    "editor.cards_helper": "One a page, in this order",
+    "editor.style": "Style",
+    "editor.o_card": "One card",
+    "editor.columns": "Cards side by side",
+    "editor.gap": "Room between cards (px)",
+    "editor.start": "Page shown first",
+    "editor.show_indicators": "Show the page marks",
+    "editor.loop": "Go round from the last page",
+    "editor.remember": "Remember the page",
+    "editor.o_session": "While the tab is open",
+    "editor.autoplay": "Turn by itself every (seconds)",
+    "editor.autoplay_helper": "0: only a person turns it. It waits while a finger, the pointer or the focus is on it"
+  }
+}

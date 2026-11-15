@@ -132,8 +132,12 @@ const BUDGETS = {
   // the Expander card (1.20, #180): the card, what holds the cards it folds, what remembers how it was left and its
   // English; measured at 5.2 KB
   expander: 8192,
-  // the Expander card's editor: its form, and Home Assistant's stack editor set under it; fetched when one is edited
+  // the Expander card's editor: its form, and Home Assistant's stack editor set under it, and the Swipe card's built on
+  // it (1.22, #206); fetched when one is edited. Measured at 3.2 KB with both
   'expander-editor': 4096,
+  // the Swipe card (1.22, #206): the card, what remembers where it was left, what a finger's drag is theirs on, its
+  // English; it holds its cards with the Expander's chunk. Measured at 6.2 KB
+  swipe: 8192,
   // a dashboard's own sidebar (1.21, #187): the element beside the views, what reads `fluvy_sidebar:` and puts it in
   // Home Assistant's view row, its three ways of standing (beside the views, above them, a drawer), its English;
   // fetched by the first dashboard that asks for one. Measured at 7.6 KB

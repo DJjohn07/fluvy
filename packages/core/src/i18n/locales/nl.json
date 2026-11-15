@@ -2047,7 +2047,8 @@
     "thermostat": "Klimaat, boiler of luchtbevochtiger op een draaiknop, met modi, presets en ventilatorstanden.",
     "vehicle": "Een elektrische auto: zijn accu, bereik en laadlimiet, wanneer hij vol is, waar hij is, en zijn slot, klimaat, laden, kofferbak en ramen op één rij. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG en meer.",
     "items": "De items van het lijstattribuut van een sensor, een rij per item (vluchten boven je, vertrektijden, bezorgingen), met een vluchtenpreset voor FlightRadar24.",
-    "chart": "Elke tijdreeks in één grafiek (historie, statistieken, een lijst in een attribuut zoals de prijzen van Nordpool of een zonneverwachting, of de verwachting van het weer), van verleden naar toekomst met nu gemarkeerd, drempels in hun kleuren en de goedkoopste uren gevonden."
+    "chart": "Elke tijdreeks in één grafiek (historie, statistieken, een lijst in een attribuut zoals de prijzen van Nordpool of een zonneverwachting, of de verwachting van het weer), van verleden naar toekomst met nu gemarkeerd, drempels in hun kleuren en de goedkoopste uren gevonden.",
+    "swipe": "Willekeurige kaarten, één per pagina, om te vegen of via de paginamarkeringen eronder: naast elkaar op een breed scherm, van de laatste weer naar de eerste."
   },
   "time": {
     "minutes_ago": "{n} min geleden",
@@ -2514,7 +2515,8 @@
     "thermostat": "Thermostaat",
     "vehicle": "Voertuig",
     "items": "Items",
-    "chart": "Grafiek"
+    "chart": "Grafiek",
+    "swipe": "Vegen"
   },
   "appliance": {
     "kind_washer": "Wasmachine",
@@ -3055,6 +3057,27 @@
     "editor.id": "ID",
     "editor.id_helper": "Een andere kaart opent of sluit het, of schakelt het om, met deze actie in haar YAML: {action}",
     "editor.icon_color": "Pictogramkleur"
+  },
+  "swipe": {
+    "page": "Pagina {n} van {count}",
+    "pages": "Pagina’s",
+    "previous": "Vorige pagina",
+    "next": "Volgende pagina",
+    "counter": "{n} / {count}",
+    "empty": "Nog geen kaarten",
+    "editor.cards": "Kaarten",
+    "editor.cards_helper": "Eén per pagina, in deze volgorde",
+    "editor.style": "Stijl",
+    "editor.o_card": "Eén kaart",
+    "editor.columns": "Kaarten naast elkaar",
+    "editor.gap": "Ruimte tussen kaarten (px)",
+    "editor.start": "Eerst getoonde pagina",
+    "editor.show_indicators": "Paginamarkeringen tonen",
+    "editor.loop": "Van de laatste pagina weer naar de eerste",
+    "editor.remember": "Pagina onthouden",
+    "editor.o_session": "Zolang het tabblad open is",
+    "editor.autoplay": "Zelf omslaan elke (seconden)",
+    "editor.autoplay_helper": "0: alleen een persoon slaat om. Wacht zolang een vinger, de aanwijzer of de focus erop staat"
   },
   "web": {
     "card": "Webpagina",
