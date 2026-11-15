@@ -203,6 +203,8 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
   never an appliance, whatever the entity's id says.
 - The appliance card and the automatic dashboards rule out a robot that cleans or mows, but a food processor ("Kuchyňský
   robot", "Robot kuchenny") is a blender.
+- The Energy dashboard reads a battery's or a charger's meter as that device's, where a meter's word in its name
+  (`wallbox_zahler`) made it the grid.
 - Where it went: a word with no meter behind it (the house, what is not measured) is read by a screen reader as its name
   and figure, where it took a tab stop with no role and no name.
 - A Tiles or Scenes card in groups keeps its height while its groups load, so nothing under it moves as they land.
