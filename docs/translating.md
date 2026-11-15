@@ -27,6 +27,7 @@ language, so the card starts from Fluvy's.
 | `zh-Hans` | Chinese (Simplified) | `packages/core/src/i18n/locales/zh-Hans.json` — `zh`, `zh-CN` and `zh-SG` read it; Traditional Chinese (`zh-Hant`, `zh-TW`, `zh-HK`) is not it | — |
 | `ru` | Russian | `packages/core/src/i18n/locales/ru.json` | — |
 | `uk` | Ukrainian | `packages/core/src/i18n/locales/uk.json` | — |
+| `bg` | Bulgarian | `packages/core/src/i18n/locales/bg.json` | — |
 
 ## How a language works
 
@@ -57,8 +58,8 @@ language, so the card starts from Fluvy's.
   by (what people call their lights, their garden, the solar inverter, the grid meter, a forecast), and the
   `appliance_*` stems an appliance card tells a washer from a dishwasher by (plain lower-case letters). Every name is
   read plain, its accents taken off and in ordinary width, so "Kühlschrank" is `kuhlschrank`, "Płyta" is `plyta`,
-  "Dům" is `dum`, "Счётчик" is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian or Ukrainian й stays
-  й, a letter of its own. Every stem is built plain too, so a language writes its words with their marks ("lumière")
+  "Dům" is `dum`, "Счётчик" is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian, Ukrainian or Bulgarian
+  й stays й, a letter of its own. Every stem is built plain too, so a language writes its words with their marks ("lumière")
   or without them and a name matches either way; a short word that stands apart only by its marks is written as a word
   (Turkish "dış", outside, is `(^|[ _-])dış(ı|ta)?([ _-]|$)`, never the "dis" of "dishwasher"). A Ukrainian word with an
   apostrophe, written ', ’ or ʼ or left without one, is matched by a stem that stops before it, `подвір` for

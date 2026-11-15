@@ -38,6 +38,9 @@ describe('a date as a row shows it', () => {
     expect(dayTextShort(house('ja'), nov, NOW)).toBe('11/10');
     expect(dayText(house('en'), next, NOW)).toBe('Nov 10, 2027');
     expect(dayTextShort(house('en'), next, NOW)).toBe('11/10/27');
+    // Bulgarian writes "г." after a year, a word the figures leave out; the named form keeps it
+    expect(dayTextShort(house('bg'), next, NOW)).toBe('10.11.27');
+    expect(dayText(house('bg'), next, NOW)).toMatch(/2027 г\.$/);
   });
 
   it("keeps the profile's order in both forms, the parts bare of what a language hangs on them", () => {

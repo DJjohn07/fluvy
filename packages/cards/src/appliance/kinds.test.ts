@@ -148,7 +148,7 @@ describe('what an appliance is', () => {
     expect(kindOf(signals({ platform: 'matter', tops: [250] }))).toMatchObject({ kind: 'oven' });
   });
 
-  it('reads a name in any of the seventeen languages, accents or none, the more particular kind first', () => {
+  it('reads a name in any of the eighteen languages, accents or none, the more particular kind first', () => {
     const names: ReadonlyArray<readonly [string, string]> = [
       ['Washing machine', 'washer'],
       ['Waschmaschine', 'washer'],
@@ -382,6 +382,48 @@ describe('what an appliance is', () => {
       ['Автогодівниця', 'feeder'],
       ['Поїлка для кішки', 'fountain'],
       ['Котячий туалет', 'litter_box'],
+      // Bulgarian, as written and as Home Assistant writes it into an entity id (ъ and ь gone, щ shch, х kh, ц ts)
+      ['Пералня', 'washer'],
+      ['peralnia_mokro_pomeshchenie', 'washer'],
+      ['Пералня със сушилня', 'washer_dryer'],
+      ['peralnia_ss_sushilnia', 'washer_dryer'],
+      ['Съдомиялна', 'dishwasher'],
+      ['sdomiialna', 'dishwasher'],
+      ['Миялна машина', 'dishwasher'],
+      ['Сушилня', 'dryer'],
+      ['sushilnia', 'dryer'],
+      ['Микровълнова фурна', 'microwave'],
+      ['mikrovlnova_furna', 'microwave'],
+      ['Фурната', 'oven'],
+      ['furna_kukhnia', 'oven'],
+      ['Готварска печка', 'oven'],
+      ['Индукционен плот', 'hob'],
+      ['induktsionen_plot', 'hob'],
+      ['Котлони', 'hob'],
+      ['Абсорбатор', 'hood'],
+      ['absorbator', 'hood'],
+      ['Хладилник за вино', 'wine'],
+      ['khladilnik_za_vino', 'wine'],
+      ['Хладилник с фризер', 'fridge'],
+      ['khladilnik_kukhnia', 'fridge'],
+      ['Фризер мазе', 'freezer'],
+      ['frizer_maze', 'freezer'],
+      ['Кафемашина', 'coffee'],
+      ['kafemashina', 'coffee'],
+      ['Електрическа кана', 'kettle'],
+      ['elektricheska_kana', 'kettle'],
+      ['Каната', 'kettle'],
+      ['Еър фрайър', 'air_fryer'],
+      ['er_frair', 'air_fryer'],
+      ['Сандвич тостер', 'sandwich_maker'],
+      ['sandvich_toster', 'sandwich_maker'],
+      ['Тостер', 'toaster'],
+      ['Пасатор', 'blender'],
+      ['Хранилка за котки', 'feeder'],
+      ['khranilka_za_kotki', 'feeder'],
+      ['Поилка', 'fountain'],
+      ['Котешка тоалетна', 'litter_box'],
+      ['koteshka_toaletna', 'litter_box'],
     ];
     for (const [name, kind] of names) expect(byWords(name), name).toEqual({ kind, by: 'words' });
     // a name that says no kind says none: a solar panel is no hob ("placa"), a brand ("marca") no freezer ("arca")
@@ -398,6 +440,9 @@ describe('what an appliance is', () => {
     expect(byWords('洗衣房插座')).toBeUndefined();
     expect(byWords('洗衣液')).toBeUndefined();
     expect(byWords('饮水机')).toBeUndefined();
+    // Bulgarian's channel ("канал") is no kettle ("кана"), a worktop's light no hob ("плот")
+    expect(byWords('Канал 2')).toBeUndefined();
+    expect(byWords('Осветление плот')).toBeUndefined();
     // a printer's paper tray (лоток) is no litter box, a sauna's stove (печь) no oven, a laundry room no washer
     expect(byWords('Лоток принтера')).toBeUndefined();
     expect(byWords('Печь в бане')).toBeUndefined();
@@ -444,6 +489,13 @@ describe('what an appliance is', () => {
       'Robotická kosačka',
       'Robot sprzątający',
       'Robot koszący',
+      'Прахосмукачка робот',
+      'prakhosmukachka',
+      'Сешоар',
+      'Сушилник за дрехи',
+      'Косачка',
+      'Зарядна станция за електромобил',
+      'zariadna_stantsiia',
     ])
       expect(byWords(name), name).toEqual({ excluded: 'name' });
     // a robot that cleans or mows is never one; the kitchen's (a food processor) is a blender, in every language

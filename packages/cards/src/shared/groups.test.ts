@@ -161,6 +161,20 @@ describe('short names inside a group', () => {
     ]);
   });
 
+  it('reads Bulgarian: its prepositions go with the room, във before a в among them (bg)', () => {
+    expect(shortNames('Кухня', ['Кухня Таван', 'Лампа Кухня', 'Кухня: Абсорбатор'])).toEqual([
+      'Таван',
+      'Лампа',
+      'Абсорбатор',
+    ]);
+    expect(shortNames('Всекидневна', ['Лампа във Всекидневна', 'Лампион до Всекидневна'])).toEqual([
+      'Лампа',
+      'Лампион',
+    ]);
+    // the room said with its article is another word
+    expect(shortNames('Кухня', ['Лампа в кухнята'])).toEqual(['Лампа в кухнята']);
+  });
+
   it('knows every joining word the automatic dashboards read, in every language', () => {
     const words = join(dirname(fileURLToPath(import.meta.url)), '../../../core/src/i18n/words');
     const joins = readdirSync(words)

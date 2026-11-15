@@ -49,11 +49,15 @@ describe('the language registry', () => {
     expect(resolveLanguage('uk')).toBe('uk');
     expect(resolveLanguage('uk-UA')).toBe('uk');
     expect(resolveLanguage('uk_UA')).toBe('uk');
+    expect(resolveLanguage('bg')).toBe('bg');
+    expect(resolveLanguage('bg-BG')).toBe('bg');
+    expect(resolveLanguage('bg_BG')).toBe('bg');
     expect(resolveLanguage('sv')).toBe('en');
     expect(resolveLanguage(undefined)).toBe('en');
     expect(speaks('de-CH')).toBe(true);
     expect(speaks('ru-RU')).toBe(true);
     expect(speaks('uk-UA')).toBe(true);
+    expect(speaks('bg-BG')).toBe(true);
     expect(speaks('sv')).toBe(false);
     expect(isCardLanguage('auto')).toBe(true);
     expect(isCardLanguage('fr')).toBe(true);
@@ -230,6 +234,18 @@ describe('the words', () => {
       '5 днів',
       '21 день',
     ]);
+  });
+
+  it('count in Bulgarian in its two forms, its one said of 1 alone and a masculine noun in its count form: 1 сензор, 2 сензора, 21 сензора', () => {
+    const said = (key: CountKey) =>
+      [1, 2, 5, 21].map((n) => plural({ language: 'bg' }, key, n, { count: n }));
+    expect(said('common.devices')).toEqual([
+      '1 устройство',
+      '2 устройства',
+      '5 устройства',
+      '21 устройства',
+    ]);
+    expect(said('openings.sensors')).toEqual(['1 сензор', '2 сензора', '5 сензора', '21 сензора']);
   });
 
   it('can be read in a fixed language whatever the person chose', () => {

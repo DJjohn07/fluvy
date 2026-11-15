@@ -105,7 +105,8 @@ function dayIn(
   const order = hass?.locale?.date_format;
   if (order !== 'DMY' && order !== 'MDY' && order !== 'YMD') {
     const own = format(hass, moment, options);
-    return figures ? own.replace(/\s+/g, '') : own;
+    // as figures, bare of its spaces and of the word a language writes after a year (Bulgarian's "27 г.")
+    return figures ? own.replace(/\s+/g, '').replace(/\p{L}+\.?/gu, '') : own;
   }
   const part = (type: 'day' | 'month' | 'year'): string =>
     format(hass, moment, { [type]: options[type] }).replace(figures ? /\D+$/ : /\.$/, '');

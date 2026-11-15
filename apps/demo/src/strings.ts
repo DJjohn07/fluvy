@@ -598,6 +598,41 @@ const uk: Table = {
     'Автоматична панель створюється в самому Home Assistant; вкладка «Панелі» показує її попередній перегляд',
 };
 
+const bg: Table = {
+  'brand.sub': 'Демо на живо',
+  'family.home': 'Дом',
+  'family.devices': 'Устройства',
+  'family.climate': 'Климат',
+  'family.energy': 'Енергия',
+  'family.charts': 'Диаграми',
+  'family.media': 'Медия',
+  'family.time': 'Време',
+  'family.helpers': 'Помощници',
+  'family.vehicles': 'Автомобили',
+  'page.panel': 'Настройки',
+  'page.activity': 'Дейност',
+  'page.history': 'История',
+  'mode.light': 'Светла',
+  'mode.dark': 'Тъмна',
+  'device.title': 'Устройство',
+  'device.phone': 'Телефон',
+  'device.phone-l': 'Голям телефон',
+  'device.tablet': 'Таблет',
+  'device.desktop': 'Компютър',
+  'palette.title': 'Палитра',
+  'palette.custom': 'Ваш собствен акцентен цвят: в панела с настройки',
+  'language.title': 'Език',
+  'links.install': 'Инсталиране',
+  'links.github': 'GitHub',
+  'banner.text':
+    'Въображаем дом: апартаментът на Марта в четвъртък вечер. Всяка карта, страница и настройка тук е истинската; вместо Home Assistant работи малка имитация, която променя състоянието 140 ms след извикване на действие. Нищо не е свързано.',
+  'banner.ok': 'Разбрах',
+  'notice.more_info': 'Отваря подробностите за {entity} в Home Assistant',
+  'notice.navigate': 'Отваря {path} в Home Assistant',
+  'notice.auto':
+    'Автоматичното табло се създава в самия Home Assistant; табът „Табла“ показва негов преглед',
+};
+
 const TABLES: Readonly<Record<LanguageCode, Table>> = {
   en,
   es,
@@ -616,6 +651,7 @@ const TABLES: Readonly<Record<LanguageCode, Table>> = {
   'zh-Hans': zhHans,
   ru,
   uk,
+  bg,
 };
 
 /** A word of the demo in `language`. */

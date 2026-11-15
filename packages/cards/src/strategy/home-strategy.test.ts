@@ -12,7 +12,7 @@ import { FluvyHomeStrategy } from './home-strategy.js';
 import { HomeRegistry } from './home-registry.js';
 import { roomParts } from './rooms.js';
 import type { View } from './types.js';
-import { BATTERY_POWER, TODAY } from './words.generated.js';
+import { BATTERY_POWER, FORECAST, TODAY } from './words.generated.js';
 import {
   hcCoffee,
   hcDishwasher,
@@ -536,6 +536,127 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
     );
     settings.forEach((name, at) => expect(plugs.appliances, name).not.toContain(`switch.s${at}`));
   });
+
+  it('reads a Bulgarian house by its names as written and by the ids Home Assistant made of them: its lights, its garden and yard, its appliances’ switches, a child lock and a timer that are none', () => {
+    const registry = new HomeRegistry(
+      house([
+        entity('switch.b1', 'on', { friendly_name: 'Лампа хол' }),
+        entity('switch.b2', 'off', { friendly_name: 'Лунички кухня' }),
+        entity('switch.b3', 'off', { friendly_name: 'Полилей спалня' }),
+        entity('switch.b4', 'off', { friendly_name: 'Градинска лампа' }),
+        entity('switch.b5', 'off', { friendly_name: 'Осветление двор' }),
+        entity('switch.b6', 'off', { friendly_name: 'Външно осветление' }),
+        // renamed since: the id alone still says it, ъ gone and х as kh
+        entity('switch.osvetlenie_terasa', 'off', { friendly_name: 'Shelly 1' }),
+        entity('switch.vnshna_lampa', 'off', { friendly_name: 'Shelly 2' }),
+        entity('switch.b7', 'off', { friendly_name: 'Контакт пералня' }),
+        entity('switch.kontakt_khladilnik', 'off', { friendly_name: 'Shelly Plug S' }),
+        entity('switch.b8', 'off', { friendly_name: 'Детска защита съдомиялна' }),
+        entity('switch.taimer_boiler', 'off', { friendly_name: 'Shelly 3' }),
+      ]),
+    );
+    const { lights, appliances } = registry;
+    const lit = [
+      'switch.b1',
+      'switch.b2',
+      'switch.b3',
+      'switch.b4',
+      'switch.b5',
+      'switch.b6',
+      'switch.osvetlenie_terasa',
+      'switch.vnshna_lampa',
+    ];
+    expect(lights).toEqual(expect.arrayContaining(lit));
+    for (const id of lit) expect(registry.outdoor(id), id).toBe(lit.indexOf(id) >= 3);
+    for (const id of ['switch.b7', 'switch.kontakt_khladilnik']) {
+      expect(lights, id).not.toContain(id);
+      expect(appliances, id).toContain(id);
+    }
+    for (const id of ['switch.b8', 'switch.taimer_boiler'])
+      expect(appliances, id).not.toContain(id);
+  });
+
+  it('names a Bulgarian house’s energy readings’ roles, as written and by their ids alone: the sun, what is bought and sold, the battery, the charger, the house', () => {
+    const written = powerHouse(
+      [
+        power('sensor.p1', 'Слънчеви панели'),
+        power('sensor.p2', 'Консумация от мрежата'),
+        power('sensor.p3', 'Износ към мрежата'),
+        power('sensor.p4', 'Батерия'),
+        power('sensor.p5', 'Зарядна станция'),
+        power('sensor.p6', 'Консумация на къщата'),
+      ],
+      'bg',
+    );
+    expect(findEnergyRoles(written, null)).toMatchObject({
+      solarPowers: [{ id: 'sensor.p1' }],
+      gridPower: 'sensor.p2',
+      gridImport: 'sensor.p2',
+      gridExport: 'sensor.p3',
+      batteryPowers: [{ id: 'sensor.p4' }],
+      charger: 'sensor.p5',
+      homePower: 'sensor.p6',
+    });
+    // the same house by the ids Home Assistant's slugify made of those names (ъ gone, щ shch, ц ts, я ia)
+    const slugged = powerHouse(
+      [
+        power('sensor.slnchevi_paneli', 'Shelly EM 1'),
+        power('sensor.konsumatsiia_ot_mrezhata', 'Shelly EM 2'),
+        power('sensor.iznos_km_mrezhata', 'Shelly EM 3'),
+        power('sensor.bateriia', 'Shelly EM 4'),
+        power('sensor.zariadna_stantsiia', 'Shelly EM 5'),
+        power('sensor.konsumatsiia_na_kshchata', 'Shelly EM 6'),
+      ],
+      'bg',
+    );
+    expect(findEnergyRoles(slugged, null)).toMatchObject({
+      solarPowers: [{ id: 'sensor.slnchevi_paneli' }],
+      gridPower: 'sensor.konsumatsiia_ot_mrezhata',
+      gridImport: 'sensor.konsumatsiia_ot_mrezhata',
+      gridExport: 'sensor.iznos_km_mrezhata',
+      batteryPowers: [{ id: 'sensor.bateriia' }],
+      charger: 'sensor.zariadna_stantsiia',
+      homePower: 'sensor.konsumatsiia_na_kshchata',
+    });
+    // the sun as a Bulgarian house names its plant (ФЕЦ, an inverter), the meter and the household
+    for (const [id, name, role] of [
+      ['sensor.s1', 'ФЕЦ мощност', 'solar'],
+      ['sensor.fets_moshchnost', 'Shelly Pro 3EM', 'solar'],
+      ['sensor.s2', 'Инвертор', 'solar'],
+      ['sensor.s3', 'Електромер', 'grid'],
+      ['sensor.s4', 'Домакинство', 'home'],
+      ['sensor.s5', 'Обща консумация', 'home'],
+    ] as const) {
+      const roles = findEnergyRoles(powerHouse([power(id, name)], 'bg'), null);
+      expect(
+        {
+          solar: roles.solarPowers[0]?.id,
+          grid: roles.gridPower,
+          home: roles.homePower,
+        }[role],
+        name,
+      ).toBe(id);
+    }
+    // a power strip (мрежов филтър), a home cinema and a sunny side say no role: "мрежа", "дом" and the sun's panels
+    // are words of their own
+    for (const name of ['Мрежов филтър', 'Домашно кино', 'Слънчева страна']) {
+      const roles = findEnergyRoles(powerHouse([power('sensor.x', name)], 'bg'), null);
+      expect(
+        [roles.solarPowers, roles.gridPower, roles.batteryPowers, roles.homePower],
+        name,
+      ).toEqual([[], undefined, [], undefined]);
+    }
+  });
+
+  it('takes Bulgarian’s today and its forecast as words of their own, written or in an id', () => {
+    for (const text of ['Производство днес', 'proizvodstvo_dnes', 'Дневно производство', 'За деня'])
+      expect(TODAY.test(text), text).toBe(true);
+    // the living room (дневна) is no day's total
+    expect(TODAY.test('Дневна консумация')).toBe(false);
+    expect(FORECAST.test('Прогноза производство')).toBe(true);
+    expect(FORECAST.test('prognoza_proizvodstvo')).toBe(true);
+    expect(FORECAST.test('Очаквано производство')).toBe(true);
+  });
 });
 
 describe('custom:fluvy-home strategy — a place named by its device, no separator left hanging', () => {
@@ -803,6 +924,20 @@ describe('custom:fluvy-home strategy — a place named by its device, no separat
     ).toEqual(['Вітальня', 'Спальня', 'Дитяча', 'Вітальні', 'Кухні', 'Кабінет', 'Їдальня']);
   });
 
+  it('reads Bulgarian’s sensor words with their articles and their за, a place keeping its own', () => {
+    expect(
+      placed([
+        'Сензор за температура Всекидневна',
+        'Сензор за температура и влажност Спалня',
+        'Термометър Детска',
+        'Температура в кухнята',
+        'Влажността в банята',
+        'Термостатът Кабинет',
+        'Датчици Трапезария',
+      ]),
+    ).toEqual(['Всекидневна', 'Спалня', 'Детска', 'Кухнята', 'Банята', 'Кабинет', 'Трапезария']);
+  });
+
   it('keeps a word that joins two places, a conjunction among them, and takes one that joins the sensor words, in every language', () => {
     // each language's "and" between two sensor words, then between two places: [name, its place] each
     const and: Record<string, readonly (readonly [string, string])[]> = {
@@ -871,6 +1006,10 @@ describe('custom:fluvy-home strategy — a place named by its device, no separat
       uk: [
         ['Датчик температури і вологості Вітальня', 'Вітальня'],
         ['Кухня та Вітальня Датчик', 'Кухня та Вітальня'],
+      ],
+      bg: [
+        ['Сензор за температура и влажност Всекидневна', 'Всекидневна'],
+        ['Кухня и Всекидневна Сензор', 'Кухня и Всекидневна'],
       ],
     };
     for (const [code, names] of Object.entries(and))

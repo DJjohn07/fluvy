@@ -14,29 +14,12 @@
  * three tiles and the chips say their words whole and nothing runs past its card, on a desktop and on a 360 phone;
  * the page logs no error.
  */
+import { everyLanguage } from './lib.mjs';
 import { BASE, settle, startSuite } from './lib/suite.mjs';
 
 const suite = await startSuite();
 const { check } = suite;
 
-const LANGUAGES = [
-  'en',
-  'de',
-  'es',
-  'fr',
-  'hu',
-  'it',
-  'ja',
-  'nl',
-  'pl',
-  'pt-BR',
-  'pt-PT',
-  'ru',
-  'sk',
-  'tr',
-  'uk',
-  'zh-Hans',
-];
 const exact = (text) => new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
 const tile = (page, name) =>
   page.locator('fluvy-panel .se-kinds .fv-option', {
@@ -304,7 +287,7 @@ const errors = (page) => {
 {
   const faults = [];
   for (const width of [1280, 360])
-    for (const lang of LANGUAGES) {
+    for (const lang of await everyLanguage()) {
       const page = await suite.page(`panel=dashboard&state=sidebar,sideown&lang=${lang}`, {
         viewport: { width, height: 900 },
         wait: 500,

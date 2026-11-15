@@ -1,0 +1,33 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fluvy",
+        "description": "Инсталира темата на Fluvy, картите и панела с настройки. Няма нищо за конфигуриране."
+      }
+    },
+    "abort": {
+      "already_configured": "Fluvy вече е настроен.",
+      "single_instance_allowed": "Fluvy вече е настроен."
+    }
+  },
+  "exceptions": {
+    "frontend_missing": {
+      "message": "Файловете на интерфейса на Fluvy липсват в custom_components/fluvy/frontend. Инсталирайте Fluvy отново през HACS (или изпълнете `pnpm build` в работно копие за разработка), след което рестартирайте Home Assistant."
+    }
+  },
+  "issues": {
+    "legacy_yaml": {
+      "title": "Премахнете старите редове на Fluvy от configuration.yaml",
+      "description": "Fluvy вече е интеграция и сам регистрира своя панел и своя модул. Премахнете тези редове от configuration.yaml (запазете `frontend: themes: !include_dir_merge_named themes`), проверете конфигурацията и рестартирайте Home Assistant, когато ви е удобно:\n\n{lines}"
+    },
+    "theme_not_loaded": {
+      "title": "Темата на Fluvy не е заредена",
+      "description": "Fluvy записа темата си в `{path}`, но в списъка с теми на Home Assistant няма тема с име Fluvy. Добавете това в configuration.yaml и изпълнете действието `frontend.reload_themes` (Инструменти за разработчици → Действия); не е нужно рестартиране:\n\n{yaml}\n\nАко редовете вече са там, потърсете в Настройки → Система → Журнали тема, която не се е заредила."
+    },
+    "resources_yaml_mode": {
+      "title": "Добавете ресурса на Fluvy за таблата",
+      "description": "Ресурсите на вашите табла се управляват в YAML, затова Fluvy не може да регистрира своя. Добавете това под `lovelace: resources:` в configuration.yaml и презаредете страницата в браузъра:\n\n```yaml\n  - url: {url}\n    type: module\n```\n\nFluvy и без това се зарежда на всяка страница; този ресурс позволява на таблата да го заредят, преди да се покажат."
+    }
+  }
+}

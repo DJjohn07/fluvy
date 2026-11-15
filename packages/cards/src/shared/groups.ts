@@ -52,7 +52,7 @@ const JOINS = new RegExp(
     'het|van|op|bij|aan|onder|boven|naast',
     'da|do|das|dos|a|o|no|na|nos|nas|em|ao',
     'w|we|oraz|przy|pod|nad|za|obok|z',
-    'и|в|во|на|у|под|над|при|около|і|й|та|під|біля',
+    'и|в|во|във|на|за|у|до|под|над|при|около|і|й|та|під|біля',
     'v|vo|pri|az|és|es|ve',
   ].join('|')}|\p{Ll}{1,4}['’]))+$`,
   'u',

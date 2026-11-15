@@ -129,6 +129,12 @@ const MEASURE_WORDS: Record<string, Record<string, string>> = {
     power: 'Живлення',
     atmospheric_pressure: 'Атмосферний тиск',
   },
+  bg: {
+    temperature: 'Температура',
+    humidity: 'Влажност',
+    power: 'Мощност',
+    atmospheric_pressure: 'Атмосферно налягане',
+  },
 };
 const MEASURE_KEY = /^component\.sensor\.entity_component\.([a-z_]+)\.name$/;
 
@@ -150,6 +156,7 @@ const OPENING_WORDS: Record<string, readonly [string, string]> = {
   'zh-Hans': ['已打开', '已关闭'],
   ru: ['Открыто', 'Закрыто'],
   uk: ['Відчинено', 'Зачинено'],
+  bg: ['Отворено', 'Затворено'],
 };
 /** Home Assistant's words for motion, detected and clear, in the same languages. */
 const MOTION_WORDS: Record<string, readonly [string, string]> = {
@@ -169,6 +176,8 @@ const MOTION_WORDS: Record<string, readonly [string, string]> = {
   'zh-Hans': ['已触发', '未触发'],
   ru: ['Обнаружено', 'Не обнаружено'],
   uk: ['Виявлено', 'Не виявлено'],
+  // Home Assistant's own Bulgarian pair for motion: a participle and a sentence, as it has them
+  bg: ['Открит', 'Няма движение'],
 };
 
 /** Home Assistant's own Spanish state words, by domain, device class and state: the longest of them are what a pill has to hold. */

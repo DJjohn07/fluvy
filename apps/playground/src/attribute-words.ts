@@ -187,6 +187,18 @@ export const CLIMATE: Words = {
     'preset_mode.boost': 'Турбо',
     'preset_mode.sleep': 'Сон',
   },
+  // Home Assistant's own Bulgarian has the presets and one fan speed: the others fall back to English, as it says them
+  bg: {
+    'fan_mode.auto': 'Auto',
+    'fan_mode.low': 'Low',
+    'fan_mode.medium': 'Средно',
+    'fan_mode.high': 'High',
+    'preset_mode.none': 'Няма',
+    'preset_mode.eco': 'Еко',
+    'preset_mode.comfort': 'Комфорт',
+    'preset_mode.boost': 'Ускорен',
+    'preset_mode.sleep': 'Сън',
+  },
 };
 
 /** A Matter fan's presets (`matter`'s), by `attribute.value`. */
@@ -320,6 +332,15 @@ export const MATTER_FAN: Words = {
     'preset_mode.natural_wind': 'Natural wind',
     'preset_mode.sleep_wind': 'Sleep wind',
   },
+  // none in Home Assistant's own Bulgarian: English, as it falls back
+  bg: {
+    'preset_mode.auto': 'Auto',
+    'preset_mode.low': 'Low',
+    'preset_mode.medium': 'Medium',
+    'preset_mode.high': 'High',
+    'preset_mode.natural_wind': 'Natural wind',
+    'preset_mode.sleep_wind': 'Sleep wind',
+  },
 };
 
 /** A Roborock's suction (`roborock`'s), by `attribute.value`. */
@@ -435,6 +456,14 @@ export const ROBOROCK: Words = {
     'fan_speed.turbo': 'Турбо',
     'fan_speed.max': 'Максимум',
     'fan_speed.max_plus': 'Максимально плюс',
+  },
+  // none in Home Assistant's own Bulgarian: English, as it falls back
+  bg: {
+    'fan_speed.quiet': 'Quiet',
+    'fan_speed.balanced': 'Balanced',
+    'fan_speed.turbo': 'Turbo',
+    'fan_speed.max': 'Max',
+    'fan_speed.max_plus': 'Max plus',
   },
 };
 
