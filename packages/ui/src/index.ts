@@ -36,7 +36,13 @@ export {
   type RulerWindowDetail,
   type SliderLook,
 } from './controls/ruler.js';
-export { dialLabelTop, FluvyDial, type DialArc, type DialChangeDetail } from './controls/dial.js';
+export {
+  dialDiscRadius,
+  dialLabelTop,
+  FluvyDial,
+  type DialArc,
+  type DialChangeDetail,
+} from './controls/dial.js';
 
 /** Defined synchronously on import: a card template may use the controls in its first render. */
 if (!customElements.get('fluvy-ruler')) customElements.define('fluvy-ruler', FluvyRuler);

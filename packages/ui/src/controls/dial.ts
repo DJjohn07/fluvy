@@ -41,6 +41,9 @@ export function dialLabelTop(R: number, tick: number): number {
   return Math.ceil((half + (R + tick) * Math.SQRT1_2 + 8) / 4) * 4;
 }
 
+/** The disc a dial of radius `R` writes its label and figure on (a gauge's open centre): 10 inside its ticks, on the 4 grid. */
+export const dialDiscRadius = (R: number): number => Math.floor((R - 10) / 4) * 4;
+
 /**
  * The fluvy dial: a circular ruler. Ticks radiate outward from radius R across a 270° sweep, a soft
  * disc carries the value, and the one knob rides the ring (two knobs for a heat/cool range). With
@@ -532,7 +535,7 @@ export class FluvyDial extends LitElement {
     const knobs = this.gauge || this.disabled ? [] : fractions;
     const selected = this.isRange && this.dragIndex === -1 ? this.lastTouched : -1; // the range knob the stepper drives
     const [min, max] = this.range;
-    const discR = Math.floor((R - 10) / 4) * 4;
+    const discR = dialDiscRadius(R);
     const focusValue =
       this.dragIndex !== -1 ? this.shown[this.dragIndex] : this.isRange ? undefined : this.shown[0];
     // a range reads "20 – 24": whole numbers lose their ".0" so both ends fit the disc on one line

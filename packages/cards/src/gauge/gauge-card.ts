@@ -13,7 +13,15 @@ import {
   type Series,
 } from '@fluvy/core';
 
-import { dialLabelTop, head, readout, rulerLabels, sheetStyles, type Tone } from '@fluvy/ui';
+import {
+  dialDiscRadius,
+  dialLabelTop,
+  head,
+  readout,
+  rulerLabels,
+  sheetStyles,
+  type Tone,
+} from '@fluvy/ui';
 
 import {
   css,
@@ -228,6 +236,27 @@ const SHARED_LABEL: Record<string, MessageKey> = {
 
 const PRODUCES = new Set(['power', 'energy', 'current']);
 
+/** The type of the word over a gauge's figure, in every drawing alike: 11/16, 600, uppercase. */
+const LABEL = 'fv-readout__label';
+
+/**
+ * The word over a gauge's figure, in the room its drawing gives it (`width` measuring it in its type): a person's own
+ * (`label`) is a name and stays, ending in an ellipsis where its drawing ends one; the device class's word, Home
+ * Assistant's own or ours, is never cut nor laid over the figure: where its line cannot hold it, it leaves (Danish
+ * "Elektrisk effekt" in a half column), on the signed ring, the ring, the dial and the bar alike. None for no word.
+ */
+export function gaugeLabel(
+  own: string | undefined,
+  word: string,
+  room: number,
+  width: (text: string) => number,
+): { readonly text: string; readonly fits: boolean } | null {
+  const text = own ?? word;
+  if (!text) return null;
+  const fits = width(text) <= room;
+  return fits || own !== undefined ? { text, fits } : null;
+}
+
 /**
  * A numeric sensor as the read-only ring gauge: the tick ring lit to its fraction, the figure in the
  * open centre under an uppercase label, the range under the ring, and Min / Max / Average of the
@@ -271,10 +300,14 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
       .en-gauge__end {
         white-space: nowrap;
       }
-      /* a label longer than the ring's opening is a name: it ends in an ellipsis inside it */
-      .en-gauge__label {
+      /* a label longer than the ring's opening, or the bar's line, is a name: it ends in an ellipsis inside it */
+      .en-gauge__label,
+      .so-top .fv-readout__label[data-name] {
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+      .so-top .fv-readout__label[data-name] {
+        white-space: nowrap;
       }
       /* the ring is placed on a whole pixel (its ticks stay crisp in an odd column) instead of centred on a half */
       .so-gauge {
@@ -464,9 +497,8 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     return text ? { text, tone, own: word !== null && own !== undefined } : null;
   }
 
-  private innerLabel(view: EntityView): string {
-    const configured = this.config?.label;
-    if (configured !== undefined) return configured;
+  /** The device class's word: Home Assistant's own, else ours, else the class itself ("Value" for none). */
+  private classWord(view: EntityView): string {
     const deviceClass = view.deviceClass;
     if (!deviceClass) return strings(this.hass, 'value');
     const key = `component.sensor.entity_component.${deviceClass}.name`;
@@ -478,6 +510,13 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     if (local) return strings(this.hass, local);
     const words = deviceClass.replace(/_/g, ' ');
     return words.charAt(0).toUpperCase() + words.slice(1);
+  }
+
+  /** The word over the figure in `room` (`gaugeLabel`), as every drawing of the gauge sets it. */
+  private labelIn(view: EntityView, room: number): ReturnType<typeof gaugeLabel> {
+    return gaugeLabel(this.config?.label, this.classWord(view), room, (text) =>
+      this.head.ruler.width(LABEL, text),
+    );
   }
 
   /**
@@ -553,6 +592,18 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     const [left, room] = style?.motion ? [0, width] : [inset, box];
     // the dial's height, down to its range's labels: the room a style's ring keeps
     const tall = dialLabelTop(radius, TICK) + 16;
+    // the word's line: the bar's whole column; a dial's disc (the engine's read dial is drawn at the card's radius); a
+    // ring's box. A moving gauge's scene sets its word in its own type and keeps it only where it fits (`fitReading`)
+    const label = this.labelIn(
+      view,
+      this.bar
+        ? width
+        : style?.motion
+          ? Infinity
+          : dial === 'ring'
+            ? tall
+            : 2 * dialDiscRadius(radius),
+    );
 
     const stats = statsOf(this.config).map((stat) => {
       const raw = series?.[stat];
@@ -597,7 +648,7 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
       ${
         this.bar
           ? html`<div class="so-top fv-value-row">
-                ${readout({ label: this.innerLabel(view), value: value === null ? '—' : shown(value), unit: value === null ? '' : scale.unit, size: 'l', ink: band?.ink })}
+                ${readout({ label: label?.text ?? '', name: label ? !label.fits : false, value: value === null ? '—' : shown(value), unit: value === null ? '' : scale.unit, size: 'l', ink: band?.ink })}
               </div>
               <div class="so-level">
                 <span class="fv-bar"
@@ -638,7 +689,7 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
                       value: max === null || unusable ? null : value,
                       format: shown,
                       unit: scale.unit,
-                      label: this.innerLabel(view),
+                      label: label?.text ?? '',
                       minLabel: edge(min),
                       maxLabel: max === null ? '—' : edge(max),
                       tone,
@@ -661,7 +712,7 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
                   .fill=${value === null || max === null ? 0 : (value - min) / (max - min)}
                   .value=${value ?? undefined}
                   .unit=${value === null ? '' : scale.unit}
-                  .label=${this.innerLabel(view)}
+                  .label=${label?.text ?? ''}
                   .text=${value === null ? '—' : undefined}
                   .minLabel=${edge(min)}
                   .maxLabel=${max === null ? '—' : edge(max)}
@@ -872,9 +923,8 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     const worded = lay(power);
     const { left, right, g, shown, size, stats, widest } = worded.holds ? worded : lay(false);
     const box = valueBox(g, size);
-    const label = this.innerLabel(view);
     const room = labelRoom(g, size);
-    const labelFits = r.width('en-gauge__label', label) <= room;
+    const label = this.labelIn(view, room);
 
     // the directions make the figures long: as many columns as hold them and their labels, two and one before one a line
     const row = windowRow(
@@ -924,15 +974,13 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
         </svg>
         <span class="en-gauge__zero" data-align="center" style="top:0">0</span>
         ${
-          // a label someone wrote is a name and may end in an ellipsis; Home Assistant's own word ("Temperature") is
-          // never cut: it leaves the ring when it does not fit
-          labelFits || this.config?.label !== undefined
+          label
             ? html`<span
                 class="en-gauge__label"
                 data-align="center"
-                data-name=${labelFits ? nothing : ''}
-                style=${labelFits ? `top:${box.label}px` : `top:${box.label}px;left:${g.cx - room / 2}px;width:${room}px`}
-                >${label}</span
+                data-name=${label.fits ? nothing : ''}
+                style=${label.fits ? `top:${box.label}px` : `top:${box.label}px;left:${g.cx - room / 2}px;width:${room}px`}
+                >${label.text}</span
               >`
             : nothing
         }

@@ -7,6 +7,7 @@ import { visibleFields } from '../shared/form.js';
 import {
   FluvyGaugeCard,
   GAUGE_VARIANTS,
+  gaugeLabel,
   statsOf,
   widestFigure,
   type GaugeCardConfig,
@@ -515,5 +516,65 @@ describe('its line and its badge: words, an entity or a template (Discussion #15
     expect(badge(card)).toBe('Charging');
     expect(open.map((entry) => entry.released)).toEqual([true]);
     card.remove();
+  });
+});
+
+describe('the word over the figure', () => {
+  /** A word's width at 7 a letter: "Elektrisk effekt" is 112, "Power" 35. */
+  const width = (text: string): number => text.length * 7;
+
+  it('is a person’s own whatever its width, the device class’s word only where its line holds it', () => {
+    expect(gaugeLabel(undefined, 'Power', 100, width)).toEqual({ text: 'Power', fits: true });
+    expect(gaugeLabel(undefined, 'Elektrisk effekt', 100, width)).toBeNull();
+    expect(gaugeLabel(undefined, 'Elektrisk effekt', 112, width)).toEqual({
+      text: 'Elektrisk effekt',
+      fits: true,
+    });
+    expect(gaugeLabel('Solar on the south roof', 'Power', 100, width)).toEqual({
+      text: 'Solar on the south roof',
+      fits: false,
+    });
+    expect(gaugeLabel('', 'Power', 100, width)).toBeNull();
+  });
+
+  it('leaves the bar, the dial and the signed ring where Home Assistant’s word does not fit, and stays where it does', async () => {
+    const ruler = vi
+      .spyOn(TextRuler.prototype, 'width')
+      .mockImplementation((_cls: string, text: string) => text.length * 8);
+    /** A house whose Home Assistant names a power sensor `word`: Danish's sixteen letters (128), or English's five. */
+    const speaking = (word: string): HomeAssistant => {
+      const key = 'component.sensor.entity_component.power.name';
+      return { ...house(), localize: (asked: string) => (asked === key ? word : asked) };
+    };
+    /** The word a drawing sets over its figure, in a column `columns` wide. */
+    const said = async (variant: GaugeVariant, columns: number, word: string): Promise<string> => {
+      const card = await mount({ variant }, speaking(word));
+      (card as unknown as { width: number }).width = columns;
+      await card.updateComplete;
+      const root = card.shadowRoot!;
+      const text =
+        variant === 'bar'
+          ? root.querySelector('.so-top .fv-readout__label')?.textContent
+          : variant === 'signed'
+            ? root.querySelector('.en-gauge__label')?.textContent
+            : root.querySelector<HTMLElement & { label: string }>('fluvy-dial')?.label;
+      card.remove();
+      return (text ?? '').trim();
+    };
+    try {
+      for (const [variant, columns] of [
+        ['bar', 156],
+        ['ring', 211],
+        ['signed', 211],
+      ] as const) {
+        expect(await said(variant, columns, 'Elektrisk effekt'), variant).toBe('');
+        expect(await said(variant, columns, 'Power'), variant).toBe('Power');
+      }
+      // a column wide enough holds Home Assistant's word on the bar and on the dial
+      expect(await said('bar', 328, 'Elektrisk effekt')).toBe('Elektrisk effekt');
+      expect(await said('ring', 360, 'Elektrisk effekt')).toBe('Elektrisk effekt');
+    } finally {
+      ruler.mockRestore();
+    }
   });
 });
