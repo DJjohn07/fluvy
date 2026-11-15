@@ -100,10 +100,10 @@ export const MEANINGS: Readonly<Record<string, string>> = {
     'Cards that stand in the head in place of its icon and title, and stay while it is folded.',
   heading_style: 'The heading’s size: a page’s title, a group’s, or a quiet label.',
   height: 'The page’s height in pixels: it wins over the shape.',
-  hero: 'Draws the battery on a ruler, or as a ring.',
-  hero_double_tap_action: 'What two taps on the battery do.',
-  hero_hold_action: 'What a long press on the battery does.',
-  hero_tap_action: 'What a tap on the battery does.',
+  hero: 'Draws the battery or the tank on a ruler, or as a ring.',
+  hero_double_tap_action: 'What two taps on the battery or the tank do.',
+  hero_hold_action: 'What a long press on the battery or the tank does.',
+  hero_tap_action: 'What a tap on the battery or the tank does.',
   hide_empty: 'Hides the whole card while it has nothing to show.',
   high: 'The top of the comfortable band, in percent.',
   highlight: 'Marks out readings on the chart: the lowest, the highest, both, or the current one.',
@@ -125,7 +125,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   image:
     'A picture of your own in place of the card’s drawing: an address, or an entity whose picture it is.',
   image_mode: 'Shows your own picture only while the player has no artwork, or always.',
-  image_position: 'Where the car’s picture stands: beside the battery, or in the head.',
+  image_position: 'Where the car’s picture stands: over its battery or its tank, or in the head.',
   import: 'A sensor of the power coming in from the grid, positive.',
   include: 'Counts these entities, devices or domains as the room’s too.',
   include_today: 'Adds the period still in progress as the last bar.',
@@ -496,7 +496,11 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'room.name_lines':
     'Lets the names of the room’s tiles take two lines where one would cut them, every tile a line taller.',
   'room.path': 'Where a tap on the room goes.',
+  'room.quick_state_position':
+    'Where the quick actions’ states stand: under their icons, the head a line taller, or beside them, the rounds wider.',
   'room.show_count': 'Says how many of the room’s devices are on.',
+  'room.show_quick_states':
+    'Shows every quick action’s state in its round, unless the action says otherwise.',
   'room.temperature_entity':
     'The room’s temperature sensor, or a thermostat; left out, the area’s.',
   'scene.entity': 'The scene, script or button the tile runs.',
@@ -530,12 +534,16 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'timer.entity': 'The timer the card shows and controls.',
   'updates.entities': 'The update entities the card lists; left out, every one of the house.',
   'vacuum.show_battery': 'Shows the robot’s battery.',
+  'vehicle.energy':
+    'What the car runs on: its battery, its tank, or both; automatic, its tank where it has one and no battery, else its battery.',
   'vehicle.entity':
     'An entity of the car, where its device is not named: the device is found from it.',
   'vehicle.image':
     'A picture of the car: an address, an entity whose picture it is, or the integration’s own.',
   'vehicle.show_status':
-    'Shows the line under the battery: when it is full, why it is not charging, a low range.',
+    'Shows the line under the battery or the tank: when it is full, why it is not charging, a low range.',
+  'vehicle.tank_size':
+    'The tank’s size, so that a car which says only how much is in it shows its level.',
   'weather.days': 'How many days the forecast shows.',
   'weather.entity': 'The weather entity the card shows.',
   'web.aspect_ratio': 'The page’s shape inside the card.',
@@ -605,7 +613,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'template.readouts[]': 'Sensors shown as readouts on the tile, in this order.',
   'tile.readouts[]': 'Sensors shown as readouts on the tile, in this order.',
   'vehicle.controls[]': 'The car’s controls, each a round that acts on it.',
-  'vehicle.rows[]': 'The rows of readings under the battery, in this order.',
+  'vehicle.rows[]': 'The rows of readings under the battery or the tank, in this order.',
 
   // ---- a field of a list's items, on every card that has it ----
   '[].above': 'Counts an entity whose state, or the attribute named, is above this number.',
@@ -767,5 +775,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'remote.apps[].key': 'A key that opens the app.',
   'remote.apps[].source': 'The player’s source the app is.',
   'remote.custom[].key': 'The key it stands in for.',
+  'room.quick_actions[].show_state':
+    'Shows this quick action’s state in its round, or hides it, whatever the card says.',
   'vehicle.roles[].role': 'What the entity is to the car.',
 };

@@ -264,7 +264,8 @@ export const GALLERY: Readonly<Record<string, Example>> = {
     variants: { compact: {}, tiles: {}, cards: {} },
   },
   'fluvy-vehicle-card': {
-    config: { type: 'custom:fluvy-vehicle-card', device: 'd-model-y' },
+    // a plug-in hybrid: its battery and its tank (#207)
+    config: { type: 'custom:fluvy-vehicle-card', device: 'd-niro', energy: 'hybrid' },
     variants: { compact: {}, mini: {} },
   },
   'fluvy-weather-card': {

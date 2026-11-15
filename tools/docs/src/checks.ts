@@ -6,6 +6,7 @@
  * card's form says what the card does without it; and every key and field says what it does. Each returns what is
  * wrong, a line a finding; nothing wrong is an empty list.
  */
+import type { LovelaceCardConfig } from '@fluvy/core';
 import type { CardDoc } from './cards.js';
 import { GALLERY, layoutKey, mounted, shortName, type Example } from './gallery.js';
 import { MEANINGS } from './meanings.js';
@@ -17,6 +18,62 @@ const isRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
 
 /** What stands between a list's items, with the keys it carries. */
 const BETWEEN = new Set(['section', 'divider']);
+
+/**
+ * A configuration held to its card, the base's or what a layout adds to it: its keys the newest names, each one the
+ * editor shows, none a hook of the tests', no default written out, and its lists' items the fields their editor shows.
+ */
+function checkConfig(card: CardDoc, config: LovelaceCardConfig, where: string): string[] {
+  const found: string[] = [];
+  // its keys: the newest names, each one the editor shows, none a hook of the tests'
+  const read = card.normalise(config) as Readonly<Record<string, unknown>>;
+  // a name read as another, but for one still a key of its own whose older values alone are moved
+  const older = new Set(
+    card.reads
+      .map((name) => name.from)
+      .filter((name) => !card.keys.some((key) => key.key === name)),
+  );
+  for (const key of Object.keys(config)) {
+    if (key.startsWith('_')) found.push(`${where}: \`${key}\` is a test's hook, not a key`);
+    else if (older.has(key) || !(key in read))
+      found.push(`${where}: \`${key}\` is an older name: write the one it is read as`);
+    // a list whose items carry an older name is said item by item below
+    else if (
+      !Array.isArray(config[key]) &&
+      JSON.stringify(read[key]) !== JSON.stringify(config[key])
+    )
+      found.push(`${where}: \`${key}\` holds an older value: write the one it is read as`);
+    else if (!card.known.has(key)) found.push(`${where}: \`${key}\` is no key of its editor`);
+  }
+  // no default written out: an example is what a person would have to write
+  for (const key of card.keys)
+    if ('default' in key && key.key in config && config[key.key] === key.default)
+      found.push(
+        `${where}: \`${key.key}: ${String(key.default)}\` is the card's default: leave it out`,
+      );
+  // its lists' items: an id, or a map of the fields the list's editor shows
+  for (const list of card.lists) {
+    const items = config[list.key];
+    if (items === undefined) continue;
+    if (!Array.isArray(items)) {
+      found.push(`${where}: \`${list.key}\` is a list`);
+      continue;
+    }
+    const fields = new Set(list.item.map((key) => key.key));
+    items.forEach((item: unknown, index) => {
+      if (typeof item === 'string') return;
+      if (!isRecord(item)) {
+        found.push(`${where}: ${list.key}[${index}] is neither an id nor a map`);
+        return;
+      }
+      if (list.sections && BETWEEN.has(String(item['type']))) return;
+      for (const key of Object.keys(item))
+        if (!fields.has(key))
+          found.push(`${where}: ${list.key}[${index}].${key} is no field of its items`);
+    });
+  }
+  return found;
+}
 
 /** The gallery held to the cards: an example each, a line a layout, and each example a configuration of its card. */
 export function checkGallery(
@@ -38,53 +95,12 @@ export function checkGallery(
     if (config.type !== `custom:${card.tag}`)
       found.push(`${card.tag}: its example's type is ${String(config.type)}`);
 
-    // its keys: the newest names, each one the editor shows, none a hook of the tests'
-    const read = card.normalise(config) as Readonly<Record<string, unknown>>;
-    // a name read as another, but for one still a key of its own whose older values alone are moved
-    const older = new Set(
-      card.reads
-        .map((name) => name.from)
-        .filter((name) => !card.keys.some((key) => key.key === name)),
-    );
-    for (const key of Object.keys(config)) {
-      if (key.startsWith('_')) found.push(`${card.tag}: \`${key}\` is a test's hook, not a key`);
-      else if (older.has(key) || !(key in read))
-        found.push(`${card.tag}: \`${key}\` is an older name: write the one it is read as`);
-      // a list whose items carry an older name is said item by item below
-      else if (
-        !Array.isArray(config[key]) &&
-        JSON.stringify(read[key]) !== JSON.stringify(config[key])
-      )
-        found.push(`${card.tag}: \`${key}\` holds an older value: write the one it is read as`);
-      else if (!card.known.has(key)) found.push(`${card.tag}: \`${key}\` is no key of its editor`);
-    }
-    // no default written out: an example is what a person would have to write
-    for (const key of card.keys)
-      if ('default' in key && key.key in config && config[key.key] === key.default)
+    found.push(...checkConfig(card, config, card.tag));
+    for (const [value, variant] of Object.entries(example.variants ?? {}))
+      if (variant.config)
         found.push(
-          `${card.tag}: \`${key.key}: ${String(key.default)}\` is the card's default: leave it out`,
+          ...checkConfig(card, { type: config.type, ...variant.config }, `${card.tag} · ${value}`),
         );
-    // its lists' items: an id, or a map of the fields the list's editor shows
-    for (const list of card.lists) {
-      const items = config[list.key];
-      if (items === undefined) continue;
-      if (!Array.isArray(items)) {
-        found.push(`${card.tag}: \`${list.key}\` is a list`);
-        continue;
-      }
-      const fields = new Set(list.item.map((key) => key.key));
-      items.forEach((item: unknown, index) => {
-        if (typeof item === 'string') return;
-        if (!isRecord(item)) {
-          found.push(`${card.tag}: ${list.key}[${index}] is neither an id nor a map`);
-          return;
-        }
-        if (list.sections && BETWEEN.has(String(item['type']))) return;
-        for (const key of Object.keys(item))
-          if (!fields.has(key))
-            found.push(`${card.tag}: ${list.key}[${index}].${key} is no field of its items`);
-      });
-    }
 
     // its layouts: the base in the card's own, a line for every other value of the select, and none for no value
     const variants = Object.keys(example.variants ?? {});

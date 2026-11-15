@@ -93,6 +93,12 @@ describe('the gallery held to the cards', () => {
     ]);
   });
 
+  it('holds what a layout adds to the example to the same rules', () => {
+    expect(
+      checkGallery([lamp()], gallery({}, { variants: { compact: { config: { glow: true } } } })),
+    ).toEqual(['fluvy-lamp-card · compact: `glow` is no key of its editor']);
+  });
+
   it('holds a list’s items to the fields its editor shows', () => {
     expect(
       checkGallery(

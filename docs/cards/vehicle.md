@@ -10,7 +10,8 @@ An electric car: its battery, range and charge limit, when it is full, where it 
 
 ```yaml
 type: custom:fluvy-vehicle-card
-device: d-model-y
+device: d-niro
+energy: hybrid
 ```
 
 The picture is this configuration on the demo house, whose names and figures are made up: put your own entities in place of its. [Try it in the live demo](https://acosta290.github.io/fluvy/?card=vehicle), where it answers a tap as it would at home, with each of its layouts and the YAML of each.
@@ -40,14 +41,14 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `variant` | *Style*. The card’s layout. | choice | `full` | `full`, `compact`, `mini` |
-| `energy` | *Energy*. | choice | `auto` | `auto` (Automatic), `electric`, `fuel`, `hybrid` (Plug-in hybrid) |
-| `tank_size` | *Tank size*. In the unit of what is in it (L, gal): its level, where the car says only what is in it. | number |  | 0 to 500 |
-| `hero` | *Battery as*. Draws the battery on a ruler, or as a ring. | choice | `ruler` | `ruler`, `ring` |
+| `energy` | *Energy*. What the car runs on: its battery, its tank, or both; automatic, its tank where it has one and no battery, else its battery. | choice | `auto` | `auto` (Automatic), `electric`, `fuel`, `hybrid` (Plug-in hybrid) |
+| `tank_size` | *Tank size*. The tank’s size, so that a car which says only how much is in it shows its level. In the unit of what is in it (L, gal): its level, where the car says only what is in it. | number |  | 0 to 500 |
+| `hero` | *Battery as*. Draws the battery or the tank on a ruler, or as a ring. | choice | `ruler` | `ruler`, `ring` |
 | `image` | *Picture*. A picture of the car: an address, an entity whose picture it is, or the integration’s own. An address, an image or camera entity, or “auto” for the car’s own. | text |  |  |
-| `image_position` | *Picture in*. Where the car’s picture stands: beside the battery, or in the head. | choice | `hero` | `hero` (Over the battery), `head` (The head) |
+| `image_position` | *Picture in*. Where the car’s picture stands: over its battery or its tank, or in the head. | choice | `hero` | `hero` (Over the battery), `head` (The head) |
 | `show_range` | *Show the range*. Shows the range. | boolean | `true` |  |
 | `show_limit` | *Mark the charge limit*. Marks the charge limit on the battery’s ruler. | boolean | `true` |  |
-| `show_status` | *Show the line under the battery*. Shows the line under the battery: when it is full, why it is not charging, a low range. | boolean | `true` |  |
+| `show_status` | *Show the line under the battery*. Shows the line under the battery or the tank: when it is full, why it is not charging, a low range. | boolean | `true` |  |
 | `show_controls` | *Show the buttons*. Shows the buttons. | boolean | `true` |  |
 | `show_rows` | *Show the rows*. Shows the rows under the main control. | boolean | `true` |  |
 | `show_tyres` | *Show the tyres*. Shows the tyres’ pressures. | boolean | `false` |  |
@@ -63,11 +64,11 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `card_opacity` | *Card opacity*. How see-through the card’s surface is, in percent. Untouched: every card’s, from Fluvy’s settings. | number | `100` | 0 % to 100 %, in steps of 5 |
 | `card_border` | *Card border*. Draws the card’s hairline border, or leaves it out. Untouched: every card’s, from Fluvy’s settings. | boolean | `true` |  |
 | `unavailable` | *When unavailable*. How the card looks while its entity is unavailable: dashed, or quiet. Untouched: every card’s, from Fluvy’s settings. | choice | `dashed` | `dashed`, `quiet` (As when off) |
-| `hero_tap_action` | *Battery tap*. What a tap on the battery does. | action | the card’s own |  |
-| `hero_hold_action` | *Battery hold*. What a long press on the battery does. | action | the card’s own |  |
-| `hero_double_tap_action` | *Battery double tap*. What two taps on the battery do. A tap waits a moment to tell it from a double tap. | action | `none` |  |
+| `hero_tap_action` | *Battery tap*. What a tap on the battery or the tank does. | action | the card’s own |  |
+| `hero_hold_action` | *Battery hold*. What a long press on the battery or the tank does. | action | the card’s own |  |
+| `hero_double_tap_action` | *Battery double tap*. What two taps on the battery or the tank do. A tap waits a moment to tell it from a double tap. | action | `none` |  |
 | `controls` | *Controls*. The car’s controls, each a round that acts on it. | list ([its items](#controls)) |  |  |
-| `rows` | *Rows*. The rows of readings under the battery, in this order. | list ([its items](#rows)) |  |  |
+| `rows` | *Rows*. The rows of readings under the battery or the tank, in this order. | list ([its items](#rows)) |  |  |
 | `roles` | *Entities by hand*. Entities named by hand for a part the card does not find on the device, or should read otherwise. | list ([its items](#roles)) |  |  |
 
 **Interactions**
@@ -105,7 +106,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 ### `rows`
 
-*Rows*. The rows of readings under the battery, in this order. An item is a map with `row` and any of these keys.
+*Rows*. The rows of readings under the battery or the tank, in this order. An item is a map with `row` and any of these keys.
 
 | Key | What it does | Type | Values |
 | --- | --- | --- | --- |

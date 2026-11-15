@@ -9780,11 +9780,12 @@
         "light": "images/cards/vehicle-light.webp",
         "dark": "images/cards/vehicle-dark.webp",
         "width": 784,
-        "height": 984
+        "height": 1296
       },
       "example": {
         "type": "custom:fluvy-vehicle-card",
-        "device": "d-model-y"
+        "device": "d-niro",
+        "energy": "hybrid"
       },
       "layout": {
         "key": "variant",
@@ -9798,12 +9799,14 @@
       "layouts": {
         "compact": {
           "type": "custom:fluvy-vehicle-card",
-          "device": "d-model-y",
+          "device": "d-niro",
+          "energy": "hybrid",
           "variant": "compact"
         },
         "mini": {
           "type": "custom:fluvy-vehicle-card",
-          "device": "d-model-y",
+          "device": "d-niro",
+          "energy": "hybrid",
           "variant": "mini"
         }
       },
@@ -9878,6 +9881,7 @@
         {
           "key": "energy",
           "label": "Energy",
+          "does": "What the car runs on: its battery, its tank, or both; automatic, its tank where it has one and no battery, else its battery.",
           "type": "choice",
           "default": "auto",
           "values": {
@@ -9890,6 +9894,7 @@
         {
           "key": "tank_size",
           "label": "Tank size",
+          "does": "The tank’s size, so that a car which says only how much is in it shows its level.",
           "helper": "In the unit of what is in it (L, gal): its level, where the car says only what is in it",
           "type": "number",
           "range": "0 to 500"
@@ -9897,7 +9902,7 @@
         {
           "key": "hero",
           "label": "Battery as",
-          "does": "Draws the battery on a ruler, or as a ring.",
+          "does": "Draws the battery or the tank on a ruler, or as a ring.",
           "type": "choice",
           "default": "ruler",
           "values": {
@@ -9915,7 +9920,7 @@
         {
           "key": "image_position",
           "label": "Picture in",
-          "does": "Where the car’s picture stands: beside the battery, or in the head.",
+          "does": "Where the car’s picture stands: over its battery or its tank, or in the head.",
           "type": "choice",
           "default": "hero",
           "values": {
@@ -9940,7 +9945,7 @@
         {
           "key": "show_status",
           "label": "Show the line under the battery",
-          "does": "Shows the line under the battery: when it is full, why it is not charging, a low range.",
+          "does": "Shows the line under the battery or the tank: when it is full, why it is not charging, a low range.",
           "type": "boolean",
           "default": true
         },
@@ -10147,21 +10152,21 @@
         {
           "key": "hero_tap_action",
           "label": "Battery tap",
-          "does": "What a tap on the battery does.",
+          "does": "What a tap on the battery or the tank does.",
           "type": "action",
           "default_in_words": "the card’s own"
         },
         {
           "key": "hero_hold_action",
           "label": "Battery hold",
-          "does": "What a long press on the battery does.",
+          "does": "What a long press on the battery or the tank does.",
           "type": "action",
           "default_in_words": "the card’s own"
         },
         {
           "key": "hero_double_tap_action",
           "label": "Battery double tap",
-          "does": "What two taps on the battery do.",
+          "does": "What two taps on the battery or the tank do.",
           "helper": "A tap waits a moment to tell it from a double tap",
           "type": "action",
           "default": "none"
@@ -10244,7 +10249,7 @@
         {
           "key": "rows",
           "label": "Rows",
-          "does": "The rows of readings under the battery, in this order.",
+          "does": "The rows of readings under the battery or the tank, in this order.",
           "id": "row",
           "item": [
             {
@@ -13164,6 +13169,7 @@
         {
           "key": "show_quick_states",
           "label": "Show their states",
+          "does": "Shows every quick action’s state in its round, unless the action says otherwise.",
           "helper": "Under or beside each icon: a reading with its unit, a door open or closed, a light’s brightness.",
           "type": "boolean",
           "default": false
@@ -13171,6 +13177,7 @@
         {
           "key": "quick_state_position",
           "label": "Their states",
+          "does": "Where the quick actions’ states stand: under their icons, the head a line taller, or beside them, the rounds wider.",
           "type": "choice",
           "default": "under",
           "values": {
@@ -13642,6 +13649,7 @@
             {
               "key": "show_state",
               "label": "Show its state",
+              "does": "Shows this quick action’s state in its round, or hides it, whatever the card says.",
               "helper": "Empty: the card’s",
               "type": "choice",
               "values": {

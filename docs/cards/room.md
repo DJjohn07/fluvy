@@ -46,8 +46,8 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `readout_labels` | *Readout labels*. How the readouts are labelled: words, icons, or nothing. | choice | `auto` | `auto` (Automatic), `words`, `icons`, `none` |
 | `show_quick_actions` | *Show the quick actions*. Shows the quick actions at the end of the room’s head, its row or its photo. | boolean | `true` |  |
 | `show_arrow` | *Show the arrow*. Shows the arrows that say the room opens. | boolean | `true` |  |
-| `show_quick_states` | *Show their states*. Under or beside each icon: a reading with its unit, a door open or closed, a light’s brightness. | boolean | `false` |  |
-| `quick_state_position` | *Their states*. | choice | `under` | `under` (Under the icon), `beside` (Beside the icon) |
+| `show_quick_states` | *Show their states*. Shows every quick action’s state in its round, unless the action says otherwise. Under or beside each icon: a reading with its unit, a door open or closed, a light’s brightness. | boolean | `false` |  |
+| `quick_state_position` | *Their states*. Where the quick actions’ states stand: under their icons, the head a line taller, or beside them, the rounds wider. | choice | `under` | `under` (Under the icon), `beside` (Beside the icon) |
 | `show_action` | *Show what it is doing*. Says on its line what a climate is doing and what it is set to. | boolean | `false` |  |
 | `picture` | *Picture*. A picture of the room, as an address; left out, the area’s own. | text |  |  |
 | `path` | *Opens (path)*. Where a tap on the room goes. | text |  |  |
@@ -124,7 +124,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the light’s bulb colour where the card shows bulbs’ colours, else the card’s. | colour |  |
-| `show_state` | *Show its state*. Empty: the card’s. | choice | `true` (On), `false` (Off) |
+| `show_state` | *Show its state*. Shows this quick action’s state in its round, or hides it, whatever the card says. Empty: the card’s. | choice | `true` (On), `false` (Off) |
 
 **Interactions**
 
