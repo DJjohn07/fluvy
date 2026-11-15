@@ -74,6 +74,33 @@ describe('what needs a hand, shorter', () => {
   });
 });
 
+describe('what a running appliance is doing, whole or not at all (1.22)', () => {
+  it('says it under the name where it holds, and gives way where it would be cut, the circle and the time left kept', async () => {
+    // a glyph of 12 px: "Cycle rinsing" holds beside the time left; of 16, it would be cut ("Centrifugando" at 211)
+    const said = async (glyph: number): Promise<[string, boolean, string]> => {
+      const card = await mount({ appliances: ['wp-washer'] });
+      const ruler = {
+        width: (_cls: string, words: string) => words.length * glyph,
+        pill: (_cls: string, words: string, sides: number) => words.length * glyph + sides,
+        clear() {},
+      };
+      Object.assign((card as unknown as { head: object }).head, { ruler });
+      card.requestUpdate();
+      await card.updateComplete;
+      const row = root(card).querySelector('.al-rows .fv-row--bar');
+      const line: [string, boolean, string] = [
+        text(row?.querySelector('.fv-row__sub')),
+        Boolean(row?.querySelector('.fv-ico')),
+        text(row?.querySelector('.fv-row__value')),
+      ];
+      card.remove();
+      return line;
+    };
+    expect(await said(12)).toEqual(['Cycle rinsing', true, '25 min']);
+    expect(await said(16)).toEqual(['', true, '25 min']);
+  });
+});
+
 describe('the house’s appliances', () => {
   // the owner's rule (1.9): the house's appliances are found in its registries, so their entities unavailable, unknown
   // or gone from the house leave every row, tile and whole card in place, each drawn as its live one is

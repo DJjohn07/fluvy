@@ -210,6 +210,9 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - A Tiles or Scenes card in groups keeps its height while its groups load, so nothing under it moves as they land.
 - A Scenes card of chips whose scenes have icons of their own declares the rows its chips wrap to, where it counted
   them without their icons and reserved a row too few.
+- The Appliances card says what a running appliance is doing under its name only where it holds whole: a phase too
+  long for the row ("Centrifugando" at 211) says the state's own word, else the line gives way to the time left at the
+  row's end, where the word was cut in nine languages.
 - The Energy period card's sheet: a finger on its scrim no longer moves the page under it, as with every other sheet.
 - A details sheet opens at the size its card is drawn at, never at a transform passing over the card as it is tapped.
 - Two copies of one scene on a Scenes card that take the card's double tap are two buttons: a tap on each runs each

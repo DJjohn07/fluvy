@@ -757,10 +757,29 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
         ? spanText(this.hass, shown.clock.elapsed)
         : '';
     const said = this.value(line) === word ? '' : word;
+    // what a running appliance is doing, too long for the row ("Centrifugando", "Cycle rinsing" at 211): its phase says
+    // the state's own word, else the line gives way, whole or not at all, the row's end saying the time left
+    const running = said !== '' && busy(shown.status);
+    const plain =
+      running &&
+      said === shown.phase &&
+      this.head.ruler.width('fv-row__sub', said) > room &&
+      shown.word !== said &&
+      shown.word !== this.value(line)
+        ? shown.word
+        : '';
     // a pet device's next meal or last use, where it would not hold, says what it does
     const short = elapsed || (r.pet ? word : '');
     return [
-      ...(said ? [{ text: said }] : []),
+      ...(said
+        ? [
+            {
+              text: said,
+              ...(plain ? { short: plain } : {}),
+              ...(running ? { optional: true } : {}),
+            },
+          ]
+        : []),
       ...(when ? [{ text: when, optional: Boolean(said), ...(short ? { short } : {}) }] : []),
     ];
   }
@@ -855,11 +874,15 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
         compact,
       ) &&
       (compact ||
-        lines.every(
-          (line) =>
-            this.head.ruler.width('fv-row__sub', this.segments(line, now)[0]?.text ?? '') <=
-            this.head.rowRoom(this.contentWidth, this.value(line)),
-        ));
+        lines.every((line) => {
+          // a phase that may give way keeps no circle from staying
+          const [first] = this.segments(line, now);
+          return (
+            first?.optional === true ||
+            this.head.ruler.width('fv-row__sub', first?.text ?? '') <=
+              this.head.rowRoom(this.contentWidth, this.value(line))
+          );
+        }));
     return html`<div class="al-rows fv-rows">
       ${lines.map((line) => {
         const { tap, hold } = this.actions(line);
