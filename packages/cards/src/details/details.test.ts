@@ -842,6 +842,22 @@ describe('the sheet as a dialog', () => {
     }
   });
 
+  it('reads at the size its card is drawn at, never at a transform passing over it as it is tapped', async () => {
+    const hass = house(FLOOR);
+    const from = card(hass);
+    // a card of a view this device reads at 125 %, its box pressed to 98 % of it as the finger lands
+    Object.defineProperty(from, 'offsetWidth', { value: 288 });
+    Object.defineProperty(from, 'currentCSSZoom', { value: 1.25 });
+    from.getBoundingClientRect = () => ({ width: 288 * 1.25 * 0.98 }) as DOMRect;
+    from.button.focus();
+    openDetails(from, hass, FLOOR.entity_id);
+    const sheet = [...document.body.children].find((child) =>
+      child.localName.startsWith('fluvy-details-'),
+    ) as Sheet;
+    await sheet.updateComplete;
+    expect(sheet.style.getPropertyValue('--fv-zoom')).toBe('1.25');
+  });
+
   it('closes on Close, on Escape and on its scrim, and gives the focus back to what was tapped', async () => {
     const first = await opened(FLOOR);
     one<HTMLButtonElement>(first.sheet, '.dt-close').click();

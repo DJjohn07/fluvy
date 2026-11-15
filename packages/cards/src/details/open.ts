@@ -23,6 +23,13 @@ const SHEETS: Readonly<Record<string, keyof HTMLElementTagNameMap>> = {
 let current: DetailsSheet | undefined;
 
 /**
+ * The size a card reads at: the CSS zoom it is drawn under (a view a device reads larger), never the passing scale of
+ * a transform round it as it is tapped (a press, a popup sliding in); its box against its own width where the browser
+ * cannot say.
+ */
+const sizeOf = (node: HTMLElement): number => node.currentCSSZoom ?? zoomOf(node);
+
+/**
  * Opens an entity's details sheet for the card that asked (`node`): a sheet of its kind on the page's body — over the
  * dashboard, the sidebar and whatever popup the card stands in — which reads at the size that card reads at (a view
  * a device reads larger, an edit mode or a panel that does not), follows Home Assistant through that card, gives the
@@ -52,7 +59,7 @@ export function openDetails(node: HTMLElement, hass: HomeAssistant, entityId: st
   sheet.open(
     tapped instanceof HTMLElement ? tapped : node,
     'rawHass' in card ? (card as LiveHass) : undefined,
-    // the card's size as its box is drawn, in whole percents (a device's sizes are)
-    Math.round(zoomOf(node) * 100) / 100,
+    // the card's size, in whole percents (a device's sizes are)
+    Math.round(sizeOf(node) * 100) / 100,
   );
 }
