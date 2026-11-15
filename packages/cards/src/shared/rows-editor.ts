@@ -73,6 +73,11 @@ export interface RowsListSpec {
    */
   readonly computeHelper?: FormHelper;
   /**
+   * Its items' fields say their own words alone (`computeHelper`, a field's `helper`, the shared item helpers), never
+   * the card's for a field of the same name: a threshold's `label` is not the sensor card's.
+   */
+  readonly ownHelpers?: boolean;
+  /**
    * A config entry as the editor's item, when the list's grammar is wider than ids and `{ id, … }` objects (a
    * light's quick colours: words, hexes, triplets, named objects); null drops the entry. Without it, a bare id
    * becomes `{ [idKey]: id }` and an object that carries an id is kept as it is.
@@ -257,6 +262,23 @@ export const itemHelpers: Labeler = (schema) =>
   (schema.name === 'secondary'
     ? editorWord(schema.selector?.['select'] ? 'editor.secondary_helper' : 'editor.template_helper')
     : undefined);
+
+/**
+ * What is said under an item's field of `list`: by the list (told the item and the house), else by the card's helper
+ * (`card`, where the list's words are not its own alone: `ownHelpers`), else by the shared item helpers. The editor's
+ * and the docs' one rule.
+ */
+export const itemHelper =
+  (
+    list: RowsListSpec,
+    card: FormHelper | undefined,
+    item: Readonly<Record<string, unknown>> = {},
+    hass?: HomeAssistant,
+  ): Labeler =>
+  (schema, localize) =>
+    list.computeHelper?.(schema, localize, item, hass) ??
+    (list.ownHelpers ? undefined : card?.(schema, localize)) ??
+    itemHelpers(schema, localize);
 
 /** Home Assistant's card helpers, as far as the editors ask them. */
 interface CardHelpers {
@@ -1094,16 +1116,9 @@ export class FluvyRowsEditor extends LitElement {
     return labeler;
   }
 
-  /**
-   * What is said under an item's field: by its list (told the item and the house), else by the card, else by the
-   * shared item helpers.
-   */
+  /** What is said under an item's field (`itemHelper`). */
   private helper(list: RowsListSpec, item: Item): Labeler {
-    const own = this.spec?.computeHelper;
-    return (schema, localize) =>
-      list.computeHelper?.(schema, localize, item, this.hass) ??
-      own?.(schema, localize) ??
-      itemHelpers(schema, localize);
+    return itemHelper(list, this.spec?.computeHelper, item, this.hass);
   }
 
   /**

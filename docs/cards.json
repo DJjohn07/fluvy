@@ -417,7 +417,7 @@
             {
               "key": "below",
               "label": "Under the value",
-              "does": "Counts an entity whose state, or the attribute named, is below this number.",
+              "does": "The threshold claims what is under its value.",
               "helper": "Off: from the value up",
               "type": "boolean"
             },
@@ -11357,7 +11357,7 @@
             {
               "key": "below",
               "label": "Under the value",
-              "does": "Counts an entity whose state, or the attribute named, is below this number.",
+              "does": "The threshold claims what is under its value.",
               "helper": "Off: from the value up",
               "type": "boolean"
             },
@@ -11372,7 +11372,6 @@
               "key": "label",
               "label": "Label",
               "does": "What the band is called, said beside the reading so that colour is never all that says it.",
-              "helper": "Under its readout when other sensors share the chart. Empty: its measure's word, or its name beyond the title.",
               "type": "text"
             },
             {
@@ -22996,7 +22995,7 @@
             {
               "key": "below",
               "label": "Under the value",
-              "does": "Counts an entity whose state, or the attribute named, is below this number.",
+              "does": "The threshold claims what is under its value.",
               "helper": "Off: from the value up",
               "type": "boolean"
             },
@@ -25525,7 +25524,7 @@
             {
               "key": "below",
               "label": "Under the value",
-              "does": "Counts an entity whose state, or the attribute named, is below this number.",
+              "does": "The threshold claims what is under its value.",
               "helper": "Off: from the value up",
               "type": "boolean"
             },

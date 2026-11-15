@@ -1349,6 +1349,8 @@ export const thresholdsList = ({ tint = false } = {}): RowsListSpec => ({
   helper: 'editor.thresholds_helper',
   idKey: 'tone',
   also: ['color'],
+  // its `label`, its `value` are a threshold's, whatever the card's fields of those names say
+  ownHelpers: true,
   ...(tint ? { fields: ['tint', 'tint_style'] } : {}),
   picker: thresholdTone(),
   keys: ['tone', 'value', 'below', 'color', 'label', 'icon'],

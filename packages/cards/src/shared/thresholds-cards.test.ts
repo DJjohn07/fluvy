@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import {
   setTintDefaults,
+  type HaFormSchemaItem,
   type HassConnection,
   type HassEntity,
   type HomeAssistant,
@@ -8,8 +9,10 @@ import {
 } from '@fluvy/core';
 import { LIT_FLOOR } from '@fluvy/tokens/runtime';
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { familiesDefined } from '../index.js';
+import { catalogue, familiesDefined } from '../index.js';
+import type { Card } from './base.js';
 import { visibleFields } from './form.js';
+import { itemHelper } from './rows-editor.js';
 import type { ThresholdItem } from './thresholds.js';
 
 /*
@@ -305,6 +308,81 @@ describe('the other cards past a threshold', () => {
 });
 
 describe('the editors (#204)', () => {
+  /** Every card's editor whose lists or whose lists' items take thresholds. */
+  const editors = async () =>
+    Promise.all(
+      (await catalogue()).map(async ([tag, element]) => ({
+        tag,
+        editor: await (element as unknown as typeof Card).editor(),
+      })),
+    );
+  /** The words under each field, by its name, through a form's rows. */
+  const fields = (schema: readonly HaFormSchemaItem[]): HaFormSchemaItem[] =>
+    schema.flatMap((item) => (item.schema ? fields(item.schema) : [item]));
+
+  it('a threshold’s fields say their own words, never the card’s for a field of the same name (the sensor’s `label`)', async () => {
+    const taken: string[] = [];
+    for (const { tag, editor } of await editors()) {
+      const list = editor.lists?.find(({ key }) => key === 'thresholds');
+      if (!list) continue;
+      taken.push(tag);
+      const helper = itemHelper(list, editor.getConfigForm().computeHelper);
+      expect(
+        Object.fromEntries(
+          fields(list.schema).map((field) => [field.name, helper(field, (key) => key)]),
+        ),
+        tag,
+      ).toEqual({
+        tone: undefined,
+        value: 'A figure, an entity or a template',
+        below: 'Off: from the value up',
+        color: 'Empty: the colour the card gives it',
+        label: undefined,
+        icon: undefined,
+      });
+    }
+    expect(taken.sort()).toEqual([
+      'fluvy-chart-card',
+      GAUGE,
+      'fluvy-sensor-card',
+      'fluvy-tile-card',
+    ]);
+  });
+
+  it('inside a row, a threshold’s fields are named as a threshold’s and say nothing of the card’s', async () => {
+    const taken: string[] = [];
+    for (const { tag, editor } of await editors())
+      for (const list of editor.lists ?? []) {
+        const inner = fields(list.schema).find(({ name }) => name === 'thresholds');
+        if (!inner) continue;
+        taken.push(`${tag} ${list.key}`);
+        const own = (
+          inner.selector as {
+            object: { fields: Record<string, { label: string; helper?: string }> };
+          }
+        ).object.fields;
+        expect(
+          Object.fromEntries(Object.entries(own).map(([name, field]) => [name, field.label])),
+          tag,
+        ).toEqual({
+          tone: 'Tone',
+          value: 'Value',
+          below: 'Under the value',
+          color: 'Colour',
+          label: 'Label',
+          icon: 'Icon',
+        });
+        for (const field of Object.values(own)) expect(field.helper).toBeUndefined();
+      }
+    expect(taken.sort()).toEqual([
+      'fluvy-readouts-card rows',
+      'fluvy-room-card tiles',
+      'fluvy-stat-tiles-card rows',
+      'fluvy-stat-tiles-card tiles',
+      'fluvy-tiles-card tiles',
+    ]);
+  });
+
   it('a row’s thresholds in Home Assistant’s list of objects, read and written back as they are', async () => {
     const [{ lists }, { entryOf, itemOf }] = await Promise.all([
       import('../tiles/tiles-editor.js'),
@@ -329,7 +407,7 @@ describe('the editors (#204)', () => {
         customElements.get(tag) as unknown as {
           editor(): Promise<{
             lists?: ReadonlyArray<{ key: string; fields?: readonly string[] }>;
-            getConfigForm(): { schema: readonly import('@fluvy/core').HaFormSchemaItem[] };
+            getConfigForm(): { schema: readonly HaFormSchemaItem[] };
           }>;
         }
       ).editor();

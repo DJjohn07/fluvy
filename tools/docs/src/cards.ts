@@ -477,17 +477,18 @@ export async function readCards(): Promise<readonly CardDoc[]> {
               list.computeLabel?.(field, asIs) ??
               config.computeLabel?.(field, asIs) ??
               rows.itemLabels(field, asIs);
-            const helper =
-              list.computeHelper?.(field, asIs, {}) ??
-              config.computeHelper?.(field, asIs) ??
-              rows.itemHelpers(field, asIs);
+            // the editor's rule: the list's words, the card's where the list's are not its own alone, the shared ones
+            const helper = rows.itemHelper(list as never, config.computeHelper as never)(
+              field,
+              asIs,
+            );
             // a field that carries no floating label on purpose (a colour well) is named by the word under it
             return keyOf(
               fields,
               label ? { label, helper } : { label: helper ?? field.name },
               // an item's fields declare no default of their own: a key left out follows the card
               {},
-              [`${short}.${list.key}[].*`, '[].*'],
+              [`${short}.${list.key}[].*`, `${list.key}[].*`, '[].*'],
             );
           }),
         })),

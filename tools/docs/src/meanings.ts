@@ -581,6 +581,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'sources[]': 'The sources of energy, each with its sensors; left out, the Energy dashboard’s.',
   'thresholds[]':
     'Values past which the reading takes a colour, each with its tone, and a label and an icon of its own.',
+  'thresholds[].below': 'The threshold claims what is under its value.',
   'tiles[]': 'The tiles, in the order they are drawn.',
 
   // ---- one card's list ----

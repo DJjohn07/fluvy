@@ -84,7 +84,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | --- | --- | --- | --- |
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `none`, `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `value` | *Value*. Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit. A figure, an entity or a template. | text |  |
-| `below` | *Under the value*. Counts an entity whose state, or the attribute named, is below this number. Off: from the value up. | boolean |  |
+| `below` | *Under the value*. The threshold claims what is under its value. Off: from the value up. | boolean |  |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the colour the card gives it. | colour |  |
 | `label` | *Label*. What the band is called, said beside the reading so that colour is never all that says it. | text |  |
 | `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
