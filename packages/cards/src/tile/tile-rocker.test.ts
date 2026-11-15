@@ -6,6 +6,7 @@ import { FluvyRoomCard } from '../room/room-card.js';
 import {
   cardForm,
   drawEditor,
+  listTitles,
   nextConfig,
   shownNames,
   type FormStub,
@@ -484,11 +485,14 @@ describe('the editors offer the style where a switch is drawn', () => {
     expect(await shown({ show_switch: false })).toBe(false);
     expect(await shown({ show_switch: 'value' })).toBe(false);
     expect(await shown({ entity: 'sensor.office' })).toBe(false);
-    // a rocker's tile has no ruler: its slider's style has nothing to act on, and its foot is its readouts'
+    // a rocker's tile has no ruler: its slider's style has nothing to act on, and its foot is its readouts' (a
+    // list, item by item)
     expect(await shown({}, 'slider_style')).toBe(true);
     expect(await shown({ switch_style: 'rocker' }, 'slider_style')).toBe(false);
-    expect(await shown({}, 'readouts')).toBe(false);
-    expect(await shown({ switch_style: 'rocker' }, 'readouts')).toBe(true);
+    const readouts = async (config: Record<string, unknown>): Promise<boolean> =>
+      listTitles(await editorOf(FluvyTileCard, { ...TILE, ...config })).includes('Readouts');
+    expect(await readouts({})).toBe(false);
+    expect(await readouts({ switch_style: 'rocker' })).toBe(true);
   });
 
   it('as a dropdown of the two styles, the toggle shown until the rocker is chosen and never written', async () => {

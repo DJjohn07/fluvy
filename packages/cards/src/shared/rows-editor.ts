@@ -358,6 +358,58 @@ export const compact = (item: Item, idKey: string): Entry => {
     : Object.fromEntries(keys.map((key) => [key, item[key]]));
 };
 
+/** A list inside an item's form: its field's name, and the selects of its entries' own fields (`selectsOf`). */
+type InnerList = readonly [string, ReadonlyMap<string, readonly unknown[]>];
+
+/**
+ * The fields of an item's form that hold a list of their own (a tile's readouts), which Home Assistant's list of
+ * objects edits entry by entry (`multiple`, with `fields`), through the form's rows.
+ */
+const innerLists = (schema: readonly HaFormSchemaItem[]): InnerList[] =>
+  schema.flatMap((item): InnerList[] => {
+    if (item.schema) return innerLists(item.schema);
+    const object = item.selector?.['object'] as
+      { multiple?: boolean; fields?: Readonly<Record<string, HaFormSchemaItem>> } | undefined;
+    return object?.multiple && object.fields
+      ? [
+          [
+            item.name,
+            selectsOf(Object.entries(object.fields).map(([name, field]) => ({ ...field, name }))),
+          ],
+        ]
+      : [];
+  });
+
+/** Each list's inner lists, read once. */
+const inner = new WeakMap<RowsListSpec, readonly InnerList[]>();
+
+/**
+ * An item with every list inside it (`innerLists`) taken through `each`, entry by entry with its fields' selects, an
+ * entry it gives up left out; the item itself where it holds none.
+ */
+const withInner = (
+  item: Item,
+  list: RowsListSpec,
+  each: (entry: unknown, selects: ReadonlyMap<string, readonly unknown[]>) => unknown,
+): Item => {
+  let lists = inner.get(list);
+  if (!lists) inner.set(list, (lists = innerLists(list.schema)));
+  const held = lists.filter(([name]) => Array.isArray(item[name]));
+  return held.length
+    ? {
+        ...item,
+        ...Object.fromEntries(
+          held.map(([name, selects]) => [
+            name,
+            (item[name] as unknown[])
+              .map((entry) => each(entry, selects))
+              .filter((entry) => entry !== null),
+          ]),
+        ),
+      }
+    : item;
+};
+
 /**
  * A section or a divider among a list's entries as the editor's item, in the words Home Assistant's entities card
  * writes them (`type`): a section with its label and whether a hairline stands over it — one without a label yet is
@@ -377,15 +429,28 @@ export const isSection = (item: Item, list: RowsListSpec): boolean =>
   typeof item[idKeyOf(list)] !== 'string' &&
   (item['type'] === 'section' || item['type'] === 'divider');
 
-/** A config entry as the list's item: the list's own reading, else the id rule, else a section where it takes them. */
-export const itemOf = (raw: unknown, list: RowsListSpec): Item | null =>
-  list.read
+/**
+ * A config entry as the list's item: the list's own reading, else the id rule, else a section where it takes them. A
+ * list inside it (a tile's readouts) holds items too, a bare id among them an item of its own and a number its YAML
+ * holds as its select's word (`decimals: 2`), as an item's own are.
+ */
+export const itemOf = (raw: unknown, list: RowsListSpec): Item | null => {
+  const item = list.read
     ? list.read(raw)
     : (toItem(raw, idKeyOf(list), list.also) ?? (list.sections ? sectionItem(raw) : null));
+  return (
+    item &&
+    withInner(item, list, (entry, selects) => {
+      const own = toItem(entry, 'entity');
+      return own && worded(own, selects);
+    })
+  );
+};
 
 /**
- * An item back as the list's config entry: the list's own writing, else `compact`; a section keeps its kind, its
- * label and its hairline where it has them.
+ * An item back as the list's config entry: the list's own writing, else `compact`, each entry of a list inside it
+ * likewise (a sensor alone goes back to its id); a section keeps its kind, its label and its hairline where it has
+ * them.
  */
 export const entryOf = (item: Item, list: RowsListSpec): Entry | null =>
   list.write
@@ -396,7 +461,12 @@ export const entryOf = (item: Item, list: RowsListSpec): Entry | null =>
           ...(item['label'] ? { label: item['label'] } : {}),
           ...(item['line'] === true ? { line: true } : {}),
         }
-      : compact(item, idKeyOf(list));
+      : compact(
+          withInner(item, list, (entry) =>
+            typeof entry === 'object' && entry !== null ? compact(entry as Item, 'entity') : entry,
+          ),
+          idKeyOf(list),
+        );
 
 /**
  * The items of a list as the editor shows them: under `key`, else under the alias; and, when the config names

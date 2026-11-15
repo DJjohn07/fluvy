@@ -1,8 +1,10 @@
 import {
   actionRuns,
   formatNumber,
+  idsOf,
   isActive,
   isUsable,
+  itemsOf,
   lightDefaults,
   numberAttr,
   relativeTime,
@@ -20,6 +22,7 @@ import {
   type HomeAssistant,
   type LovelaceGridOptions,
   type UnavailableLook,
+  type ValueParts,
 } from '@fluvy/core';
 
 import {
@@ -47,6 +50,7 @@ import { statusToneOf, washesAtRest, type LightColours, type Tint } from '../sha
 import { NAME_LINE, twoLines, type NameLines } from '../shared/heights.js';
 import { shorterForms } from '../shared/secondary.js';
 import { changedAt, sinceIds } from '../shared/since.js';
+import { askedParts, type NumberKeys } from '../shared/units.js';
 import {
   NUMBERS,
   numberScale,
@@ -73,6 +77,15 @@ export type ShowSwitch = boolean | 'value';
 /** What a tile's switch is drawn as (`switch_style`, #177): the toggle (the default), or a wall rocker. */
 export type SwitchStyle = 'toggle' | 'rocker';
 
+/**
+ * One readout of a tile, in the Grid card's shape (#197): its sensor, a name of its own — its label in a foot, said
+ * before its figure on a line ("CPU 55 °C") — and the unit and the decimals its figure reads in.
+ */
+export interface TileReadout extends NumberKeys {
+  entity: string;
+  name?: EntityName;
+}
+
 /** One tile's own settings — the single card's config, or one item of a tiles group. */
 export interface TileItem {
   entity: string;
@@ -81,8 +94,12 @@ export interface TileItem {
   tone?: Tone;
   /** The tile's own colour (a Home Assistant colour name or `#rrggbb`): the accent inside it. */
   color?: string;
-  /** Entities shown as small readouts in the foot of a large tile (a plug's power, its energy today, its cost): two, or three when the tile is wide; the first one joins the state line of a small tile. */
-  readouts?: readonly string[];
+  /**
+   * Sensors shown as small readouts in the foot of a large tile (a plug's power, its energy today, its cost): two, or
+   * three when the tile is wide; the first one joins the state line of a small tile. Each is an id, or a sensor with
+   * what it says of its own (`TileReadout`).
+   */
+  readouts?: ReadonlyArray<string | TileReadout>;
   /** Where its last change is read from (#67): a timestamp sensor, or `attribute:<name>` of its own; else Home Assistant's. */
   since?: string;
   /** How it looks out of reach (1.16, #126): `quiet`, as it rests; else the group's, else the house's (`dashed`). */
@@ -143,6 +160,18 @@ interface LineFit {
   readonly words?: boolean | undefined;
   readonly figure?: string | undefined;
   readonly forms?: readonly string[] | undefined;
+}
+
+/**
+ * A readout as a tile writes it: its figure and its unit, its label over them in a foot, its own name where it has
+ * one (said before its figure on a line), and whether it can be read.
+ */
+interface Reading extends ValueParts {
+  readonly label: string;
+  readonly own: string;
+  /** Its label is a name (its own, its sensor's): it may end in an ellipsis, where a measure's word never does. */
+  readonly named: boolean;
+  readonly ok: boolean;
 }
 
 /** What a tile shows of its entity (`look`): what a card built on the tile may answer otherwise (the template card). */
@@ -222,6 +251,14 @@ const headValue = (value: string, unit: string): TemplateResult =>
   html`<span class="fv-tile__value"
     >${value}${unit ? html` <span class="fv-unit">${unit}</span>` : nothing}</span
   >`;
+
+/** A readout as a line says it: its figure and its unit ("142 W"), after its own name where it has one ("CPU 55 °C"). */
+const onLine = ({ own, value, unit }: Reading): string =>
+  [own, value, unit].filter(Boolean).join(' ');
+
+/** A readout under its label, as a large tile's foot draws it. */
+const cell = ({ label, value, unit, named }: Reading): TemplateResult =>
+  readout({ label, value, unit, size: 'xs', name: named });
 
 /** What a large tile's foot ruler sets (`level`): where the entity stands on its scale, and the call that sets it. */
 export interface TileLevel {
@@ -303,6 +340,13 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       }
       .fv-tile__foot--one {
         grid-template-columns: minmax(0, 1fr);
+      }
+      /* a foot's readout named by the person, or by its sensor, ends in an ellipsis where its cell is narrower than
+         its name; a measure's word never does (the foot draws fewer readouts first) */
+      .fv-tile__foot .fv-readout__label[data-name] {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
       }
       /* a foot under the state line: a name that would end in an ellipsis steps down to 14 px first (as the compact tiles' does) */
       .fv-tile--tight .fv-tile__name {
@@ -399,7 +443,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     return withMembers(
       [
         this.config?.entity ?? '',
-        ...(this.config?.readouts ?? []),
+        ...idsOf(this.config?.readouts),
         ...sinceIds(this.config ? [this.config] : []),
       ],
       this.hass,
@@ -594,14 +638,41 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     return shorter.find((form) => measure(form) <= room) ?? (dash ? '—' : '');
   }
 
-  /** The reading of the first readout ("142 W"), for a small tile's state line. */
-  private readoutText(item: TileItem): string {
-    const id = item.readouts?.[0];
-    if (!id) return '';
-    const view = this.entity(id);
-    if (view.status !== 'ok') return '';
-    const parts = valueParts(this.hass, view);
-    return parts.unit ? `${parts.value} ${parts.unit}` : parts.value;
+  /**
+   * A tile's readouts as it writes them (`name`: the tile's): each one's figure in the unit and the decimals it asks
+   * for, and its label — its own name, else its measure's word (a power's, an energy's, a cost's), else its sensor's
+   * name beyond the tile's.
+   */
+  private readings(item: TileItem, name: string): Reading[] {
+    return itemsOf<TileReadout>(item.readouts).map((readout) => {
+      const view = this.entity(readout.entity);
+      const own = readout.name ? this.nameFor(view, readout.name) : '';
+      // the sensor's name as the card names its items (`names`, #200), beyond the tile's
+      const said = this.nameFor(view, undefined);
+      const measure =
+        view.deviceClass === 'power'
+          ? this.t('energy.power')
+          : view.deviceClass === 'energy'
+            ? this.t('energy.today')
+            : view.deviceClass === 'monetary'
+              ? this.t('energy.cost')
+              : '';
+      return {
+        ...askedParts(this.hass, view, readout),
+        label: own || measure || said.replace(name, '').trim() || said,
+        own,
+        named: Boolean(own) || !measure,
+        ok: view.status === 'ok',
+      };
+    });
+  }
+
+  /** The room a readout's cell must have to hold it whole: its label's, or its figure's with its unit. */
+  private cellWidth({ label, value, unit }: Reading): number {
+    return Math.max(
+      this.ruler.width('fv-readout__label', label),
+      this.ruler.width('fv-readout fv-readout--xs > fv-readout__value', value, 'fv-unit', unit),
+    );
   }
 
   private flip(view: EntityView, next: boolean): void {
@@ -835,17 +906,15 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         runs(item.tap_action ?? (usable && canToggle && !plated ? TOGGLE : MORE_INFO)),
         doubleNow,
       );
-      let line = told?.line ?? this.tileLine(item, view, lit, level, false, true);
-      const reading = usable ? this.readoutText(item) : '';
-      if (reading) line = `${line} · ${reading}`;
-      line = this.fitState(line, size, view, {
-        dash: !usable,
-        inside,
-        words,
-        figure,
-        plated,
-        forms: told?.forms,
-      });
+      const own = told?.line ?? this.tileLine(item, view, lit, level, false, true);
+      // its line says its first readout where it can be read, on a tile that can
+      const [first] = this.readings(item, name);
+      const line = this.fitState(
+        [own, ...(usable && first?.ok ? [onLine(first)] : [])].join(' · '),
+        size,
+        view,
+        { dash: !usable, inside, words, figure, plated, forms: told?.forms },
+      );
       return html`<article
         class=${classes}
         data-card
@@ -965,41 +1034,18 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     };
 
     let foot: TemplateResult | typeof nothing = nothing;
+    // a foot that is the ruler draws no readout
+    const stats = level && !fill ? [] : this.readings(item, name);
     if (level && !fill) {
       foot = slider(level, Math.max(24, inner));
-    } else if (item.readouts?.length) {
-      const stats = item.readouts.map((id) => {
-        const r = this.entity(id);
-        const p = valueParts(this.hass, r);
-        const said = this.nameFor(r, undefined);
-        const short =
-          r.deviceClass === 'power'
-            ? this.t('energy.power')
-            : r.deviceClass === 'energy'
-              ? this.t('energy.today')
-              : r.deviceClass === 'monetary'
-                ? this.t('energy.cost')
-                : said.replace(name, '').trim() || said;
-        return { label: short, value: p.value, unit: p.unit };
-      });
+    } else if (stats.length) {
       // two share the foot as 46 % and 54 % (64 and 76 in a 172 tile), three equal thirds, while every label and every
       // reading holds its cell (fr's "PUISSANCE" and "AUJOURD'HUI" do not on a phone, de's "LEISTUNG" and a "0.8 kWh"
       // not in half a section): else the first has the foot to itself
       const cells = (n: number): number[] =>
         n === 2 ? [inner * 0.46, inner * 0.54] : Array<number>(n).fill(inner / n);
       const holds = (n: number): boolean =>
-        stats.slice(0, n).every(({ label, value, unit }, i) => {
-          const cell = cells(n)[i] ?? 0;
-          return (
-            this.ruler.width('fv-readout__label', label) <= cell &&
-            this.ruler.width(
-              'fv-readout fv-readout--xs > fv-readout__value',
-              value,
-              'fv-unit',
-              unit,
-            ) <= cell
-          );
-        });
+        stats.slice(0, n).every((stat, i) => this.cellWidth(stat) <= (cells(n)[i] ?? 0));
       const shown = Math.min(
         stats.length,
         inner >= THREE_READOUTS && holds(3) ? 3 : inner >= TWO_READOUTS && holds(2) ? 2 : 1,
@@ -1007,7 +1053,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       foot = html`<div
         class="fv-tile__foot ${shown === 1 ? 'fv-tile__foot--one' : shown === 3 ? 'fv-tile__foot--three' : ''}"
       >
-        ${stats.slice(0, shown).map((stat) => readout({ ...stat, size: 'xs' }))}
+        ${stats.slice(0, shown).map(cell)}
       </div>`;
     }
 

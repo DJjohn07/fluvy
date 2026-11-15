@@ -446,7 +446,7 @@ export class FluvyRoomCard extends FluvyTileCard {
     const { members, entities, climate } = this.contents();
     // every entity the area holds, shown or not: one whose state comes late fills the room, a hidden one moves the hint;
     // what it includes from elsewhere, its quick actions' own and its lights; a light group's members (its colour is
-    // theirs); and what a tile's last change is read from (`since`)
+    // theirs); and what a tile's readouts and its last change are read from (`readouts`, `since`)
     const tiles = this.tiles();
     return withMembers(
       [
@@ -454,6 +454,7 @@ export class FluvyRoomCard extends FluvyTileCard {
           ...members,
           ...entities,
           ...tiles,
+          ...tiles.flatMap((tile) => tile.readouts ?? []),
           ...(this.room?.quick_actions ?? []),
           ...(this.room?.lights ?? []),
           climate.temperature,

@@ -2905,6 +2905,18 @@ the palette's share (`--fluvy-shade`: none on a surface read by its edges).
   tile asked for a rocker. The tile keeps the plate's box meanwhile, so nothing moves when it lands, and keeps its
   toggle where it cannot be fetched.
 
+## A tile's readouts (1.22, #197)
+
+A large tile's foot draws two or three readouts as its width holds; a compact or a mini tile says its first on its
+line after its state, as it always has.
+
+- **A readout's own words**: a readout may name itself (`name`), in the Grid card's shape. The name stands before its
+  figure on the line ("CPU 55 °C"), so two of one measure read apart, and is its label in a large tile's foot, where a
+  name may end in an ellipsis and a measure's word ("Power", "Today") never does. Its `unit` and `decimals` are the
+  one rule of units (§ Readouts and text).
+- **The editors** list a tile's readouts item by item (the rows editor; a group's or a room's tile, Home Assistant's
+  list of objects in its form).
+
 ## Vehicle (1.13)
 
 The Vehicle card (#84) is an electric car on the charge cards' anatomy: the head, the battery on the car charger's ruler,

@@ -64,8 +64,11 @@ const cards = await Promise.all(
   }),
 );
 
-/** The cards whose names are templates (`{{ … }}`) of the person's own: words, never Home Assistant's parts. */
-const TEMPLATED = new Set(['fluvy-template-card', 'fluvy-chips-card']);
+/**
+ * The forms whose names are templates (`{{ … }}`) of the person's own: words, never Home Assistant's parts — the
+ * template card's own and a chip's (a list's form by its card and its key).
+ */
+const TEMPLATED = new Set(['fluvy-template-card', 'fluvy-chips-card chips']);
 
 /** The parts of an editor a class may declare: none on a card that keeps its editor in a module. */
 const PARTS = ['base', 'keys', 'lists', 'defaults', 'choices', 'getConfigForm'] as const;
@@ -263,7 +266,10 @@ describe('the editors’ contract', () => {
   it.each(cards)(
     '$tag: names its entity, and each item its own, in Home Assistant’s parts where one is beside the name (#125)',
     ({ tag, editor, lists }) => {
-      for (const schema of [editor.getConfigForm().schema, ...lists.map((list) => list.schema)]) {
+      for (const { where, schema } of [
+        { where: tag, schema: editor.getConfigForm().schema },
+        ...lists.map((list) => ({ where: `${tag} ${list.key}`, schema: list.schema })),
+      ]) {
         const shown = fields(schema);
         const name = shown.find((field) => field.name === 'name');
         if (!name) continue;
@@ -274,10 +280,10 @@ describe('the editors’ contract', () => {
               ?.multiple !== true,
         );
         // the template card's name and a chip's are templates of the person's own: words
-        if (beside && !TEMPLATED.has(tag)) {
-          expect(name.selector, tag).toEqual({ entity_name: {} });
-          expect(name.context, tag).toEqual({ entity: 'entity' });
-        } else expect(name.selector, tag).toEqual({ text: {} });
+        if (beside && !TEMPLATED.has(where)) {
+          expect(name.selector, where).toEqual({ entity_name: {} });
+          expect(name.context, where).toEqual({ entity: 'entity' });
+        } else expect(name.selector, where).toEqual({ text: {} });
       }
     },
   );

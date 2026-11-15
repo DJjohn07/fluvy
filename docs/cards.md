@@ -164,6 +164,26 @@ second line where one would cut it — on the tile and tiles cards, the template
 room card's tiles and row. The tile is then a line taller whatever its name says (a compact one 88 instead of 76, 96
 inside a card, a mini 124 instead of 108), so a row of tiles stays level.
 
+A tile's `readouts` stand in a large tile's foot, two or three as its width holds; a compact or mini tile says the
+first after its state ("On · 142 W"). A readout may be a sensor alone or, as the Grid card's (1.22), one with what it
+says of its own: `name` is its label in a large tile's foot and stands before its figure on a line ("CPU 55 °C", so
+two temperatures read apart), and `unit` and `decimals` are the unit and the decimals its figure reads in. The tile's
+editor lists them one by one.
+
+```yaml
+type: custom:fluvy-tile-card
+entity: switch.nas
+size: compact
+readouts:
+  - entity: sensor.nas_cpu_temperature
+    name: CPU
+  - entity: sensor.nas_disk_temperature
+    name: Disk
+  - entity: sensor.nas_power
+    unit: kW
+    decimals: 2
+```
+
 A sensor card's readouts are named by their measure when nothing is set ("Temperature", "Humidity"); `label` names
 the card's own sensor, an entry's `name` names that entry, and each entry may take its own `color`:
 
@@ -1841,9 +1861,9 @@ roles:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `since`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `readouts` | — |
-| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `group_by` (`none`, `area`, `floor`), `group_order` (`auto`, `name`), `short_names`, `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `readouts`, `empty_text`, `hide_empty`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `unavailable`, `show_switch`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`; between them `type: section`) | `entities` → `tiles` |
-| **Template** | `custom:fluvy-template-card` | A tile whose name, line, icon, colour and fill are templates, with or without an entity; a Mushroom template card pastes in. | `secondary` (`state`, `area`, `last-changed`, `none`), `since`, `variant` (`compact`, `mini`, `large`), `active` (`auto`, `always`, `never`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `tint` (`on`, `always`), `readouts` | `primary` → `name`, `icon_color` → `color`, `layout` → `variant`, `vertical` → `variant` |
+| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `since`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `readouts` (a list: `entity`, `name`, `unit`, `decimals`) | — |
+| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `group_by` (`none`, `area`, `floor`), `group_order` (`auto`, `name`), `short_names`, `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `empty_text`, `hide_empty`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `unavailable`, `show_switch`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`; between them `type: section`) | `entities` → `tiles` |
+| **Template** | `custom:fluvy-template-card` | A tile whose name, line, icon, colour and fill are templates, with or without an entity; a Mushroom template card pastes in. | `secondary` (`state`, `area`, `last-changed`, `none`), `since`, `variant` (`compact`, `mini`, `large`), `active` (`auto`, `always`, `never`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `tint` (`on`, `always`), `readouts` (a list: `entity`, `name`, `unit`, `decimals`) | `primary` → `name`, `icon_color` → `color`, `layout` → `variant`, `vertical` → `variant` |
 | **Light** | `custom:fluvy-light-card` | The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature. | `show_brightness` (`true`, `when_on`, `false`), `variant` (`auto`, `full`, `compact`), `show_stepper`, `live_update`, `show_temperature`, `show_color`, `temperature_tint`, `tint` (`off`, `on`, `always`), `tint_strength` (`soft`, `brightness`, `full`, `full_brightness`), `light_whites` (`palette`, `temperature`), `colors` (a list: `color`, `name`, `rgb`) | — |
 | **Slider** | `custom:fluvy-slider-card` | Any value on the precision ruler: a player’s volume with its mute, a number or a helper, a fan’s speed, another entity’s switch in its head. | `variant` (`full`, `compact`, `tile`), `show_stepper`, `control` (`auto`, `mute`, `switch`, `none`), `toggle_entity`, `min`, `max`, `label`, `live_update`, `tint` (`off`, `on`, `always`) | — |
 | **Room lights** | `custom:fluvy-lights-card` | A room’s lights on one card: one tap for the whole room, a round, chip or tile for each light, in its colour. | `area`, `variant` (`row`, `chips`, `tiles`), `show_brightness`, `show_count`, `show_level`, `show_color`, `color_action` (`sheet`, `more-info`), `color_control` (`ruler`, `wheel`), `light_colors`, `light_whites` (`palette`, `temperature`), `tint` (`on`, `always`), `name_lines` (`1`, `2`), `switch_style` (`toggle`, `rocker`), `empty_text`, `hide_empty`, `lights` (a list: `entity`, `name`, `icon`, `color`), `colors` (a list: `color`, `name`, `rgb`) | `entities` → `lights` |

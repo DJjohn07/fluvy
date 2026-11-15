@@ -52,8 +52,8 @@ export interface TemplateCardConfig extends FluvyCardConfig {
   show_switch?: ShowSwitch;
   /** Its switch as a wall rocker (`rocker`, #177), a compact tile's at its row's end: no ruler, no level then. */
   switch_style?: SwitchStyle;
-  /** Sensors as small readouts in a large tile's foot. */
-  readouts?: readonly string[];
+  /** Sensors as small readouts in a large tile's foot: ids, or each with a name, a unit and decimals of its own, as a tile's. */
+  readouts?: NonNullable<TileItem['readouts']>;
 }
 
 export const VARIANTS: readonly TileSize[] = ['compact', 'mini', 'large'];

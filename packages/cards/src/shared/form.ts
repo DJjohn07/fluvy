@@ -1156,6 +1156,37 @@ export const numberFields = ({
 /** What the row shows where the config says nothing: automatic, both. */
 export const NUMBER_DEFAULTS = { unit: 'auto', decimals: 'auto' } as const;
 
+/**
+ * A tile's readouts inside its item's form (1.22, #197): Home Assistant's list of objects — each a sensor with a
+ * name, a unit and decimals of its own, added and edited in its dialog and dragged into order. The rows editor hands
+ * it items and writes them back as the card reads them, a sensor alone as its id (`innerLists`).
+ */
+export const readoutsField = (): HaFormSchemaItem => {
+  const { computeLabel } = formLabels();
+  return {
+    name: 'readouts',
+    selector: {
+      object: {
+        multiple: true,
+        label_field: 'entity',
+        description_field: 'name',
+        fields: Object.fromEntries(
+          [entityField(['sensor']), textField('name'), ...(numberFields().schema ?? [])].map(
+            (field) => [
+              field.name,
+              {
+                selector: field.selector,
+                required: field.required ?? false,
+                label: computeLabel(field, (key) => key),
+              },
+            ],
+          ),
+        ),
+      },
+    },
+  };
+};
+
 /** The unit of the card's entity as the editor's `when` and `choices` read it: none where the house does not hold it. */
 const unitOf = (
   data: Readonly<Record<string, unknown>>,

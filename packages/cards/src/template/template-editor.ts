@@ -1,5 +1,6 @@
 import { strings, type LovelaceConfigForm } from '@fluvy/core';
 import { tintsAtRest } from '../tile/tile-card.js';
+import { READOUTS } from '../tile/tile-editor.js';
 import { ENTITY_BASE, ICON_ACTIONS_BASE, type BaseKey } from '../shared/base.js';
 import { configKeys } from '../shared/config.js';
 import {
@@ -24,7 +25,7 @@ import {
   textField,
   tintField,
 } from '../shared/form.js';
-import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
+import type { EditorChoices, EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { KEYWORDS, VARIANTS, type TemplateCardConfig } from './template-card.js';
 
 /** The template card's editor: fetched by its `editor()` the first time the card is edited, never by a dashboard. */
@@ -67,6 +68,11 @@ export const defaults: EditorDefaults = (config) => ({
 /** `since` offers the house's timestamp sensors, as the tile's does. */
 export const choices: EditorChoices = sinceChoices;
 
+/** Its readouts, item by item as the tile's are, where it draws them: a large tile's foot. */
+export const lists: readonly RowsListSpec[] = [
+  { ...READOUTS, when: (data) => data['variant'] === 'large' },
+];
+
 export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
@@ -92,10 +98,10 @@ export function getConfigForm(): LovelaceConfigForm {
         switchStyleField(),
       ),
       ...colourFields(),
-      // a colour at rest needs a rest and something to show then (a colour, or a tone that washes); readouts need
-      // a large tile's foot
+      // a colour at rest needs a rest and something to show then (a colour, or a tone that washes); the readouts
+      // are edited item by item (the rows editor takes the field out of the form)
       onlyWhen((data, hass) => data['active'] !== 'always' && tintsAtRest(data, hass), tintField()),
-      onlyWhen((data) => data['variant'] === 'large', entitiesField('readouts', ['sensor'])),
+      entitiesField('readouts', ['sensor']),
       // a small tile's tap toggles what toggles, a large one's opens; its circle may be its switch
       actionFields({ icon: true, tap: null, iconTap: null }),
     ],

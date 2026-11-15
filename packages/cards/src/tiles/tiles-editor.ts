@@ -20,6 +20,7 @@ import {
   nameLinesField,
   namesField,
   onlyWhen,
+  readoutsField,
   selectField,
   showActionField,
   showSwitchField,
@@ -62,7 +63,6 @@ export const keys = configKeys<TilesCardConfig>()([
   'show_switch',
   'switch_style',
   'show_action',
-  'readouts',
   'tiles',
   'columns',
   'tint',
@@ -77,7 +77,7 @@ const TILE_FIELDS = [
   entityField(),
   nameIconFields(),
   fieldRow(toneField(), accentField('color', { item: 'bulb' })),
-  entitiesField('readouts', ['sensor']),
+  readoutsField(),
   sinceField(),
   unavailableField({ item: true }),
   showSwitchField({ item: true }),
@@ -188,9 +188,8 @@ export function getConfigForm(): LovelaceConfigForm {
       // a light's colours where the group holds a light; its large tiles' sliders in a style (the fill is theirs)
       onlyWhen(holdsLight('tiles', 'entities'), lightColourFields()),
       ...sliderFields(true).map((row) => onlyWhen(({ size }) => size === 'large', row)),
-      entitiesField('readouts', ['sensor']),
       emptyFields(),
     ],
-    ...formLabels({ readouts: 'editor.readouts' }),
+    ...formLabels(),
   };
 }

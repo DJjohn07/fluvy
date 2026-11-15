@@ -2,7 +2,13 @@
 import type { HomeAssistant, LovelaceCardConfig } from '@fluvy/core';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { familiesDefined } from '../index.js';
-import { cardForm, drawEditor, nextConfig, shownNames } from '../shared/fixtures/editor.js';
+import {
+  cardForm,
+  drawEditor,
+  listTitles,
+  nextConfig,
+  shownNames,
+} from '../shared/fixtures/editor.js';
 import { stateLineWidths } from '../shared/fixtures/widths.js';
 import { FluvyTilesCard } from '../tiles/tiles-card.js';
 import { FluvyTileCard } from './tile-card.js';
@@ -517,11 +523,12 @@ describe('the tile’s editor offers what acts for its entity and its size (#58)
       supported_color_modes: ['onoff'],
     }),
   };
+  /** The fields the tile's form shows, and the titles of the lists drawn under it (its readouts, item by item). */
   const shown = async (config: Record<string, unknown>): Promise<string[]> => {
     const editor = await FluvyTileCard.getConfigElement();
     (editor as HTMLElement & { hass: HomeAssistant }).hass = house(STATES);
     const drawnEditor = await drawEditor(editor, { type: 'custom:fluvy-tile-card', ...config });
-    return shownNames(cardForm(drawnEditor).schema);
+    return [...shownNames(cardForm(drawnEditor).schema), ...listTitles(drawnEditor)];
   };
   afterEach(() => document.body.replaceChildren());
 
@@ -534,10 +541,10 @@ describe('the tile’s editor offers what acts for its entity and its size (#58)
   });
 
   it('readouts where they are drawn: never under a large tile’s ruler', async () => {
-    expect(await shown({ entity: 'light.desk' })).not.toContain('readouts');
-    expect(await shown({ entity: 'light.desk', size: 'compact' })).toContain('readouts');
-    expect(await shown({ entity: 'light.plug' })).toContain('readouts');
-    expect(await shown({ entity: 'switch.washer' })).toContain('readouts');
+    expect(await shown({ entity: 'light.desk' })).not.toContain('Readouts');
+    expect(await shown({ entity: 'light.desk', size: 'compact' })).toContain('Readouts');
+    expect(await shown({ entity: 'light.plug' })).toContain('Readouts');
+    expect(await shown({ entity: 'switch.washer' })).toContain('Readouts');
   });
 
   it('offers a name in two lines to a compact or a mini tile alone (#100)', async () => {
