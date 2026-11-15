@@ -8,22 +8,34 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 ### Visible on upgrade
 
 - German reads as German and in Home Assistant's own words, thanks to @sebfrie: an unavailable entity says "Nicht
-  verfügbar", a lock's buttons "Verriegeln" and "Entriegeln", tap and hold "Verhalten bei Antippen" and "Verhalten bei
-  Festhalten", idle energy "Leerlauf", phones "Smartphones", and the settings' tabs "Erscheinungsbild" and
-  "Anwendungsbereich"; editor switches say "… anzeigen", and phrases translated word for word read as a German speaker
-  says them.
+  verfügbar", a lock's buttons "Verriegeln" and "Entriegeln" and its states "Verriegelt" and "Entriegelt", every action
+  field as Home Assistant's editors say it ("Verhalten bei Antippen", "… Festhalten", "… Doppeltippen", "… des
+  Symbols"), idle energy "Leerlauf", phones "Smartphones", a button a "Taste", the wall's mode the "Wandmodus", and the
+  settings' tabs "Erscheinungsbild" and "Anwendungsbereich"; editor switches say "… anzeigen", and phrases translated
+  word for word read as a German speaker says them.
 
 ### Added
 
 - Czech, thanks to @DJjohn07: every card, page, dialog and editor form, the settings panel's language list and the
   integration's own texts, with the naming words the automatic dashboards and the appliance cards read a Czech house
   by, as written or as an entity id writes them (a name's ř is read as r). It says Home Assistant's own words where
-  Home Assistant names the same thing (Zapnuto, Vypnuto), counts in the forms Czech gives a whole number (2 až 4
-  zařízení, 5 zařízení), and greets "Dobré ráno" until 9:00, "Dobrý den" through the day and "Dobrý večer" from
-  18:00; "Dobrou noc" is a farewell before sleep and never shows.
+  Home Assistant names the same thing (Zapnuto, Vypnuto, Detekováno, Vytápění), counts in the forms Czech gives a whole
+  number (2 až 4 zařízení, 5 zařízení), and greets "Dobré ráno" until 9:00, "Dobrý den" through the day and "Dobrý
+  večer" from 18:00; "Dobrou noc" is a farewell before sleep and never shows.
+
+### Fixed
+
+- A Grid card's price that cannot be read, and a clock's weather out of reach, say a long word for unavailable whole
+  (German's "Nicht verfügbar"): the row's circle gives way to it, and a line too narrow for it says "—", where the word
+  was cut.
+- A lock's, a camera's or an alarm's row whose state is one long word in Home Assistant's own words (Czech's
+  "Nedetekováno") keeps its name: where the state would leave the name under its room in a narrow column, the state
+  stands under the name, in the line's place, and the row keeps its height.
 
 ### Development
 
+- Development dependencies: prettier 3.10.0, typescript-eslint 8.72.2, vite 8.3.8 and sortablejs 1.15.7; the automatic
+  dashboards' chunk may weigh 30 KB (a seventeenth language's naming words).
 - The settings panel's tests wait for what they wait on (a section's own file landing, a save's writes done, the apply
   bar gone) where they waited a fixed time: on a loaded runner one or another of them failed now and then.
 
