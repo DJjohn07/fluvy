@@ -187,6 +187,70 @@ describe('the form Home Assistant’s pencil opens on an automatic dashboard (#1
     ]);
   });
 
+  it('shows a value it does not offer as it is written, first, and keeps it when another field changes (#202)', async () => {
+    const { change, changes, fields } = await editorOf('home', {
+      type: 'custom:fluvy-home',
+      tile_size: 'mini',
+      hide: ['media', 'a-view-of-another-version'],
+    });
+    const select = (name: string) =>
+      (
+        fields().schema.find((field) => field.name === name)!.selector as {
+          select: { options: { value: string; label: string }[] };
+        }
+      ).select;
+    expect(fields().data['tile_size']).toBe('mini');
+    expect(select('tile_size').options).toEqual([
+      { value: 'mini', label: 'Mini' },
+      { value: 'large', label: 'Large' },
+      { value: 'compact', label: 'Rows' },
+    ]);
+    // the dialog's form says its whole value: the fields left as they were stay as the dashboard wrote them
+    await change('thermostat_variant', 'ruler');
+    expect(changes.at(-1)).toEqual({
+      type: 'custom:fluvy-home',
+      tile_size: 'mini',
+      hide: ['media', 'a-view-of-another-version'],
+      thermostat_variant: 'ruler',
+    });
+    // chosen away, it goes as any other value: the default is no key
+    await change('tile_size', 'large');
+    expect(changes.at(-1)).not.toHaveProperty('tile_size');
+    expect(select('tile_size').options.map((option) => option.value)).toEqual(['large', 'compact']);
+  });
+
+  it('says a figure of its own in the choice’s words, and reads a figure written as words as the figure', async () => {
+    const security = await editorOf('security', {
+      type: 'custom:fluvy-security',
+      camera_refresh: 15,
+    });
+    const refresh = security.fields().schema.find((field) => field.name === 'camera_refresh')!
+      .selector as { select: { options: { value: string; label: string }[] } };
+    expect(refresh.select.options[0]).toEqual({ value: '15', label: '15 s' });
+    expect(security.fields().data['camera_refresh']).toBe('15');
+    const words = await editorOf('security', {
+      type: 'custom:fluvy-security',
+      camera_refresh: '20',
+    });
+    expect(words.fields().data['camera_refresh']).toBe('20');
+    expect(
+      (
+        words.fields().schema.find((field) => field.name === 'camera_refresh')!.selector as {
+          select: { options: { value: string; label: string }[] };
+        }
+      ).select.options[0],
+    ).toEqual({ value: '20', label: '20 s' });
+    const wall = await editorOf('wall', { type: 'custom:fluvy-wall', scenes_max: '6' });
+    expect(wall.fields().data['scenes_max']).toBe('6');
+    expect(
+      (
+        wall.fields().schema.find((field) => field.name === 'scenes_max')!.selector as {
+          select: { options: unknown[] };
+        }
+      ).select.options,
+    ).toHaveLength(3);
+  });
+
   it('draws for a configuration it does not know, as the home dashboard’s', async () => {
     const { fields, form } = await editorOf('home', { type: 'custom:something-else', hide: 5 });
     expect(form.shadowRoot!.querySelector('a')).not.toBeNull();

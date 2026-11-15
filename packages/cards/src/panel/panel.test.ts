@@ -424,6 +424,31 @@ describe('the settings panel', () => {
     panel.remove();
   });
 
+  it('shows a choice its dashboard holds and it does not offer first, chosen and inert, never its default (#202)', async () => {
+    const config = { strategy: { type: 'custom:fluvy-home', tile_size: 'mini' } };
+    const { panel, root, chip, settle } = await mount(true, {
+      callWS: async (message: { type: string; url_path?: string | null }) => {
+        if (message.type === 'lovelace/dashboards/list') return [];
+        return message.type === 'lovelace/config' && message.url_path === 'fluvy-auto'
+          ? config
+          : { views: [] };
+      },
+    });
+    panel.tab = 'dashboard';
+    await settle();
+    await settle();
+    const lights = chip('Mini')!.closest('.fv-chips')!;
+    const said = [...lights.querySelectorAll<HTMLElement>('.fv-chip')].map(
+      (c) => `${c.textContent?.trim()}${c.getAttribute('aria-pressed') === 'true' ? '*' : ''}`,
+    );
+    expect(said).toEqual(['Mini*', 'Large', 'Rows']);
+    expect(chip('Mini')!.getAttribute('aria-disabled')).toBe('true');
+    chip('Mini')!.click();
+    await settle();
+    expect(root.querySelector('.pn-bar')).toBeNull();
+    panel.remove();
+  });
+
   it('reads an automatic dashboard again before it saves: what was written in Home Assistant since the panel opened is kept', async () => {
     const saved: { config?: unknown }[] = [];
     let config: Record<string, unknown> = { strategy: { type: 'custom:fluvy-home' } };

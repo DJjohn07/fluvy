@@ -242,7 +242,8 @@ the Popover API away, as an older WebView has none; `panel=dashboard&state=dashb
 created, `recreate` its Recreate row armed; `customise` opens Customise on the home dashboard, on the demo home, and
 `tabs`, `drag`, `centre`, `add`, `cards` and `new` beside it are its moments: the tabs unfolded, a row lifted, the
 rooms' scenes shown on Home, the sheet "Add a card" on each of its ways; `state=pencil` is Home Assistant's "Edit
-dashboard" dialog with the strategy's form; `state=sidebar` opens a dashboard's sidebar section, `sidepreset` or
+dashboard" dialog with the strategy's form, `pencil,written` on a dashboard holding a value the form does not offer;
+`state=sidebar` opens a dashboard's sidebar section, `sidepreset` or
 `sideown` on a dashboard that has one, `sideyaml` on one kept in a YAML file; `panel=wall&state=wall` makes this browser
 a wall panel), `dashboard=sidebar&side=menu|long|cards|drawer` (a dashboard with a sidebar of its own, #187: `sidepos=end`,
 `sidestyle=card|plain`, `sidephone=top|drawer`, `sidefold=1`, the rest in `apps/playground/src/side.ts`;

@@ -92,7 +92,7 @@ import {
 } from '@fluvy/tokens/runtime';
 import { html, nothing, svg, type TemplateResult } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
-import { defaultColumns, fittedColumns } from '../shared/chips.js';
+import { defaultColumns, fittedColumns, inForce } from '../shared/chips.js';
 import {
   optionalViews,
   TEMPLATES,
@@ -120,6 +120,7 @@ import {
   TRANSLATING_URL,
 } from './model.js';
 import { copyText } from './clipboard.js';
+import { ownValue } from './strategy-form.js';
 // the dashboard sidebar's glyph, its rows'
 import '../shared/side-glyph.js';
 
@@ -133,7 +134,12 @@ export const gap = (ctx: PanelContext): number => (ctx.wide ? 12 : 8);
  */
 export function choice(
   ctx: PanelContext,
-  items: readonly { readonly key: string; readonly label: string; readonly active: boolean }[],
+  items: readonly {
+    readonly key: string;
+    readonly label: string;
+    readonly active: boolean;
+    readonly inert?: boolean;
+  }[],
   onSelect: ((key: string) => void) | null,
   columns?: number,
 ): TemplateResult {
@@ -1580,17 +1586,24 @@ function optionChoice(
   current: unknown,
 ): TemplateResult {
   const [fallback] = option.values;
-  const chosen = option.values.some((known) => known.value === current) ? current : fallback?.value;
+  const words = (label: StringKey, count?: number): string =>
+    ctx.t(label, count === undefined ? undefined : { count });
+  // a value the dashboard holds that the choice does not offer stands first, chosen (#202); none, its default
+  const own = ownValue(option, current, words);
+  const chosen = own
+    ? undefined
+    : (option.values.find((known) => String(known.value) === String(current)) ?? fallback);
   return choice(
     ctx,
-    option.values.map((known) => ({
-      key: String(known.value),
-      label: ctx.t(
-        known.label,
-        typeof known.value === 'number' ? { count: known.value } : undefined,
-      ),
-      active: chosen === known.value,
-    })),
+    inForce(
+      option.values.map((known) => ({
+        key: String(known.value),
+        label: words(known.label, typeof known.value === 'number' ? known.value : undefined),
+        active: known === chosen,
+      })),
+      own?.value,
+      () => own && { key: own.value, label: own.label, active: true },
+    ),
     ctx.admin
       ? (key) => {
           const value = option.values.find((known) => String(known.value) === key)?.value;

@@ -16,9 +16,14 @@ declare global {
  * what its pencil opens on one of Fluvy's automatic dashboards: the dialog's surface and its title over the
  * dashboard's name, and in it the editor the strategy answers with, asked for as Home Assistant asks
  * (`getConfigElement` of `ll-strategy-dashboard-fluvy-home`). What the form says is handed back to it and kept on the
- * page (`window.fluvyPencil`), as the dialog holds it until Save.
+ * page (`window.fluvyPencil`), as the dialog holds it until Save; `written`, the lights as a person wrote them by hand
+ * (`tile_size: mini`), a value the form does not offer (#202).
  */
-export async function mountPencil(stage: HTMLElement, hass: HomeAssistant): Promise<void> {
+export async function mountPencil(
+  stage: HTMLElement,
+  hass: HomeAssistant,
+  written = false,
+): Promise<void> {
   defineFormStub();
   const dialog = document.createElement('section');
   dialog.className = 'pg-dialog';
@@ -30,7 +35,13 @@ export async function mountPencil(stage: HTMLElement, hass: HomeAssistant): Prom
     getConfigElement(): Promise<Editor>;
   };
   const editor = await strategy.getConfigElement();
-  const held = { config: { type: 'custom:fluvy-home', hide: ['agenda'] } as Config };
+  const held = {
+    config: {
+      type: 'custom:fluvy-home',
+      hide: ['agenda'],
+      ...(written ? { tile_size: 'mini' } : {}),
+    } as Config,
+  };
   window.fluvyPencil = held;
   // the dialog was opened on the dashboard the page shows: its url path is the panel's
   editor.hass = { ...hass, panelUrl: 'fluvy-auto' } as HomeAssistant;

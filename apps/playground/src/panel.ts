@@ -49,7 +49,8 @@ import { createMemoryLook, type MemoryLook } from './look-memory.js';
  * command centre of the rooms' scenes), the sheet "Add a card" on the dashboard's own cards with two of them picked
  * (`add`), on Fluvy's cards (`cards`) and on one of them in its own form, drawn over it (`new`); and, without the
  * panel, what Home Assistant's pencil opens on the dashboard (`pencil`: its "Edit dashboard" dialog with the
- * strategy's form). A dashboard's own sidebar (#187: `sidebar`, its section opened on the home dashboard by its
+ * strategy's form; `written`: on a dashboard whose lights a person wrote as `mini`, a value the form does not offer,
+ * #202). A dashboard's own sidebar (#187: `sidebar`, its section opened on the home dashboard by its
  * address), which holds the ready-made one (`sidepreset`) or one of the person's own at the end, as a card, folding
  * (`sideown`), or opened on a dashboard kept in a YAML file (`sideyaml`). Several join with commas.
  */
@@ -92,6 +93,7 @@ export type PanelState =
   | 'cards'
   | 'new'
   | 'pencil'
+  | 'written'
   | 'sidebar'
   | 'sidepreset'
   | 'sideown'

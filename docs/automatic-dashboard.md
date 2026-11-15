@@ -265,7 +265,9 @@ An automatic dashboard can be shaped without giving up what makes it automatic. 
 dashboard's card opens with a **Customise** row (an administrator's): it lists the dashboard's views as chips, its
 rooms' pages after them, and the open view's cards as rows, in the order they are read. Home Assistant's own pencil
 leads there too: on an automatic dashboard it opens *Edit dashboard* with a first row, **Customise**, and the
-dashboard's most used options under it (the views it shows, its thermostats, its tiles).
+dashboard's most used options under it (the views it shows, its thermostats, its tiles). A value written by hand that
+the form and the *Dashboards* tab do not offer (`tile_size: mini`, `camera_refresh: 15`) is shown as it is written,
+first, and kept until you choose another.
 
 - **A view**: *Show this view* leaves it out or brings it back (the first view always shows), and the two arrows
   place it among the tabs, so any view can lead. A tap on *Place among the tabs* unfolds every tab as a row: drag

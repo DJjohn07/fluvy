@@ -298,7 +298,8 @@ mock.subscribe((hass: HomeAssistant) => {
 
 const stage = document.getElementById('stage') as HTMLElement;
 // the pencil's dialog stands alone: what Home Assistant opens on the dashboard, never inside the panel
-if (panelTab && panelStates.includes('pencil')) void mountPencil(stage, mock.hass());
+if (panelTab && panelStates.includes('pencil'))
+  void mountPencil(stage, mock.hass(), panelStates.includes('written'));
 else if (panelTab) mountPanel(stage, mock.hass(), panelTab, dark, panelStates);
 if (history)
   mountHistory(
