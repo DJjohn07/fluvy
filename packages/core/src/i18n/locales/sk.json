@@ -3517,6 +3517,7 @@
     "middle": "Stred",
     "foot": "Spodok",
     "lists_hint": "Vrch a spodok ostávajú na očiach; stred sa medzi nimi posúva.",
+    "stays_hint": "Ostáva na očiach; čo je vyššie, sa posúva so zvyškom.",
     "yaml": "Tento panel je napísaný v YAML. Skopírujte toto do jeho súboru, vedľa views:",
     "copy": "Skopírovať YAML",
     "copied": "YAML skopírovaný",

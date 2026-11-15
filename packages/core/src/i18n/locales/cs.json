@@ -3517,6 +3517,7 @@
     "middle": "Střed",
     "foot": "Spodek",
     "lists_hint": "Vrch a spodek zůstávají na očích; střed se mezi nimi posouvá.",
+    "stays_hint": "Zůstává na očích; co je vyšší, se posouvá se zbytkem.",
     "yaml": "Tento dashboard je psaný v YAML. Zkopírujte toto do jeho souboru, vedle views:",
     "copy": "Zkopírovat YAML",
     "copied": "YAML zkopírován",

@@ -3458,6 +3458,7 @@
     "middle": "Közép",
     "foot": "Láb",
     "lists_hint": "A fej és a láb mindig látszik; a közép görgethető közöttük.",
+    "stays_hint": "Mindig látszik; ami magasabb, a többivel együtt görgethető.",
     "yaml": "Ez a vezérlőpult YAML-ben van megírva. Másold be ezt a fájljába, a views: mellé",
     "copy": "YAML másolása",
     "copied": "A YAML átmásolva",

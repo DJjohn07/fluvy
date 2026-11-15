@@ -26,6 +26,7 @@
     "middle": "Middle",
     "foot": "Foot",
     "lists_hint": "The head and the foot stay in sight; the middle scrolls between them.",
+    "stays_hint": "Stays in sight; what is taller scrolls with the rest.",
     "yaml": "This dashboard is written in YAML. Copy this into its file, beside views:",
     "copy": "Copy the YAML",
     "copied": "YAML copied",

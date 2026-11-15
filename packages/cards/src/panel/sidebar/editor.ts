@@ -331,7 +331,10 @@ export class SidebarEditor {
     </section>`;
   }
 
-  /** What it holds: the menu of pages on or off, and its three lists of cards, a list at a time. */
+  /**
+   * What it holds: the menu of pages on or off, and its three lists of cards, a list at a time, under the open list's
+   * rule (the head and the foot stay in sight while they leave the middle room, the middle scrolls between them).
+   */
   private contents(ctx: PanelContext, raw: Raw): TemplateResult {
     const { hass } = ctx;
     return html`<section class="fv-card pn-card">
@@ -363,7 +366,7 @@ export class SidebarEditor {
         },
         3,
       )}
-      <p class="pn-hint">${say(hass, 'lists_hint')}</p>
+      <p class="pn-hint">${say(hass, this.region === 'cards' ? 'lists_hint' : 'stays_hint')}</p>
       ${this.list(ctx, raw)}
     </section>`;
   }

@@ -3458,6 +3458,7 @@
     "middle": "Mitte",
     "foot": "Fuß",
     "lists_hint": "Kopf und Fuß bleiben im Blick; die Mitte scrollt dazwischen.",
+    "stays_hint": "Bleibt im Blick; was höher ist, scrollt mit dem Rest.",
     "yaml": "Dieses Dashboard ist in YAML geschrieben. Kopiere das in seine Datei, neben views:",
     "copy": "YAML kopieren",
     "copied": "YAML kopiert",

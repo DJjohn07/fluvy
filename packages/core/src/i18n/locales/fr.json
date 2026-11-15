@@ -3458,6 +3458,7 @@
     "middle": "Milieu",
     "foot": "Pied",
     "lists_hint": "La tête et le pied restent visibles ; le milieu défile entre les deux.",
+    "stays_hint": "Reste visible ; ce qui est plus haut défile avec le reste.",
     "yaml": "Ce tableau de bord est écrit en YAML. Copiez ceci dans son fichier, à côté de views:",
     "copy": "Copier le YAML",
     "copied": "YAML copié",

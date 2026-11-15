@@ -3458,6 +3458,7 @@
     "middle": "Centro",
     "foot": "Pie",
     "lists_hint": "La cabecera y el pie quedan a la vista; el centro se desplaza entre ambos.",
+    "stays_hint": "Queda a la vista; lo que sea más alto se desplaza con el resto.",
     "yaml": "Este panel está escrito en YAML. Copia esto en su archivo, junto a views:",
     "copy": "Copiar el YAML",
     "copied": "YAML copiado",

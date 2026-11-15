@@ -3458,6 +3458,7 @@
     "middle": "Midden",
     "foot": "Voet",
     "lists_hint": "De kop en de voet blijven in beeld; het midden scrolt ertussen.",
+    "stays_hint": "Blijft in beeld; wat hoger is, scrolt mee met de rest.",
     "yaml": "Dit dashboard is in YAML geschreven. Kopieer dit naar het bestand, naast views:",
     "copy": "YAML kopiëren",
     "copied": "YAML gekopieerd",

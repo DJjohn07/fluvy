@@ -3458,6 +3458,7 @@
     "middle": "Meio",
     "foot": "Rodapé",
     "lists_hint": "O topo e o rodapé ficam sempre à vista; o meio rola entre eles.",
+    "stays_hint": "Fica sempre à vista; o que for mais alto rola com o resto.",
     "yaml": "Este painel está escrito em YAML. Copie isto para o arquivo dele, ao lado de views:",
     "copy": "Copiar o YAML",
     "copied": "YAML copiado",

@@ -3458,6 +3458,7 @@
     "middle": "Centro",
     "foot": "Piede",
     "lists_hint": "La testa e il piede restano visibili; il centro scorre tra i due.",
+    "stays_hint": "Resta visibile; ciò che è più alto scorre con il resto.",
     "yaml": "Questa dashboard è scritta in YAML. Copia questo nel suo file, accanto a views:",
     "copy": "Copia lo YAML",
     "copied": "YAML copiato",

@@ -3581,6 +3581,7 @@
     "middle": "Środek",
     "foot": "Dół",
     "lists_hint": "Góra i dół są zawsze widoczne; środek przewija się między nimi.",
+    "stays_hint": "Zawsze na widoku; to, co wyższe, przewija się z resztą.",
     "yaml": "Ten pulpit jest zapisany w YAML. Skopiuj to do jego pliku, obok views:",
     "copy": "Kopiuj YAML",
     "copied": "YAML skopiowany",

@@ -167,6 +167,13 @@ const errors = (page) => {
     lists.join('|') === 'Head · 1|Middle|Foot · 1',
     lists.join('|'),
   );
+  const hint = async () => (await cards.locator('.pn-hint').first().textContent()).trim();
+  const STAYS = 'Stays in sight; what is taller scrolls with the rest.';
+  check(
+    'under the head, its rule: it stays in sight, and taller it scrolls with the rest (#195)',
+    (await hint()) === STAYS,
+    await hint(),
+  );
   const yamlOf = () =>
     cards
       .locator('ha-selector.se-yaml')
@@ -183,6 +190,16 @@ const errors = (page) => {
     (await yamlOf()).includes('type: custom:fluvy-alerts-card') &&
       !(await yamlOf()).includes('fluvy-clock-card'),
   );
+  check('the foot the same rule', (await hint()) === STAYS, await hint());
+  await chip(page, 'Middle').click();
+  await settle(page, 300);
+  check(
+    'the middle its own: it scrolls between the head and the foot',
+    (await hint()) === 'The head and the foot stay in sight; the middle scrolls between them.',
+    await hint(),
+  );
+  await chip(page, 'Foot · 1').click();
+  await settle(page, 300);
   check(
     'the tabs may give way while the menu is the dashboard’s views',
     (await row(page, 'Hide the header’s tabs').count()) === 1,

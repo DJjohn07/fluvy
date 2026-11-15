@@ -3458,6 +3458,7 @@
     "middle": "Orta",
     "foot": "Alt",
     "lists_hint": "Üst ve alt hep görünür; orta ikisinin arasında kayar.",
+    "stays_hint": "Hep görünür; daha uzun olan kısım geri kalanla birlikte kayar.",
     "yaml": "Bu panel YAML ile yazılmış. Bunu dosyasına, views: satırının yanına kopyalayın",
     "copy": "YAML’i kopyala",
     "copied": "YAML kopyalandı",
