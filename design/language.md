@@ -3081,6 +3081,53 @@ panel) and the controls' row (the map's zone columns as buttons: a circle and it
   keeps every part.
 - Its chunk is its own (`vehicle`, 20.2 KB of 24, its editor on its class): every page carries only its tag and height.
 
+### A car that burns fuel (1.22, #207)
+
+A petrol or diesel car is the same card with its tank where the battery is: nothing new in the anatomy, one new idiom
+(the strip's ring in two halves) and two glyphs.
+
+- **What it runs on** (`energy`, `state.ts` `energyOf`): `auto` draws a tank where the car has one (a level, a range on
+  it, its litres) and no battery the card reads, else the battery — so every car drawn before 1.22, a plug-in hybrid's
+  battery among them, draws as it did; `electric`, `fuel` and `hybrid` say it outright. A lone tank and a battery are
+  the same height; a hybrid's second gauge is declared by its config (16 + 140 on the whole card, 8 + 20 on the
+  compact), never by what the car has.
+- **Who plays the tank** (`roles.ts`): `fuel` (its level), `fuel_range`, `fuel_volume` (litres, gallons), `fuel_low`
+  (its warning), `adblue` (a level, how far it lasts, or a warning), `oil` (a level or a life, or a warning), `service`
+  (how far to it, or a warning's words) and `service_time` (days, or its date) — in the words of the integrations the
+  card already reads (their nulls became roles: Renault's fuel autonomy and quantity, Volvo's tank, Kia's fuel range
+  and low warning, MySkoda's combustion and AdBlue ranges, MG's fuel level that wears the battery's class, Volkswagen's
+  two) and of Toyota's, Ford's, Mercedes-Benz's, Stellantis's and Volvo's own from HACS, whose keys the card knows only
+  in part (`PARTIAL`: their other entities are read by the ends of their ids, as before). A tank's ends of ids come
+  before the range's, which a fuel range shares. Never the car's battery: a 12 V battery that wears the battery's class
+  (Ford's and Stellantis's on a car that burns fuel); a plug-in Toyota's usable charge plays over the one it reports;
+  an inspection plays the service over the oil's, a service's warning second to its distance; an engine's hours to a
+  service are never its days.
+- **The tank** is the battery's hero (`valueRow` and `markedRuler`): "Fuel 62 %", its range at s ("Range 418 km": its
+  own on the tank, a lone tank's the car's whole range where it says no other), no mark. Its tone is the gas tone (a
+  lone tank's the card's colour where the card names one), the warning's when low — its own warning on, else under
+  `low_range`, else at 15 % — the range in the warning's ink with it. A car that says only its litres (Renault, Volvo)
+  fills the ruler from `tank_size`; without it the litres are the figure ("29 L"), the ruler still. `hero: ring` draws
+  a lone tank in the appliances' gauge.
+- **The line** puts a tank's calls after a charge's and before what stands open: low fuel; AdBlue low (15 %, or
+  1,000 km; "AdBlue low · 850 km", its figure giving way first); "Check the oil" (its warning, or 15 %); "Service due"
+  (no distance or no day left, or its warning) — each in the warning's ink. At rest it says what is in the tank and
+  when the service is ("29 L in the tank · Service in 4,200 km"), each giving way from the end ("29 L" its short form).
+- **A front boot over an engine is a bonnet**: its round and the line say "Bonnet" and "Bonnet open" on a car that
+  burns fuel, a hybrid's too.
+- **A plug-in hybrid** (`energy: hybrid`): the battery's hero as an electric car's (its limit marked, its electric
+  range), 16 under it the tank's (its range on fuel); one line, the charge's first. A hybrid's battery running down is
+  no warning: its tank takes over. `hero: ring` is not offered (two rings would not hold side by side on a phone's
+  half column): its gauges are rulers. **Compact**: two bars 8 apart, each led by its 20 glyph (the battery, the pump)
+  in the secondary ink; the head leads with how far both take it (their ranges added). **The strip**: its ring in two
+  halves, each 2 px on the strip's r 26.5, filled from the foot up, 8° clear of the other at the foot and the head — the
+  battery's on the left (the line's first figure), the tank's on the right — then "64 % · Fuel 54 % · 558 km".
+- **Rows**: `fuel_range`, `fuel_volume` ("In the tank 38 L"), `adblue` ("850 km", "Low"), `oil` ("70 %", "OK",
+  "Check"), `service` ("4,200 km · 63 d", "Due"), each in the warning's tone when it calls; the `fuel` row wears the
+  pump where the card draws a tank (the drop it wore before, elsewhere).
+- **Glyphs** (`vehicle/glyphs.ts`): the pump (its column on its foot, its display, its hose looped down, the nozzle hung
+  at its top) and the oil can (its body, its cap, its spout raised, a drop under it: the dashboard's oil light); the
+  service is the set's wrench, AdBlue its drop.
+
 ## Drive pad (1.20, #178)
 
 A robot that can be driven by hand gains a Drive command on the Vacuum card (`show_drive`; idea by @maxhayim), and

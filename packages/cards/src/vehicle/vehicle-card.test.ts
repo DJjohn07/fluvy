@@ -4,7 +4,22 @@ import { afterEach, describe, expect, it } from 'vitest';
 import '../vehicle/english.js';
 import type { TextRuler } from '../shared/fit.js';
 import { vehicleHeight } from '../vehicle-family.js';
-import { carHouse, KIA, RENAULT, TESLA, type CarFixture } from './fixtures.js';
+import {
+  carHouse,
+  CARS,
+  CLIO,
+  FUEL_CARS,
+  GOLF,
+  KIA,
+  KUGA,
+  NIRO,
+  OCTAVIA,
+  RENAULT,
+  SPORTAGE,
+  TESLA,
+  XC60,
+  type CarFixture,
+} from './fixtures.js';
 import { carControls, FluvyVehicleCard } from './vehicle-card.js';
 import { vehicleEntities } from './roles.js';
 
@@ -15,11 +30,11 @@ const NOW = '2026-11-04T11:47:12Z';
 type Mounted = FluvyVehicleCard & { updateComplete: Promise<boolean> };
 type Calls = Array<{ domain: string; service: string; target: unknown }>;
 
-/** The house, its calls recorded, with some states changed. */
+/** The house, its calls recorded, with some states changed (its cars that burn fuel beside the electric ones). */
 function house(
   changes: Record<string, Partial<HassEntity>> = {},
 ): HomeAssistant & { calls: Calls } {
-  const base = carHouse();
+  const base = carHouse([...CARS, ...FUEL_CARS]);
   const calls: Calls = [];
   const states = { ...base.states };
   for (const [id, change] of Object.entries(changes))
@@ -431,5 +446,213 @@ describe('the vehicle card', () => {
   it('says it has found no car, rather than draw an empty one', async () => {
     const card = await mount({ device: 'd-washer' });
     expect(root(card).querySelector('.fv-card--empty')).not.toBeNull();
+  });
+});
+
+/** A gauge's label, its figure and its range, and its ruler's tone, in order. */
+const gauges = (card: Mounted) =>
+  [...root(card).querySelectorAll('.vh-hero')].map((hero) => ({
+    label: text(hero.querySelector('.fv-readout__label')),
+    figure: text(hero.querySelector('.ef-top > .fv-readout .fv-readout__value')),
+    range: text(hero.querySelector('.ef-top__side')),
+    tone: (hero.querySelector('fluvy-ruler') as unknown as { tone?: string } | null)?.tone,
+    mark: hero.querySelector('.en-mark-label.is-mark') !== null,
+  }));
+const line = (card: Mounted): string => text(root(card).querySelector('.vh-line'));
+
+describe('a car that burns fuel (#207)', () => {
+  it('draws its tank in the battery’s place: its level in the gas tone, its range beside it, no limit', async () => {
+    const card = await mount({ device: OCTAVIA.device });
+    expect(gauges(card)).toEqual([
+      { label: 'Fuel', figure: '41%', range: 'Range 562km', tone: 'gas', mark: false },
+    ]);
+    expect(line(card)).toBe('AdBlue low · 850 km');
+    expect(words(card)).toEqual(['Locked', 'Bonnet']);
+    expect(text(root(card).querySelector('.fv-badge'))).toBe('Parked');
+    // the card's own colour paints it, as it does a battery
+    document.body.replaceChildren();
+    const teal = await mount({ device: OCTAVIA.device, color: 'teal' });
+    expect(gauges(teal)[0]?.tone).toBe('accent');
+  });
+
+  it('says what calls the most: a low tank, then AdBlue, the oil, a service due; at rest its litres and its service', async () => {
+    const at = async (
+      car: CarFixture,
+      changes: Record<string, Partial<HassEntity>> = {},
+      config: Record<string, unknown> = {},
+    ): Promise<{ line: string; tone: string | undefined }> => {
+      const card = await mount({ device: car.device, ...config }, house(changes));
+      const seen = { line: line(card), tone: gauges(card)[0]?.tone };
+      document.body.replaceChildren();
+      return seen;
+    };
+    expect(await at(SPORTAGE)).toEqual({ line: 'Service in 6,200 km', tone: 'gas' });
+    expect(await at(SPORTAGE, { 'binary_sensor.sportage_fuel_low': { state: 'on' } })).toEqual({
+      line: 'Low fuel',
+      tone: 'warning',
+    });
+    expect(
+      (await at(SPORTAGE, { 'binary_sensor.sportage_oil_warning': { state: 'on' } })).line,
+    ).toBe('Check the oil');
+    expect((await at(KUGA)).line).toBe('Check the oil');
+    expect((await at(GOLF)).line).toBe('Service due');
+    // under the card's own range it is low, whatever its level
+    expect((await at(SPORTAGE, {}, { low_range: 450 })).line).toBe('Low fuel');
+    expect((await at(CLIO, {}, { tank_size: 42 })).line).toBe('29 L in the tank');
+    expect((await at(OCTAVIA, { 'binary_sensor.octavia_bonnet': { state: 'on' } })).line).toBe(
+      'AdBlue low · 850 km',
+    );
+    expect(
+      (
+        await at(OCTAVIA, {
+          'binary_sensor.octavia_bonnet': { state: 'on' },
+          'sensor.octavia_adblue_range': { state: '3400' },
+        })
+      ).line,
+    ).toBe('Bonnet open');
+  });
+
+  it('fills its tank from its litres and the card’s tank_size, else says the litres it holds', async () => {
+    const litres = await mount({ device: CLIO.device });
+    expect(gauges(litres)[0]).toMatchObject({ label: 'Fuel', figure: '29L', range: 'Range 512km' });
+    expect(root(litres).querySelector('fluvy-ruler')?.hasAttribute('inactive')).toBe(true);
+    document.body.replaceChildren();
+    const filled = await mount({ device: CLIO.device, tank_size: 42 });
+    expect(gauges(filled)[0]?.figure).toBe('69%');
+  });
+
+  it('draws a plug-in hybrid’s battery and its tank, each with its range, the charge’s line under both', async () => {
+    const card = await mount({ device: NIRO.device, energy: 'hybrid' });
+    expect(gauges(card)).toEqual([
+      { label: 'Battery', figure: '64%', range: 'Range 38km', tone: 'accent', mark: true },
+      { label: 'Fuel', figure: '54%', range: 'Range 520km', tone: 'gas', mark: false },
+    ]);
+    expect(line(card)).toBe('Charging to 100 %');
+    expect(text(root(card).querySelector('.fv-badge'))).toBe('Charging · 3.3 kW');
+    // a hybrid's tank tapped opens its own details
+    const covers = [...root(card).querySelectorAll('.vh-hero .fv-tile__tap')];
+    expect(covers.map((cover) => cover.getAttribute('aria-label'))).toEqual([
+      'Battery · 64 %',
+      'Fuel · 54 %',
+    ]);
+  });
+
+  it('draws a car with a battery as it did, a hybrid’s too, until the card says otherwise', async () => {
+    const card = await mount({ device: NIRO.device });
+    expect(gauges(card).map((g) => g.label)).toEqual(['Battery']);
+    document.body.replaceChildren();
+    const fuel = await mount({ device: NIRO.device, energy: 'fuel' });
+    expect(gauges(fuel).map((g) => g.label)).toEqual(['Fuel']);
+  });
+
+  it('draws a hybrid’s strip as one ring in two halves, its compact card as two bars led by their glyphs', async () => {
+    const mini = await mount({ device: NIRO.device, energy: 'hybrid', variant: 'mini' });
+    const ring = root(mini).querySelector('.vh-ring--halves');
+    expect(ring?.querySelectorAll('.vh-ring__fill')).toHaveLength(2);
+    expect(text(root(mini).querySelector('.fv-row__sub'))).toBe(
+      '64 % · Fuel 54 % · 558 km · Charging · 3.3 kW · Home',
+    );
+    document.body.replaceChildren();
+    const compact = await mount({ device: NIRO.device, energy: 'hybrid', variant: 'compact' });
+    expect(root(compact).querySelectorAll('.vh-bar')).toHaveLength(2);
+    expect(root(compact).querySelectorAll('.vh-bar__glyph')).toHaveLength(2);
+    expect(text(root(compact).querySelector('.fv-card__sub'))).toBe('558 km · Home');
+    document.body.replaceChildren();
+    const petrol = await mount({ device: SPORTAGE.device, variant: 'compact' });
+    expect(root(petrol).querySelectorAll('.vh-bar__glyph')).toHaveLength(0);
+    expect(text(root(petrol).querySelector('.vh-bar__value'))).toBe('47 %');
+  });
+
+  it('says its AdBlue, its oil, its litres and its next service in rows of their own', async () => {
+    const rows = async (config: Record<string, unknown>) => {
+      const card = await mount(config);
+      const seen = [...root(card).querySelectorAll('.vh-rows .fv-row')].map((row) => ({
+        row: text(row),
+        warning: row.querySelector('.fv-ico--warning') !== null,
+      }));
+      document.body.replaceChildren();
+      return seen;
+    };
+    expect(await rows({ device: OCTAVIA.device, rows: ['adblue', 'service'] })).toEqual([
+      { row: 'AdBlue 850 km', warning: true },
+      { row: 'Next service 4,200 km · 63 d', warning: false },
+    ]);
+    expect(
+      await rows({
+        device: XC60.device,
+        energy: 'hybrid',
+        rows: ['oil', 'fuel_volume', 'fuel_range', 'service'],
+      }),
+    ).toEqual([
+      { row: 'Oil OK', warning: false },
+      { row: 'In the tank 38 L', warning: false },
+      { row: 'Fuel range 486 km', warning: false },
+      { row: 'Next service 9,300 km · 148 d', warning: false },
+    ]);
+    expect(await rows({ device: GOLF.device, rows: ['service', 'oil'] })).toEqual([
+      { row: 'Next service Due', warning: true },
+      { row: 'Oil 70 %', warning: false },
+    ]);
+  });
+
+  it('reads a service’s date as the days to it, an integration’s drive by its name (CarConnectivity)', async () => {
+    const passat: CarFixture = {
+      device: 'd-passat',
+      name: 'Passat',
+      platform: 'mqtt',
+      seeds: [
+        ['sensor.passat_tank_primary', '58', undefined, { unit_of_measurement: '%' }],
+        ['sensor.passat_total_range', '640', undefined, { unit_of_measurement: 'km' }],
+        [
+          'sensor.passat_adblue_range_primary',
+          '4100',
+          undefined,
+          { unit_of_measurement: 'km', device_class: 'distance' },
+        ],
+        [
+          'sensor.passat_inspection_due_at',
+          '2026-12-04T11:47:12+00:00',
+          undefined,
+          { device_class: 'timestamp' },
+        ],
+        [
+          'sensor.passat_inspection_due_after',
+          '2500',
+          undefined,
+          { unit_of_measurement: 'km', device_class: 'distance' },
+        ],
+      ],
+    };
+    const card = await mount(
+      { device: passat.device, rows: ['adblue', 'service'] },
+      carHouse([passat]),
+    );
+    expect(gauges(card)[0]).toMatchObject({ label: 'Fuel', figure: '58%', range: 'Range 640km' });
+    expect([...root(card).querySelectorAll('.vh-rows .fv-row')].map((row) => text(row))).toEqual([
+      'AdBlue 4,100 km',
+      'Next service 2,500 km · 30 d',
+    ]);
+    expect(line(card)).toBe('Service in 2,500 km');
+  });
+
+  it('keeps its anatomy out of reach: its tank still, its values dashes', async () => {
+    const live = await mount({ device: KUGA.device });
+    const anatomy = sections(live);
+    document.body.replaceChildren();
+    const gone = await mount({ device: KUGA.device }, house(away(KUGA)));
+    expect(sections(gone)).toEqual(anatomy);
+    expect(text(root(gone).querySelector('.fv-badge'))).toBe('Unavailable');
+    expect(gauges(gone)[0]).toMatchObject({ label: 'Fuel', figure: '—', tone: 'off' });
+  });
+
+  it('declares a hybrid’s second gauge in its height, from its config alone', () => {
+    const at = (config: Record<string, unknown>) =>
+      FluvyVehicleCard.layoutHeight({ type: 'x', ...config } as LovelaceCardConfig);
+    expect(at({ energy: 'fuel' })).toBe(at({}));
+    expect(at({ energy: 'auto', hero: 'ring' })).toBe(at({ hero: 'ring' }));
+    expect(at({ energy: 'hybrid' })).toBe(at({}) + 16 + 140);
+    expect(at({ energy: 'hybrid', hero: 'ring' })).toBe(at({ energy: 'hybrid' }));
+    expect(at({ energy: 'hybrid', variant: 'compact' })).toBe(at({ variant: 'compact' }) + 28);
+    expect(at({ energy: 'hybrid', variant: 'mini' })).toBe(76);
   });
 });

@@ -5,8 +5,9 @@
  * dialog, locking and the climate act at once, a hold opens what a round reads — and the charge cannot start unplugged;
  * the head, the battery and a row answer their taps; every frame at a card's width holds its declared height; the
  * strip's round gives way in half a section before a word would be cut; a car out of reach keeps its rounds where they
- * stand when they read; and in every language no round's word runs past its cell, nor the line or the head's line past
- * their column. Real cards on the playground's simulated hass. Exit code 1 on any failure.
+ * stand when they read; a car that burns fuel draws its tank and a plug-in hybrid both, each opening its own details
+ * (#207); and in every language no round's word runs past its cell, nor the line or the head's line past their column.
+ * Real cards on the playground's simulated hass. Exit code 1 on any failure.
  *   PLAYGROUND=http://127.0.0.1:5196/ node interactions-vehicle.mjs
  */
 import { everyLanguage } from './lib.mjs';
@@ -242,6 +243,72 @@ const handed = () => page.evaluate(() => window.__handed.splice(0));
     'the location row opens the car’s tracker',
     (await moreInfo(page)).at(-1) === 'device_tracker.model_y_location',
     JSON.stringify(await moreInfo(page)),
+  );
+}
+
+/* ---------- #207: a car that burns fuel, a plug-in hybrid ---------- */
+{
+  const tank = (locator) =>
+    locator.evaluate((el) =>
+      [...el.shadowRoot.querySelectorAll('.vh-hero')].map((hero) => ({
+        label: (hero.querySelector('.fv-readout__label')?.textContent ?? '').trim(),
+        tone: hero.querySelector('fluvy-ruler')?.tone,
+      })),
+    );
+  const octavia = card(page, 'MySkoda · diesel, its AdBlue running low');
+  const diesel = await read(octavia);
+  check(
+    'a diesel: its tank in the battery’s place, in the gas tone; its AdBlue low on the line; its bonnet a round',
+    JSON.stringify(await tank(octavia)) === JSON.stringify([{ label: 'Fuel', tone: 'gas' }]) &&
+      diesel.line === 'AdBlue low · 850 km' &&
+      diesel.rounds.some((r) => r.word === 'Bonnet'),
+    JSON.stringify({ diesel, tank: await tank(octavia) }),
+  );
+  const low = await read(card(page, 'Stellantis · petrol, running low'));
+  check(
+    'a petrol car at 9 %: low fuel on the line, its 12 V battery never its own',
+    low.line === 'Low fuel' &&
+      JSON.stringify(await tank(card(page, 'Stellantis · petrol, running low'))) ===
+        JSON.stringify([{ label: 'Fuel', tone: 'warning' }]),
+    JSON.stringify(low),
+  );
+  const niro = card(page, 'Kia · plug-in hybrid, charging at home');
+  check(
+    'a plug-in hybrid: its battery and its tank, each its own ruler, the charge on the line',
+    JSON.stringify(await tank(niro)) ===
+      JSON.stringify([
+        { label: 'Battery', tone: 'accent' },
+        { label: 'Fuel', tone: 'gas' },
+      ]) && /^Full at \d{1,2}:\d{2} · 42 min left$/.test((await read(niro)).line),
+    JSON.stringify({ heroes: await tank(niro), line: (await read(niro)).line }),
+  );
+  await reset(page);
+  await tapHead(octavia);
+  await settle(page, 200);
+  check(
+    'a car that burns fuel: its head opens its tank’s details',
+    (await moreInfo(page)).at(-1) === 'sensor.octavia_fuel_level',
+    JSON.stringify(await moreInfo(page)),
+  );
+  await reset(page);
+  await niro.locator('.vh-hero .fv-tile__tap').nth(1).click();
+  await settle(page, 200);
+  check(
+    'a hybrid’s tank opens its own details',
+    (await moreInfo(page)).at(-1) === 'sensor.niro_fuel_level',
+    JSON.stringify(await moreInfo(page)),
+  );
+  const strip = await frame(page, 'Strips · petrol, diesel, plug-in hybrid, out of reach')
+    .locator('fluvy-vehicle-card')
+    .nth(3)
+    .evaluate((el) => ({
+      halves: el.shadowRoot.querySelectorAll('.vh-ring--halves .vh-ring__fill').length,
+      sub: (el.shadowRoot.querySelector('.fv-row__sub')?.textContent ?? '').trim(),
+    }));
+  check(
+    'a hybrid’s strip: its ring in two halves, its charge and its tank on its line',
+    strip.halves === 2 && strip.sub.startsWith('64 % · Fuel 54 %'),
+    JSON.stringify(strip),
   );
 }
 

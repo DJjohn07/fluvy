@@ -9876,6 +9876,25 @@
           }
         },
         {
+          "key": "energy",
+          "label": "Energy",
+          "type": "choice",
+          "default": "auto",
+          "values": {
+            "auto": "Automatic",
+            "electric": "Electric",
+            "fuel": "Fuel",
+            "hybrid": "Plug-in hybrid"
+          }
+        },
+        {
+          "key": "tank_size",
+          "label": "Tank size",
+          "helper": "In the unit of what is in it (L, gal): its level, where the car says only what is in it",
+          "type": "number",
+          "range": "0 to 500"
+        },
+        {
           "key": "hero",
           "label": "Battery as",
           "does": "Draws the battery on a ruler, or as a ring.",
@@ -10244,7 +10263,12 @@
                 "time_to_full": "Time to full",
                 "software": "Software",
                 "speed": "Speed",
-                "fuel": "Fuel"
+                "fuel": "Fuel",
+                "fuel_range": "Fuel range",
+                "fuel_volume": "In the tank",
+                "adblue": "AdBlue",
+                "oil": "Oil",
+                "service": "Next service"
               }
             },
             {
@@ -10342,6 +10366,13 @@
                 "moving": "Moving",
                 "updated": "Last update",
                 "fuel": "Fuel",
+                "fuel_range": "Fuel range",
+                "fuel_volume": "In the tank",
+                "fuel_low": "Low fuel warning",
+                "adblue": "AdBlue",
+                "oil": "Oil",
+                "service": "Next service",
+                "service_time": "Time to service",
                 "tyre_fl": "Front left",
                 "tyre_fr": "Front right",
                 "tyre_rl": "Rear left",
@@ -13131,6 +13162,23 @@
           "default": true
         },
         {
+          "key": "show_quick_states",
+          "label": "Show their states",
+          "helper": "Under or beside each icon: a reading with its unit, a door open or closed, a light’s brightness.",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "key": "quick_state_position",
+          "label": "Their states",
+          "type": "choice",
+          "default": "under",
+          "values": {
+            "under": "Under the icon",
+            "beside": "Beside the icon"
+          }
+        },
+        {
           "key": "show_action",
           "label": "Show what it is doing",
           "does": "Says on its line what a climate is doing and what it is set to.",
@@ -13590,6 +13638,16 @@
               "does": "The item’s colour, in place of the one the card gives it.",
               "helper": "Empty: the light’s bulb colour where the card shows bulbs’ colours, else the card’s",
               "type": "colour"
+            },
+            {
+              "key": "show_state",
+              "label": "Show its state",
+              "helper": "Empty: the card’s",
+              "type": "choice",
+              "values": {
+                "true": "On",
+                "false": "Off"
+              }
             },
             {
               "key": "tap_action",

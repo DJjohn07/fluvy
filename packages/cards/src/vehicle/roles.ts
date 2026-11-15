@@ -14,6 +14,12 @@ import { deviceSlug, withoutSlug } from '../appliance/roles.js';
  * `scan: false` only those play. What could move the car or wake it, sound it or open a garage — a horn, the lights,
  * keyless driving, a remote engine start, a forced refresh that drains the small battery, valet mode, the route's
  * tracker — is never a role, nor is a charge port's latch taken for the car's lock, or a 12 V battery for the car's.
+ *
+ * A car that burns fuel says its tank in the same integrations' words — its level, its range, what is in it, its
+ * warning — and its AdBlue, its oil and its next service where it has them; and in those of the HACS integrations most
+ * such cars are on: Toyota's (pytoyoda), Ford's (fordpass, its keyed fork), Mercedes-Benz's (mbapi2020), Stellantis's
+ * (Peugeot, Citroën, Opel, DS) and Volvo's own before Home Assistant's (volvo_cars), whose keys the card knows only for
+ * what an id's end would read amiss: their other entities are read as any integration's.
  */
 
 export type VehicleRole =
@@ -67,7 +73,21 @@ export type VehicleRole =
   | 'moving'
   /** When it last told the integration anything. */
   | 'updated'
+  /** Its tank's level (%). */
   | 'fuel'
+  /** How far it goes on its tank. */
+  | 'fuel_range'
+  /** What is in its tank (L, gal). */
+  | 'fuel_volume'
+  /** Its tank's warning: on while it runs low. */
+  | 'fuel_low'
+  /** Its AdBlue: a level (%), how far it lasts, or its warning. */
+  | 'adblue'
+  /** Its engine oil: a level or a life (%), or its warning. */
+  | 'oil'
+  /** Its next service: how far to it, or its warning; and how long to it (days, or its date). */
+  | 'service'
+  | 'service_time'
   | 'tyre_fl'
   | 'tyre_fr'
   | 'tyre_rl'
@@ -108,6 +128,13 @@ export const VEHICLE_ROLES: readonly VehicleRole[] = [
   'moving',
   'updated',
   'fuel',
+  'fuel_range',
+  'fuel_volume',
+  'fuel_low',
+  'adblue',
+  'oil',
+  'service',
+  'service_time',
   'tyre_fl',
   'tyre_fr',
   'tyre_rl',
@@ -129,10 +156,27 @@ export const VEHICLE_PLATFORMS = [
   'volkswagencarnet',
   'volkswagen_we_connect_id',
   'cardata',
+  'toyota',
+  'fordpass',
+  'mbapi2020',
+  'stellantis_vehicles',
+  'volvo_cars',
 ] as const;
 type Platform = (typeof VEHICLE_PLATFORMS)[number];
 const known = (platform: string | undefined): platform is Platform =>
   (VEHICLE_PLATFORMS as readonly string[]).includes(platform ?? '');
+
+/**
+ * The integrations whose keys the card knows only in part (their tank's, and what an id's end would read amiss): their
+ * other entities are read by the ends of their ids and by what they are, as any integration's.
+ */
+const PARTIAL: ReadonlySet<Platform> = new Set([
+  'toyota',
+  'fordpass',
+  'mbapi2020',
+  'stellantis_vehicles',
+  'volvo_cars',
+]);
 
 /** What a role may be: the domains its entity lives in, the one preferred first (a lock to act on over a sensor's word). */
 const DOMAINS: Readonly<Record<VehicleRole, readonly string[]>> = {
@@ -170,6 +214,13 @@ const DOMAINS: Readonly<Record<VehicleRole, readonly string[]>> = {
   moving: ['binary_sensor'],
   updated: ['sensor'],
   fuel: ['sensor'],
+  fuel_range: ['sensor'],
+  fuel_volume: ['sensor'],
+  fuel_low: ['binary_sensor'],
+  adblue: ['sensor', 'binary_sensor'],
+  oil: ['sensor', 'binary_sensor'],
+  service: ['sensor', 'binary_sensor'],
+  service_time: ['sensor'],
   tyre_fl: ['sensor'],
   tyre_fr: ['sensor'],
   tyre_rl: ['sensor'],
@@ -279,7 +330,7 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
   // renault/sensor.py, binary_sensor.py, number.py, button.py (its battery, cable, charge and lock have no key)
   renault: {
     battery_autonomy: 'range',
-    fuel_autonomy: null,
+    fuel_autonomy: 'fuel_range',
     charge_state: 'charging',
     plug_state: 'plugged',
     charging_power: 'charge_power',
@@ -307,12 +358,12 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     hvac_last_activity: null,
     location_last_activity: null,
     charge_mode: null,
-    fuel_quantity: null,
+    fuel_quantity: 'fuel_volume',
   },
   // volvo/sensor.py, binary_sensor.py, button.py, lock.py (its battery has no key)
   volvo: {
     distance_to_empty_battery: 'range',
-    distance_to_empty_tank: null,
+    distance_to_empty_tank: 'fuel_range',
     charging_status: 'charging',
     charger_connection_status: 'plugged',
     charging_power_status: null,
@@ -344,7 +395,14 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     location: 'location',
     availability: 'state',
     engine_status: 'moving',
-    fuel_amount: null,
+    fuel_amount: 'fuel_volume',
+    oil_level_warning: 'oil',
+    distance_to_service: 'service',
+    // its words (due, overdue, almost time) where it says no distance
+    service_warning: 'service',
+    time_to_service: 'service_time',
+    // the hours its engine has left before a service, never the days
+    engine_time_to_service: null,
   },
   // skoda/sensor.py, binary_sensor.py, switch.py (its lock and its tracker have no key)
   skoda: {
@@ -373,7 +431,7 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     car_battery_percentage: null,
     ev_driving_range: 'range',
     total_driving_range: 'range',
-    fuel_driving_range: null,
+    fuel_driving_range: 'fuel_range',
     ev_battery_is_charging: 'charging',
     ev_battery_is_plugged_in: 'plugged',
     ev_charging_power: 'charge_power',
@@ -429,7 +487,9 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     last_updated_at: 'updated',
     location_last_updated_at: null,
     fuel_level: 'fuel',
-    fuel_level_is_low: null,
+    fuel_level_is_low: 'fuel_low',
+    oil_level_warning_is_on: 'oil',
+    next_service_distance: 'service',
     // what wakes the car (and drains its small battery), sounds it, lends it, or moves every window at once
     force_refresh: null,
     start_hazard_lights: null,
@@ -447,9 +507,10 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     battery_percentage: 'battery',
     electric_range: 'range',
     range: 'range',
-    combustion_range: null,
+    combustion_range: 'fuel_range',
+    // a natural-gas car's second tank, never its fuel's
     gas_range: null,
-    adblue_range: null,
+    adblue_range: 'adblue',
     charging_state: 'charging',
     charge_type: null,
     charging_power: 'charge_power',
@@ -487,6 +548,10 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
     software_version: null,
     fuel_level: 'fuel',
     gas_level: null,
+    inspection_in_km: 'service',
+    inspection: 'service_time',
+    oil_service_in_km: 'service',
+    oil_service_in_days: 'service_time',
     honk_flash: null,
     flash: null,
     wakeup: null,
@@ -513,12 +578,68 @@ const KEYS_BY_PLATFORM: Partial<Record<Platform, Readonly<Record<string, Word>>>
   mg_saic: { vehicle_reachability: 'state', climate_mode: null },
   // kvanbiesen/bmw-cardata-ha device_tracker.py
   cardata: { car: 'location' },
+  // pytoyoda/ha_toyota sensor.py, binary_sensor.py: a plug-in hybrid's usable charge over the one it reports, its
+  // electric range over the total, its hood (a door's class) never a door
+  toyota: {
+    fuel_level: 'fuel',
+    fuel_range: 'fuel_range',
+    total_range: 'range',
+    battery_level: 'battery',
+    phev_usable_battery_level: 'battery',
+    battery_range: 'range',
+    battery_range_ac: null,
+    hood: 'frunk',
+  },
+  // marq24/ha-fordpass sensor.py (its keys lower case): its 12 V battery wears the battery's class on a petrol car
+  fordpass: {
+    fuel: 'fuel',
+    fuelrange: 'fuel_range',
+    battery: null,
+    soc: 'battery',
+    elveh: 'range',
+    oil: 'oil',
+    exhaustfluidlevel: 'adblue',
+  },
+  // ReneNulschDE/mbapi2020 const.py (its keys lower case); a natural-gas car's second tank is never its fuel's
+  mbapi2020: {
+    tanklevelpercent: 'fuel',
+    gastanklevelpercent: null,
+    rangeliquid: 'fuel_range',
+    liquidrangecritical: 'fuel_low',
+    soc: 'battery',
+    rangeelectrickm: 'range',
+    tankleveladblue: 'adblue',
+    oillevel: 'oil',
+  },
+  // andreadegiovine/homeassistant-stellantis-vehicles const.py: its 12 V battery wears the battery's class
+  stellantis_vehicles: {
+    fuel: 'fuel',
+    fuel_autonomy: 'fuel_range',
+    battery: 'battery',
+    autonomy: 'range',
+    service_battery_voltage: null,
+    mileage_before_maintenance: 'service',
+    days_before_maintenance: 'service_time',
+  },
+  // thomasddn/ha-volvo-cars sensor.py, binary_sensor.py: Volvo's before Home Assistant's, in its words
+  volvo_cars: {
+    distance_to_empty_battery: 'range',
+    distance_to_empty_tank: 'fuel_range',
+    fuel_amount: 'fuel_volume',
+    oil_level_warning: 'oil',
+    distance_to_service: 'service',
+    service_warning: 'service',
+    time_to_service: 'service_time',
+    engine_time_to_service: null,
+    tank_lid: null,
+  },
 };
 
 /**
  * The keys a role is known by as a second choice: Tessie's usable charge where the car's own is there too, an
  * estimated or ideal range beside the rated one, a total range beside the electric one, a limit's sensor beside its
- * number, a lock's sensor beside the lock, a port's sensor beside its switch.
+ * number, a lock's sensor beside the lock, a port's sensor beside its switch; a Toyota's reported charge beside its
+ * usable one, an oil service beside the inspection, a service's warning beside how far it is.
  */
 const SECOND: ReadonlySet<string> = new Set([
   'charge_state_usable_battery_level',
@@ -535,6 +656,10 @@ const SECOND: ReadonlySet<string> = new Set([
   'doors_lock',
   'ev_charge_port_door_is_open',
   'polestar_estimated_charging_time_to_full',
+  'battery_level',
+  'oil_service_in_km',
+  'oil_service_in_days',
+  'service_warning',
 ]);
 
 /** The end of an entity's id, for what an integration names without a key (its object id without the device's name). */
@@ -546,9 +671,10 @@ const SUFFIXES_BY_PLATFORM: Partial<Record<Platform, Ends>> = {
   // <model> <name>"; its fuel level wears the battery's class, and the buttons that open, vent or alarm are not the card's
   mg_saic: [
     [/^state_of_charge$/, 'battery'],
-    [/^fuel_level$/, null],
+    [/^fuel_level$/, 'fuel'],
     [/^electric_range$/, 'range'],
-    [/^(fuel_range|estimated_range_after_charging)$/, null],
+    [/^fuel_range$/, 'fuel_range'],
+    [/^estimated_range_after_charging$/, null],
     [/^charging_status$/, 'charging'],
     [/^charging_power$/, 'charge_power'],
     [/^remaining_charging_time$/, 'time_to_full'],
@@ -585,7 +711,13 @@ const SUFFIXES_BY_PLATFORM: Partial<Record<Platform, Ends>> = {
     [/^battery_power_level$/, null],
     [/^electric_range$/, 'range'],
     [/^(battery_cruising_range|combined_range)$/, 'range'],
-    [/^(fuel_range|combustion_range)$/, null],
+    [/^(fuel_range|combustion_range)$/, 'fuel_range'],
+    [/^fuel_level$/, 'fuel'],
+    // its AdBlue "level" is how far it lasts; the inspection is its service (the oil's is said apart)
+    [/^adblue_level$/, 'adblue'],
+    [/^service_inspection_distance$/, 'service'],
+    [/^service_inspection$/, 'service_time'],
+    [/^oil_inspection(_distance)?$/, null],
     [/^charging_state$/, 'charging'],
     [/^charging_power$/, 'charge_power'],
     [/^charging_rate$/, 'charge_rate'],
@@ -615,7 +747,7 @@ const SUFFIXES_BY_PLATFORM: Partial<Record<Platform, Ends>> = {
   volkswagen_we_connect_id: [
     [/^state_of_charge$/, 'battery'],
     [/^range$/, 'range'],
-    [/^gasoline_range$/, null],
+    [/^gasoline_range$/, 'fuel_range'],
     [/^charging_state$/, 'charging'],
     [/^plug_connection_state$/, 'plugged'],
     [/^charge_power$/, 'charge_power'],
@@ -656,8 +788,32 @@ const SUFFIXES_BY_PLATFORM: Partial<Record<Platform, Ends>> = {
   ],
 };
 
-/** The ends of ids anyone writes: for a role named by an integration the card does not know. */
+/**
+ * The ends of ids anyone writes: for a role named by an integration the card does not know. A tank's come before the
+ * range's, whose end a fuel range shares, and AdBlue's before the tank's; CarConnectivity names a drive's own after it
+ * ("…_tank_primary").
+ */
 const SUFFIXES: Ends = [
+  [/(^|_)adblue(_level|_range|_tank)?(_primary|_secondary)?$/, 'adblue'],
+  [
+    /(^|_)(fuel_level|fuel_percent|remaining_fuel_percent|fossil_fuel_percentage|tank(_primary|_secondary)?)$/,
+    'fuel',
+  ],
+  [
+    /(^|_)(fuel_range|range_fuel|remaining_range_fuel|fuel_autonomy|range_liquid|combustion_range|gasoline_range|petrol_range|diesel_range|distance_to_empty_tank|fossil_fuel_range)$/,
+    'fuel_range',
+  ],
+  [/(^|_)(fuel_quantity|fuel_amount|fuel_volume|remaining_fuel)$/, 'fuel_volume'],
+  [/(^|_)(low_fuel|fuel_low|fuel_level_low|fuel_level_is_low|liquid_range_critical)$/, 'fuel_low'],
+  [/(^|_)(oil_level|oil_life|engine_oil|oil_level_warning)(_primary|_secondary)?$/, 'oil'],
+  [
+    /(^|_)(distance_to_service|next_service|next_service_distance|service_distance|inspection_due_after|mileage_before_maintenance)$/,
+    'service',
+  ],
+  [
+    /(^|_)(time_to_service|service_days|days_to_service|inspection_due_at|days_before_maintenance)$/,
+    'service_time',
+  ],
   [/(^|_)(battery_level|state_of_charge|soc|charge_level|ev_battery_level)$/, 'battery'],
   [/(^|_)(range|electric_range|ev_range|estimated_range|battery_range|remaining_range)$/, 'range'],
   [/(^|_)(charging_state|charging_status|charge_state|charge_status)$/, 'charging'],
@@ -770,7 +926,7 @@ function played(candidate: Candidate): Part | undefined {
   if (role) return { role, rank: key && SECOND.has(key) ? RANK.second : RANK.platform };
   const tiers: ReadonlyArray<Ends> = [
     platform ? (SUFFIXES_BY_PLATFORM[platform] ?? []) : [],
-    platform && KEYS_BY_PLATFORM[platform] && key ? [] : SUFFIXES,
+    platform && KEYS_BY_PLATFORM[platform] && key && !PARTIAL.has(platform) ? [] : SUFFIXES,
   ];
   for (const ends of tiers)
     for (const [pattern, word] of ends) {
@@ -988,8 +1144,8 @@ export function vehicleDevice(
 }
 
 /**
- * The house's cars: devices of an integration the card reads whose entities give a battery's charge or a place —
- * a car the card can draw — in the registry's order.
+ * The house's cars: devices of an integration the card reads whose entities give a battery's charge, a tank or a
+ * place — a car the card can draw — in the registry's order.
  */
 export function vehicleDevices(hass: House | undefined): string[] {
   const byDevice = new Map<string, EntityRegistryDisplayEntry[]>();
@@ -1001,6 +1157,8 @@ export function vehicleDevices(hass: House | undefined): string[] {
   }
   return [...byDevice.keys()].filter((device) => {
     const { roles } = vehicleEntities(hass, device);
-    return Boolean(roles.battery ?? roles.range ?? roles.location);
+    return Boolean(
+      roles.battery ?? roles.range ?? roles.location ?? roles.fuel ?? roles.fuel_range,
+    );
   });
 }

@@ -1,5 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { BMW, carHouse, KIA, MG, RENAULT, TESLA, VOLVO, VW, type CarFixture } from './fixtures.js';
+import {
+  BMW,
+  C_CLASS,
+  carHouse,
+  CLIO,
+  FUEL_CARS,
+  GOLF,
+  KIA,
+  KUGA,
+  MG,
+  NIRO,
+  OCTAVIA,
+  PEUGEOT,
+  RAV4,
+  RENAULT,
+  SPORTAGE,
+  TESLA,
+  VOLVO,
+  VW,
+  XC60,
+  type CarFixture,
+} from './fixtures.js';
 import { vehicleDevice, vehicleDevices, vehicleEntities, wheelOf } from './roles.js';
 
 const hass = carHouse();
@@ -188,8 +209,8 @@ describe('a car’s entities', () => {
       trunk: 'binary_sensor.mg_mg4_boot_status',
       state: 'sensor.mg_mg4_vehicle_reachability',
     });
-    // its fuel level wears the battery's class: never the car's charge
-    expect(Object.values(mg)).not.toContain('sensor.mg_mg4_fuel_level');
+    // its fuel level wears the battery's class: never the car's charge, its tank's
+    expect(mg.fuel).toBe('sensor.mg_mg4_fuel_level');
     const vw = found(VW.device).roles;
     expect(vw.lock).toBe('lock.id_4_door_locked');
     expect(Object.values(vw)).not.toContain('lock.id_4_trunk_locked');
@@ -244,6 +265,105 @@ describe('a car’s entities', () => {
       seeds: [battery],
     };
     expect(vehicleEntities(carHouse([car]), car.device)).toEqual(custom([]));
+  });
+
+  it('reads a tank in each integration’s words: its level, its range on it, what is in it, its warning (#207)', () => {
+    const house = carHouse(FUEL_CARS);
+    const of = (car: CarFixture) => vehicleEntities(house, car.device).roles;
+    expect(of(SPORTAGE)).toMatchObject({
+      fuel: 'sensor.sportage_fuel_level',
+      fuel_range: 'sensor.sportage_fuel_driving_range',
+      range: 'sensor.sportage_total_driving_range',
+      fuel_low: 'binary_sensor.sportage_fuel_low',
+      oil: 'binary_sensor.sportage_oil_warning',
+      service: 'sensor.sportage_next_service',
+      frunk: 'binary_sensor.sportage_hood',
+    });
+    expect(of(CLIO)).toMatchObject({
+      fuel_volume: 'sensor.clio_fuel_quantity',
+      fuel_range: 'sensor.clio_fuel_autonomy',
+    });
+    expect(of(C_CLASS)).toMatchObject({
+      fuel: 'sensor.c_220_d_fuel_level',
+      fuel_range: 'sensor.c_220_d_range_liquid',
+      fuel_low: 'binary_sensor.c_220_d_liquid_range_critical',
+      adblue: 'sensor.c_220_d_adblue_level',
+      oil: 'sensor.c_220_d_oil_level',
+      lock: 'lock.c_220_d_lock',
+    });
+    // a fuel car of any integration: its range on its tank never plays the battery's range
+    expect(of(GOLF)).toMatchObject({
+      fuel: 'sensor.golf_fuel_level',
+      fuel_range: 'sensor.golf_fuel_range',
+      range: 'sensor.golf_total_range',
+      adblue: 'sensor.golf_adblue_range',
+      oil: 'sensor.golf_oil_level',
+      service: 'sensor.golf_distance_to_service',
+    });
+    expect(of(GOLF)).not.toHaveProperty('battery');
+  });
+
+  it('reads a service by its distance and its days, the inspection over the oil’s, a warning’s words second', () => {
+    const house = carHouse(FUEL_CARS);
+    expect(vehicleEntities(house, OCTAVIA.device).roles).toMatchObject({
+      service: 'sensor.octavia_next_inspection',
+      service_time: 'sensor.octavia_next_inspection_2',
+      adblue: 'sensor.octavia_adblue_range',
+      range: 'sensor.octavia_range',
+      frunk: 'binary_sensor.octavia_bonnet',
+    });
+    const volvo = vehicleEntities(house, XC60.device).roles;
+    expect(volvo).toMatchObject({
+      battery: 'sensor.xc60_battery',
+      range: 'sensor.xc60_distance_to_empty_battery',
+      fuel_volume: 'sensor.xc60_fuel_amount',
+      fuel_range: 'sensor.xc60_distance_to_empty_tank',
+      oil: 'binary_sensor.xc60_oil_level',
+      service: 'sensor.xc60_distance_to_service',
+      service_time: 'sensor.xc60_time_to_service',
+    });
+    // its engine's hours to a service are never the days
+    expect(Object.values(volvo)).not.toContain('sensor.xc60_time_to_engine_service');
+    expect(vehicleEntities(house, PEUGEOT.device).roles).toMatchObject({
+      service: 'sensor.peugeot_208_mileage_before_maintenance',
+      service_time: 'sensor.peugeot_208_days_before_maintenance',
+      odometer: 'sensor.peugeot_208_mileage',
+    });
+  });
+
+  it('never takes a 12 V battery for the car’s; a hybrid’s usable charge and electric range over the others', () => {
+    const house = carHouse(FUEL_CARS);
+    const kuga = vehicleEntities(house, KUGA.device).roles;
+    expect(kuga).not.toHaveProperty('battery');
+    expect(kuga).toMatchObject({
+      fuel: 'sensor.fordpass_kuga_fuel',
+      fuel_range: 'sensor.fordpass_kuga_fuelrange',
+      oil: 'sensor.fordpass_kuga_oil',
+      adblue: 'sensor.fordpass_kuga_exhaustfluidlevel',
+      lock: 'lock.fordpass_kuga_doorlock',
+    });
+    expect(vehicleEntities(house, PEUGEOT.device).roles).not.toHaveProperty('battery');
+    expect(vehicleEntities(house, SPORTAGE.device).roles).not.toHaveProperty('battery');
+    expect(vehicleEntities(house, RAV4.device).roles).toMatchObject({
+      battery: 'sensor.rav4_usable_battery_level',
+      range: 'sensor.rav4_battery_range',
+      fuel_range: 'sensor.rav4_fuel_range',
+      fuel: 'sensor.rav4_fuel_level',
+      frunk: 'binary_sensor.rav4_hood',
+      lock: 'lock.rav4_lock',
+      odometer: 'sensor.rav4_odometer',
+    });
+    expect(vehicleEntities(house, RAV4.device).doors).toEqual([]);
+    expect(vehicleEntities(house, NIRO.device).roles).toMatchObject({
+      battery: 'sensor.niro_ev_battery_level',
+      range: 'sensor.niro_ev_range',
+      fuel_range: 'sensor.niro_fuel_driving_range',
+    });
+  });
+
+  it('lists a car with a tank and no battery among the house’s cars', () => {
+    const house = carHouse([OCTAVIA, CLIO]);
+    expect(vehicleDevices(house)).toEqual([OCTAVIA.device, CLIO.device]);
   });
 
   it('knows a wheel by its key or its id', () => {

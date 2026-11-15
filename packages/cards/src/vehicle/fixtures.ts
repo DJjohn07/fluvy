@@ -309,6 +309,250 @@ export const BMW: CarFixture = {
   ],
 };
 
+/* ---------- #207: cars that burn fuel, in their integrations' words ---------- */
+
+const pctOnly = { unit_of_measurement: '%' };
+const days = { unit_of_measurement: 'd', device_class: 'duration' };
+
+/** A Sportage on Kia's, petrol: its tank, its range on it and the whole, its warning, its oil, its 12 V battery. */
+export const SPORTAGE: CarFixture = {
+  device: 'd-sportage',
+  name: 'Sportage',
+  platform: 'kia_uvo',
+  seeds: [
+    ['sensor.sportage_car_battery_level', '88', 'car_battery_percentage', pct],
+    ['sensor.sportage_fuel_level', '47', 'fuel_level', pctOnly],
+    ['sensor.sportage_fuel_driving_range', '402', 'fuel_driving_range', km],
+    ['sensor.sportage_total_driving_range', '402', 'total_driving_range', km],
+    ['binary_sensor.sportage_fuel_low', 'off', 'fuel_level_is_low', {}, 'diagnostic'],
+    [
+      'binary_sensor.sportage_oil_warning',
+      'off',
+      'oil_level_warning_is_on',
+      { device_class: 'problem' },
+      'diagnostic',
+    ],
+    ['sensor.sportage_next_service', '6200', 'next_service_distance', km, 'diagnostic'],
+    ['binary_sensor.sportage_hood', 'off', 'hood_is_open', { device_class: 'door' }],
+    ['lock.sportage_door_lock', 'locked', 'door_lock'],
+    ['sensor.sportage_odometer', '31820', 'odometer', km],
+    ['device_tracker.sportage_location', 'home', 'location'],
+  ],
+};
+
+/** A Niro plug-in hybrid on Kia's: its battery and its tank, each with its range, charging. */
+export const NIRO: CarFixture = {
+  device: 'd-niro',
+  name: 'Niro',
+  platform: 'kia_uvo',
+  seeds: [
+    ['sensor.niro_ev_battery_level', '64', 'ev_battery_percentage', pct],
+    ['sensor.niro_ev_range', '38', 'ev_driving_range', km],
+    ['sensor.niro_fuel_level', '54', 'fuel_level', pctOnly],
+    ['sensor.niro_fuel_driving_range', '520', 'fuel_driving_range', km],
+    ['sensor.niro_total_driving_range', '558', 'total_driving_range', km],
+    [
+      'binary_sensor.niro_ev_battery_charge',
+      'on',
+      'ev_battery_is_charging',
+      { device_class: 'battery_charging' },
+    ],
+    [
+      'binary_sensor.niro_ev_battery_plug',
+      'on',
+      'ev_battery_is_plugged_in',
+      { device_class: 'plug' },
+    ],
+    [
+      'sensor.niro_ev_charging_power',
+      '3.3',
+      'ev_charging_power',
+      { unit_of_measurement: 'kW', device_class: 'power' },
+    ],
+    ['number.niro_ac_charging_limit', '100', 'ev_charge_limits_ac', { min: 50, max: 100 }],
+    ['switch.niro_ev_charging', 'on', 'ev_charging'],
+    ['lock.niro_door_lock', 'locked', 'door_lock'],
+    ['device_tracker.niro_location', 'home', 'location'],
+  ],
+};
+
+/**
+ * An Octavia diesel on MySkoda: its tank, its whole range, its AdBlue lasting 850 km, its inspection in km and days and
+ * its oil service after it.
+ */
+export const OCTAVIA: CarFixture = {
+  device: 'd-octavia',
+  name: 'Octavia',
+  platform: 'myskoda',
+  seeds: [
+    ['sensor.octavia_fuel_level', '41', 'fuel_level', pctOnly],
+    ['sensor.octavia_range', '562', 'range', km],
+    ['sensor.octavia_adblue_range', '850', 'adblue_range', km],
+    ['sensor.octavia_oil_service', '12800', 'oil_service_in_km', km],
+    ['sensor.octavia_oil_service_2', '211', 'oil_service_in_days', days],
+    ['sensor.octavia_next_inspection', '4200', 'inspection_in_km', km],
+    ['sensor.octavia_next_inspection_2', '63', 'inspection', days],
+    ['sensor.octavia_mileage', '84312', 'mileage', km],
+    ['binary_sensor.octavia_bonnet', 'off', 'bonnet_open', { device_class: 'opening' }],
+    ['lock.octavia_door_lock', 'locked', 'door_lock'],
+  ],
+};
+
+/** An XC60 plug-in hybrid on Volvo's: its battery (no key), its tank in litres and how far it goes, its oil, its service. */
+export const XC60: CarFixture = {
+  device: 'd-xc60',
+  name: 'XC60',
+  platform: 'volvo',
+  seeds: [
+    ['sensor.xc60_battery', '23', undefined, pct],
+    ['sensor.xc60_distance_to_empty_battery', '14', 'distance_to_empty_battery', km],
+    [
+      'sensor.xc60_fuel_amount',
+      '38',
+      'fuel_amount',
+      { unit_of_measurement: 'L', device_class: 'volume_storage' },
+    ],
+    ['sensor.xc60_distance_to_empty_tank', '486', 'distance_to_empty_tank', km],
+    ['binary_sensor.xc60_oil_level', 'off', 'oil_level_warning', { device_class: 'problem' }],
+    ['sensor.xc60_distance_to_service', '9300', 'distance_to_service', km],
+    ['sensor.xc60_service', 'no_warning', 'service_warning', { device_class: 'enum' }],
+    ['sensor.xc60_time_to_service', '148', 'time_to_service', days],
+    [
+      'sensor.xc60_time_to_engine_service',
+      '310',
+      'engine_time_to_service',
+      { unit_of_measurement: 'h' },
+    ],
+    ['lock.xc60_lock', 'locked', 'lock'],
+  ],
+};
+
+/** A Clio on Renault's, petrol: what is in its tank (litres, no level) and how far it goes. */
+export const CLIO: CarFixture = {
+  device: 'd-clio',
+  name: 'Clio',
+  platform: 'renault',
+  seeds: [
+    [
+      'sensor.clio_fuel_quantity',
+      '29',
+      'fuel_quantity',
+      { unit_of_measurement: 'L', device_class: 'volume' },
+    ],
+    ['sensor.clio_fuel_autonomy', '512', 'fuel_autonomy', km],
+    ['sensor.clio_mileage', '23880', 'mileage', km],
+    ['binary_sensor.clio_lock', 'off', undefined, { device_class: 'lock' }],
+    ['device_tracker.clio_location', 'home', 'location'],
+  ],
+};
+
+/**
+ * A RAV4 plug-in hybrid on Toyota's (HACS): its reported charge beside its usable one, its electric range beside the
+ * fuel's and the whole, its hood (a door's class); its lock named in words.
+ */
+export const RAV4: CarFixture = {
+  device: 'd-rav4',
+  name: 'RAV4',
+  platform: 'toyota',
+  seeds: [
+    ['sensor.rav4_battery_level', '96', 'battery_level', pct],
+    ['sensor.rav4_usable_battery_level', '81', 'phev_usable_battery_level', pct],
+    ['sensor.rav4_total_range', '690', 'total_range', km],
+    ['sensor.rav4_fuel_range', '620', 'fuel_range', km],
+    ['sensor.rav4_battery_range', '70', 'battery_range', km],
+    ['sensor.rav4_fuel_level', '58', 'fuel_level', pctOnly],
+    ['binary_sensor.rav4_hood', 'off', 'hood', { device_class: 'door' }],
+    ['lock.rav4_lock', 'locked'],
+    ['sensor.rav4_odometer', '12040', 'odometer', km],
+  ],
+};
+
+/** A Kuga on Ford's (marq24's fordpass), diesel: its 12 V battery wears the battery's class on a car that burns fuel. */
+export const KUGA: CarFixture = {
+  device: 'd-kuga',
+  name: 'Kuga',
+  platform: 'fordpass',
+  seeds: [
+    ['sensor.fordpass_kuga_battery', '79', 'battery', pct],
+    ['sensor.fordpass_kuga_fuel', '33', 'fuel', pctOnly],
+    ['sensor.fordpass_kuga_fuelrange', '310', 'fuelrange', km],
+    ['sensor.fordpass_kuga_oil', '12', 'oil', pctOnly],
+    ['sensor.fordpass_kuga_exhaustfluidlevel', '64', 'exhaustfluidlevel', pctOnly],
+    ['sensor.fordpass_kuga_odometer', '52310', 'odometer', km],
+    ['lock.fordpass_kuga_doorlock', 'locked', 'doorlock'],
+  ],
+};
+
+/** A C-Class on Mercedes-Benz's (mbapi2020): its tank and its range on it, its AdBlue, its oil, its warning. */
+export const C_CLASS: CarFixture = {
+  device: 'd-c-class',
+  name: 'C 220 d',
+  platform: 'mbapi2020',
+  seeds: [
+    ['sensor.c_220_d_fuel_level', '72', 'tanklevelpercent', pctOnly],
+    ['sensor.c_220_d_range_liquid', '780', 'rangeliquid', km],
+    [
+      'binary_sensor.c_220_d_liquid_range_critical',
+      'off',
+      'liquidrangecritical',
+      { device_class: 'problem' },
+    ],
+    ['sensor.c_220_d_adblue_level', '40', 'tankleveladblue', pctOnly],
+    ['sensor.c_220_d_oil_level', '85', 'oillevel', pctOnly],
+    ['sensor.c_220_d_odometer', '45120', 'odometer', km],
+    ['lock.c_220_d_lock', 'locked', 'lock'],
+  ],
+};
+
+/** A 208 on Stellantis's, petrol: its tank, its range on it, its 12 V battery, its maintenance in km and days. */
+export const PEUGEOT: CarFixture = {
+  device: 'd-208',
+  name: 'Peugeot 208',
+  platform: 'stellantis_vehicles',
+  seeds: [
+    ['sensor.peugeot_208_fuel', '9', 'fuel', pctOnly],
+    ['sensor.peugeot_208_fuel_range', '58', 'fuel_autonomy', km],
+    ['sensor.peugeot_208_service_battery', '78', 'service_battery_voltage', pct],
+    ['sensor.peugeot_208_mileage', '41290', 'mileage', km],
+    ['sensor.peugeot_208_mileage_before_maintenance', '1240', 'mileage_before_maintenance', km],
+    ['sensor.peugeot_208_days_before_maintenance', '41', 'days_before_maintenance', days],
+    ['lock.peugeot_208_doors', 'locked'],
+    ['device_tracker.peugeot_208_location', 'not_home'],
+  ],
+};
+
+/**
+ * A Golf on an integration the card does not know: its tank, its range on it (an end a range's shares) and the whole,
+ * its AdBlue, its oil, its next service, read by the ends of their ids.
+ */
+export const GOLF: CarFixture = {
+  device: 'd-golf',
+  name: 'Golf',
+  platform: 'golf_bridge',
+  seeds: [
+    ['sensor.golf_fuel_level', '35', undefined, pctOnly],
+    ['sensor.golf_fuel_range', '380', undefined, km],
+    ['sensor.golf_total_range', '380', undefined, km],
+    ['sensor.golf_adblue_range', '2100', undefined, km],
+    ['sensor.golf_oil_level', '70', undefined, pctOnly],
+    ['sensor.golf_distance_to_service', '0', undefined, km],
+    ['lock.golf_doors', 'locked'],
+  ],
+};
+
+export const FUEL_CARS: readonly CarFixture[] = [
+  SPORTAGE,
+  NIRO,
+  OCTAVIA,
+  XC60,
+  CLIO,
+  RAV4,
+  KUGA,
+  C_CLASS,
+  PEUGEOT,
+  GOLF,
+];
+
 /** A washer on a smart plug: a device with a battery-less life, never a car. */
 const WASHER: CarFixture = {
   device: 'd-washer',

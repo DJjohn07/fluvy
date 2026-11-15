@@ -5,10 +5,17 @@ import {
   chargeOf,
   chargeWord,
   convertDistance,
+  energyOf,
+  isDistance,
   lineOf,
+  lowAdBlue,
   lowRange,
+  lowTank,
+  oilToCheck,
   plugged,
   pluggedWord,
+  serviceDue,
+  serviceWord,
 } from './state.js';
 
 describe('a car’s charge', () => {
@@ -155,6 +162,78 @@ describe('the line under the battery', () => {
     expect(at({ charge: 'unplugged' })).toBe('unplugged');
     expect(at({ charge: 'idle' })).toBe('none');
   });
+
+  it('says a tank’s calls after a charge’s, before what stands open (#207)', () => {
+    const calm = { low: false, adblue: false, oil: false, service: false };
+    const at = (tank: Partial<typeof calm>, o: Partial<Parameters<typeof lineOf>[0]> = {}) =>
+      lineOf({
+        charge: null,
+        low: false,
+        open: null,
+        cabin: null,
+        tank: { ...calm, ...tank },
+        ...o,
+      });
+    expect(at({ low: true }, { charge: 'charging' })).toBe('charging');
+    expect(at({ low: true, adblue: true, oil: true, service: true })).toBe('low_fuel');
+    expect(at({ adblue: true, oil: true, service: true })).toBe('adblue');
+    expect(at({ oil: true, service: true }, { open: 'doors' })).toBe('oil');
+    expect(at({ service: true }, { open: 'doors' })).toBe('service');
+    expect(at({}, { open: 'frunk' })).toBe('open');
+    expect(at({}, { cabin: 'cold' })).toBe('cabin');
+    expect(at({})).toBe('none');
+  });
+});
+
+describe('what it runs on (#207)', () => {
+  it('is the card’s energy, else its tank where it has no battery, else its battery', () => {
+    expect(energyOf(undefined, { battery: true, tank: false })).toBe('electric');
+    expect(energyOf('auto', { battery: false, tank: true })).toBe('fuel');
+    // a plug-in hybrid stays drawn as its battery, as before the card knew a tank
+    expect(energyOf(undefined, { battery: true, tank: true })).toBe('electric');
+    expect(energyOf(undefined, { battery: false, tank: false })).toBe('electric');
+    expect(energyOf('hybrid', { battery: true, tank: false })).toBe('hybrid');
+    expect(energyOf('fuel', { battery: true, tank: false })).toBe('fuel');
+    expect(energyOf('diesel', { battery: false, tank: true })).toBe('fuel');
+  });
+
+  it('is low by its warning, else under the card’s range, else at 15 % where it has no warning to ask', () => {
+    const at = (o: Partial<Parameters<typeof lowTank>[0]>) =>
+      lowTank({ warning: undefined, range: null, level: null, threshold: undefined, ...o });
+    expect(at({ warning: true, level: 80 })).toBe(true);
+    expect(at({ warning: false, level: 10 })).toBe(false);
+    expect(at({ level: 15 })).toBe(true);
+    expect(at({ level: 16 })).toBe(false);
+    expect(at({ range: 40, level: 60, threshold: 50 })).toBe(true);
+    expect(at({ range: 60, level: 5, threshold: 50 })).toBe(false);
+    expect(at({ warning: null, level: 12 })).toBe(true);
+  });
+
+  it('finds AdBlue low, the oil to check and a service due by what each says', () => {
+    expect(lowAdBlue({ kind: 'distance', km: 850 })).toBe(true);
+    expect(lowAdBlue({ kind: 'distance', km: 2400 })).toBe(false);
+    expect(lowAdBlue({ kind: 'level', percent: 15 })).toBe(true);
+    expect(lowAdBlue({ kind: 'warning', on: true })).toBe(true);
+    expect(lowAdBlue(null)).toBe(false);
+    expect(oilToCheck({ kind: 'level', percent: 12 })).toBe(true);
+    expect(oilToCheck({ kind: 'level', percent: 80 })).toBe(false);
+    expect(oilToCheck({ kind: 'warning', on: true })).toBe(true);
+    expect(oilToCheck({ kind: 'distance', km: 0 })).toBe(false);
+    expect(serviceDue({ kind: 'distance', km: 4200 }, { kind: 'days', days: 63 })).toBe(false);
+    expect(serviceDue({ kind: 'distance', km: 4200 }, { kind: 'days', days: -2 })).toBe(true);
+    expect(serviceDue({ kind: 'distance', km: 0 }, null)).toBe(true);
+    expect(serviceDue({ kind: 'warning', on: true })).toBe(true);
+    expect(serviceDue(null, null)).toBe(false);
+  });
+
+  it('reads a service warning’s words: due when its time has come or gone, not when it is almost here', () => {
+    expect(serviceWord('regular_maintenance_time_for_service')).toBe(true);
+    expect(serviceWord('distance_driven_overdue_for_service')).toBe(true);
+    expect(serviceWord('engine_hours_almost_time_for_service')).toBe(false);
+    expect(serviceWord('no_warning')).toBe(false);
+    expect(serviceWord('unknown_warning')).toBeNull();
+    expect(serviceWord('Bluetooth')).toBeNull();
+  });
 });
 
 describe('a distance', () => {
@@ -163,5 +242,7 @@ describe('a distance', () => {
     expect(convertDistance(100, 'mi', 'km')).toBeCloseTo(160.9344);
     expect(convertDistance(5, 'km', 'km')).toBe(5);
     expect(convertDistance(5, 'furlong', 'km')).toBe(5);
+    expect(isDistance('mi')).toBe(true);
+    expect(isDistance('d')).toBe(false);
   });
 });

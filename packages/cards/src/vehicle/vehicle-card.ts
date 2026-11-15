@@ -44,7 +44,7 @@ import {
 } from '../shared/base.js';
 import { toneOf } from '../shared/colour.js';
 import { configKeys } from '../shared/config.js';
-import { spanText } from '../shared/duration.js';
+import { spanText, unitWord, withUnit } from '../shared/duration.js';
 import { fitLine, type Segment } from '../shared/fit.js';
 import {
   accentField,
@@ -97,14 +97,23 @@ import {
   cabinOf,
   chargeOf,
   convertDistance,
+  energyOf,
+  isDistance,
   lineOf,
+  lowAdBlue,
   lowRange,
+  lowTank,
+  oilToCheck,
   plugged,
   pluggedWord,
+  serviceDue,
+  serviceWord,
   type Activity,
   type Cabin,
   type Charge,
+  type Energy,
   type Opening,
+  type Upkeep,
 } from './state.js';
 
 addGlyphs(VEHICLE_GLYPHS);
@@ -158,7 +167,12 @@ export type VehicleRow =
   | 'time_to_full'
   | 'software'
   | 'speed'
-  | 'fuel';
+  | 'fuel'
+  | 'fuel_range'
+  | 'fuel_volume'
+  | 'adblue'
+  | 'oil'
+  | 'service';
 export const VEHICLE_ROWS: readonly VehicleRow[] = [
   'location',
   'odometer',
@@ -171,6 +185,11 @@ export const VEHICLE_ROWS: readonly VehicleRow[] = [
   'software',
   'speed',
   'fuel',
+  'fuel_range',
+  'fuel_volume',
+  'adblue',
+  'oil',
+  'service',
 ];
 const DEFAULT_ROWS: readonly VehicleRow[] = ['location', 'odometer'];
 
@@ -207,7 +226,14 @@ export interface VehicleCardConfig extends FluvyCardConfig, HeadConfig {
   scan?: boolean;
   /** Entities named by hand for a part the card does not find, or plays otherwise: `{ role, entity }`. */
   roles?: readonly NamedRole[];
-  /** The battery on its ruler (the default) or as a ring. */
+  /**
+   * What it runs on: its battery, its tank, or both (a plug-in hybrid); `auto` (the default), its tank where it has
+   * one and no battery, else its battery.
+   */
+  energy?: 'auto' | 'electric' | 'fuel' | 'hybrid';
+  /** Its tank's size, in the unit of what is in it (L, gal): the level, where the car says only what is in it. */
+  tank_size?: number;
+  /** The battery (or the tank) on its ruler (the default) or as a ring; a hybrid's two are rulers. */
   hero?: 'ruler' | 'ring';
   /** A picture of the car: an address, an entity whose picture it is, or `auto` (the integration's own). */
   image?: string;
@@ -261,11 +287,54 @@ interface ControlView {
   readonly entry: ControlEntry;
 }
 
+/** A distance as the card writes it, in its unit, and its number (null where it cannot be read). */
+interface Distance {
+  readonly value: string;
+  readonly unit: string;
+  readonly number: number | null;
+}
+
+/** A car's tank: its level, what is in it, how far it goes; whether it, its AdBlue, its oil or its service call. */
+interface Tank {
+  /** Its level (%): its own, else what is in it of `tank_size`; null where neither can be read. */
+  readonly level: number | null;
+  /** What is in it ("32 L"), null where the car does not say. */
+  readonly volume: { readonly value: string; readonly unit: string } | null;
+  readonly range: Distance;
+  readonly low: boolean;
+  readonly adblue: boolean;
+  readonly oil: boolean;
+  readonly service: boolean;
+}
+
+/** A hero as it draws: the battery or the tank — its word, its level (or its figure), its range, its mark, its tone. */
+interface Gauge {
+  readonly label: string;
+  readonly level: number | null;
+  /** Its figure where it has no level: what is in the tank. */
+  readonly amount: { readonly value: string; readonly unit: string } | null;
+  readonly range: Distance;
+  /** The range's unit as its widest figure is laid out in. */
+  readonly rangeUnit: string;
+  readonly limit: number | null;
+  readonly low: boolean;
+  /** Its tone at rest: the card's colour (a lone tank's where the card names one), else the gas tone (a tank's). */
+  readonly tone: Tone;
+  /** What its tap opens. */
+  readonly entity: string | undefined;
+  /** Its glyph, where two gauges share the compact card. */
+  readonly glyph: string;
+}
+
 /** What `renderCard` reads once and every part draws. */
 interface Reading {
   readonly name: string;
+  /** What it runs on, as the card draws it. */
+  readonly energy: Energy;
   readonly level: number | null;
-  readonly range: { readonly value: string; readonly unit: string; readonly number: number | null };
+  readonly range: Distance;
+  /** Its tank, where it is drawn burning fuel (alone or beside its battery). */
+  readonly tank: Tank | null;
   readonly limit: number | null;
   readonly charge: Charge | null;
   /** The cable is said to be in (its sensor, or a charge that needs one): "Plugged in" only then. */
@@ -350,9 +419,15 @@ const keyPicker = <K extends string>(
     },
   },
 });
-/** A control's word: its name ("Charging" for the charge's). */
-const controlWord = (key: VehicleControl): MessageKey =>
-  key === 'lock' ? 'lock.lock' : key === 'charging' ? 'vehicle.charge' : `vehicle.${key}`;
+/** A control's word: its name ("Charging" for the charge's; the front boot is a bonnet where an engine is under it). */
+const controlWord = (key: VehicleControl, energy: Energy = 'electric'): MessageKey =>
+  key === 'lock'
+    ? 'lock.lock'
+    : key === 'charging'
+      ? 'vehicle.charge'
+      : key === 'frunk' && energy !== 'electric'
+        ? 'vehicle.bonnet'
+        : `vehicle.${key}`;
 const controlPicker = (): HaFormSchemaItem => keyPicker('control', VEHICLE_CONTROLS, controlWord);
 const rowPicker = (): HaFormSchemaItem =>
   keyPicker('row', VEHICLE_ROWS, (key): MessageKey => `vehicle.${key}`);
@@ -392,6 +467,13 @@ const ROLE_WORDS: Readonly<Record<VehicleRole, MessageKey>> = {
   moving: 'vehicle.role.moving',
   updated: 'vehicle.role.updated',
   fuel: 'vehicle.fuel',
+  fuel_range: 'vehicle.fuel_range',
+  fuel_volume: 'vehicle.fuel_volume',
+  fuel_low: 'vehicle.role.fuel_low',
+  adblue: 'vehicle.adblue',
+  oil: 'vehicle.oil',
+  service: 'vehicle.service',
+  service_time: 'vehicle.role.service_time',
   tyre_fl: 'vehicle.tyre_fl',
   tyre_fr: 'vehicle.tyre_fr',
   tyre_rl: 'vehicle.tyre_rl',
@@ -421,7 +503,11 @@ function carFromAbove(low: Readonly<Partial<Record<Wheel, boolean>>>): TemplateR
  * charging, boot, front boot, windows and sentry as one row of rounds, each acting on the car (and asking first where
  * that matters) or opening what it reads; its tyres from above. Given its device (or any of its entities) it finds the
  * rest: Tesla's three integrations, Renault, Volvo and Škoda, and Kia and Hyundai, MySkoda, Polestar, MG, Volkswagen's
- * two and BMW's CarData from HACS, by their own words; any other by what its entities are, and by `roles`.
+ * two and BMW's CarData from HACS, by their own words; any other by what its entities are, and by `roles`. A car that
+ * burns fuel (#207) draws its tank in the battery's place — its level in its tone, its range beside it, the warning's
+ * when it runs low — and says on its line what is in it, its AdBlue, its oil and its service when they call; a plug-in
+ * hybrid draws its battery and its tank (`energy`). Toyota's, Ford's, Mercedes-Benz's and Stellantis's integrations
+ * from HACS are read for their tanks too.
  */
 export class FluvyVehicleCard extends Card<VehicleCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
@@ -568,6 +654,22 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       }
       .vh-bar + .vh-line {
         margin-top: 8px;
+      }
+      /* a hybrid's two bars, 8 apart, each led by its glyph (the battery's, the pump) */
+      .vh-hero + .vh-hero > .vh-bar {
+        margin-top: 8px;
+      }
+      .vh-bar__glyph {
+        display: grid;
+        flex: 0 0 20px;
+        place-items: center;
+        width: 20px;
+        height: 20px;
+        color: var(--fluvy-text-secondary);
+      }
+      .vh-bar__glyph svg {
+        width: 20px;
+        height: 20px;
       }
       /* the controls: equal cells across the column, touching, each a round and its word under it — one button; a
          shorter last row centred under the others */
@@ -750,7 +852,12 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         height: 58px;
         transform: rotate(-90deg);
       }
-      .vh-ring circle {
+      /* a hybrid's strip: the ring in two halves drawn as they stand, each from the foot up */
+      .vh-ring--halves > svg {
+        transform: none;
+      }
+      .vh-ring circle,
+      .vh-ring path {
         fill: none;
         stroke-width: 2;
       }
@@ -812,6 +919,8 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     'variant',
     'scan',
     'roles',
+    'energy',
+    'tank_size',
     'hero',
     'image',
     'image_position',
@@ -905,6 +1014,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
   static override defaults: EditorDefaults = () => ({
     variant: 'full',
     scan: true,
+    energy: 'auto',
     hero: 'ruler',
     image_position: 'hero',
     show_range: true,
@@ -926,6 +1036,10 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       data['variant'] !== 'mini';
     const hasImage = (data: Readonly<Record<string, unknown>>): boolean =>
       typeof data['image'] === 'string' && data['image'].trim() !== '';
+    // a tank's size where one may be drawn; a charge limit where a battery may be; a ring where one gauge is
+    const tanked = (data: Readonly<Record<string, unknown>>): boolean =>
+      data['energy'] !== 'electric';
+    const charged = (data: Readonly<Record<string, unknown>>): boolean => data['energy'] !== 'fuel';
     const decimals = ['auto', '0', '1', '2'] as const;
     return {
       schema: [
@@ -940,7 +1054,19 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         nameIconFields(),
         headFields(),
         selectField('variant', VEHICLE_VARIANTS),
-        onlyWhen(full, selectField('hero', ['ruler', 'ring'])),
+        fieldRow(
+          choiceField('energy', [
+            ['auto', 'option.auto'],
+            ['electric', 'vehicle.editor.electric'],
+            ['fuel', 'vehicle.fuel'],
+            ['hybrid', 'vehicle.editor.hybrid'],
+          ]),
+          onlyWhen(tanked, numberField('tank_size', 0, 500)),
+        ),
+        onlyWhen(
+          (data) => full(data) && data['energy'] !== 'hybrid',
+          selectField('hero', ['ruler', 'ring']),
+        ),
         onlyWhen(notMini, textField('image')),
         onlyWhen(
           (data) => full(data) && hasImage(data),
@@ -949,7 +1075,10 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
             ['head', 'vehicle.editor.image_head'],
           ]),
         ),
-        onlyWhen(notMini, fieldRow(boolField('show_range'), boolField('show_limit'))),
+        onlyWhen(
+          notMini,
+          fieldRow(boolField('show_range'), onlyWhen(charged, boolField('show_limit'))),
+        ),
         onlyWhen(notMini, fieldRow(boolField('show_status'), boolField('show_controls'))),
         onlyWhen(full, fieldRow(boolField('show_rows'), boolField('show_tyres'))),
         fieldRow(numberField('low_range', 0, 1000), numberField('stale_after', 0, 1440)),
@@ -968,6 +1097,8 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         {
           device: 'editor.device',
           scan: 'editor.scan',
+          energy: 'editor.energy',
+          tank_size: 'editor.tank_size',
           hero: 'editor.hero',
           image_position: 'editor.image_position',
           show_range: 'editor.show_range',
@@ -995,7 +1126,9 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
           ? s(undefined, 'editor.scan_helper')
           : schema.name === 'image'
             ? s(undefined, 'editor.image_helper')
-            : undefined,
+            : schema.name === 'tank_size'
+              ? s(undefined, 'editor.tank_size_helper')
+              : undefined,
     };
   }
 
@@ -1086,20 +1219,133 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     return Number.isInteger(n) && n >= 0 && n <= 3 ? n : auto;
   }
 
-  /** The range's unit: the card's (km or mi), else its sensor's, else the house's. */
-  private rangeUnit(): string {
+  /** A range's unit: the card's (km or mi), else its sensor's, else the house's. */
+  private rangeUnit(role: VehicleRole = 'range'): string {
     const asked = this.config?.range_unit;
     if (asked === 'km' || asked === 'mi') return asked;
-    return this.view('range')?.unit || this.hass?.config.unit_system.length || 'km';
+    return this.view(role)?.unit || this.hass?.config.unit_system.length || 'km';
   }
 
-  /** The range in the unit the card asks for (km ↔ mi), its decimals the card's. */
-  private rangeOf(): Reading['range'] {
-    const v = this.view('range');
+  /** A range in the unit the card asks for (km ↔ mi), its decimals the card's. */
+  private distanceOf(role: VehicleRole): Distance {
+    const v = this.view(role);
     if (!v || v.status !== 'ok' || v.number === null) return { value: '—', unit: '', number: null };
-    const unit = this.rangeUnit();
+    const unit = this.rangeUnit(role);
     const n = convertDistance(v.number, v.unit, unit);
     return { value: this.figure(n, this.digits(this.config?.range_decimals, 0)), unit, number: n };
+  }
+
+  /** A distance a row says, whole, in the range's unit where the card asks for one ("24,318 km"). */
+  private distanceText(v: EntityView & { readonly number: number }): string {
+    const asked = this.config?.range_unit;
+    const unit = asked === 'km' || asked === 'mi' ? asked : v.unit;
+    return `${this.figure(convertDistance(v.number, v.unit, unit), 0)} ${unit}`;
+  }
+
+  /** What the card draws the car as: its `energy`, else its tank where it has one and no battery, else its battery. */
+  private energy(): Energy {
+    const { roles } = this.car();
+    return energyOf(this.config?.energy, {
+      battery: Boolean(roles.battery),
+      tank: Boolean(roles.fuel ?? roles.fuel_volume ?? roles.fuel_range),
+    });
+  }
+
+  /** The entity the tank is read by: its level, else what is in it, else its range. */
+  private tankEntity(): string | undefined {
+    const { roles } = this.car();
+    return roles.fuel ?? roles.fuel_volume ?? roles.fuel_range;
+  }
+
+  /**
+   * What a fluid's or a service's entity says: its warning (a binary sensor, a warning's words), a level (%), a
+   * distance (in km), days (a duration, or a date from now); null where it cannot be read.
+   */
+  private upkeep(role: VehicleRole, now: number): Upkeep {
+    const v = this.view(role);
+    if (!v || v.status !== 'ok') return null;
+    if (v.domain === 'binary_sensor') return { kind: 'warning', on: v.state === 'on' };
+    if (v.number === null) {
+      const at =
+        v.deviceClass === 'timestamp' || v.deviceClass === 'date' ? Date.parse(v.state) : NaN;
+      if (Number.isFinite(at)) return { kind: 'days', days: (at - now) / 86_400_000 };
+      const due = serviceWord(v.state);
+      return due === null ? null : { kind: 'warning', on: due };
+    }
+    if (v.unit === '%') return { kind: 'level', percent: v.number };
+    if (v.deviceClass === 'distance' || isDistance(v.unit))
+      return { kind: 'distance', km: convertDistance(v.number, v.unit, 'km') };
+    const seconds = /^(d|h|min|s)$/i.test(v.unit) ? durationSeconds(v.number, v.unit) : null;
+    return seconds === null ? null : { kind: 'days', days: seconds / 86_400 };
+  }
+
+  /** An upkeep's figure: a level ("8 %"), a distance ("900 km"), days ("63 d"); '' for a warning or nothing. */
+  private upkeepText(role: VehicleRole, now: number): string {
+    const reading = this.upkeep(role, now);
+    const v = this.view(role);
+    if (!reading || !v) return '';
+    if (reading.kind === 'level') return `${this.figure(reading.percent, 0)} %`;
+    if (reading.kind === 'distance' && v.number !== null)
+      return this.distanceText({ ...v, number: v.number });
+    return reading.kind === 'days'
+      ? withUnit(this.figure(Math.max(0, Math.round(reading.days)), 0), unitWord(this.hass, 'd'))
+      : '';
+  }
+
+  /**
+   * The tank: its level (its own, else what is in it of `tank_size`), what is in it, how far it goes — a car that burns
+   * fuel alone as far as its whole range — and whether it runs low, its AdBlue runs low, its oil wants a look or its
+   * service is due. None for an electric car.
+   */
+  private tank(energy: Energy, unavailable: boolean, now: number): Tank | null {
+    if (energy === 'electric') return null;
+    const volume = this.view('fuel_volume');
+    const litres = volume && volume.status === 'ok' ? volume.number : null;
+    const size = this.config?.tank_size;
+    const raw =
+      this.number('fuel') ??
+      (litres !== null && typeof size === 'number' && size > 0 ? (litres / size) * 100 : null);
+    const level = raw === null ? null : Math.min(100, Math.max(0, raw));
+    const own = this.distanceOf('fuel_range');
+    const range = own.number === null && energy === 'fuel' ? this.distanceOf('range') : own;
+    return {
+      level,
+      volume:
+        litres === null || !volume
+          ? null
+          : { value: this.figure(litres, /gal/i.test(volume.unit) ? 1 : 0), unit: volume.unit },
+      range,
+      low:
+        !unavailable &&
+        lowTank({
+          warning: this.flag('fuel_low'),
+          range: range.number,
+          level,
+          threshold: this.config?.low_range,
+        }),
+      adblue: !unavailable && lowAdBlue(this.upkeep('adblue', now)),
+      oil: !unavailable && oilToCheck(this.upkeep('oil', now)),
+      service:
+        !unavailable && serviceDue(this.upkeep('service', now), this.upkeep('service_time', now)),
+    };
+  }
+
+  /** How far it goes: its battery's range, its tank's, or a hybrid's both together. */
+  private reach(r: Reading): Distance {
+    if (!r.tank) return r.range;
+    if (r.energy === 'fuel') return r.tank.range;
+    const known = [r.range, r.tank.range].filter((d) => d.number !== null);
+    const [first] = known;
+    if (!first || known.length < 2) return first ?? r.range;
+    const n = known.reduce(
+      (sum, d) => sum + convertDistance(d.number as number, d.unit, first.unit),
+      0,
+    );
+    return {
+      value: this.figure(n, this.digits(this.config?.range_decimals, 0)),
+      unit: first.unit,
+      number: n,
+    };
   }
 
   /** What the car draws (W): its charging power in its unit brought to watts. */
@@ -1171,10 +1417,11 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     return s(this.hass, 'updated', { when: relativeTime(this.hass, new Date(at), new Date(now)) });
   }
 
-  /** The car out of reach: none of what it says of itself can be read (its battery, its lock, its place). */
-  private reachless(): boolean {
+  /** The car out of reach: none of what it says of itself can be read (its battery or its tank, its lock, its place). */
+  private reachless(energy: Energy = this.energy()): boolean {
     const { roles } = this.car();
-    const main = (['battery', 'range', 'lock', 'location', 'charging'] as const)
+    const tank = energy === 'electric' ? [] : (['fuel', 'fuel_volume', 'fuel_range'] as const);
+    const main = (['battery', 'range', 'lock', 'location', 'charging', ...tank] as const)
       .map((role) => roles[role])
       .filter((id): id is string => Boolean(id));
     return main.length > 0 && main.every((id) => this.entity(id).status !== 'ok');
@@ -1239,14 +1486,15 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
   }
 
   private reading(now: number): Reading {
+    const energy = this.energy();
     const battery = this.view('battery');
     const level =
       battery && battery.status === 'ok' && battery.number !== null
         ? Math.min(100, Math.max(0, battery.number))
         : null;
     const limit = this.limit();
-    const range = this.rangeOf();
-    const unavailable = this.reachless();
+    const range = this.distanceOf('range');
+    const unavailable = this.reachless(energy);
     const charge = unavailable ? null : this.charge(level, limit);
     const activity = unavailable ? 'offline' : this.activity();
     const climateOn = this.climateOn();
@@ -1288,13 +1536,17 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     })();
     return {
       name: this.carName(),
+      energy,
       level,
       range,
+      tank: this.tank(energy, unavailable, now),
       limit,
       charge,
       plugged: plugged(charge),
       activity,
+      // a hybrid's battery running down is no warning: its tank takes over
       low:
+        energy === 'electric' &&
         !unavailable &&
         charge !== 'charging' &&
         lowRange(range.number, level, this.config?.low_range),
@@ -1338,11 +1590,37 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
 
   /* ---------- the line under the battery ---------- */
 
+  /**
+   * What a tank's line says at rest, each part giving way from the end: what is in it ("32 L in the tank", "32 L"
+   * where the line is short), and when its service is ("Service in 4,200 km").
+   */
+  private tankRest(tank: Tank, now: number): Segment[] {
+    const service = this.upkeepText('service', now) || this.upkeepText('service_time', now);
+    return [
+      ...(tank.volume
+        ? [
+            {
+              text: s(this.hass, 'in_tank', { volume: `${tank.volume.value} ${tank.volume.unit}` }),
+              short: `${tank.volume.value} ${tank.volume.unit}`,
+              optional: true,
+            },
+          ]
+        : []),
+      ...(service ? [{ text: s(this.hass, 'service_in', { when: service }), optional: true }] : []),
+    ];
+  }
+
   private line(r: Reading, now: number): Line {
     const percent = (n: number): string => this.figure(n, 0);
     const limitText =
       r.limit !== null ? s(this.hass, 'limit_of', { percent: percent(r.limit) }) : '';
-    const kind = lineOf({ charge: r.charge, low: r.low, open: r.open, cabin: r.cabin });
+    const kind = lineOf({
+      charge: r.charge,
+      low: r.low,
+      open: r.open,
+      cabin: r.cabin,
+      ...(r.tank ? { tank: r.tank } : {}),
+    });
     const words = (text: string, ink: Line['ink'] = '', short?: string): Line => ({
       segments: text ? [{ text, ...(short ? { short } : {}) }] : [],
       ink,
@@ -1388,8 +1666,33 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       }
       case 'low':
         return words(s(this.hass, 'low_range'), 'warning');
+      case 'low_fuel':
+        return words(s(this.hass, 'low_fuel'), 'warning');
+      case 'adblue': {
+        const left = this.upkeepText('adblue', now);
+        return {
+          segments: [
+            { text: s(this.hass, 'adblue_low') },
+            ...(left ? [{ text: left, optional: true }] : []),
+          ],
+          ink: 'warning',
+        };
+      }
+      case 'oil':
+        return words(s(this.hass, 'oil_check'), 'warning');
+      case 'service':
+        return words(s(this.hass, 'service_due'), 'warning');
       case 'open':
-        return words(s(this.hass, `${r.open ?? 'doors'}_open`), 'warning');
+        // an engine's car opens a bonnet where an electric one opens its front boot
+        return words(
+          s(
+            this.hass,
+            r.open === 'frunk' && r.energy !== 'electric'
+              ? 'bonnet_open'
+              : `${r.open ?? 'doors'}_open`,
+          ),
+          'warning',
+        );
       case 'complete':
         return words(s(this.hass, 'limit_reached'), 'ok', s(this.hass, 'limit_reached_short'));
       case 'waiting':
@@ -1415,7 +1718,16 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
           ink: '',
         };
       default:
-        return words(limitText);
+        // a tank says what is in it and when its service is, after a hybrid's limit
+        return r.tank
+          ? {
+              segments: [
+                ...(limitText ? [{ text: limitText }] : []),
+                ...this.tankRest(r.tank, now),
+              ],
+              ink: '',
+            }
+          : words(limitText);
     }
   }
 
@@ -1490,7 +1802,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
   /** A control as it stands: its round, its word, what a tap does. */
   private control(entry: ControlEntry, r: Reading): ControlView {
     const { roles, doors, windows } = this.car();
-    const name = entry.name ?? this.t(controlWord(entry.control));
+    const name = entry.name ?? this.t(controlWord(entry.control, r.energy));
     /** What an opening says: its name while shut (the port's short one), "Open" while open (in the warning's ink). */
     const shut = entry.name ?? (entry.control === 'charge_port' ? s(this.hass, 'port') : name);
     const opening = (isOpen: boolean): string => (isOpen ? this.t('common.open') : shut);
@@ -1909,7 +2221,13 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       time_to_full: 'clock',
       software: 'update',
       speed: 'odometer',
-      fuel: 'drop',
+      // the drop it wore before the set had a pump, where the card draws no tank
+      fuel: r.tank ? 'fuel' : 'drop',
+      fuel_range: 'fuel',
+      fuel_volume: 'fuel',
+      adblue: 'drop',
+      oil: 'oil',
+      service: 'wrench',
     };
     const glyphName = entry.icon ?? GLYPHS[key];
     const at = (value: string, entity: string | undefined, tone: Tone = 'neutral') => ({
@@ -1922,12 +2240,43 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     switch (key) {
       case 'location':
         return at(r.place || '—', this.car().roles.location);
-      case 'odometer': {
-        const v = this.view('odometer');
+      case 'odometer':
+      case 'fuel_range': {
+        const v = this.view(key);
         if (!v || v.status !== 'ok' || v.number === null) return at('—', v?.id);
-        const asked = this.config?.range_unit;
-        const unit = asked === 'km' || asked === 'mi' ? asked : v.unit;
-        return at(`${this.figure(convertDistance(v.number, v.unit, unit), 0)} ${unit}`, v.id);
+        return at(this.distanceText({ ...v, number: v.number }), v.id);
+      }
+      case 'fuel_volume': {
+        const v = this.view('fuel_volume');
+        if (!v || v.status !== 'ok' || v.number === null) return at('—', v?.id);
+        return at(`${this.figure(v.number, /gal/i.test(v.unit) ? 1 : 0)} ${v.unit}`, v.id);
+      }
+      case 'adblue':
+      case 'oil': {
+        // a level or how far it lasts; a warning's own words where that is all it says
+        const now = this.now();
+        const reading = this.upkeep(key, now);
+        const low = key === 'adblue' ? lowAdBlue(reading) : oilToCheck(reading);
+        const value =
+          reading?.kind === 'warning'
+            ? s(this.hass, low ? (key === 'adblue' ? 'level_low' : 'check') : 'level_ok')
+            : this.upkeepText(key, now) || '—';
+        return at(value, this.car().roles[key], low ? 'warning' : 'neutral');
+      }
+      case 'service': {
+        // how far and how long to it ("4,200 km · 63 d"), "Due" once either has run out
+        const now = this.now();
+        const { roles } = this.car();
+        const readings = [this.upkeep('service', now), this.upkeep('service_time', now)];
+        const due = serviceDue(...readings);
+        const parts = [this.upkeepText('service', now), this.upkeepText('service_time', now)];
+        const value = due
+          ? s(this.hass, 'due')
+          : parts.filter(Boolean).join(' · ') ||
+            (readings.some((reading) => reading?.kind === 'warning')
+              ? s(this.hass, 'level_ok')
+              : '—');
+        return at(value, roles.service ?? roles.service_time, due ? 'warning' : 'neutral');
       }
       case 'inside': {
         const v = this.view('inside');
@@ -2101,10 +2450,55 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     return html`<article class="fv-card vh-card ${r.unavailable ? 'is-unavailable' : ''}" data-card>
       ${this.renderHead(r, at === 'head')}
       ${at === 'hero' && this.variant === 'full' ? this.picture(false) : nothing}
-      ${this.variant === 'compact' ? this.renderBar(r) : c?.hero === 'ring' ? this.renderRing(r) : this.renderRuler(r)}
-      ${this.renderLine(r, now)} ${this.renderControls(r, this.variant === 'compact')}
+      ${this.renderHeroes(r)} ${this.renderLine(r, now)}
+      ${this.renderControls(r, this.variant === 'compact')}
       ${this.variant === 'full' ? html`${this.renderRows(r)}${this.renderTyres(r)}` : nothing}
     </article>`;
+  }
+
+  /**
+   * The gauges the car draws: its battery, its tank, or a hybrid's both (the battery first) — the battery's in the
+   * card's colour, a lone tank's too (the gas tone where the card names none), a hybrid's tank in the gas tone beside it.
+   */
+  private gauges(r: Reading): Gauge[] {
+    const { roles } = this.car();
+    const battery: Gauge = {
+      label: s(this.hass, 'battery'),
+      level: r.level,
+      amount: null,
+      range: r.range,
+      rangeUnit: this.rangeUnit(),
+      limit: this.config?.show_limit !== false && r.limit !== null ? r.limit : null,
+      low: r.low,
+      tone: toneOf(this.config, 'accent'),
+      entity: roles.battery,
+      glyph: 'battery',
+    };
+    if (!r.tank) return [battery];
+    const tank: Gauge = {
+      label: s(this.hass, 'fuel'),
+      level: r.tank.level,
+      amount: r.tank.level === null ? r.tank.volume : null,
+      range: r.tank.range,
+      rangeUnit: this.rangeUnit(roles.fuel_range || r.energy === 'hybrid' ? 'fuel_range' : 'range'),
+      limit: null,
+      low: r.tank.low,
+      tone: r.energy === 'fuel' ? toneOf(this.config, 'gas') : 'gas',
+      entity: this.tankEntity(),
+      glyph: 'fuel',
+    };
+    return r.energy === 'fuel' ? [tank] : [battery, tank];
+  }
+
+  /** The heroes: each gauge on its ruler (or a lone one as a ring), or the compact card's bars. */
+  private renderHeroes(r: Reading): TemplateResult | TemplateResult[] {
+    const gauges = this.gauges(r);
+    const [lone] = gauges.length === 1 ? gauges : [];
+    if (this.variant === 'compact')
+      return lone ? this.renderBar(r, lone, false) : gauges.map((g) => this.renderBar(r, g, true));
+    if (lone)
+      return this.config?.hero === 'ring' ? this.renderRing(r, lone) : this.renderRuler(r, lone);
+    return gauges.map((g) => this.renderRuler(r, g));
   }
 
   /**
@@ -2117,10 +2511,11 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     const placeInRows = this.rowEntries().some((entry) => entry.row === 'location');
     const place = placeInRows ? '' : r.place;
     const line = (...parts: string[]): string => parts.filter(Boolean).join(' · ');
-    // the compact card has no value row: its range leads the line
+    // the compact card has no value row: how far it goes leads the line (a hybrid's, on both)
+    const reach = this.reach(r);
     const range =
-      this.variant === 'compact' && this.config?.show_range !== false && r.range.number !== null
-        ? `${r.range.value} ${r.range.unit}`
+      this.variant === 'compact' && this.config?.show_range !== false && reach.number !== null
+        ? `${reach.value} ${reach.unit}`
         : '';
     const sub = line(range, r.address || place, r.stale);
     // an address too long for the line gives way to the place's word, then to the time alone: never cut
@@ -2152,15 +2547,26 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       trailing: fitted.badge,
       name: true,
       cut: fitted.cut,
-      ...this.headActions(this.car().roles.battery ?? this.config?.entity),
+      ...this.headActions(this.leadEntity(r) ?? this.config?.entity),
     });
   }
 
+  /** What the head and the strip open: the battery, or a lone tank. */
+  private leadEntity(r: Reading): string | undefined {
+    return r.energy === 'fuel' ? this.tankEntity() : this.car().roles.battery;
+  }
+
+  /** A gauge's figure as a reader hears it: its level, what is in the tank, or the dash. */
+  private gaugeText(g: Gauge): string {
+    if (g.amount) return `${g.amount.value} ${g.amount.unit}`;
+    return g.level === null ? '—' : `${this.figure(g.level, 0)} %`;
+  }
+
   /**
-   * The battery's own tap, hold and double tap (its details by default, the hold and the double where set), over its
-   * value row and ruler.
+   * A gauge's own tap, hold and double tap (its details by default, the hold and the double where set), over its value
+   * row and ruler.
    */
-  private heroCover(r: Reading): TemplateResult | typeof nothing {
+  private heroCover(g: Gauge): TemplateResult | typeof nothing {
     const config = this.config;
     const { onTap, onHold } = this.pressOf(
       {
@@ -2168,70 +2574,71 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         hold_action: config?.hero_hold_action,
         double_tap_action: config?.hero_double_tap_action,
       },
-      this.car().roles.battery,
+      g.entity,
       MORE_INFO,
       null,
     );
-    const label = `${s(this.hass, 'battery')} · ${r.level === null ? '—' : `${this.figure(r.level, 0)} %`}`;
-    return pressCover(label, onTap, onHold);
+    return pressCover(`${g.label} · ${this.gaugeText(g)}`, onTap, onHold);
   }
 
-  /** The battery on the charge cards' ruler: its charge and its range over it, its limit marked. */
-  private renderRuler(r: Reading): TemplateResult {
+  /**
+   * A gauge on the charge cards' ruler: its level (what is in a tank where it has no level) and its range over it, a
+   * battery's limit marked.
+   */
+  private renderRuler(r: Reading, g: Gauge): TemplateResult {
     const w = this.contentWidth;
-    const tone: Tone = r.unavailable ? 'off' : r.low ? 'warning' : toneOf(this.config, 'accent');
+    const tone: Tone = r.unavailable ? 'off' : g.low ? 'warning' : g.tone;
     const showRange = this.config?.show_range !== false;
     const main = {
-      label: s(this.hass, 'battery'),
-      value: r.level === null ? '—' : this.figure(r.level, 0),
-      unit: r.level === null ? '' : '%',
+      label: g.label,
+      value: g.amount?.value ?? (g.level === null ? '—' : this.figure(g.level, 0)),
+      unit: g.amount?.unit ?? (g.level === null ? '' : '%'),
     };
     const range = s(this.hass, 'range');
     const side = showRange
-      ? { figure: { label: range, value: r.range.value, unit: r.range.unit } }
+      ? { figure: { label: range, value: g.range.value, unit: g.range.unit } }
       : null;
-    // laid out for its widest figures — a full charge, a range of three figures — so a car charging, driving or out of
-    // reach never moves the row
+    // laid out for its widest figures — a full charge (a full tank's contents), a range of three figures — so a car
+    // charging, driving or out of reach never moves the row
     const forms = {
-      main: [main, { ...main, value: this.figure(100, 0), unit: '%' }],
+      main: [
+        main,
+        { ...main, value: this.figure(100, 0), unit: '%' },
+        ...(g.amount ? [{ ...main, value: this.figure(888, 0), unit: g.amount.unit }] : []),
+      ],
       side: side
-        ? [side.figure, { label: range, value: this.figure(888, 0), unit: this.rangeUnit() }]
+        ? [side.figure, { label: range, value: this.figure(888, 0), unit: g.rangeUnit }]
         : [],
     };
-    const limit = this.config?.show_limit !== false && r.limit !== null ? r.limit : null;
-    return html`<div class="vh-hero ${r.low && !r.unavailable ? 'is-low' : ''}">
+    return html`<div class="vh-hero ${g.low && !r.unavailable ? 'is-low' : ''}">
       ${valueRow(this.head.ruler, w, main, side, forms)}
       ${markedRuler({
         hass: this.hass,
         width: w,
-        value: r.unavailable ? null : r.level,
+        value: r.unavailable ? null : g.level,
         tone,
-        mark: limit !== null ? { percent: limit, text: s(this.hass, 'limit') } : null,
-        label: `${r.name} · ${s(this.hass, 'battery')}`,
+        mark: g.limit !== null ? { percent: g.limit, text: s(this.hass, 'limit') } : null,
+        label: `${r.name} · ${g.label}`,
         measure: (text) => this.head.ruler.width(MARK_LABEL, text),
       })}
-      ${this.heroCover(r)}
+      ${this.heroCover(g)}
     </div>`;
   }
 
-  /** The battery as a ring: its charge in the disc, its range under it, its limit a dot outside the ring. */
-  private renderRing(r: Reading): TemplateResult {
+  /** A gauge as a ring: its level (or what is in a tank) in the disc, its range under it, a limit a dot outside it. */
+  private renderRing(r: Reading, g: Gauge): TemplateResult {
     const w = this.contentWidth;
     const radius = Math.min(
       RING_MAX,
       Math.max(RING_MIN, Math.floor((w / 2 - RING_TICK - 12) / 4) * 4),
     );
-    const tone: Tone = r.unavailable
-      ? 'neutral'
-      : r.low
-        ? 'warning'
-        : toneOf(this.config, 'accent');
-    const dash = r.level === null || r.unavailable;
+    const tone: Tone = r.unavailable ? 'neutral' : g.low ? 'warning' : g.tone;
+    const dash = (g.level === null && !g.amount) || r.unavailable;
+    const level = dash ? null : g.level;
     const sub =
       this.config?.show_range !== false
-        ? `${r.range.value}${r.range.unit ? ` ${r.range.unit}` : ''}`
+        ? `${g.range.value}${g.range.unit ? ` ${g.range.unit}` : ''}`
         : '';
-    const limit = this.config?.show_limit !== false && r.limit !== null ? r.limit : undefined;
     return html`<div class="vh-hero vh-dial">
       <fluvy-dial
         gauge
@@ -2242,38 +2649,42 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         .tone=${tone}
         .min=${0}
         .max=${100}
-        .fill=${dash ? 0 : (r.level as number) / 100}
-        .value=${dash ? undefined : r.level}
-        .format=${dash ? undefined : (n: number) => this.figure(n, 0)}
-        .text=${dash ? '—' : undefined}
-        .unit=${dash ? '' : '%'}
-        .label=${s(this.hass, 'battery')}
+        .fill=${level === null ? 0 : level / 100}
+        .value=${level ?? undefined}
+        .format=${level === null ? undefined : (n: number) => this.figure(n, 0)}
+        .text=${dash ? '—' : level === null ? g.amount?.value : undefined}
+        .unit=${dash ? '' : level === null ? (g.amount?.unit ?? '') : '%'}
+        .label=${g.label}
         .sub=${sub}
-        .current=${limit}
+        .current=${g.limit ?? undefined}
         ?disabled=${r.unavailable}
       ></fluvy-dial>
-      ${this.heroCover(r)}
+      ${this.heroCover(g)}
     </div>`;
   }
 
-  /** The compact card's battery: its bar with the limit marked, its percentage at the end. */
-  private renderBar(r: Reading): TemplateResult {
-    const tone: Tone = r.unavailable ? 'off' : r.low ? 'warning' : toneOf(this.config, 'accent');
-    const level = r.unavailable ? null : r.level;
-    const limit = this.config?.show_limit !== false && r.limit !== null ? r.limit : null;
-    const room = this.head.ruler.width('vh-bar__value', `${this.figure(100, 0)} %`);
+  /**
+   * The compact card's gauge: its bar with a limit marked, its figure at the end; a hybrid's two each led by its glyph.
+   */
+  private renderBar(r: Reading, g: Gauge, led: boolean): TemplateResult {
+    const tone: Tone = r.unavailable ? 'off' : g.low ? 'warning' : g.tone;
+    const level = r.unavailable ? null : g.level;
+    const widest = (unit: string) =>
+      this.head.ruler.width('vh-bar__value', `${this.figure(g.amount ? 888 : 100, 0)} ${unit}`);
+    const room = g.amount ? Math.max(widest('%'), widest(g.amount.unit)) : widest('%');
     return html`<div class="vh-hero">
       <div class="vh-bar fv-tone--${tone}" style="--vh-pct:${room}px">
+        ${led ? html`<span class="vh-bar__glyph" aria-hidden="true">${icon(g.glyph)}</span>` : nothing}
         <span class="vh-bar__track" data-measure="value"
           ><span class="vh-bar__fill" style="width:${level ?? 0}%"></span>${
-            limit !== null
-              ? html`<span class="vh-bar__mark" style="left:${limit}%"></span>`
+            g.limit !== null
+              ? html`<span class="vh-bar__mark" style="left:${g.limit}%"></span>`
               : nothing
           }</span
         >
-        <span class="vh-bar__value">${level === null ? '—' : `${this.figure(level, 0)} %`}</span>
+        <span class="vh-bar__value">${r.unavailable ? '—' : this.gaugeText(g)}</span>
       </div>
-      ${this.heroCover(r)}
+      ${this.heroCover(g)}
     </div>`;
   }
 
@@ -2283,14 +2694,16 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
    */
   private renderMini(r: Reading): TemplateResult {
     const circumference = 2 * Math.PI * STRIP_RADIUS;
-    const level = r.unavailable ? null : r.level;
+    const [lead, tank] = this.gauges(r);
+    const gauge = lead as Gauge;
+    const level = r.unavailable ? null : gauge.level;
     const tone: Tone = r.unavailable
       ? 'off'
-      : r.low
+      : gauge.low
         ? 'warning'
         : r.charge === 'charging'
           ? r.tone
-          : toneOf(this.config, 'accent');
+          : gauge.tone;
     const [first] = this.controlEntries();
     // the strip's padding is 16: its words have the column less the ring's 44 and 12, and the round's where it holds
     const words = this.contentWidth + 8 - 44 - 12;
@@ -2299,37 +2712,55 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         ? undefined
         : this.control(first, r);
     const room = words - (control ? 44 + 12 : 0);
-    // out of reach, the line says so alone, as a small tile does (the dash where the word would not hold)
+    const reach = this.reach(r);
+    // out of reach, the line says so alone, as a small tile does (the dash where the word would not hold); a hybrid
+    // says its tank after its charge, and how far it goes on both
     const segments: Segment[] = r.unavailable
       ? [{ text: r.badge.text, short: '—' }]
       : [
-          { text: level === null ? '—' : `${this.figure(level, 0)} %` },
-          ...(this.config?.show_range !== false && r.range.number !== null
-            ? [{ text: `${r.range.value} ${r.range.unit}`, optional: true }]
+          { text: level === null && !gauge.amount ? '—' : this.gaugeText(gauge) },
+          ...(tank
+            ? [
+                {
+                  text:
+                    tank.level === null
+                      ? `${tank.label} ${this.gaugeText(tank)}`
+                      : s(this.hass, 'fuel_of', { percent: this.figure(tank.level, 0) }),
+                  optional: true,
+                },
+              ]
+            : []),
+          ...(this.config?.show_range !== false && reach.number !== null
+            ? [{ text: `${reach.value} ${reach.unit}`, optional: true }]
             : []),
           { text: r.badge.text, optional: true },
           ...(r.place ? [{ text: r.place, optional: true }] : []),
         ];
     const line = fitLine(segments, room, (text) => this.head.ruler.width('fv-row__sub', text));
-    const { onTap, onHold } = this.headActions(this.car().roles.battery ?? this.config?.entity);
+    const { onTap, onHold } = this.headActions(this.leadEntity(r) ?? this.config?.entity);
+    const car = html`<span
+      class="fv-ico fv-ico--${r.unavailable ? 'off' : r.charge === 'charging' || r.activity === 'driving' ? r.tone : 'neutral'}"
+      >${icon(this.config?.icon ?? 'car')}</span
+    >`;
     return html`<article
       class="fv-card vh-card vh-card--mini ${r.unavailable ? 'is-unavailable' : ''}"
       data-card
     >
-      <span class="vh-ring fv-tone--${tone}">
-        <svg viewBox="0 0 58 58" aria-hidden="true" data-measure="drawn">
-          <circle class="vh-ring__track" cx="29" cy="29" r=${STRIP_RADIUS} />
-          ${
-            level === null
-              ? nothing
-              : svg`<circle class="vh-ring__fill" cx="29" cy="29" r=${STRIP_RADIUS} stroke-dasharray=${circumference.toFixed(2)} stroke-dashoffset=${(circumference * (1 - level / 100)).toFixed(2)} />`
-          }
-        </svg>
-        <span
-          class="fv-ico fv-ico--${r.unavailable ? 'off' : r.charge === 'charging' || r.activity === 'driving' ? r.tone : 'neutral'}"
-          >${icon(this.config?.icon ?? 'car')}</span
-        >
-      </span>
+      ${
+        tank
+          ? this.ringHalves(r, gauge, tank, car)
+          : html`<span class="vh-ring fv-tone--${tone}">
+              <svg viewBox="0 0 58 58" aria-hidden="true" data-measure="drawn">
+                <circle class="vh-ring__track" cx="29" cy="29" r=${STRIP_RADIUS} />
+                ${
+                  level === null
+                    ? nothing
+                    : svg`<circle class="vh-ring__fill" cx="29" cy="29" r=${STRIP_RADIUS} stroke-dasharray=${circumference.toFixed(2)} stroke-dashoffset=${(circumference * (1 - level / 100)).toFixed(2)} />`
+                }
+              </svg>
+              ${car}
+            </span>`
+      }
       <span class="fv-row__text"
         ><span class="fv-row__title" data-name>${r.name}</span
         ><span class="fv-row__sub">${line}</span></span
@@ -2337,6 +2768,34 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
       ${onTap || onHold ? pressCover(`${r.name} · ${line}`, onTap, onHold) : nothing}
       ${control ? this.renderControl(control, true) : nothing}
     </article>`;
+  }
+
+  /**
+   * A hybrid strip's circle: its ring in two halves, each filled from the foot up, 8° clear of the other at the foot
+   * and the head — the battery's on the left (the line's first figure), the tank's on the right, each in its tone.
+   */
+  private ringHalves(r: Reading, battery: Gauge, tank: Gauge, car: TemplateResult): TemplateResult {
+    const at = (deg: number): string => {
+      const a = (deg * Math.PI) / 180;
+      return `${(29 + STRIP_RADIUS * Math.cos(a)).toFixed(2)} ${(29 + STRIP_RADIUS * Math.sin(a)).toFixed(2)}`;
+    };
+    // from the foot (90°) round the left (clockwise) or the right, to the head
+    const half = (left: boolean, g: Gauge, tone: Tone) => {
+      const d = `M${at(left ? 98 : 82)}A${STRIP_RADIUS} ${STRIP_RADIUS} 0 0 ${left ? 1 : 0} ${at(left ? 262 : 278)}`;
+      const level = r.unavailable ? null : g.level;
+      return svg`<path class="vh-ring__track" d=${d} />${
+        level === null || level <= 0
+          ? nothing
+          : svg`<path class="vh-ring__fill fv-tone--${tone}" d=${d} pathLength="100" stroke-dasharray="${level.toFixed(1)} 100" />`
+      }`;
+    };
+    return html`<span class="vh-ring vh-ring--halves">
+      <svg viewBox="0 0 58 58" aria-hidden="true" data-measure="drawn">
+        ${half(true, battery, r.charge === 'charging' ? r.tone : battery.tone)}
+        ${half(false, tank, tank.low ? 'warning' : tank.tone)}
+      </svg>
+      ${car}
+    </span>`;
   }
 }
 

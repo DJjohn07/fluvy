@@ -40,6 +40,8 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `variant` | *Style*. The card’s layout. | choice | `full` | `full`, `compact`, `mini` |
+| `energy` | *Energy*. | choice | `auto` | `auto` (Automatic), `electric`, `fuel`, `hybrid` (Plug-in hybrid) |
+| `tank_size` | *Tank size*. In the unit of what is in it (L, gal): its level, where the car says only what is in it. | number |  | 0 to 500 |
 | `hero` | *Battery as*. Draws the battery on a ruler, or as a ring. | choice | `ruler` | `ruler`, `ring` |
 | `image` | *Picture*. A picture of the car: an address, an entity whose picture it is, or the integration’s own. An address, an image or camera entity, or “auto” for the car’s own. | text |  |  |
 | `image_position` | *Picture in*. Where the car’s picture stands: beside the battery, or in the head. | choice | `hero` | `hero` (Over the battery), `head` (The head) |
@@ -107,7 +109,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 | Key | What it does | Type | Values |
 | --- | --- | --- | --- |
-| `row` | *Row*. Which reading the row shows. | choice | `location`, `odometer`, `inside`, `outside`, `charge_power` (Charging power), `charge_rate`, `charge_limit`, `time_to_full`, `software`, `speed`, `fuel` |
+| `row` | *Row*. Which reading the row shows. | choice | `location`, `odometer`, `inside`, `outside`, `charge_power` (Charging power), `charge_rate`, `charge_limit`, `time_to_full`, `software`, `speed`, `fuel`, `fuel_range`, `fuel_volume` (In the tank), `adblue`, `oil`, `service` (Next service) |
 | `entity` | *Entity*. The entity the item shows. | entity |  |
 | `name` | *Name*. The item’s own name, in place of the one the card would give it. | name |  |
 | `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
@@ -127,7 +129,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 | Key | What it does | Type | Values |
 | --- | --- | --- | --- |
-| `role` | *Part*. What the entity is to the car. | choice | `battery`, `range`, `charging` (Charging state), `plugged` (Cable plugged in), `charge_power` (Charging power), `charge_rate`, `time_to_full`, `charge_limit`, `charge_switch` (Charging switch), `charge_start` (Start charging), `charge_stop` (Stop charging), `charge_port`, `climate`, `climate_switch`, `climate_start` (Start the climate), `climate_stop` (Stop the climate), `climate_running`, `inside`, `outside`, `lock`, `trunk` (Boot), `frunk` (Front boot), `windows`, `sentry`, `odometer`, `location`, `address`, `software`, `state` (Car state), `shift` (Gear), `speed`, `moving`, `updated` (Last update), `fuel`, `tyre_fl` (Front left), `tyre_fr` (Front right), `tyre_rl` (Rear left), `tyre_rr` (Rear right) |
+| `role` | *Part*. What the entity is to the car. | choice | `battery`, `range`, `charging` (Charging state), `plugged` (Cable plugged in), `charge_power` (Charging power), `charge_rate`, `time_to_full`, `charge_limit`, `charge_switch` (Charging switch), `charge_start` (Start charging), `charge_stop` (Stop charging), `charge_port`, `climate`, `climate_switch`, `climate_start` (Start the climate), `climate_stop` (Stop the climate), `climate_running`, `inside`, `outside`, `lock`, `trunk` (Boot), `frunk` (Front boot), `windows`, `sentry`, `odometer`, `location`, `address`, `software`, `state` (Car state), `shift` (Gear), `speed`, `moving`, `updated` (Last update), `fuel`, `fuel_range`, `fuel_volume` (In the tank), `fuel_low` (Low fuel warning), `adblue`, `oil`, `service` (Next service), `service_time` (Time to service), `tyre_fl` (Front left), `tyre_fr` (Front right), `tyre_rl` (Rear left), `tyre_rr` (Rear right) |
 | `entity` | *Entity*. The entity the item shows. | entity |  |
 
 ## Older names

@@ -15,7 +15,13 @@ if (!customElements.get('fluvy-vehicle-card'))
  * away from home with its time to full as a duration, an i4 on BMW's CarData with a handful of entities read by their
  * names, and a Leaf that dropped off the network. Then the layouts: compact, the strip, the ring, the picture over the
  * battery and in the head, the tyres from above, the card's own controls and rows, half a section, a phone's column
- * and a desktop's. Last, a Model 3 on tesla_custom, whose charge port's latch is never its lock.
+ * and a desktop's. Then a Model 3 on tesla_custom, whose charge port's latch is never its lock.
+ *
+ * Last, #207's cars that burn fuel: a Yaris Cross on Toyota's (HACS) parked at home, a 208 on Stellantis's running low
+ * (its 12 V battery wearing the battery's class, never its own), an Octavia diesel on MySkoda whose AdBlue runs low, a
+ * Niro plug-in hybrid on Kia's charging at home, an XC60 plug-in hybrid on Volvo's whose tank says litres, a Clio on
+ * Renault's whose tank is read from its litres, a Fiesta on Ford's out of reach; their own rows, the tank as a ring,
+ * compact, strips, half a section, a phone's column, a desktop's column and its band.
  */
 
 /** The mock's moment: the times to full are counted from it. */
@@ -453,6 +459,169 @@ const GONE: readonly StateSeed[] = [
   ['device_tracker.leaf_location', 'unavailable', { friendly_name: 'Leaf Location' }],
 ];
 
+/* ---------- #207: cars that burn fuel ---------- */
+
+const litres = (name: string): Attributes => ({
+  friendly_name: name,
+  unit_of_measurement: 'L',
+  device_class: 'volume_storage',
+});
+const days = (name: string): Attributes => ({
+  friendly_name: name,
+  unit_of_measurement: 'd',
+  device_class: 'duration',
+});
+
+/** A Yaris Cross on Toyota's (pytoyoda, HACS), parked and locked at home: its tank, its range, its hood shut. */
+const YARIS: readonly StateSeed[] = [
+  ['sensor.yaris_cross_fuel_level', '62', percent('Yaris Cross Fuel level', false)],
+  ['sensor.yaris_cross_fuel_range', '418', km('Yaris Cross Fuel range')],
+  ['sensor.yaris_cross_odometer', '18420', km('Yaris Cross Odometer')],
+  ['lock.yaris_cross_lock', 'locked', { friendly_name: 'Yaris Cross Lock' }],
+  ['binary_sensor.yaris_cross_hood', 'off', flag('Yaris Cross Hood', 'door')],
+  ['binary_sensor.yaris_cross_trunk', 'off', flag('Yaris Cross Trunk', 'door')],
+  ['binary_sensor.yaris_cross_driver_door', 'off', flag('Yaris Cross Driver door', 'door')],
+  ['binary_sensor.yaris_cross_driver_window', 'off', flag('Yaris Cross Driver window', 'window')],
+  ['device_tracker.yaris_cross_location', 'home', { friendly_name: 'Yaris Cross Location' }],
+];
+
+/**
+ * A 208 on Stellantis's (HACS), away and running low: 9 % in its tank, 58 km left; its service in 1,240 km or 41 days;
+ * its 12 V battery wears the battery's class, never its own.
+ */
+const PEUGEOT: readonly StateSeed[] = [
+  ['sensor.peugeot_208_fuel', '9', percent('Peugeot 208 Fuel', false)],
+  ['sensor.peugeot_208_fuel_range', '58', km('Peugeot 208 Fuel range')],
+  ['sensor.peugeot_208_service_battery', '78', percent('Peugeot 208 Service battery')],
+  ['sensor.peugeot_208_mileage', '41290', km('Peugeot 208 Mileage')],
+  [
+    'sensor.peugeot_208_mileage_before_maintenance',
+    '1240',
+    km('Peugeot 208 Mileage before maintenance'),
+  ],
+  ['sensor.peugeot_208_days_before_maintenance', '41', days('Peugeot 208 Days before maintenance')],
+  ['lock.peugeot_208_doors', 'locked', { friendly_name: 'Peugeot 208 Doors' }],
+  ['device_tracker.peugeot_208_location', 'not_home', { friendly_name: 'Peugeot 208 Location' }],
+];
+
+/**
+ * An Octavia diesel on MySkoda, parked at work: its tank, its whole range, its AdBlue lasting 850 km (low), its next
+ * inspection in 4,200 km or 63 days, its oil service further off.
+ */
+const OCTAVIA: readonly StateSeed[] = [
+  ['sensor.octavia_fuel_level', '41', percent('Octavia Fuel level', false)],
+  ['sensor.octavia_range', '562', km('Octavia Range')],
+  ['sensor.octavia_adblue_range', '850', km('Octavia AdBlue range')],
+  ['sensor.octavia_mileage', '84312', km('Octavia Mileage')],
+  ['sensor.octavia_next_inspection', '4200', km('Octavia Next inspection')],
+  ['sensor.octavia_next_inspection_2', '63', days('Octavia Next inspection')],
+  ['sensor.octavia_oil_service', '12800', km('Octavia Oil service')],
+  ['sensor.octavia_oil_service_2', '211', days('Octavia Oil service')],
+  ['sensor.octavia_outside_temperature', '9', temp('Octavia Outside temperature')],
+  ['lock.octavia_door_lock', 'locked', { friendly_name: 'Octavia Door lock' }],
+  ['binary_sensor.octavia_trunk', 'off', flag('Octavia Trunk', 'door')],
+  ['binary_sensor.octavia_bonnet', 'off', flag('Octavia Bonnet', 'opening')],
+  ['binary_sensor.octavia_doors', 'off', flag('Octavia Doors', 'door')],
+  ['binary_sensor.octavia_windows', 'off', flag('Octavia Windows', 'window')],
+  ['device_tracker.octavia_position', 'Work', { friendly_name: 'Octavia Position' }],
+];
+
+/**
+ * A Niro plug-in hybrid on Kia's, charging at home to 100 %: its battery and its electric range, its tank and its
+ * range on it, the whole range they make; its 12 V battery beside its own, its next service in 7,850 km.
+ */
+const NIRO: readonly StateSeed[] = [
+  ['sensor.niro_ev_battery_level', '64', percent('Niro EV battery level')],
+  ['sensor.niro_car_battery_level', '91', percent('Niro Car battery level')],
+  ['sensor.niro_ev_range', '38', km('Niro EV range')],
+  ['sensor.niro_fuel_level', '54', percent('Niro Fuel level', false)],
+  ['sensor.niro_fuel_driving_range', '520', km('Niro Fuel driving range')],
+  ['sensor.niro_total_driving_range', '558', km('Niro Total driving range')],
+  ['binary_sensor.niro_fuel_level_low', 'off', { friendly_name: 'Niro Fuel low level' }],
+  [
+    'binary_sensor.niro_ev_battery_charge',
+    'on',
+    flag('Niro EV battery charge', 'battery_charging'),
+  ],
+  ['binary_sensor.niro_ev_battery_plug', 'on', flag('Niro EV battery plug', 'plug')],
+  [
+    'sensor.niro_ev_charging_power',
+    '3.3',
+    { friendly_name: 'Niro EV charging power', unit_of_measurement: 'kW', device_class: 'power' },
+  ],
+  [
+    'sensor.niro_estimated_charge_duration',
+    '42',
+    {
+      friendly_name: 'Niro Estimated charge duration',
+      unit_of_measurement: 'min',
+      device_class: 'duration',
+    },
+  ],
+  [
+    'number.niro_ac_charging_limit',
+    '100',
+    { friendly_name: 'Niro AC charging limit', min: 50, max: 100, step: 10 },
+  ],
+  ['switch.niro_ev_charging', 'on', { friendly_name: 'Niro EV charging' }],
+  [
+    'climate.niro_climate',
+    'off',
+    { ...climate('Niro Climate', 0, 21), current_temperature: null, hvac_modes: ['off', 'auto'] },
+  ],
+  ['lock.niro_door_lock', 'locked', { friendly_name: 'Niro Door lock' }],
+  ['binary_sensor.niro_trunk', 'off', flag('Niro Trunk', 'door')],
+  ['binary_sensor.niro_hood', 'off', flag('Niro Hood', 'door')],
+  ['sensor.niro_odometer', '27104', km('Niro Odometer')],
+  ['sensor.niro_next_service', '7850', km('Niro Next service')],
+  ['device_tracker.niro_location', 'home', { friendly_name: 'Niro Location' }],
+];
+
+/**
+ * An XC60 plug-in hybrid on Volvo's, unplugged at home: its battery (no key), the litres in its 71 L tank, how far
+ * each takes it, its oil fine, its service in 9,300 km or 148 days.
+ */
+const XC60: readonly StateSeed[] = [
+  ['sensor.xc60_battery', '23', percent('XC60 Battery')],
+  ['sensor.xc60_distance_to_empty_battery', '14', km('XC60 Distance to empty battery')],
+  ['sensor.xc60_fuel_amount', '38', litres('XC60 Fuel amount')],
+  ['sensor.xc60_distance_to_empty_tank', '486', km('XC60 Distance to empty tank')],
+  ['sensor.xc60_charging_status', 'idle', { friendly_name: 'XC60 Charging status' }],
+  [
+    'sensor.xc60_charger_connection_status',
+    'disconnected',
+    { friendly_name: 'XC60 Charger connection status' },
+  ],
+  ['button.xc60_climatization_start', 'unknown', { friendly_name: 'XC60 Start climatization' }],
+  ['lock.xc60_lock', 'locked', { friendly_name: 'XC60 Lock' }],
+  ['binary_sensor.xc60_tailgate', 'off', flag('XC60 Tailgate', 'door')],
+  ['binary_sensor.xc60_hood', 'off', flag('XC60 Hood', 'door')],
+  ['binary_sensor.xc60_oil_level', 'off', flag('XC60 Oil level', 'problem')],
+  ['sensor.xc60_distance_to_service', '9300', km('XC60 Distance to service')],
+  ['sensor.xc60_time_to_service', '148', days('XC60 Time to service')],
+  ['sensor.xc60_odometer', '61870', km('XC60 Odometer')],
+  ['device_tracker.xc60_location', 'home', { friendly_name: 'XC60 Location' }],
+];
+
+/** A Clio on Renault's, at home: 29 L in its tank and how far they take it (its level from the card's `tank_size`). */
+const CLIO: readonly StateSeed[] = [
+  ['sensor.clio_fuel_quantity', '29', litres('Clio Fuel quantity')],
+  ['sensor.clio_fuel_autonomy', '512', km('Clio Fuel autonomy')],
+  ['sensor.clio_mileage', '23880', km('Clio Mileage')],
+  ['binary_sensor.clio_lock', 'off', flag('Clio Lock', 'lock')],
+  ['binary_sensor.clio_hatch', 'off', flag('Clio Hatch', 'door')],
+  ['device_tracker.clio_location', 'home', { friendly_name: 'Clio Location' }],
+];
+
+/** A Fiesta on Ford's (fordpass) whose integration dropped it: everything out of reach. */
+const FIESTA: readonly StateSeed[] = [
+  ['sensor.fordpass_fiesta_fuel', 'unavailable', percent('Fiesta Fuel', false)],
+  ['sensor.fordpass_fiesta_fuelrange', 'unavailable', km('Fiesta Fuel range')],
+  ['sensor.fordpass_fiesta_odometer', 'unavailable', km('Fiesta Odometer')],
+  ['lock.fordpass_fiesta_doorlock', 'unavailable', { friendly_name: 'Fiesta Door lock' }],
+  ['device_tracker.fordpass_fiesta_tracker', 'unavailable', { friendly_name: 'Fiesta Tracker' }],
+];
+
 /** Registry entries: each entity on its device, of its integration, with its key where the integration gives one. */
 const entries = (
   device: string,
@@ -487,94 +656,160 @@ const device = (id: string, name: string, model: string) => [
   },
 ];
 
+/** An integration's keys, each by the end of its id after the car's prefix. */
+const keysBy =
+  (keys: Readonly<Record<string, string>>) =>
+  (prefix: string, seeds: readonly StateSeed[]): Record<string, string> =>
+    Object.fromEntries(
+      seeds.flatMap(([id]) => {
+        const key = keys[id.slice(id.indexOf('.') + 1).slice(prefix.length + 1)];
+        return key ? [[id, key]] : [];
+      }),
+    );
+
 /** The Tesla integrations' keys, by the end of each id (their keys are the same on all three). */
-const teslaKeys = (prefix: string, seeds: readonly StateSeed[]): Record<string, string> => {
-  const KEYS: Readonly<Record<string, string>> = {
-    battery_level: 'charge_state_battery_level',
-    usable_battery_level: 'charge_state_usable_battery_level',
-    estimate_battery_range: 'charge_state_est_battery_range',
-    battery_range: 'charge_state_battery_range',
-    charging: 'charge_state_charging_state',
-    charge: 'charge_state_charging_state',
-    charge_cable: 'charge_state_conn_charge_cable',
-    charger_power: 'charge_state_charger_power',
-    charge_rate: 'charge_state_charge_rate',
-    time_to_full_charge: 'charge_state_minutes_to_full_charge',
-    charge_limit: 'charge_state_charge_limit_soc',
-    charge_port_door: 'charge_state_charge_port_door_open',
-    charge_cable_lock: 'charge_state_charge_port_latch',
-    climate: 'driver_temp',
-    inside_temperature: 'climate_state_inside_temp',
-    outside_temperature: 'climate_state_outside_temp',
-    lock: 'vehicle_state_locked',
-    trunk: 'vehicle_state_rt',
-    frunk: 'vehicle_state_ft',
-    windows: 'windows',
-    sentry_mode: 'vehicle_state_sentry_mode',
-    odometer: 'vehicle_state_odometer',
-    tire_pressure_front_left: 'vehicle_state_tpms_pressure_fl',
-    tire_pressure_front_right: 'vehicle_state_tpms_pressure_fr',
-    tire_pressure_rear_left: 'vehicle_state_tpms_pressure_rl',
-    tire_pressure_rear_right: 'vehicle_state_tpms_pressure_rr',
-    tire_pressure_warning_rear_right: 'vehicle_state_tpms_soft_warning_rr',
-    front_driver_door: 'vehicle_state_df',
-    front_driver_window: 'vehicle_state_fd_window',
-    location: 'location',
-    route: 'route',
-    update: 'vehicle_state_software_update_status',
-    status: 'state',
-    shift_state: 'drive_state_shift_state',
-    speed: 'drive_state_speed',
-    honk_horn: 'honk',
-    wake: 'wake',
-  };
-  return Object.fromEntries(
-    seeds.flatMap(([id]) => {
-      const end = id.slice(id.indexOf('.') + 1).slice(prefix.length + 1);
-      const key = KEYS[end];
-      return key ? [[id, key]] : [];
-    }),
-  );
-};
+const teslaKeys = keysBy({
+  battery_level: 'charge_state_battery_level',
+  usable_battery_level: 'charge_state_usable_battery_level',
+  estimate_battery_range: 'charge_state_est_battery_range',
+  battery_range: 'charge_state_battery_range',
+  charging: 'charge_state_charging_state',
+  charge: 'charge_state_charging_state',
+  charge_cable: 'charge_state_conn_charge_cable',
+  charger_power: 'charge_state_charger_power',
+  charge_rate: 'charge_state_charge_rate',
+  time_to_full_charge: 'charge_state_minutes_to_full_charge',
+  charge_limit: 'charge_state_charge_limit_soc',
+  charge_port_door: 'charge_state_charge_port_door_open',
+  charge_cable_lock: 'charge_state_charge_port_latch',
+  climate: 'driver_temp',
+  inside_temperature: 'climate_state_inside_temp',
+  outside_temperature: 'climate_state_outside_temp',
+  lock: 'vehicle_state_locked',
+  trunk: 'vehicle_state_rt',
+  frunk: 'vehicle_state_ft',
+  windows: 'windows',
+  sentry_mode: 'vehicle_state_sentry_mode',
+  odometer: 'vehicle_state_odometer',
+  tire_pressure_front_left: 'vehicle_state_tpms_pressure_fl',
+  tire_pressure_front_right: 'vehicle_state_tpms_pressure_fr',
+  tire_pressure_rear_left: 'vehicle_state_tpms_pressure_rl',
+  tire_pressure_rear_right: 'vehicle_state_tpms_pressure_rr',
+  tire_pressure_warning_rear_right: 'vehicle_state_tpms_soft_warning_rr',
+  front_driver_door: 'vehicle_state_df',
+  front_driver_window: 'vehicle_state_fd_window',
+  location: 'location',
+  route: 'route',
+  update: 'vehicle_state_software_update_status',
+  status: 'state',
+  shift_state: 'drive_state_shift_state',
+  speed: 'drive_state_speed',
+  honk_horn: 'honk',
+  wake: 'wake',
+});
 
 /** Kia's integration's keys, by the end of each id. */
-const kiaKeys = (prefix: string, seeds: readonly StateSeed[]): Record<string, string> => {
-  const KEYS: Readonly<Record<string, string>> = {
-    ev_battery_level: 'ev_battery_percentage',
-    car_battery_level: 'car_battery_percentage',
-    ev_range: 'ev_driving_range',
-    ev_battery_charge: 'ev_battery_is_charging',
-    ev_battery_plug: 'ev_battery_is_plugged_in',
-    ev_charging_power: 'ev_charging_power',
-    estimated_charge_duration: 'ev_estimated_current_charge_duration',
-    ac_charging_limit: 'ev_charge_limits_ac',
-    ev_charging: 'ev_charging',
-    climate: 'climate_control',
-    outside_temperature: 'outside_temperature',
-    door_lock: 'door_lock',
-    front_left_door: 'front_left_door_is_open',
-    front_right_door: 'front_right_door_is_open',
-    trunk: 'trunk_is_open',
-    hood: 'hood_is_open',
-    front_left_window: 'front_left_window_is_open',
-    front_right_window: 'front_right_window_is_open',
-    odometer: 'odometer',
-    tire_pressure_front_left: 'tire_pressure_front_left',
-    tire_pressure_front_right: 'tire_pressure_front_right',
-    tire_pressure_rear_left: 'tire_pressure_rear_left',
-    tire_pressure_rear_right: 'tire_pressure_rear_right',
-    location: 'location',
-    geocoded_location: 'geocode_name',
-    last_updated_at: 'last_updated_at',
-    force_update: 'force_refresh',
-  };
-  return Object.fromEntries(
-    seeds.flatMap(([id]) => {
-      const key = KEYS[id.slice(id.indexOf('.') + 1).slice(prefix.length + 1)];
-      return key ? [[id, key]] : [];
-    }),
-  );
-};
+const kiaKeys = keysBy({
+  ev_battery_level: 'ev_battery_percentage',
+  car_battery_level: 'car_battery_percentage',
+  ev_range: 'ev_driving_range',
+  ev_battery_charge: 'ev_battery_is_charging',
+  ev_battery_plug: 'ev_battery_is_plugged_in',
+  ev_charging_power: 'ev_charging_power',
+  estimated_charge_duration: 'ev_estimated_current_charge_duration',
+  ac_charging_limit: 'ev_charge_limits_ac',
+  ev_charging: 'ev_charging',
+  climate: 'climate_control',
+  outside_temperature: 'outside_temperature',
+  door_lock: 'door_lock',
+  front_left_door: 'front_left_door_is_open',
+  front_right_door: 'front_right_door_is_open',
+  trunk: 'trunk_is_open',
+  hood: 'hood_is_open',
+  front_left_window: 'front_left_window_is_open',
+  front_right_window: 'front_right_window_is_open',
+  odometer: 'odometer',
+  tire_pressure_front_left: 'tire_pressure_front_left',
+  tire_pressure_front_right: 'tire_pressure_front_right',
+  tire_pressure_rear_left: 'tire_pressure_rear_left',
+  tire_pressure_rear_right: 'tire_pressure_rear_right',
+  location: 'location',
+  geocoded_location: 'geocode_name',
+  last_updated_at: 'last_updated_at',
+  force_update: 'force_refresh',
+  fuel_level: 'fuel_level',
+  fuel_driving_range: 'fuel_driving_range',
+  total_driving_range: 'total_driving_range',
+  fuel_level_low: 'fuel_level_is_low',
+  next_service: 'next_service_distance',
+});
+
+/** Toyota's (pytoyoda) keys: its tank, its range, its odometer, its hood (the rest it names in words). */
+const toyotaKeys = keysBy({
+  fuel_level: 'fuel_level',
+  fuel_range: 'fuel_range',
+  odometer: 'odometer',
+  hood: 'hood',
+});
+
+/** Stellantis's keys: its tank and its range on it, its 12 V battery, its mileage, its maintenance. */
+const stellantisKeys = keysBy({
+  fuel: 'fuel',
+  fuel_range: 'fuel_autonomy',
+  service_battery: 'service_battery_voltage',
+  mileage: 'mileage',
+  mileage_before_maintenance: 'mileage_before_maintenance',
+  days_before_maintenance: 'days_before_maintenance',
+});
+
+/** MySkoda's keys: its tank, its whole range, its AdBlue, its inspection and its oil service, each in km and days. */
+const skodaKeys = keysBy({
+  fuel_level: 'fuel_level',
+  range: 'range',
+  adblue_range: 'adblue_range',
+  mileage: 'mileage',
+  next_inspection: 'inspection_in_km',
+  next_inspection_2: 'inspection',
+  oil_service: 'oil_service_in_km',
+  oil_service_2: 'oil_service_in_days',
+  outside_temperature: 'outside_temperature',
+  door_lock: 'door_lock',
+  trunk: 'trunk_open',
+  bonnet: 'bonnet_open',
+  doors: 'doors_open',
+  windows: 'windows_open',
+  position: 'device_tracker',
+});
+
+/** Volvo's keys (its battery has none). */
+const volvoKeys = keysBy({
+  distance_to_empty_battery: 'distance_to_empty_battery',
+  fuel_amount: 'fuel_amount',
+  distance_to_empty_tank: 'distance_to_empty_tank',
+  charging_status: 'charging_status',
+  charger_connection_status: 'charger_connection_status',
+  climatization_start: 'climatization_start',
+  lock: 'lock',
+  tailgate: 'tailgate',
+  hood: 'hood',
+  oil_level: 'oil_level_warning',
+  distance_to_service: 'distance_to_service',
+  time_to_service: 'time_to_service',
+  odometer: 'odometer',
+  location: 'location',
+});
+
+/** Renault's keys (its lock has none). */
+const renaultKeys = keysBy({
+  fuel_quantity: 'fuel_quantity',
+  fuel_autonomy: 'fuel_autonomy',
+  mileage: 'mileage',
+  hatch: 'hatch_status',
+  location: 'location',
+});
+
+/** Ford's (fordpass) keys, lower case: its tank, its range on it, its odometer. */
+const fordKeys = keysBy({ fuel: 'fuel', fuelrange: 'fuelrange', odometer: 'odometer' });
 
 const CAR = 'custom:fluvy-vehicle-card';
 const card = (device: string, extra: Record<string, unknown> = {}) => ({
@@ -595,6 +830,13 @@ export const sheet: SheetSpec = {
     ...I4,
     ...GONE,
     ...MIDNIGHT,
+    ...YARIS,
+    ...PEUGEOT,
+    ...OCTAVIA,
+    ...NIRO,
+    ...XC60,
+    ...CLIO,
+    ...FIESTA,
   ],
   registry: {
     entities: Object.fromEntries([
@@ -619,6 +861,13 @@ export const sheet: SheetSpec = {
       ...entries('d-leaf', 'tesla_fleet', GONE, teslaKeys('leaf', GONE)),
       // tesla_custom keys none of them: the card reads it by its ids' ends and by what its entities are
       ...entries('d-midnight', 'tesla_custom', MIDNIGHT),
+      ...entries('d-yaris', 'toyota', YARIS, toyotaKeys('yaris_cross', YARIS)),
+      ...entries('d-208', 'stellantis_vehicles', PEUGEOT, stellantisKeys('peugeot_208', PEUGEOT)),
+      ...entries('d-octavia', 'myskoda', OCTAVIA, skodaKeys('octavia', OCTAVIA)),
+      ...entries('d-niro', 'kia_uvo', NIRO, kiaKeys('niro', NIRO), ['sensor.niro_next_service']),
+      ...entries('d-xc60', 'volvo', XC60, volvoKeys('xc60', XC60)),
+      ...entries('d-clio', 'renault', CLIO, renaultKeys('clio', CLIO)),
+      ...entries('d-fiesta', 'fordpass', FIESTA, fordKeys('fordpass_fiesta', FIESTA)),
     ]),
     devices: Object.fromEntries([
       device('d-model-y', 'Model Y', 'Model Y Long Range'),
@@ -630,6 +879,13 @@ export const sheet: SheetSpec = {
       device('d-i4', 'i4 eDrive40', 'i4'),
       device('d-leaf', 'Leaf', 'Leaf'),
       device('d-midnight', 'Midnight', 'Model 3'),
+      device('d-yaris', 'Yaris Cross', 'Yaris Cross Hybrid'),
+      device('d-208', 'Peugeot 208', '208 PureTech 100'),
+      device('d-octavia', 'Octavia', 'Octavia Combi 2.0 TDI'),
+      device('d-niro', 'Niro', 'Niro Plug-in Hybrid'),
+      device('d-xc60', 'XC60', 'XC60 T6 Recharge'),
+      device('d-clio', 'Clio', 'Clio TCe 90'),
+      device('d-fiesta', 'Fiesta', 'Fiesta 1.0 EcoBoost'),
     ]),
   },
   frames: [
@@ -758,6 +1014,101 @@ export const sheet: SheetSpec = {
     {
       title: 'tesla_custom · its charge port’s latch, never its lock',
       cards: [card('d-midnight')],
+    },
+    // #207: what it runs on, told by itself (a tank and no battery) or by `energy`
+    { title: 'Toyota · petrol, parked at home', cards: [card('d-yaris')] },
+    { title: 'Stellantis · petrol, running low', cards: [card('d-208')] },
+    { title: 'MySkoda · diesel, its AdBlue running low', cards: [card('d-octavia')] },
+    {
+      title: 'Kia · plug-in hybrid, charging at home',
+      cards: [card('d-niro', { energy: 'hybrid' })],
+    },
+    {
+      title: 'Volvo · plug-in hybrid, its tank in litres',
+      cards: [card('d-xc60', { energy: 'hybrid', tank_size: 71 })],
+    },
+    {
+      title: 'Renault · petrol, its tank from its litres',
+      cards: [card('d-clio', { tank_size: 42 })],
+    },
+    { title: 'Ford · petrol, out of reach', cards: [card('d-fiesta')] },
+    {
+      title: 'A diesel’s own rows · AdBlue, the next service',
+      cards: [card('d-octavia', { rows: ['location', 'adblue', 'service', 'odometer'] })],
+    },
+    {
+      title: 'A hybrid’s own rows · its oil, its litres, the next service',
+      cards: [
+        card('d-xc60', {
+          energy: 'hybrid',
+          tank_size: 71,
+          show_status: false,
+          rows: ['fuel_volume', 'oil', 'service'],
+        }),
+      ],
+    },
+    { title: 'The tank as a ring', cards: [card('d-yaris', { hero: 'ring' })] },
+    {
+      title: 'Compact · petrol and plug-in hybrid',
+      cards: [
+        card('d-yaris', { variant: 'compact' }),
+        card('d-niro', { variant: 'compact', energy: 'hybrid' }),
+      ],
+    },
+    {
+      title: 'Strips · petrol, diesel, plug-in hybrid, out of reach',
+      cards: [
+        card('d-yaris', { variant: 'mini' }),
+        card('d-208', { variant: 'mini' }),
+        card('d-octavia', { variant: 'mini' }),
+        card('d-niro', { variant: 'mini', energy: 'hybrid' }),
+        card('d-fiesta', { variant: 'mini' }),
+      ],
+    },
+    {
+      title: 'Strips · fuel, half a section',
+      width: 320,
+      heights: [152, 172],
+      cards: [
+        card('d-yaris', { variant: 'mini', cols: 6 }),
+        card('d-niro', { variant: 'mini', energy: 'hybrid', cols: 6 }),
+        card('d-208', { variant: 'mini', cols: 6 }),
+      ],
+    },
+    {
+      title: 'Compact · fuel, half a section',
+      width: 360,
+      cards: [
+        card('d-octavia', { variant: 'compact', cols: 6 }),
+        card('d-niro', { variant: 'compact', energy: 'hybrid', cols: 6 }),
+      ],
+    },
+    {
+      title: 'Whole card · fuel, half a section',
+      width: 360,
+      cards: [card('d-208', { cols: 6 }), card('d-niro', { energy: 'hybrid', cols: 6 })],
+    },
+    {
+      title: 'A phone’s column · plug-in hybrid',
+      width: 360,
+      cards: [card('d-niro', { energy: 'hybrid' })],
+    },
+    {
+      title: 'A desktop’s column · diesel',
+      width: 352,
+      cards: [card('d-octavia', { image: PICTURE })],
+    },
+    // three columns of 360 and their gaps: a phone's probe would squeeze them a third each (each card is measured in
+    // its own frame above)
+    {
+      title: 'A desktop’s band · petrol, diesel, plug-in hybrid',
+      width: 1112,
+      measure: false,
+      cards: [
+        card('d-yaris', { cols: 4 }),
+        card('d-octavia', { cols: 4 }),
+        card('d-niro', { energy: 'hybrid', cols: 4 }),
+      ],
     },
   ],
 };

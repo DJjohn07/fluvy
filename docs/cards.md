@@ -1892,7 +1892,7 @@ strategy:
 
 ## Vehicle
 
-The vehicle card (#84) draws an electric car from its device: give it the car's `device` (or any of its `entity`s) and
+The vehicle card (#84) draws a car from its device, electric or not (below): give it the car's `device` (or any of its `entity`s) and
 it finds the rest by what its integration calls them — Tesla Fleet, Teslemetry and Tessie, Renault, Volvo and Škoda
 from Home Assistant, and Kia and Hyundai (kia_uvo), MySkoda, Polestar, MG (mg_saic), Volkswagen's two and BMW's
 CarData from HACS — and any other by what its entities are (a battery's charge, a lock, a climate, a tracker).
@@ -1947,6 +1947,42 @@ roles:
   - { role: plugged, entity: binary_sensor.leaf_plug_status }
   - { role: charging, entity: binary_sensor.leaf_charging_status }
   - { role: climate_switch, entity: switch.leaf_climate_control }
+```
+
+### A car that burns fuel (1.22, #207)
+
+A petrol or diesel car draws its tank in the battery's place: its level on the same ruler (in the gas tone, or the
+card's `color`), its range beside it, in the warning's colour when it runs low — its own low-fuel warning where it has
+one, else under `low_range`, else at 15 % — and the line under it says what calls: the tank low, AdBlue running low
+(15 %, or 1,000 km), the oil to check (its warning, or 15 %), a service due; at rest, what is in the tank and when the
+next service is ("29 L in the tank · Service in 4,200 km"). Its front boot is a bonnet. The card finds a tank in the
+words of the integrations above (Kia and Hyundai, Škoda's two, Volkswagen's two, Renault, Volvo, MG) and of Toyota's
+(pytoyoda), Ford's (fordpass), Mercedes-Benz's (mbapi2020), Stellantis's (Peugeot, Citroën, Opel, DS) and Volvo's own
+from HACS; any other by the ends of its ids (`…_fuel_level`, `…_fuel_range`, `…_adblue_range`, `…_oil_level`,
+`…_distance_to_service`) or by `roles`.
+
+`energy` says what the car runs on: `auto` (the default) draws its tank where it has one and no battery, else its
+battery, as every car was drawn before; `electric`, `fuel` and `hybrid` say it outright. A plug-in hybrid
+(`energy: hybrid`) draws its battery and, under it, its tank, each with its range; its compact card shows two bars,
+each led by its glyph, and its strip one ring in two halves, the battery's on the left and the tank's on the right.
+Where a car says only the litres in its tank (Renault, Volvo), `tank_size` (in the same unit) fills the ruler; without
+it the litres are the figure. The rows `fuel_range`, `fuel_volume`, `adblue`, `oil` and `service` (how far and how long
+to it: "4,200 km · 63 d") join any car's `rows`, and the roles `fuel`, `fuel_range`, `fuel_volume`, `fuel_low`,
+`adblue`, `oil`, `service` and `service_time` its `roles`.
+
+```yaml
+type: custom:fluvy-vehicle-card
+device: 3f9a…            # an Octavia diesel on MySkoda
+rows: [location, adblue, service, odometer]
+low_range: 80            # km: low under this, whatever the car says
+```
+
+```yaml
+type: custom:fluvy-vehicle-card
+device: 51c2…            # an XC60 plug-in hybrid on Volvo's
+energy: hybrid
+tank_size: 71            # litres: its level from what is in it
+rows: [location, fuel_volume, oil, service]
 ```
 
 <!-- generated:cards -->

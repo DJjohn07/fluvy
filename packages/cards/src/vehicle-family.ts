@@ -66,25 +66,33 @@ const BAR = 20;
 
 /**
  * The Vehicle card at a 360 column, from its config alone: the strip, 76; the compact card — the head, the battery's
- * bar and its line, rows of rounds (16 + 44 each, 12 between); the whole card — the head, the car's picture where it is over the
- * battery, the battery (on its ruler, or a ring), its line, the controls (16 + 64 a row, 12 between), the rows (16 + 48
- * each) and the tyres where asked. What the car has never changes it: a part it cannot fill keeps its place, a dash in
- * it (1.9: a card keeps its size).
+ * bar (a hybrid's tank's under it, 8 apart) and its line, rows of rounds (16 + 44 each, 12 between); the whole card —
+ * the head, the car's picture where it is over the battery, the battery (on its ruler, or a ring; a lone tank in its
+ * place; a hybrid's tank on its own ruler under it, 16 apart), its line, the controls (16 + 64 a row, 12 between), the
+ * rows (16 + 48 each) and the tyres where asked. What the car has never changes it: a part it cannot fill keeps its
+ * place, a dash in it (1.9: a card keeps its size); `auto` draws a battery or a tank, each the same height.
  */
 export const vehicleHeight = (config: LovelaceCardConfig): number => {
   const variant = vehicleVariant(config);
   if (variant === 'mini') return 76;
   const line = config['show_status'] === false ? 0 : LINE;
+  const hybrid = config['energy'] === 'hybrid';
   if (variant === 'compact') {
     const rounds = controlRows(config, ROUNDS_A_ROW);
-    return HEAD + BAR + line + (rounds ? 16 + 44 * rounds + 12 * (rounds - 1) : 0);
+    return (
+      HEAD +
+      BAR +
+      (hybrid ? 8 + BAR : 0) +
+      line +
+      (rounds ? 16 + 44 * rounds + 12 * (rounds - 1) : 0)
+    );
   }
   const controls = controlRows(config, CONTROLS_A_ROW);
   const rows = rowCount(config);
   return (
     HEAD +
     (pictureAt(config) === 'hero' ? PICTURE : 0) +
-    (config['hero'] === 'ring' ? RING : RULER) +
+    (hybrid ? RULER + 16 + RULER : config['hero'] === 'ring' ? RING : RULER) +
     line +
     (controls ? 16 + CONTROLS * controls + 12 * (controls - 1) : 0) +
     (rows ? 16 + ROW_COMPACT * rows : 0) +

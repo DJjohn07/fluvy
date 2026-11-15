@@ -1,9 +1,10 @@
 /*
  * What a car is doing, whatever its integration calls it: the charging states of Tesla's three integrations, BMW's,
  * Renault's, Volvo's, Kia's and Hyundai's, Volkswagen's two, Škoda's, Polestar's and MG's, each folded into the few a
- * card draws; whether it drives, sleeps or is parked; and the line under its battery, by what matters most now. The
- * words a card writes for an entity stay Home Assistant's (its state as it translates it); these decide the tone, the
- * badge and the line. Nothing is guessed: a reading that cannot be read is null, and what is not there is undefined.
+ * card draws; whether it drives, sleeps or is parked; what it runs on, when its tank, its AdBlue and its oil are low and
+ * its service due; and the line under its battery (or its tank), by what matters most now. The words a card writes for
+ * an entity stay Home Assistant's (its state as it translates it); these decide the tone, the badge and the line.
+ * Nothing is guessed: a reading that cannot be read is null, and what is not there is undefined.
  */
 
 /**
@@ -155,6 +156,23 @@ export function activityOf(sources: ActivitySources): Activity {
   return 'parked';
 }
 
+/* ---------- what it runs on ---------- */
+
+/** What the card draws a car as: its battery, its tank, or both (a plug-in hybrid). */
+export type Energy = 'electric' | 'fuel' | 'hybrid';
+
+/**
+ * What a car runs on: what the card's `energy` says, else (`auto`) its tank where it has one and no battery the card
+ * reads, else its battery — as every car was drawn before the card knew a tank, a hybrid's battery among them.
+ */
+export function energyOf(
+  asked: unknown,
+  has: { readonly battery: boolean; readonly tank: boolean },
+): Energy {
+  if (asked === 'electric' || asked === 'fuel' || asked === 'hybrid') return asked;
+  return has.tank && !has.battery ? 'fuel' : 'electric';
+}
+
 /* ---------- the battery's line ---------- */
 
 /** Below this charge, with no `low_range` of its own, a car's range is low (the house's low battery). */
@@ -169,6 +187,77 @@ export function lowRange(
   if (typeof threshold === 'number' && Number.isFinite(threshold))
     return range !== null && range <= threshold;
   return level !== null && level <= LOW_CHARGE;
+}
+
+/** At this level or under, a tank, AdBlue or the oil is low (a car's reserve light), where nothing else says so. */
+export const LOW_LEVEL = 15;
+/** AdBlue lasting this far or less is low (the cars themselves warn from about 2,400 km). */
+export const LOW_ADBLUE_KM = 1000;
+
+/**
+ * Whether a tank is low: its warning on; else under the card's `low_range` in the range's unit; else, where the car
+ * has no warning to ask, at 15 % or less.
+ */
+export function lowTank(o: {
+  readonly warning: boolean | null | undefined;
+  readonly range: number | null;
+  readonly level: number | null;
+  readonly threshold: number | undefined;
+}): boolean {
+  if (o.warning === true) return true;
+  if (typeof o.threshold === 'number' && Number.isFinite(o.threshold))
+    return o.range !== null && o.range <= o.threshold;
+  return typeof o.warning !== 'boolean' && o.level !== null && o.level <= LOW_LEVEL;
+}
+
+/**
+ * What a car says of a fluid or of its service, as a card reads it: its warning (on, off), a level (%), a distance
+ * (km), days; null where it cannot be read.
+ */
+export type Upkeep =
+  | { readonly kind: 'warning'; readonly on: boolean }
+  | { readonly kind: 'level'; readonly percent: number }
+  | { readonly kind: 'distance'; readonly km: number }
+  | { readonly kind: 'days'; readonly days: number }
+  | null;
+
+/** AdBlue that runs low: its warning, 15 % of its tank, 1,000 km. */
+export function lowAdBlue(reading: Upkeep): boolean {
+  if (!reading) return false;
+  if (reading.kind === 'warning') return reading.on;
+  if (reading.kind === 'level') return reading.percent <= LOW_LEVEL;
+  return reading.kind === 'distance' && reading.km <= LOW_ADBLUE_KM;
+}
+
+/** Oil to check: its warning, or its level (or its life) at 15 % or under. */
+export function oilToCheck(reading: Upkeep): boolean {
+  if (!reading) return false;
+  if (reading.kind === 'warning') return reading.on;
+  return reading.kind === 'level' && reading.percent <= LOW_LEVEL;
+}
+
+/** A service that is due: its warning, or no distance or no day left before it (or past it). */
+export function serviceDue(...readings: readonly Upkeep[]): boolean {
+  return readings.some((reading) =>
+    !reading
+      ? false
+      : reading.kind === 'warning'
+        ? reading.on
+        : reading.kind === 'distance'
+          ? reading.km <= 0
+          : reading.kind === 'days' && reading.days <= 0,
+  );
+}
+
+/**
+ * A service warning's words (Volvo's "regular maintenance time for service", "distance driven overdue for service"):
+ * due when its time has come or gone, not when it is almost here; null for a word that says nothing of it.
+ */
+export function serviceWord(state: string | undefined): boolean | null {
+  const word = wordOf(state);
+  if (!word || word === 'unknown_warning') return null;
+  if (/almost/.test(word) || /^(no_warning|ok|none)$/.test(word)) return false;
+  return /(^|_)(time_for_service|overdue|due|service_required)(_|$)/.test(word) ? true : null;
 }
 
 /** Whether the cabin is cold or hot enough to say so (while the climate is off), by the house's unit. */
@@ -187,14 +276,19 @@ export function cabinOf(inside: number | null, unit: string): Cabin {
 export type Opening = 'windows' | 'doors' | 'trunk' | 'frunk';
 
 /**
- * What the line under the battery says, the most pressing first: why charging failed; while it charges, when it is
- * done; a range that is low; something left open; done at its limit; plugged in and waiting (for its time, or for
- * nothing); a cabin too cold or too hot to get into; else where its limit stands, or that it is unplugged.
+ * What the line under the battery (or the tank) says, the most pressing first: why charging failed; while it charges,
+ * when it is done; a range that is low; a tank that is low, AdBlue that runs low, oil to check, a service that is due;
+ * something left open; done at its limit; plugged in and waiting (for its time, or for nothing); a cabin too cold or
+ * too hot to get into; else where its limit stands, or that it is unplugged.
  */
 export type LineKind =
   | 'error'
   | 'charging'
   | 'low'
+  | 'low_fuel'
+  | 'adblue'
+  | 'oil'
+  | 'service'
   | 'open'
   | 'complete'
   | 'waiting'
@@ -208,10 +302,21 @@ export function lineOf(o: {
   readonly low: boolean;
   readonly open: Opening | null;
   readonly cabin: Cabin;
+  /** A tank's: low, its AdBlue low, its oil to check, its service due. */
+  readonly tank?: {
+    readonly low: boolean;
+    readonly adblue: boolean;
+    readonly oil: boolean;
+    readonly service: boolean;
+  };
 }): LineKind {
   if (o.charge === 'error') return 'error';
   if (o.charge === 'charging') return 'charging';
   if (o.low) return 'low';
+  if (o.tank?.low) return 'low_fuel';
+  if (o.tank?.adblue) return 'adblue';
+  if (o.tank?.oil) return 'oil';
+  if (o.tank?.service) return 'service';
   if (o.open) return 'open';
   if (o.charge === 'complete') return 'complete';
   if (o.charge === 'waiting') return 'waiting';
@@ -224,6 +329,9 @@ export function lineOf(o: {
 
 /** A distance's metres, by its unit; null for a unit that is not a distance. */
 const METRES: Readonly<Record<string, number>> = { m: 1, km: 1000, mi: 1609.344, ft: 0.3048 };
+
+/** Whether a unit is one of a distance the card converts. */
+export const isDistance = (unit: string): boolean => Object.hasOwn(METRES, unit.trim());
 
 /** A distance in another unit (km ↔ mi); the same where either unit is not one the card converts. */
 export function convertDistance(value: number, from: string, to: string): number {
