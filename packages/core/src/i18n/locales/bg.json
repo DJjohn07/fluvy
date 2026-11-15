@@ -111,7 +111,7 @@
     "class.curtain": "завеса",
     "class.damper": "клапа",
     "class.door": "врата",
-    "class.garage": "гараж",
+    "class.garage": "гаражна врата",
     "class.gate": "порта",
     "class.shade": "руло щора",
     "class.shutter": "ролетна щора",
@@ -999,7 +999,7 @@
     "preset.ha_alerts": "Предупреждения на Home Assistant",
     "preset.repairs": "Ремонти",
     "severity.critical": "Критично",
-    "severity.warning": "Важно",
+    "severity.warning": "Предупреждение",
     "severity.info": "Информация",
     "snooze.for": "{n} ч",
     "snooze.changes": "До промяна",
@@ -1716,7 +1716,7 @@
   },
   "alarm": {
     "arm_home": "Под охрана - вкъщи",
-    "arm_away": "Под охрана",
+    "arm_away": "Под охрана - няма ме",
     "arm_night": "Под охрана - нощ",
     "disarm": "Изключване",
     "enter_code": "Въведете кода",
@@ -1736,7 +1736,7 @@
     "v_extended": "Разширен",
     "v_bypass": "Байпас",
     "arm_vacation": "Под охрана - ваканция",
-    "arm_custom": "Потребителски байпас",
+    "arm_custom": "Под охрана - байпас",
     "preview": "Аларма"
   },
   "printer": {
