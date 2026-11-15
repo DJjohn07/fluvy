@@ -405,6 +405,20 @@
       "reason": "at rest, failed, finished or heating the job is not drawn: the printing height is reserved (the on height)"
     },
     {
+      "frame": "in-force/Media · an input it does not list, every listed one kept",
+      "tag": "fluvy-media-card",
+      "declared": 440,
+      "drawn": 484,
+      "reason": "the source in force the player does not list is one more chip (live, #202): the sources it lists are declared"
+    },
+    {
+      "frame": "in-force/Remote · an input it does not list",
+      "tag": "fluvy-remote-card",
+      "declared": 228,
+      "drawn": 272,
+      "reason": "the source in force the player does not list is one more chip (live, #202): the sources it lists are declared"
+    },
+    {
       "frame": "inputs/To-do · bare",
       "tag": "fluvy-todo-card",
       "declared": 400,

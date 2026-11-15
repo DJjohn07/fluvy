@@ -403,6 +403,8 @@ Rectangular tappables share **one radius: 12** (option tiles, buttons, keys, fie
   `none`, an empty value and a device out of reach mark nothing, and a row that offers nothing stays empty. The
   thermostat's modes, presets and fan speeds, its details sheet's modes, the fan's presets, the robot's suction, the
   helpers' select chips, the remote's and the player's sources (shared `inForce`).
+  It is live, so it is not declared: where it adds a row of chips the card grows by it (a player's Bluetooth beside
+  TV · HDMI 1 · HDMI 2 takes a second row of two chips: +44), listed in `known-heights.json`.
 - **What a thermostat shows:** `show_modes: false` hides the modes and their label (a 128 tile block, 88 as chips);
   `show_current: false` drops "· Now 20.6°" and the dial's sub; `subtitle` replaces the line under the name (empty
   hides it), which otherwise leaves the area out where it is the name ("Garderobe / Garderobe" said it twice).
@@ -420,9 +422,10 @@ Rectangular tappables share **one radius: 12** (option tiles, buttons, keys, fie
   the card lays out by measure (filled chips, option tiles, a row of readouts, a legend) is counted with the same rule,
   its words estimated letter by letter (`textWidth` in `shared/heights.ts`, Inter's widths by the kind of letter,
   calibrated on the rows as they draw). A height that depends on live content the config cannot know (a printer's job, a
-  calendar's events, the house's appliances, a to-do list's items, the Energy dashboard's devices) is declared from the
-  config's maximum or its documented default and listed, with the reason, in `tools/render/known-heights.json`, which
-  only shrinks. A card that is off, at rest or out of reach is reserved its on height.
+  calendar's events, the house's appliances, a to-do list's items, the Energy dashboard's devices, a value in force its
+  row of choices does not offer) is declared from the config's maximum or its documented default and listed, with the
+  reason, in `tools/render/known-heights.json`, which only shrinks. A card that is off, at rest or out of reach is
+  reserved its on height.
 - **Measured anatomies the declarations follow:** a tiles card is compact by default (76 a row, two a row; `columns`
   held to what a 360 column holds); the alerts and appliances rows start 4 under the head; the photo room card
   starts at its hero (no 20 above) with a 44 readout row 20 under it; the readouts card lays three a row and four as

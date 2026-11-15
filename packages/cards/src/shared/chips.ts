@@ -84,7 +84,8 @@ const UNSET: ReadonlySet<string> = new Set(['none', 'unknown', 'unavailable']);
  * but its firmware does not list, a mode the card's own list leaves out, a source past the row's cap) stands first as
  * one more choice, in its words (`chip`, none where it has none), marked and inert: it says what the device does, at
  * full strength, and takes no tap. Where the row is capped and full, the last it offers gives way to it. Empty,
- * `none` and a state that cannot be read mark nothing, and a row that offers nothing stays empty.
+ * `none` and a state that cannot be read mark nothing, and a row that offers nothing stays empty. It is live: a card
+ * declares the row it offers, and one more chip may add a row of them (`known-heights.json`).
  */
 export function inForce<
   T extends { readonly key: string; readonly active?: boolean; readonly inert?: boolean },
