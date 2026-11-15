@@ -142,6 +142,18 @@ const TEMPLATE_DASHBOARDS = [
     type: 'custom:fluvy-security',
   },
   { url_path: 'fluvy-wall', title: 'Fluvy · Wall', icon: 'fluvy:frame', type: 'custom:fluvy-wall' },
+  {
+    url_path: 'fluvy-lights',
+    title: 'Fluvy · Lights',
+    icon: 'fluvy:bulb',
+    type: 'custom:fluvy-lights',
+  },
+  {
+    url_path: 'fluvy-climate',
+    title: 'Fluvy · Climate',
+    icon: 'fluvy:thermo',
+    type: 'custom:fluvy-climate',
+  },
 ] as const;
 /** The template dashboards this page has (created by the state, or by the panel's Create). */
 const created = new Map<string, (typeof TEMPLATE_DASHBOARDS)[number]>();

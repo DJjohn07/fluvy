@@ -11,7 +11,8 @@
  * the row scrolls under the finger, fades where it goes on, and its last tab clears the fade; a mouse in a window as
  * narrow keeps Home Assistant's chevrons, whole, and pages the row with them (#170). The sidebar's counts (Settings,
  * the notifications) keep their figures under Fluvy's glyphs (#86); no view of the automatic dashboard reaches past a
- * phone's edge, from its first frame on (#104).
+ * phone's edge, from its first frame on (#104); the dashboards of a tab a room (the Rooms dashboard's rooms as tabs,
+ * Lights, Climate) hold a dozen rooms in one row that scrolls, and none of their views reaches past the edge (#202).
  */
 import { startSuite } from './lib/suite.mjs';
 
@@ -751,6 +752,29 @@ for (const [query, why, title] of [
     past.join(', '),
   );
   await page.close();
+  // the dashboards of a tab a room (1.22, #202), on a house of twelve rooms: the header's row holds every tab and
+  // scrolls, and no view (a room's tab, a page behind it) reaches past the screen
+  for (const [query, first, tabs] of [
+    [`template=rooms&options=${encodeURIComponent('{"rooms_as":"tabs"}')}`, 'All rooms', 13],
+    ['template=lights', 'All lights', 13],
+    ['template=climate', 'Whole home', 10],
+  ]) {
+    const page = await phone(360, `mode=light&house=room-tabs&${query}`);
+    const h = await header(page);
+    const names = shown(h).map((tab) => tab.name);
+    check(
+      `a phone 360 wide, ${query}: "${first}" and a tab a room, one row that scrolls (#202)`,
+      names[0] === first && names.length === tabs && h.nav.scroll > h.nav.client,
+      JSON.stringify({ names, nav: h.nav }),
+    );
+    const past = await sweep(page, false);
+    check(
+      `a phone 360 wide, ${query}: no view reaches past the screen`,
+      past.length === 0,
+      past.join(', '),
+    );
+    await page.close();
+  }
 }
 
 await suite.finish();

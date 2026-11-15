@@ -504,24 +504,33 @@ class MockRoot extends LitElement {
     rawConfig?: { strategy?: unknown };
   };
 
+  /** The subview open over the tabs (its index in the configuration): the first one until a path opens another. */
+  private over = -1;
+
+  /** Opens a view by its path: a tab marked among the tabs, a subview under its way back. */
+  open(path: string | undefined): void {
+    const index = this.options.views.findIndex((view) => view.path === path);
+    if (index < 0) return;
+    const subview = this.options.views[index]?.subview === true;
+    if (subview !== this.options.subview) this.options = { ...this.options, subview };
+    if (subview) this.over = index;
+    else this.current = index;
+    this.requestUpdate();
+  }
+
   /**
    * The view the address names, as Home Assistant's root reads its route: `/<dashboard>/<view's path>` opens that view,
    * a subview's its subview. Listened to where the page asks for a sidebar, whose menu leads there.
    */
   readonly route = (): void => {
     const [, dashboard, path] = location.pathname.split('/');
-    if (dashboard !== this.hass.panelUrl) return;
-    const index = this.options.views.findIndex((view) => view.path === path);
-    if (index < 0) return;
-    const subview = this.options.views[index]?.subview === true;
-    if (subview !== this.options.subview) this.options = { ...this.options, subview };
-    if (!subview) this.current = index;
-    this.requestUpdate();
+    if (dashboard === this.hass.panelUrl) this.open(path);
   };
 
   /** The view shown, as Home Assistant's root keeps it (its index in the configuration). */
   get _curView(): number {
-    return this.options.subview ? this.options.views.findIndex((v) => v.subview) : this.current;
+    if (!this.options.subview) return this.current;
+    return this.over >= 0 ? this.over : this.options.views.findIndex((v) => v.subview);
   }
 
   /** Home Assistant's way back from a subview: here, the subview closes (and the page counts it). */
@@ -724,6 +733,8 @@ class MockRoot extends LitElement {
             @click=${() => {
               if (view.subview) return;
               this.current = index;
+              // a page that draws its views itself (the automatic dashboard's) draws this one
+              this.dispatchEvent(new CustomEvent('view-opened', { detail: view.path }));
               // beside a sidebar a tab goes by the address, as Home Assistant's does: its menu reads the page from it
               if (this.options.side !== undefined) {
                 history.pushState(null, '', `/${this.hass.panelUrl}/${view.path}`);
@@ -757,7 +768,7 @@ class MockRoot extends LitElement {
       : subview
         ? html`<div class="toolbar">
             <ha-icon-button-arrow-prev>${this.button('chevron-left')}</ha-icon-button-arrow-prev>
-            <div class="main-title">Kitchen</div>
+            <div class="main-title">${views[this._curView]?.title}</div>
             <div class="action-items">${this.button('dots-vertical')}</div>
           </div>`
         : html`<div class="toolbar">
@@ -1365,10 +1376,11 @@ function signedIn(hass: HomeAssistant): SidebarUser {
   return { name: user.name, ...(typeof picture === 'string' ? { picture } : {}) };
 }
 
-/** For the suites: the root's own update again (another choice of tabs, the edit mode). */
+/** For the suites: the root's own update again (another choice of tabs, the edit mode), and a view opened by its path. */
 export type DashboardRoot = HTMLElement & {
   options: DashboardOptions;
   lovelace: { editMode: boolean };
   requestUpdate(): void;
+  open(path: string | undefined): void;
 };
 export const huiRoot = (): DashboardRoot | null => document.querySelector('hui-root');

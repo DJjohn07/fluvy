@@ -40,8 +40,8 @@ import {
 } from '@fluvy/tokens/runtime';
 import { setFallbackTokens, setHoldToSlide, setMotionPreference, textWidth } from '@fluvy/ui';
 import { pinClock } from './clock.js';
-import { automaticFrames, automaticViews } from './automatic.js';
-import { dashboardOptions, mountDashboard } from './dashboard.js';
+import { automaticConfig, automaticFrames, automaticViews } from './automatic.js';
+import { dashboardOptions, huiRoot, mountDashboard } from './dashboard.js';
 import { defineIconStubs } from './ha-icons.js';
 import { createHouse, mountFrame, type MountedCard } from './house.js';
 import { mountActivity, type ActivityMoment } from './activity.js';
@@ -107,7 +107,10 @@ import { loadFixture, SHEETS, type FrameSpec, type SheetSpec } from './scenes.js
  *                        (&tabs= &content= &tabtitle= &views= &icons= &edit= &subview= &scope= — see dashboard.ts)
  * ?dashboard=auto        the automatic dashboard's view (&view=home, its path), built by its own strategy from the
  *                        house of every sheet; `fluvyAutomaticView(path)` draws another in its place, as a tab does
- *                        (`fluvyAutomaticViews()` lists them)
+ *                        (`fluvyAutomaticViews()` lists them). &template=rooms another of the automatic dashboards
+ *                        (rooms | lights | climate | energy | security | wall), under its own views as the header's
+ *                        tabs, each drawn on a tap; &options={"rooms_as":"tabs"} its options, as its raw
+ *                        configuration writes them; &house=room-tabs a sheet's own house in place of every sheet's
  * ?frames=none           the house of the sheets asked for (every sheet's without `sheet`), none of their frames drawn:
  *                        a suite mounts its own cards in it (`fluvyCatalogue`, `fluvySheets`, `fluvyOutOfReach`)
  * ?viewtheme=Fluvy       the frames in a view Home Assistant themed (a dashboard's view, else the stage, as a section):
@@ -120,9 +123,9 @@ const params = new URLSearchParams(location.search);
 const dark = params.get('mode') === 'dark';
 const width = Number(params.get('width') ?? 360);
 const dashboard = params.get('dashboard');
-/** The automatic dashboard: the house of every sheet, its views drawn in place of a sheet's frames. */
+/** The automatic dashboard: the house of every sheet (or of one, `&house=`), its views drawn in place of a sheet's frames. */
 const automatic = dashboard === 'auto';
-const only = automatic ? null : (dashboard ?? params.get('sheet'));
+const only = automatic ? params.get('house') : (dashboard ?? params.get('sheet'));
 const language = params.get('lang') ?? 'en';
 const clock = params.get('clock') === '12' ? '12' : undefined;
 /** The house's status colours the URL asks for (none: every status the palette's). */
@@ -330,9 +333,26 @@ if (wallMoment)
   );
 const compare = (params.get('compare') ?? '').split(',').filter(isPaletteName);
 const shape = params.get('shape');
+/** The automatic dashboard asked for (`&template=`, `&options=`), and the house it is built from and drawn on. */
+const strategy = automaticConfig(params);
+const automaticHouse: (hass: HomeAssistant) => HomeAssistant =
+  (automatic && SHEETS[params.get('house') ?? '']?.house) || ((hass) => hass);
+/** A template asked for by name stands under its own views, as its header lists them: its tabs, then its pages. */
+const ownViews =
+  automatic && params.has('template')
+    ? (await automaticViews(automaticHouse(mock.hass()), strategy)).map(
+        ({ path, title, icon, tab }) => ({ path, title, icon, ...(tab ? {} : { subview: true }) }),
+      )
+    : undefined;
 /** Where the frames go: the stage, or one column per compared palette with its look scoped to it. */
 const columns = dashboard
-  ? [mountDashboard(stage, dashboardOptions(params), mock)]
+  ? [
+      mountDashboard(
+        stage,
+        { ...dashboardOptions(params), ...(ownViews ? { views: ownViews } : {}) },
+        mock,
+      ),
+    ]
   : compare.length
     ? compare.map((palette) => {
         const column = document.createElement('div');
@@ -461,13 +481,21 @@ async function showAutomatic(path: string): Promise<void> {
   const column = columns[0] ?? stage;
   for (const frame of column.querySelectorAll(':scope > .pg-frame')) frame.remove();
   cards.length = 0;
-  for (const frame of await automaticFrames(mock.hass(), path)) {
-    const mounted = mountFrame('auto', frame, mock.hass(), { width });
+  for (const frame of await automaticFrames(automaticHouse(mock.hass()), path, strategy)) {
+    const mounted = mountFrame('auto', { ...frame, hass: automaticHouse }, mock.hass(), { width });
     cards.push(...mounted.cards);
     column.append(mounted.el);
   }
+  // under its own header, the view is the one its tabs mark (a page behind them, the one its way back names)
+  if (ownViews) huiRoot()?.open(path);
 }
-if (automatic) await showAutomatic(params.get('view') ?? 'home');
+if (automatic) {
+  await showAutomatic(params.get('view') ?? ownViews?.[0]?.path ?? 'home');
+  // a tab's tap draws its view, as Home Assistant's does
+  huiRoot()?.addEventListener('view-opened', (event) => {
+    if (ownViews) void showAutomatic((event as CustomEvent<string>).detail);
+  });
+}
 
 // the mock and the shared text measurer, for the interaction tests; the cards, the sheets and a house with entities out
 // of reach, for a suite that mounts its own; the automatic dashboard's views
@@ -482,7 +510,7 @@ Object.assign(window, {
   fluvySheets: SHEETS,
   fluvyOutOfReach: outOfReachView,
   fluvyAutomaticView: showAutomatic,
-  fluvyAutomaticViews: () => automaticViews(mock.hass()),
+  fluvyAutomaticViews: () => automaticViews(automaticHouse(mock.hass()), strategy),
 });
 
 defineIconStubs();

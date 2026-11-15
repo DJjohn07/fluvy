@@ -62,6 +62,11 @@ export interface FrameSpec {
 export interface SheetSpec {
   readonly states: readonly StateSeed[];
   readonly frames: readonly FrameSpec[];
+  /**
+   * The house its frames stand on where it is none of the page's (rooms, floors and entities of its own): what an
+   * automatic dashboard asked for it is built from, and drawn on (`?dashboard=auto&house=<sheet>`).
+   */
+  readonly house?: (hass: HomeAssistant) => HomeAssistant;
   /** Registries the sheet's cards read (areas, floors, devices, entity entries); merged with every other sheet's. */
   readonly registry?: MockOptions['registry'];
   /** entity id → series returned for `history/history_during_period`. */
