@@ -7,35 +7,190 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ### Visible on upgrade
 
+Nothing new shows by itself in this release: every new function is a key, an option or a setting that is off until it is
+turned on, so an upgrade changes no dashboard. What changes without being asked is a fix, a language or a word:
+
+- Home Assistant's card picker, its card editor's title and Customise's list of Fluvy's cards name and describe every
+  card in the dashboard's language (Fluvy's choice in Preferences, else Home Assistant's), where they were English
+  everywhere; the Simplified Chinese words are @waphbs's (#193, thanks @waphbs).
+- A card added from the picker starts in the dashboard's language: the Chips card's two chips and the first titles of
+  the Entities, Expander, Heading, Bars and Stat tiles cards (#193).
+- Home Assistant's card editor shows its help link on every Fluvy card, opening the card's own page of the docs, where
+  it showed none (#193).
+- The Lock, Cover, Alarm and Vacuum cards say their state in a narrow column: where the badge has no room beside the
+  name, its word leads the line under it ("Unlocked · 21:32", then the word alone), in the warning's or the danger's
+  colour while it is one, where before they said it nowhere (#196, asked by @SentinelXS).
+- The Lock, Cover, Alarm, Vacuum, Fan and Thermostat cards draw their state in the Tone and the Colour their editor
+  offered, which did nothing on them before; a warning stays the warning's (#196).
+- The Energy flow card keeps its diagram where a long name left it no lane on one line or two, as on a phone read at 110
+  or 125 %: the name takes three lines, its lanes 56 px long, or 48 where its three lines leave less, where the card
+  turned into its list; a card that draws its diagram today draws it as it did (#202, reported by @waphbs, the
+  three-line breaker after his).
+- The Vehicle card draws the tank of a car that has one and no battery the card reads, where it drew an empty battery
+  with a dash, and its front boot reads "Bonnet"; a 12 V battery that wears the battery's class (Ford's fordpass and
+  Stellantis's on a petrol or diesel car) is no longer taken for the car's battery; a Ford on fordpass, a Mercedes-Benz
+  on mbapi2020 and a Volvo on Volvo Cars show their electric range, and a Toyota plug-in hybrid its usable charge (#207,
+  asked by @m3enzo).
+- An Expander asked by its `id` to open, or toggled, while it stands inside a folded one opens together with the
+  expanders round it, where the button that asked did nothing until the outer one had been opened by hand.
+- The Scenes card lays its scenes one a row wherever a name holds a word wider than half a tile, as it already did in
+  groups, and keeps the word whole, where a plain list broke it in two ("Concentrat-e" on a phone).
+- On a wall, the view, the exit corner, the way back, the screensaver and the wall's notices stay clear of the bars the
+  Companion app says it draws over the page, where they sat under an edge-to-edge tablet's status and system bars.
+- A large tile's readout labelled by its sensor's name ends in an ellipsis where the name is wider than its cell, where
+  it ran past it.
 - German reads as German and in Home Assistant's own words, thanks to @sebfrie: an unavailable entity says "Nicht
   verfügbar", a lock's buttons "Verriegeln" and "Entriegeln" and its states "Verriegelt" and "Entriegelt", every action
   field as Home Assistant's editors say it ("Verhalten bei Antippen", "… Festhalten", "… Doppeltippen", "… des
   Symbols"), idle energy "Leerlauf", phones "Smartphones", a button a "Taste", the wall's mode the "Wandmodus", and the
   settings' tabs "Erscheinungsbild" and "Anwendungsbereich"; editor switches say "… anzeigen", and phrases translated
-  word for word read as a German speaker says them.
+  word for word read as a German speaker says them (#192).
 
 ### Added
 
 - Czech, thanks to @DJjohn07: every card, page, dialog and editor form, the settings panel's language list and the
-  integration's own texts, with the naming words the automatic dashboards and the appliance cards read a Czech house
-  by, as written or as an entity id writes them (a name's ř is read as r). It says Home Assistant's own words where
-  Home Assistant names the same thing (Zapnuto, Vypnuto, Detekováno, Vytápění), counts in the forms Czech gives a whole
+  integration's own texts, with the naming words the automatic dashboards and the appliance cards read a Czech house by,
+  as written or as an entity id writes them (a name's ř is read as r). It says Home Assistant's own words where Home
+  Assistant names the same thing (Zapnuto, Vypnuto, Detekováno, Vytápění), counts in the forms Czech gives a whole
   number (2 až 4 zařízení, 5 zařízení), and greets "Dobré ráno" until 9:00, "Dobrý den" through the day and "Dobrý
-  večer" from 18:00; "Dobrou noc" is a farewell before sleep and never shows.
+  večer" from 18:00; "Dobrou noc" is a farewell before sleep and never shows (#198).
+- Bulgarian, asked for by @fak3mailer-art in Discussion #201: every card, page, dialog and editor form, the settings
+  panel's language list and the integration's own texts, with the naming words the automatic dashboards, the appliance
+  cards and a view's icon read a Bulgarian house by, as written or as an entity id writes them ("Съдомиялна" or
+  `sdomiialna`). It says Home Assistant's own Bulgarian words where Home Assistant names the same thing (Включено,
+  Изключено, Открит, Под охрана), counts as Bulgarian does (1 сензор, 5 сензора), and greets "Добро утро" until 11:00,
+  "Добър ден" through the day and "Добър вечер" from 18:00. We wrote it ourselves: corrections from a native speaker are
+  very welcome.
+- The docs have a page for every card: its picture in light or dark as your GitHub is, the YAML that draws it, a link to
+  try it in the live demo and one for each of its layouts, and a table of every option with what it does, its default
+  and its values, then its lists' fields and the older names it still reads; the cards' guide opens on an index of every
+  card with a thumbnail each (#199, asked by @sriramsv).
+- An assistant can read the cards too: `docs/cards.json` holds every card's options, defaults, values and example, and
+  `docs/llms.txt` leads to each card's page (#199, asked by @sriramsv).
+- The live demo is a shop window for every card: a menu and a search, a page for each card with each of its layouts live
+  on the simulated home, and View YAML with the exact YAML that draws it, ready to copy, beside a link to the card's
+  docs (#199, asked by @sriramsv).
+- The Lock, Cover, Alarm, Vacuum, Fan and Thermostat cards can show their state's colour beyond the circle, off until
+  asked: `tint` (never, when active, always) as a quiet wash, the card's edge or the control alone (`tint_style`: the
+  lock's knob, as the reporter drew it), a colour of your own for any state (`state_colors`), and a house default in
+  Appearance › Cards (#196, asked by @SentinelXS).
+- Tile, Tiles and Room cards: a compact or mini tile's line can say every reading it has with `line_readouts: all` ("On
+  · 70 % · 12 W · 0.4 kWh"), in their order after the state and the level, the last giving way first where the line is
+  short, a reading whole or not at all, the tile keeping its height; `readouts_layout: end` stands a compact tile's
+  readouts at its row's end as columns under their labels, as many as hold beside the name and the state, the rest on
+  the line (#197, asked by @IzeQube).
+- Tile, Tiles, Room and Template cards: a readout can be a sensor with its own `name`, `unit` and `decimals`, as the
+  Grid card's are: the name labels it in a large tile's foot and stands before its figure on a small tile's line ("CPU
+  55 °C"), and the editors list the readouts one by one (#197, asked by @IzeQube).
+- The Room card's quick actions can say their state, a sensor's reading with its unit, a door's Open or Closed, a
+  light's or a blind's level, in a pill under or beside each round's icon, for one round with `show_state: true` or for
+  all of them with `show_quick_states: true`, under the icon by default (the row and the head 20 px taller) or beside it
+  with `quick_state_position: beside`, a temperature giving way to "21.5°" and then a state leaving whole where the line
+  is short, never cut (#205, asked by @SentinelXS).
+- The Vehicle card draws a car that burns fuel: a petrol or diesel car's tank in the battery's place, its level on the
+  same ruler in the gas tone with its range beside it, in the warning's colour when it runs low, and a line that says
+  when AdBlue runs low, the oil needs checking or a service is due; `energy` (`auto`, `electric`, `fuel`, `hybrid`) says
+  what a car runs on, and `energy: hybrid` draws a plug-in hybrid's battery and its tank, each with its own range;
+  `tank_size` fills the tank from the litres a car reports where it gives no level; the rows `fuel_range`,
+  `fuel_volume`, `adblue`, `oil` and `service`; and the card finds them in the words of Kia and Hyundai, MySkoda,
+  Volkswagen, Renault, Volvo, MG, Toyota, Ford, Mercedes-Benz and Stellantis (#207, asked by @m3enzo).
+- The automatic dashboards take a Names option in the panel's Dashboards tab (`names: entity` or `full`): each tile, row
+  and Sensors card says the entity's own name, "Motion" where Home Assistant says "Dining table sensor Motion", told
+  apart by its device only where two would read alike, or the full name everywhere; left on Automatic, every dashboard
+  names as before (#200, asked by @Gnomi2).
+- The Entities, Tiles, Room lights, Openings, Bars, Readouts, Stat tiles, Distribution, Helpers, Actions, Scenes,
+  Cameras and Updates cards take `names` (`entity`, `device`, `full` or Home Assistant's name parts): how they name
+  every item that has no name of its own, with a Names field in their editors (#200, asked by @Gnomi2).
+- Every card with a head can take its name in two lines where one would end it in an ellipsis (`name_lines: 2`, beside
+  Show the icon), balanced, the head a line taller whatever the name says so cards side by side stay level, and the
+  automatic dashboards' Long names: Two lines writes it on the cards they name after the house's entities (#191, thanks
+  @waphbs).
+- The Rooms dashboard can show every room as a tab of its own: Rooms as: Tabs in the panel's Dashboards tab (`rooms_as:
+  tabs`) puts All rooms first, every room's card under its floor's heading, then a tab for each room in the house's
+  order, each one the room's page without its way back; a room hidden among the tabs in Customise stays a page behind
+  its card (#202, the direction by @waphbs).
+- Two new automatic dashboards, Lights and Climate, created from the panel's Dashboards tab: Home's Lights or Climate
+  view first, then a tab for each room with a light or a scene, or a thermostat, a fan or a reading, drawn as the room's
+  own page draws them, with options for tiles, switches, scenes, thermostats, names, the greeting's tabs, a background,
+  caps and what they leave out (#202, the direction by @waphbs).
+- Production: `badge: hour` makes the badge follow the hour read on the bars: an hour gone by that has a forecast says
+  its own share of it, the hour in progress its share up to this minute as the day's does, and an hour to come or one
+  with no forecast the day's; the head is laid out once for the widest the badge can say, so reading the bars never
+  moves it (#202, the idea by @waphbs).
+- In the settings panel's Sidebar section, the Head and Foot lists say that they stay in sight and that what is taller
+  scrolls with the rest (#195).
 
 ### Fixed
 
+- The dashboard sidebar no longer runs past its surface: when its head or foot leaves the middle no room for a row (an
+  Expander open in the head or the foot, many pinned pages on a short tablet, a tall head in a phone's drawer), the
+  whole sidebar scrolls as one inside its surface, by wheel or by finger, down to the foot's last card, and neither the
+  page nor the sidebar moves (#195, reported by @SentinelXS).
+- The dashboard sidebar's middle fades at its foot as soon as a card in it grows, such as an Expander opened by a tap,
+  instead of waiting for a scroll (#195).
+- On a wall, the dashboard sidebar starts at the top of the screen as soon as the wall comes on, where over a long view
+  it kept the header's 56 px above it; on a phone, its drawer and the round that opens it keep clear of the status bar
+  and the system bar that the Companion app reports, at any device size.
+- The Thermostat card shows the fan speed its unit runs at where its firmware does not offer it (an air conditioner at
+  Home Assistant's `middle` while it lists Low and High): first in the fan row, chosen at full strength and taking no
+  tap, where no chip was marked and the card looked unset; `middle` says Mid in every language, and a preset the climate
+  does not list shows the same way (#202, reported by @waphbs).
+- The Thermostat card and its details sheet show the mode the device runs where the card's own `modes` list leaves it
+  out, or past a water heater's or a humidifier's first six, first and chosen, where no mode was marked; the Fan card's
+  presets, the Vacuum card's suction, a Helpers select whose row's `options` leave out the option in force and the
+  Remote card's sources do the same (#202).
+- The Media card keeps every source the player lists when the source in force is not among them and there is room, where
+  it dropped the last one (#202).
+- The form Home Assistant's pencil opens on an automatic dashboard shows a value written by hand that it does not offer
+  (`tile_size: mini`, `camera_refresh: 15`) as it is written and keeps it when another field changes, where it showed
+  the default and deleted the key; the settings panel's Dashboards tab marks such a value instead of the default.
+- The Media card that lets its art go in a narrow column makes its head the height of its three lines instead of leaving
+  an empty band above the seek line (#191, reported by @waphbs).
+- The automatic dashboards read every name without its accents, as the appliance card and the lights did: a Czech "Dům",
+  a Hungarian "Ház" or a Slovak "Úložisko" now finds its energy role, a "Dvůr" is outdoors, and a child lock's switch is
+  never an appliance, whatever the entity's id says.
+- The appliance card and the automatic dashboards rule out a robot that cleans or mows, but a food processor ("Kuchyňský
+  robot", "Robot kuchenny") is a blender.
+- Where it went: a word with no meter behind it (the house, what is not measured) is read by a screen reader as its name
+  and figure, where it took a tab stop with no role and no name.
+- A Tiles or Scenes card in groups keeps its height while its groups load, so nothing under it moves as they land.
+- The Energy period card's sheet: a finger on its scrim no longer moves the page under it, as with every other sheet.
+- A details sheet opens at the size its card is drawn at, never at a transform passing over the card as it is tapped.
+- Two copies of one scene on a Scenes card that take the card's double tap are two buttons: a tap on each runs each
+  scene, where a quick tap on each ran the double tap.
+- Customise's rows and the settings panel's room order can be dragged after a reload on the Dashboards tab, where they
+  waited for a dashboard to have been opened first.
 - A Grid card's price that cannot be read, and a clock's weather out of reach, say a long word for unavailable whole
   (German's "Nicht verfügbar"): the row's circle gives way to it, and a line too narrow for it says "—", where the word
   was cut.
 - A lock's, a camera's or an alarm's row whose state is one long word in Home Assistant's own words (Czech's
   "Nedetekováno") keeps its name: where the state would leave the name under its room in a narrow column, the state
   stands under the name, in the line's place, and the row keeps its height.
+- A date in figures in a row's pill leaves out the letters a language writes after the year (Bulgarian's "10.01.27 г.").
+- The Tiles card's editor no longer offers a Readouts field for the whole group, which no tile ever read; each tile
+  keeps its own readouts in its form.
+- The demo's History and Activity pages no longer say they open a page of Home Assistant as they open.
 
 ### Development
 
-- Development dependencies: prettier 3.10.0, typescript-eslint 8.72.2, vite 8.3.8 and sortablejs 1.15.7; the automatic
-  dashboards' chunk may weigh 30 KB (a seventeenth language's naming words).
+- The cards' names and descriptions moved from the code into the catalogues (`cards`, and `cards-about` in its own
+  `about` chunk): every page is 3.0 KB lighter and each language's catalogue 3.6 to 4.4 KB heavier (#193).
+- One spec of examples (`tools/docs/src/gallery.ts`) draws the playground's new gallery sheet, the docs' pictures (`pnpm
+  docs:images`, a picture rewritten only where it changed) and the YAML the docs and the demo print, and `pnpm check`
+  holds them, the pictures, every select's and switch's default and a sentence for every option to the code (#199).
+- The demo's smoke test opens every card's page and every example's YAML against the docs' own writer, Copy, deep links,
+  back and forward, and the menu and the search on a phone and a desktop; the demo fetches the settings panel, Activity
+  and History only when they are opened.
+- One shared module, `shared/state-tint.ts`, shows any tone a card says beyond its circle, and the editor can hold a
+  group of fields under a key of its own; settings version 7.
+- Every sheet of ours draws its dialog from one shared frame, where nine kept a copy each; nothing changes on screen.
+- The playground's automatic mode builds any of the seven dashboards with its options on a sheet's own house
+  (`&template=rooms&options={"rooms_as":"tabs"}&house=room-tabs`); new sheets `in-force`, `head-lines`, `names`,
+  `tiles-readouts`, `room-tabs`, `state-tint` and `gallery`; the dashboard sidebar's suite scrolls with a real wheel and
+  a real finger.
+- Development dependencies: prettier 3.10.0, typescript-eslint 8.72.2, vite 8.3.8 and sortablejs 1.15.7.
+- Budgets: a language's catalogue 48 KB (every card's name and description), the automatic dashboards' chunk 32 KB, the
+  energy family 88 KB, the appliances 70 KB, the Vehicle card 26 KB and the cards' editors 16 KB.
 - The settings panel's tests wait for what they wait on (a section's own file landing, a save's writes done, the apply
   bar gone) where they waited a fixed time: on a loaded runner one or another of them failed now and then.
 
