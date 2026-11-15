@@ -1,0 +1,47 @@
+/* The Cover card's sheet: the position ruler and its side column. Primitives in fluvy.css. */
+.dv-cover {
+  display: flex;
+  gap: 24px;
+  height: 160px;
+  margin-top: 16px;
+}
+
+.dv-cover__ruler {
+  display: flex;
+  gap: 8px;
+}
+
+.dv-vlabels {
+  position: relative;
+  width: 56px;
+}
+
+.dv-vlabels span {
+  position: absolute;
+  right: 0;
+  width: 56px;
+  margin-top: -8px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  color: var(--fluvy-text-disabled);
+}
+
+.dv-cover__side {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dv-cover__tilt {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* the 44 stepper on the 48 readout's ink centre (the nearest grid position) */
+  height: 48px;
+}
+
+.dv-cover__tilt .fv-stepper {
+  margin-bottom: 0;
+}

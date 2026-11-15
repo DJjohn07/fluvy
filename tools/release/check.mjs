@@ -144,6 +144,9 @@ const BUDGETS = {
   sidebar: 10_240,
   // the Slider card: its card on the tile's and its English, its editor with the forms (1.11.1, #77)
   slider: 8192,
+  // the Cover card (1.22: it left core): the blind's, the garage door's, the gate's and the valve's card and its sheet,
+  // the tilt's slats, its presets, its numbers turned round (#203)
+  cover: 8192,
   // the Vacuum card (1.20: it left core, 1.4 KB of what every page loads): the robot's and the mower's card, which
   // robots a hand can drive and how (#178), the drive pad's English
   vacuum: 8192,

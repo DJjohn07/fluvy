@@ -4,7 +4,6 @@ import { FluvyActionsCard } from './actions/actions-card.js';
 import { FluvyBarsCard } from './bars/bars-card.js';
 import { FluvyChipsCard } from './chips/chips-card.js';
 import { FluvyClockCard } from './clock/clock-card.js';
-import { FluvyCoverCard } from './cover/cover-card.js';
 import { FluvyDistributionCard } from './distribution/distribution-card.js';
 import { FluvyEntitiesCard } from './entities/entities-card.js';
 import { FluvyFanCard } from './fan/fan-card.js';
@@ -36,6 +35,7 @@ import { AUTOMATIONS_FAMILY } from './automations-family.js';
 import { CALENDAR_FAMILY } from './calendar-family.js';
 import { CHART_FAMILY } from './chart-family.js';
 import { CLIMATE_FAMILY, loadDoing } from './climate-family.js';
+import { COVER_FAMILY } from './cover-family.js';
 import { detailsSheets } from './details-family.js';
 import { DEVICES_FAMILY } from './devices-family.js';
 import { ENERGY_FAMILY, ENERGY_PERIOD_FAMILY, type FamilyEntry } from './energy-family.js';
@@ -66,7 +66,6 @@ const CATALOGUE: readonly CatalogueEntry[] = [
   ['fluvy-light-card', FluvyLightCard],
   ['fluvy-lights-card', FluvyLightsCard],
   ['fluvy-entities-card', FluvyEntitiesCard],
-  ['fluvy-cover-card', FluvyCoverCard],
   ['fluvy-fan-card', FluvyFanCard],
   ['fluvy-sensor-card', FluvySensorCard],
   ['fluvy-readouts-card', FluvyReadoutsCard],
@@ -104,7 +103,7 @@ type Family = readonly [
 ];
 
 /**
- * The weather, calendar, template, web page, Expander, Slider, Vacuum, Thermostat, remote, items, chart and Swipe
+ * The weather, calendar, template, web page, Expander, Slider, Cover, Vacuum, Thermostat, remote, items, chart and Swipe
  * cards, the Energy period and Energy usage cards, and the media, energy, devices, automations, appliances and alerts
  * families.
  */
@@ -123,6 +122,7 @@ const FAMILIES: readonly Family[] = [
   [WEB_FAMILY, () => import('./web-cards.js')],
   [EXPANDER_FAMILY, () => import('./expander-cards.js')],
   [SLIDER_FAMILY, () => import('./slider-cards.js')],
+  [COVER_FAMILY, () => import('./cover-cards.js')],
   [VACUUM_FAMILY, () => import('./vacuum-cards.js')],
   [CLIMATE_FAMILY, () => import('./climate-cards.js')],
   [VEHICLE_FAMILY, () => import('./vehicle-cards.js')],
@@ -178,7 +178,6 @@ export {
   FluvyBarsCard,
   FluvyChipsCard,
   FluvyClockCard,
-  FluvyCoverCard,
   FluvyDistributionCard,
   FluvyEntitiesCard,
   FluvyFanCard,

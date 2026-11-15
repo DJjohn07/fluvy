@@ -15,7 +15,8 @@ import { appliancesHouseHeight } from './appliance/appliances-card.js';
 import { thermostatHeight } from './climate-family.js';
 import { clockHeight, type ClockCardConfig } from './clock/clock-card.js';
 import { offersDaily } from './clock/sky.js';
-import { coverHeight, type CoverCardConfig } from './cover/cover-card.js';
+import { coverHeight } from './cover-family.js';
+import type { CoverCardConfig } from './cover/cover-card.js';
 import { alarmHeight, camerasHeight, lockHeight } from './devices-family.js';
 import {
   batteriesHeight,

@@ -24,6 +24,7 @@ import {
   type RulerChangeDetail,
   type RulerWindowDetail,
 } from '@fluvy/ui';
+import { coverStyles } from '@fluvy/ui/styles/cover';
 
 import { css, html, nothing, type CSSResultGroup, type TemplateResult } from 'lit';
 
@@ -44,7 +45,18 @@ import {
 import { ITEM_ALIASES, type AliasSpec, type RowStyle } from '../shared/config.js';
 import { chipRow } from '../shared/chips.js';
 import { HeadFit } from '../energy/head.js';
-import { COMPACT, drawnAs, listLength } from '../shared/heights.js';
+import {
+  CLOSE,
+  CLOSE_TILT,
+  coverHeight,
+  OPEN,
+  OPEN_TILT,
+  SET_POSITION,
+  SET_TILT_POSITION,
+  STOP,
+  USUAL,
+} from '../cover-family.js';
+import { drawnAs } from '../shared/heights.js';
 import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import {
   fitValueRow,
@@ -77,32 +89,6 @@ export interface CoverCardConfig extends FluvyCardConfig, StateTintConfig {
   show_favorites?: boolean;
   /** The slats' angle at 100 % tilt. When set, tilt reads and steps in degrees (15°) instead of percent. */
   tilt_angle?: number;
-}
-
-/* cover / valve supported_features */
-const OPEN = 1;
-const CLOSE = 2;
-const SET_POSITION = 4;
-const STOP = 8;
-const OPEN_TILT = 16;
-const CLOSE_TILT = 32;
-const SET_TILT_POSITION = 128;
-/** What a cover draws where the house is not there to say (`layoutHeight`; one never read): position, commands. */
-const USUAL = OPEN | CLOSE | SET_POSITION | STOP;
-
-/**
- * The card's height at a 360 column, for the automatic dashboard's columns, for what the cover does (`features`, as
- * the house describes it: `house-heights.ts`): the ruler with its side column where it takes a position (the whole
- * card where the house is not there to say); else the tilt's readout and stepper over the commands; else the head
- * and the commands.
- */
-export function coverHeight(config: CoverCardConfig, features = USUAL): number {
-  if (config.variant === 'compact') return COMPACT;
-  const tilt =
-    config.show_tilt !== false && (features & (SET_TILT_POSITION | OPEN_TILT | CLOSE_TILT)) !== 0;
-  const positioned = (features & SET_POSITION) !== 0;
-  const favorites = config.show_favorites !== false && listLength(config, ['favorites']) ? 88 : 0;
-  return positioned ? 328 + favorites : tilt ? 224 : COMPACT;
 }
 
 /** The ruler's band, and its words (56) with the 8 before the band: what the side column beside them does not get. */
@@ -142,6 +128,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
   static override styles: CSSResultGroup = [
     ...(Card.styles as CSSResultGroup[]),
     sheetStyles.devices,
+    coverStyles,
     motionStyles,
     css`
       /* the sheet drew 65 %: at 0 % and 100 % the 36 px knob needs 18 px past the scale's ends, clear of the head and of the action row */

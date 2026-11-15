@@ -42,7 +42,7 @@ pnpm build
 ```
 
 The bundle is one ES module, `fluvy.js`, that imports `chunks/core-<hash>.js` (everything a page needs) and fetches
-`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,about,expander,expander-editor,swipe,sidebar,slider,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,thresholds,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
+`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,about,expander,expander-editor,swipe,sidebar,slider,cover,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,thresholds,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
 on demand — the Activity page, the History page, our history in Home Assistant's details dialog (the first time a dialog
 shows it), the settings panel (and Customise, the first time one of its dashboards is customised; a dashboard's
 sidebar, the first time its section is opened), what they
@@ -53,7 +53,7 @@ from their configs alone), wall mode (on a device that is a wall), the chart eng
 sensor card in core reaches it through `src/shared/chart-load.ts`, the energy family, the History page and the Chart
 card import it from their own chunks), a room's quick actions (fetched as the bundle starts too: the room card in
 core reaches them through `loadQuickActions`; and what says what a thermostat is doing, which a tile and a room's row
-asked to say it reach through `doingReading`, in the Thermostat card's chunk), the weather, calendar, template, Energy period and usage, web page, Expander, Swipe, Slider, Vacuum, Thermostat, remote, Vehicle, items and
+asked to say it reach through `doingReading`, in the Thermostat card's chunk), the weather, calendar, template, Energy period and usage, web page, Expander, Swipe, Slider, Cover, Vacuum, Thermostat, remote, Vehicle, items and
 chart cards and the media, energy, devices, appliances, automations and alerts families (fetched as the bundle starts:
 their cards are announced in core — `src/energy-family.ts` and its siblings, their tags and heights — and defined as
 `src/energy-cards.ts` and its siblings land; Home Assistant builds a card again the moment its tag is defined), the
@@ -110,6 +110,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `swipe` | 8 KB | the Swipe card (1.22, #206): what remembers where it was left, what a finger's drag is theirs on, its English; it holds its cards with the Expander's chunk |
 | `sidebar` | 10 KB | a dashboard's own sidebar (1.21, #187): the element beside the views, what reads `fluvy_sidebar:` and puts it in Home Assistant's view row, its English; fetched by the first dashboard whose configuration asks for one |
 | `slider` | 8 KB | the Slider card on the tile's, its English |
+| `cover` | 8 KB | the Cover card: the blind's, the garage door's, the gate's and the valve's (1.22: it left core), the tilt's slats, its presets, its numbers turned round (#203) |
 | `vacuum` | 8 KB | the Vacuum card: the robot's and the mower's (1.20: it left core), which robots a hand can drive and how (#178), the drive pad's English |
 | `vacuum-drive` | 8 KB | the drive pad (1.20, #178): the ring with Stop in its middle, a robot's remote control from its start to its stop, its sheet; fetched by the first Vacuum card that draws a Drive command |
 | `ring` | 4 KB | the ring (1.20): the disc of four arrows round a middle key the TV remote's D-pad and the drive pad both draw |
@@ -127,7 +128,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `calendar` | 16 KB | the calendar card: its views, what reads its events, its sheet |
 | `editor` | 8 KB | the cards' visual editor |
 | `fields` | 9 KB | the fields every card's editor is built of: the schema's helpers, a list's row form, the editors' English |
-| `forms` | 16 KB | the editors of the cards every page carries and of the template, Slider, Vacuum, Thermostat and remote cards: their forms, lists and defaults |
+| `forms` | 16 KB | the editors of the cards every page carries and of the template, Slider, Cover, Vacuum, Thermostat and remote cards: their forms, lists and defaults |
 | `view-icons` | 6 KB | a view's icon from its name |
 | `glass` | 4 KB | what a see-through card wears: its sheet's writer (every fill at its opacity) and its rules (its solid overlays, its blur) |
 | `quiet` | 4 KB | what a card quiet out of reach wears: the rules that give the unavailable skin's paint back, one sheet every such card adopts |
