@@ -38,6 +38,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `image` | *Own picture (address or entity)*. A picture of your own in the dial’s circle: an address, or an entity whose picture it is. | text |  |  |
 | `subtitle` | *Subtitle*. The line under the title. Your own words, an entity (its state), or a template such as {{ states('sensor.x') }}. | text |  |  |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
+| `show_badge` | *Show the badge*. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `variant` | *Style*. The card’s layout. | choice | `dial` | `dial`, `compact`, `ruler` |
 | `show_stepper` | *Show the − and + buttons*. Shows the − and + buttons. | boolean | `true` |  |
@@ -64,7 +65,6 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 | Key | What it does | Type | Default | Values |
 | --- | --- | --- | --- | --- |
-| `show_state` | *Show what it is doing*. Says in the head what it is doing. | boolean | `true` |  |
 | `state_entity` | *Action read from*. Another entity whose state says what the thermostat is doing. For a thermostat that says no action: a sensor or a switch that does. | entity (sensor, binary_sensor, switch, input_boolean) |  |  |
 | `show_valve` | *Show the valve’s opening*. Shows how far the valve is open beside what it is doing. | boolean | `false` |  |
 | `valve_entity` | *Valve*. A sensor of the valve’s opening. Empty: found on its device. | entity (sensor, number) |  |  |
@@ -92,6 +92,7 @@ Names the card still reads, so a dashboard written before keeps working. They ar
 
 | Older name | Read as |
 | --- | --- |
+| `show_state` | `show_badge` |
 | `sub` | `subtitle` |
 | `meta` | `subtitle` |
 | `layout` | `variant` |

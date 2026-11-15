@@ -35,6 +35,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `period` | *What it shows*. Shows the power now, or a period’s totals. | choice | `live` | `live`, `day`, `week`, `month` |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
+| `show_badge` | *Show the badge*. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `collection_key` | *Follow a date picker*. Makes the card follow an Energy date picker on the same dashboard. The key of an Energy date picker on this dashboard (Fluvy’s Energy period card or Home Assistant’s) | choice or text | none |  |
 | `show_period` | *Day · Week · Month chips*. Shows the chips that choose the period. | boolean | `true` |  |

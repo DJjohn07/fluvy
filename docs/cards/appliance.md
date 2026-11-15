@@ -41,6 +41,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `name` | *Name*. The name the card shows, in place of the entity’s own. | name |  |  |
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
+| `show_badge` | *Show the badge*. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `unit` | *Drum or cavity*. Which drum or cavity the card shows, where it has two. | choice | `both` | `both`, `main` (The first), `sub` (The second) |
 | `picture` | *Picture*. The card’s picture: the kind’s drawing, its icon, or none. | choice | `art` | `art` (Picture), `icon`, `none` |

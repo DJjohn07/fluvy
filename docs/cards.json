@@ -2594,6 +2594,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -2711,13 +2717,6 @@
             "all": "All",
             "essentials": "The essentials"
           }
-        },
-        {
-          "key": "show_state",
-          "label": "Show what it is doing",
-          "does": "Says in the head what it is doing.",
-          "type": "boolean",
-          "default": true
         },
         {
           "key": "state_entity",
@@ -2936,6 +2935,10 @@
         }
       ],
       "older_names": [
+        {
+          "from": "show_state",
+          "to": "show_badge"
+        },
         {
           "from": "sub",
           "to": "subtitle"
@@ -5132,6 +5135,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -5191,6 +5200,73 @@
           "does": "Shows the favourite positions.",
           "type": "boolean",
           "default": true
+        },
+        {
+          "key": "direction",
+          "label": "Position counts",
+          "type": "choice",
+          "default": "up",
+          "values": {
+            "up": "How far it is open",
+            "down": "How far it is down"
+          }
+        },
+        {
+          "key": "invert_position",
+          "label": "Position reversed",
+          "helper": "For a cover that reports 100 % when it is closed; best put right in its integration",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "key": "position_presets",
+          "label": "Position presets",
+          "type": "choices or text",
+          "values": {
+            "0": "0 %",
+            "25": "25 %",
+            "50": "50 %",
+            "75": "75 %",
+            "100": "100 %"
+          }
+        },
+        {
+          "key": "open_label",
+          "label": "Word for open",
+          "type": "text"
+        },
+        {
+          "key": "closed_label",
+          "label": "Word for closed",
+          "type": "text"
+        },
+        {
+          "key": "tilt_style",
+          "label": "Tilt as",
+          "type": "choice",
+          "default": "steps",
+          "values": {
+            "steps": "Steps",
+            "slats": "Slats"
+          }
+        },
+        {
+          "key": "invert_tilt",
+          "label": "Tilt reversed",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "key": "tilt_presets",
+          "label": "Tilt presets",
+          "type": "choices or text",
+          "values": {
+            "0": "0 %",
+            "25": "25 %",
+            "50": "50 %",
+            "75": "75 %",
+            "100": "100 %"
+          }
         },
         {
           "key": "slider_style",
@@ -5852,6 +5928,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -6229,6 +6311,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -6646,6 +6734,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -8006,6 +8100,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -8420,6 +8520,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -9931,6 +10037,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -16879,6 +16991,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -17079,6 +17197,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -17983,6 +18107,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -19753,6 +19883,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -20132,6 +20268,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -20448,6 +20590,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -20749,6 +20897,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -21564,6 +21718,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -22452,6 +22612,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -23528,6 +23694,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
@@ -25470,6 +25642,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -25900,6 +26078,12 @@
           }
         },
         {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
+        },
+        {
           "key": "name_lines",
           "label": "Lines for the name",
           "does": "Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name.",
@@ -26265,6 +26449,12 @@
             "always": "Always",
             "never": "Never"
           }
+        },
+        {
+          "key": "show_badge",
+          "label": "Show the badge",
+          "type": "boolean",
+          "default": true
         },
         {
           "key": "name_lines",
