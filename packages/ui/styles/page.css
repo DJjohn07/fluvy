@@ -155,8 +155,9 @@
   margin: 0 16px;
 }
 
-/* a phone's dates, the History's and the Activity's: on the sheet's own 24 bottom, clear of the phone's home bar */
-.fv-drawer--dates .fv-drawer__body {
+/* a phone's dates, the History's and the Activity's: on the sheet's own 24 bottom, clear of the phone's home bar; a
+   side drawer keeps the drawer's 16 */
+:host([compact]) .fv-drawer--dates .fv-drawer__body {
   padding-bottom: calc(24px + var(--safe-area-inset-bottom, 0px));
 }
 
