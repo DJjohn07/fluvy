@@ -163,6 +163,7 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `room_name_position` | `bottom` (default), `top` | home, rooms | where a room's photo carries its name: at its foot beside the quick actions, or at its top, the foot then theirs alone; the panel offers it while the rooms may be photos |
 | `room_readout_style` | `row` (default), `wrap` | home, rooms | a photo's readouts on one row, what does not hold giving way (the words to icons, the figures' size, their units), or wrapped so the words stay, as before 1.19 |
 | `room_readout_labels` | `auto` (default: words while they hold, icons where they would not), `words`, `icons`, `none` | home, rooms | how a photo's readouts are labelled |
+| `names` | `auto` (default), `entity`, `full` | home, rooms, security, wall | how the dashboard names what it names by entity (1.22): as it always did, each by its entity's own name (*Dining table sensor Motion* is *Motion*, two alike on one card told apart by their devices), or by Home Assistant's friendly name everywhere ([names](#names)) |
 | `areas` | a list of area ids | wall | the rooms the wall shows, in that order, an empty one kept (default: every room with something in it) |
 | `camera_refresh` | `5`, `10` (default), `30` | security | seconds between the cameras' stills |
 | `scenes_max` | `4`, `6` (default), `8` | wall | how many scenes the wall offers as chips |
@@ -216,6 +217,33 @@ The rooms stand in the house's order, the panel's *Dashboards › Rooms in order
 view's groups, the lists a "N more" page splits by room, a wall's rooms and the room pages' tabs of the Rooms
 dashboard. *Automatic*, the default, is each list as it always sorted: the rooms floor by floor and A to Z, a list
 by room its biggest room first. What Customise moved on a dashboard stays that dashboard's own, over the house's.
+
+## Names
+
+A dashboard names its tiles, its rows, its scenes and the cards it builds an entity each by itself: an entity's own
+name, without its device's in front of it, or its device's where the own name only says what it reads (*Dining table
+sensor Motion* is *Dining table sensor*), while its Sensors cards list Home Assistant's friendly names. `names` asks
+for one rule everywhere instead (1.22). Unset (*Automatic* in the panel's *Dashboards* tab, under *Names*), each
+dashboard names as it always did:
+
+```yaml
+strategy:
+  type: custom:fluvy-home
+  names: entity         # each entity by its own name; `full`: Home Assistant's friendly name
+```
+
+- **`names: entity`.** Every tile, row, scene and card of one entity the dashboard names, its Sensors cards too, says
+  the entity's own name, as Home Assistant's name picker reads *Entity name*: *Dining table sensor Motion* is
+  *Motion*, and an entity named by its device alone (a door that is its device's main entity) says its device's.
+  Where two on one card would read alike, each gains its device after a "·" (*Motion · Dining table sensor*,
+  *Motion · Kitchen sensor*), and only then. Under a room's label a name still reads short (*Kitchen Pendant* is
+  *Pendant*).
+- **`names: full`.** Home Assistant's friendly name everywhere (*Dining table sensor Motion*), whole under a room's
+  label too.
+
+What is named by its device or its place keeps its name either way: the batteries and the phones by their devices,
+the readings and the energy's meters by their places, the updates and the helpers as Home Assistant says them. A card
+written by hand takes its own `names` ([the cards](cards.md)).
 
 ## A background of its own
 

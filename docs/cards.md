@@ -50,6 +50,29 @@ name:
 and "Baum Garten" with `[{ type: entity }, { type: area }]`. A card's editor offers Home Assistant's name picker for
 its name, and for each item's name in its lists, wherever an entity is beside it; words you type stay words.
 
+A card of a list (Entities, Tiles, Room lights, Openings, Bars, Readouts, Stat tiles, Distribution, Helpers, Actions,
+Scenes, Cameras, Updates) also takes `names` (1.22): how it names every item that gives no `name` of its own.
+`full`, the default, is the friendly name; `entity` is each entity's own name (its device's where it has none, as a
+door that is its device's main entity), `device` its device's, and Home Assistant's parts are read as a `name` reads
+them (`names: [{ type: entity }, { type: area }]`). A card of one device's entities reads them by their own names:
+
+```yaml
+type: custom:fluvy-entities-card
+title: Washing machine
+names: entity            # "Washing machine Power" reads "Power"
+entities:
+  - sensor.washing_machine_power
+  - sensor.washing_machine_energy
+  - binary_sensor.washing_machine_door
+  - entity: sensor.washing_machine_time_left
+    name: Ready in       # an item's own name always stands
+```
+
+An entity of no device (a helper) keeps its name whatever is asked, and a card tells no two alike apart: two
+"Motion" rows of two sensors stay "Motion", so name those yourself, or ask for `device`. The editor offers *Names*
+over the list while one of its entities belongs to a device. On the automatic dashboards the dashboard's own `names`
+says it ([the automatic dashboards](automatic-dashboard.md#names)).
+
 Every card holds from the floor of a narrow column — 152 px for a card that takes half a section, 211 px for a full
 one — up to a wall's 520 px, in light and dark, in every language Fluvy speaks; `unavailable`, `unknown` and a
 missing entity are drawn on purpose (a quiet surface, inert controls, a dash for the value), never as an error, and
