@@ -517,13 +517,14 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
         : classLabel.charAt(0).toUpperCase() + classLabel.slice(1),
     );
 
-    // the head fitted to its column: the badge steps aside before the name is cut, then the sub, then the icon
+    // the head fitted to its column: the badge steps aside before the name is cut, its word then leading the line
+    // (the commands say which way it goes, never the state in words), then the rest of the line, then the icon
     const fitted = this.head.fit({
       width: this.contentWidth,
       title: name,
       sub: headSub(sub, this.contentWidth),
       shorter,
-      badge: { text: shownStateText(this.hass, view, shown), tone },
+      badge: { text: shownStateText(this.hass, view, shown), tone, lead: true },
     });
     // the commands in equal cells, two rows where one would leave a cell under a finger's 44
     const cells = actionGap(this.contentWidth, row.length);
@@ -537,7 +538,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
         tone,
         title: name,
         name: true,
-        sub: fitted.sub,
+        sub: fitted.line,
         trailing: fitted.badge,
         cut: fitted.cut,
         ...this.headActions(view.id),

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
-import { nothing } from 'lit';
+import { nothing, render, type TemplateResult } from 'lit';
 import { describe, expect, it } from 'vitest';
-import { HeadFit } from './head.js';
+import { HeadFit, warned } from './head.js';
 
 /** A fitter on a host that only registers controllers; its ruler is a stub — 8 px a glyph, a pill adds its sides. */
 function fitter(): HeadFit {
@@ -298,5 +298,100 @@ describe('a badge of the person’s own (Discussion #156)', () => {
     const fitted = faces().fit({ ...head, badge: { ...head.badge, own: false }, width: 226 });
     expect(fitted.badge).toBe(nothing);
     expect(fitted.sub).toBe('7.4 kWh');
+  });
+});
+
+describe('a device’s state that gives way leads the line (#196)', () => {
+  /** The ruler nearer the head's faces: a title's glyph 8 px, a sub's 6, a badge's 7 and its sides. */
+  function faces(): HeadFit {
+    const fit = fitter();
+    Object.assign(fit as unknown as { ruler: unknown }, {
+      ruler: {
+        width: (cls: string, text: string) => text.length * (cls === 'fv-card__sub' ? 6 : 8),
+        pill: (_class: string, text: string, sides: number) => text.length * 7 + sides,
+        clear() {},
+      },
+    });
+    return fit;
+  }
+  /** What a line draws, its leads in their ink: each span's tone, then its words. */
+  const drawn = (line: string | TemplateResult): string[] => {
+    const box = document.createElement('div');
+    render(line, box);
+    return [...box.querySelectorAll('.fv-card__warn')].map(
+      (span) => `${span.className.replace('fv-card__warn fv-tone--', '')}: ${span.textContent}`,
+    );
+  };
+  const lock = {
+    title: 'Front door lock',
+    sub: 'Since 14:51',
+    badge: { text: 'Unlocked', tone: 'warning' as const, lead: true },
+  };
+
+  it('stays a badge where it stands beside the name, the line as it was', () => {
+    const fitted = faces().fit({ ...lock, width: 320 });
+    expect(fitted.badge).not.toBe(nothing);
+    expect(fitted.line).toBe('Since 14:51');
+  });
+
+  it('leads the line where it gave way, the rest after it, in the warning’s ink', () => {
+    // 132: the badge leaves the name no room; the circle gives the line its room, and the whole line holds
+    const fitted = faces().fit({ ...lock, width: 132 });
+    expect(fitted.badge).toBe(nothing);
+    expect(fitted.sub).toBe('Unlocked · Since 14:51');
+    expect(fitted.icon).toBe(false);
+    expect(drawn(fitted.line)).toEqual(['warning: Unlocked']);
+  });
+
+  it('keeps the line’s shorter forms after it before the word stands alone', () => {
+    const by = { ...lock, sub: '21:40 by Marta', shorter: ['21:40'] };
+    expect(faces().fit({ ...by, width: 132 }).sub).toBe('Unlocked · 21:40');
+    expect(faces().fit({ ...by, width: 112 }).sub).toBe('Unlocked · 21:40');
+    expect(faces().fit({ ...by, width: 80 }).sub).toBe('Unlocked');
+  });
+
+  it('stays when the line gives way after it: the word alone, never cut', () => {
+    const fitted = faces().fit({ ...lock, width: 112 });
+    expect(fitted.sub).toBe('Unlocked');
+    expect(drawn(fitted.line)).toEqual(['warning: Unlocked']);
+  });
+
+  it('is the line where the card has none, and in the line’s ink where its tone is no warning', () => {
+    const closed = { text: 'Closed', tone: 'neutral' as const, lead: true };
+    const fitted = faces().fit({ ...lock, sub: undefined, badge: closed, width: 112 });
+    expect(fitted.sub).toBe('Closed');
+    expect(fitted.line).toBe('Closed');
+  });
+
+  it('leaves the person’s own line that says it as it is', () => {
+    const own = faces().fit({ ...lock, sub: 'unlocked', width: 112 });
+    expect(own.sub).toBe('unlocked');
+    const other = faces().fit({ ...lock, sub: 'Porch', width: 132 });
+    expect(other.sub).toBe('Unlocked · Porch');
+  });
+
+  it('inks the statuses a line begins with, each in its tone, and stops at the first that is none', () => {
+    const line = 'Battery 8 % · Unlocked · Since 14:51';
+    expect(
+      drawn(
+        warned(line, [
+          ['Battery 8 %', 'warning'],
+          ['Unlocked', 'danger'],
+        ]),
+      ),
+    ).toEqual(['warning: Battery 8 %', 'danger:  · Unlocked']);
+    // a quiet word ends them: "Idle" in the heat's ink would read as heating
+    expect(warned('Idle · Battery 8 %', [['Idle', 'neutral']])).toBe('Idle · Battery 8 %');
+    // a lead the line does not begin with is said in none
+    expect(warned('Since 14:51', [['Unlocked', 'warning']])).toBe('Since 14:51');
+    // an empty lead is skipped
+    expect(
+      drawn(
+        warned('Unlocked', [
+          ['', 'warning'],
+          ['Unlocked', 'warning'],
+        ]),
+      ),
+    ).toEqual(['warning: Unlocked']);
   });
 });

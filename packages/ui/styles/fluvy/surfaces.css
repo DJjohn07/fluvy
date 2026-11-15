@@ -130,6 +130,12 @@
   text-overflow: ellipsis;
 }
 
+/* what the head's line warns of before the rest of it (a low battery, an open window, a state that leads the line
+   while it is a warning or a danger): in its tone's ink */
+.fv-card__warn {
+  color: var(--tone-ink);
+}
+
 .fv-label {
   height: 20px;
   margin-top: 16px;

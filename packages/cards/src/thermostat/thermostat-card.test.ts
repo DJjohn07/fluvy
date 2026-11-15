@@ -594,8 +594,12 @@ describe('what it is asked to say with it (#185)', () => {
   };
   const drawn = (more: Partial<ThermostatCardConfig> = {}, width = 360, ...moved: HassEntity[]) =>
     draw(valve, width, more, home(...moved));
+  /** What the line warns of, each lead in its own tone's ink (the dot between two the second's). */
   const warned = (card: FluvyThermostatCard): string =>
-    card.renderRoot.querySelector('.fv-card__sub .cl-warn')?.textContent?.trim() ?? '';
+    [...card.renderRoot.querySelectorAll('.fv-card__sub .fv-card__warn')]
+      .map((lead) => lead.textContent)
+      .join('')
+      .trim();
   const open = { ...SIBLINGS[2]!, state: 'on' };
 
   it('says nothing more until it is asked: the house upgraded draws what it drew', async () => {

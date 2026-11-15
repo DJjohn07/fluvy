@@ -1,5 +1,5 @@
 import { badge, emptyState, type Tone } from '@fluvy/ui';
-import { nothing, type LitElement, type ReactiveController, type TemplateResult } from 'lit';
+import { html, nothing, type LitElement, type ReactiveController, type TemplateResult } from 'lit';
 import { UNSPACED } from '../energy-family.js';
 import { fitLine, lineCount, TextRuler, type Segment } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
@@ -41,10 +41,19 @@ export interface HeadFitOptions {
   /**
    * The badge that trails the titles, if any. `own`: the person's own (a card's `badge`), said nowhere else on the
    * card — where it gives way it steps down into the sub as its last segment (Discussion #156), and the sub's rule
-   * fits it from there; the card's own badge says what its body says too, and gives way.
+   * fits it from there; the card's own badge says what its body says too, and gives way. `lead`: a device's state,
+   * which its body does not say in words (#196) — where it gives way it leads the line, the rest of the line giving way
+   * after it, unless the line says it already (the person's own `subtitle`).
    */
   readonly badge?:
-    { readonly text: string; readonly tone: Tone; readonly own?: boolean } | null | undefined;
+    | {
+        readonly text: string;
+        readonly tone: Tone;
+        readonly own?: boolean;
+        readonly lead?: boolean;
+      }
+    | null
+    | undefined;
   /** Width of a fixed trailing element instead (a 44 round, a 96 nav pair). */
   readonly trailing?: number;
   /**
@@ -66,6 +75,8 @@ export type ShowIcon = 'auto' | 'always' | 'never';
 export interface FittedHead {
   /** Empty when there is no sub (what `head()` reads as none). */
   readonly sub: string;
+  /** The sub as `head()` draws it: a state that leads it while it warns, in its tone's ink (`warned`). */
+  readonly line: string | TemplateResult;
   /** The badge to put in the trailing slot — `nothing` when it had to step aside. */
   readonly badge: TemplateResult | typeof nothing;
   /** False when the title needed the icon circle's room too: `head({ icon: null })` draws none. */
@@ -107,6 +118,35 @@ export function nameWidth(name: string, lines: 1 | 2, width: (text: string) => n
 
 /** A switch at the head's end: its 56 × 44 hit (`.fv-hit`), not the 48 track — the room a head fit must keep for it. */
 export const SWITCH_SLOT = 56;
+
+/** Words a head's line begins with, and the tone they say. */
+export type Lead = readonly [text: string, tone: Tone];
+
+/**
+ * A head's line with the statuses it begins with in their ink (a low battery, an open window, a state that leads the
+ * line while it is a warning or a danger): `leads` in the order the line may begin with them, the dot between two of
+ * them the second's; the line as it is where it begins with none. A lead of any other tone is left in the line's ink
+ * and ends them: "Idle" in the heat's ink would read as heating.
+ */
+export function warned(sub: string, leads: readonly Lead[]): string | TemplateResult {
+  const inked: TemplateResult[] = [];
+  let end = 0;
+  for (const [text, tone] of leads) {
+    if (!text) continue;
+    const from = end && end + 3;
+    const next = sub.slice(from);
+    if (
+      (tone !== 'warning' && tone !== 'danger') ||
+      (next !== text && !next.startsWith(`${text} · `))
+    )
+      break;
+    end = from + text.length;
+    inked.push(
+      html`<span class="fv-card__warn fv-tone--${tone}">${sub.slice(from && from - 3, end)}</span>`,
+    );
+  }
+  return end ? html`${inked}${sub.slice(end)}` : sub;
+}
 
 /**
  * Fits a card head to its column before it is rendered, so nothing in it is ever clipped: the title
@@ -174,6 +214,21 @@ export class HeadFit implements ReactiveController {
         ...(line ? { sub: `${line} · ${o.badge.text}` } : { sub: o.badge.text, shorter: [''] }),
       });
     }
+    // a device's state that gave way leads the line, which then gives way after it — its shorter forms first ("Unlocked
+    // · 21:40" where "21:40 by Marta" does not hold), then the word alone — in its ink while it warns; a line that says
+    // it already is left as it is
+    if (!keepBadge && o.badge?.lead) {
+      const { text, tone } = o.badge;
+      const line = o.sub?.trim() ?? '';
+      const said = line.split(' · ').some((part) => part.toLowerCase() === text.toLowerCase());
+      const forms = [line, ...(o.shorter ?? [])].filter(Boolean);
+      const [first = text, ...rest] = said ? [line] : forms.map((form) => `${text} · ${form}`);
+      const lead = (sub: string): FittedHead =>
+        this.fit({ ...o, badge: null, sub, ...(said ? {} : { shorter: [] }) });
+      let fitted = lead(first);
+      for (const sub of rest) if (fitted.sub === text) fitted = lead(sub);
+      return { ...fitted, line: warned(fitted.sub, [[text, tone]]) };
+    }
     let sub = o.sub ? this.fitSub(o.sub, room()) : '';
 
     // the title, or the sub's first segment (a period's "Desde medianoche"), needs the circle's room too: the circle
@@ -198,6 +253,7 @@ export class HeadFit implements ReactiveController {
 
     return {
       sub,
+      line: sub,
       badge: keepBadge && o.badge ? badge(o.badge.text, o.badge.tone) : nothing,
       icon: circle > 0,
       small: circle === ICON_COMPACT,

@@ -39,7 +39,7 @@ import { Card, type CardEditor, type ControlHost } from '../shared/base.js';
 
 import { iconOf } from '../shared/domain.js';
 
-import { HeadFit, type FittedHead } from '../energy/head.js';
+import { HeadFit, warned, type FittedHead } from '../energy/head.js';
 import { optionCell, optionColumnsFor, optionsHold, valuesHeld } from '../shared/options.js';
 import { BrokenPictures, imageEntity, imageOf } from '../shared/picture.js';
 import type { WhenOff } from '../shared/config.js';
@@ -509,20 +509,6 @@ export function chooseMode(
 }
 
 /**
- * A head's line with the warnings it begins with in the warning ink (a low battery, a window open where the word leads
- * the line): `warnings` in the order the line may begin with them; the line as it is where it begins with none.
- */
-function warned(sub: string, warnings: readonly string[]): string | TemplateResult {
-  let lead = 0;
-  for (const warning of warnings.filter(Boolean)) {
-    const next = sub.slice(lead && lead + 3);
-    if (next !== warning && !next.startsWith(`${warning} · `)) break;
-    lead += (lead && 3) + warning.length;
-  }
-  return lead ? html`<span class="cl-warn">${sub.slice(0, lead)}</span>${sub.slice(lead)}` : sub;
-}
-
-/**
  * Thermostat, water heater and humidifier on one card: the dial with its knob on the ring (two for a
  * heat/cool range), the measured value as a dot outside it, the stepper, then the modes as option
  * tiles and presets / fan speeds as chips. Every null the integrations send is survived.
@@ -544,10 +530,6 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       .is-narrow .fv-option__value {
         font-size: 14px;
         letter-spacing: -0.01em;
-      }
-      /* what the head's line warns of (a low battery, an open window) before the rest of it */
-      .cl-warn {
-        color: var(--fluvy-warning);
       }
     `,
   ];
@@ -619,11 +601,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
    * the battery and before the rest, which gives way after it — Home Assistant's word to Fluvy's own where even alone
    * it would not hold. What the line reads of other entities is watched while it reads them.
    */
-  private fitHead(
-    view: EntityView,
-    m: ThermostatModel,
-    name: string,
-  ): FittedHead & { readonly line: string | TemplateResult } {
+  private fitHead(view: EntityView, m: ThermostatModel, name: string): FittedHead {
     const ask: ReadingsAsk & Pick<ThermostatCardConfig, 'show_state'> = this.config ?? {};
     const percent = (value: number): string => `${formatNumber(this.hass, value, { digits: 0 })} %`;
     const valve = valveOf(this.hass, view, ask);
@@ -666,7 +644,10 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       });
     return {
       ...fitted,
-      line: warned(fitted.sub, [low, stepped && said.tone === 'warning' ? said.text : '']),
+      line: warned(fitted.sub, [
+        [low, 'warning'],
+        [stepped ? said.text : '', said.tone],
+      ]),
     };
   }
 

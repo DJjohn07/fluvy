@@ -584,13 +584,14 @@ export class FluvyVacuumCard extends Card<VacuumCardConfig> {
         : view.areaName || started.charAt(0).toUpperCase() + started.slice(1),
     );
     const batteryText = `${this.t('vacuum.battery')} · ${battery === null ? '—' : `${formatNumber(this.hass, battery, { digits: 0 })} %`}`;
-    // the head fitted to its column: the badge steps aside before the name is cut, then the sub, then the icon
+    // the head fitted to its column: the badge steps aside before the name is cut, its word then leading the line
+    // (nothing under the head says what the robot is doing), then the rest of the line, then the icon
     const fitted = this.head.fit({
       width: w,
       title: name,
       sub: headSub(sub, w),
       shorter,
-      badge: { text: shownStateText(this.hass, view, shown), tone },
+      badge: { text: shownStateText(this.hass, view, shown), tone, lead: true },
     });
     // the commands in equal cells, two rows where one would leave a cell under a finger's 44; a last row that holds
     // fewer (five commands: three and two) is a row of its own, its cells sharing the column on a gap both rows land on
@@ -610,7 +611,7 @@ export class FluvyVacuumCard extends Card<VacuumCardConfig> {
         tone,
         title: name,
         name: true,
-        sub: fitted.sub,
+        sub: fitted.line,
         trailing: fitted.badge,
         cut: fitted.cut,
         ...this.headActions(view.id),

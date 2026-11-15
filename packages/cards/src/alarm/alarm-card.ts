@@ -543,7 +543,8 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       unavailable: unusable,
     }));
 
-    // the head gives way in its order: the badge first (the armed mode is the lit tile's too), then the sub, the circle
+    // the head gives way in its order: the badge first, its word then leading the line (a lit mode says which one is
+    // in force, never that the panel is triggered), then the rest of the line, then the circle
     const fitted = this.headFit.fit({
       width: this.contentWidth,
       title: name,
@@ -551,6 +552,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       badge: {
         text: state.startsWith('armed_') ? s(this.hass, 'armed') : stateText(this.hass, view),
         tone,
+        lead: true,
       },
     });
     return html`<article
@@ -562,7 +564,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
           tone,
           title: name,
           name: true,
-          sub: fitted.sub,
+          sub: fitted.line,
           trailing: fitted.badge,
           cut: fitted.cut,
           ...this.headActions(view.id),

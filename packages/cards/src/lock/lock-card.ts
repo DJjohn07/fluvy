@@ -557,12 +557,13 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
     const hintShown =
       this.headFit.ruler.width('dv-slide__hint', hint) <= this.contentWidth - 2 * KNOB_BOX - 16;
 
-    // the head gives way in its order: the badge first (the circle's glyph says locked or open too), then the sub
+    // the head gives way in its order: the badge first, its word then leading the line (the slide says which way it
+    // goes, never the state in words), then the rest of the line, then the circle
     const fitted = this.headFit.fit({
       width: this.contentWidth,
       title: name,
       ...this.subtitle(changedLine(this.hass, view), changedShort(this.hass, view)),
-      badge: { text: shown, tone },
+      badge: { text: shown, tone, lead: true },
     });
     return html`<article
         class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''}"
@@ -573,7 +574,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
           tone,
           title: name,
           name: true,
-          sub: fitted.sub,
+          sub: fitted.line,
           trailing: fitted.badge,
           cut: fitted.cut,
           ...this.headActions(view.id),

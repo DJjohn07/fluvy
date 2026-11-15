@@ -519,7 +519,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
         short,
       ),
       ...(unusable
-        ? { badge: { text: stateText(this.hass, view), tone: 'off' as const } }
+        ? { badge: { text: stateText(this.hass, view), tone: 'off' as const, lead: true } }
         : { trailing: SWITCH_SLOT }),
     });
     return html`<article
@@ -533,7 +533,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
         tone,
         title: name,
         name: true,
-        sub: fitted.sub,
+        sub: fitted.line,
         trailing: unusable
           ? fitted.badge
           : toggle(on, 'fan', (next) => this.power(view, next), name),
