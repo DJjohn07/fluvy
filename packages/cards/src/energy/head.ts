@@ -222,6 +222,10 @@ export class HeadFit implements ReactiveController {
     // it already is left as it is
     if (!keepBadge && o.badge?.lead) {
       const { text, tone } = o.badge;
+      // a word wider than the line can ever be, its circle gone, is said nowhere rather than cut (Japanese's
+      // "エンティティが見つかりません" at 211): the card's out-of-reach look says it, and the line stays as it was
+      if (this.ruler.width('fv-card__sub', text) > o.width - (show === 'always' ? ICON_COMPACT : 0))
+        return this.fit({ ...o, badge: null });
       const line = o.sub?.trim() ?? '';
       const said = line.split(' · ').some((part) => part.toLowerCase() === text.toLowerCase());
       const forms = [line, ...(o.shorter ?? [])].filter(Boolean);

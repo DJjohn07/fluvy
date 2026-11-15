@@ -356,6 +356,15 @@ describe('a device’s state that gives way leads the line (#196)', () => {
     expect(drawn(fitted.line)).toEqual(['warning: Unlocked']);
   });
 
+  it('is said nowhere where the word alone is wider than the line can be, the line as it was (1.22)', () => {
+    // 20 glyphs of 6: 120 px, wider than a head of 112 with no circle and no badge
+    const missing = { text: 'Entity not found here', tone: 'neutral' as const, lead: true };
+    const fitted = faces().fit({ ...lock, sub: 'Porch', badge: missing, width: 112 });
+    expect(fitted.badge).toBe(nothing);
+    expect(fitted.sub).toBe('Porch');
+    expect(fitted.line).toBe('Porch');
+  });
+
   it('is the line where the card has none, and in the line’s ink where its tone is no warning', () => {
     const closed = { text: 'Closed', tone: 'neutral' as const, lead: true };
     const fitted = faces().fit({ ...lock, sub: undefined, badge: closed, width: 112 });
