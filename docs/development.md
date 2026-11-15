@@ -85,7 +85,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `panel` | 44 KB | the settings panel and its English |
 | `customise` | 14 KB | Customise, the Dashboards tab's section that edits an automatic dashboard's views and cards, and its English: fetched the first time a dashboard is customised |
 | `sidebar-editor` | 6 KB | a dashboard's sidebar in the panel (1.21, #187), the Dashboards tab's section that writes `fluvy_sidebar:` without YAML, and its English: fetched the first time a dashboard's sidebar is opened |
-| `strategy` | 30 KB | the automatic dashboards: their views and cards, each card in a part with an id of its own, and a person's `edit` laid over them |
+| `strategy` | 32 KB | the automatic dashboards: their views and cards, each card in a part with an id of its own, and a person's `edit` laid over them |
 | `house-heights` | 4 KB | the cards' heights counted with the house, for the automatic dashboards |
 | `wall` | 16 KB | wall mode |
 | `chart` | 24 KB | the chart engine: the scales, paths, bars, axes, rings and gauges every chart is drawn with, the gauges that move, the styles, their sheet, a house's series colours fitted to each mode |
@@ -96,7 +96,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `media` | 16 KB | the player and the now-playing strip |
 | `devices` | 36 KB | the lock, the alarm and its keypad, the camera and the cameras, the printer, the job's times, the rows the lock, the alarm and the camera are built on |
 | `cameras-sheet` | 8 KB | the Cameras card's sheet |
-| `appliances` | 68 KB | the appliances family and its English |
+| `appliances` | 70 KB | the appliances family and its English |
 | `appliance-art` | 32 KB | the appliances' product drawings |
 | `automations` | 20 KB | the automations card, the schedule model and its store |
 | `automations-sheet` | 16 KB | the schedule sheet |
@@ -115,7 +115,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `climate` | 8 KB | the Thermostat card: the climate's, the water heater's and the humidifier's (1.21: it left core), its rules, and what says what a thermostat is doing (#185: its action, its valve, its window, its battery), which a tile and a room's climate row asked to say it reach here |
 | `remote` | 16 KB | the TV remote card: its keys and the integrations' commands for them, the platforms it knows by name, its English |
 | `app-logos` | 24 KB | the platforms' logos (Simple Icons, Material Design Icons, Fluvy's monograms), fetched by the first remote card that draws an app |
-| `vehicle` | 24 KB | the Vehicle card: what finds a car's entities and folds its integration's words, its glyphs, its English |
+| `vehicle` | 26 KB | the Vehicle card: what finds a car's entities and folds its integration's words, its glyphs, its English |
 | `items` | 12 KB | the Items card, its fields and presets, its English |
 | `details` | 16 KB | Fluvy's own details sheets (#162): the light's, the thermostat's, the cover's, the player's and the fan's, opened by a card's more-info |
 | `items-sheet` | 8 KB | an item's sheet |

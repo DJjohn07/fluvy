@@ -45,12 +45,14 @@ const BUDGETS = {
   // editor, the YAML of a dashboard kept in a file, its English), fetched the first time a dashboard's sidebar is
   // opened. Measured at 4.9 KB
   'sidebar-editor': 6144,
-  // the automatic dashboards. 30 KB since 2026-11-15 (1.22: the naming words of a seventeenth language, Czech, took it
-  // 48 B past 29: measured at 29.0 KB); 29 KB since 2026-11-13 (1.20: every card stands in a part with an id of its own
-  // and a person's `edit` is laid over them, #170, 2.1 KB; the range's usage, tomorrow's production, several arrays and
-  // what is shown together told apart, 1.4 KB: measured at 27.7 KB); 25 KB since 2026-11-12 (1.19.1: scenes on Home and
-  // room pages, labels told apart, forecasts): 24 before
-  strategy: 30_720,
+  // the automatic dashboards. 32 KB since 2026-11-15 (1.22: an eighteenth language's naming words, Bulgarian's, as
+  // written and as an entity id writes them, 1.2 KB, a dashboard's Names, its Long names, rooms as tabs and the Lights
+  // and Climate dashboards, 1.3 KB: measured at 30.5 KB); 30 KB since 2026-11-15 (1.22: the naming words of a
+  // seventeenth language, Czech, took it 48 B past 29: measured at 29.0 KB); 29 KB since 2026-11-13 (1.20: every card
+  // stands in a part with an id of its own and a person's `edit` is laid over them, #170, 2.1 KB; the range's usage,
+  // tomorrow's production, several arrays and what is shown together told apart, 1.4 KB: measured at 27.7 KB); 25 KB
+  // since 2026-11-12 (1.19.1: scenes on Home and room pages, labels told apart, forecasts): 24 before
+  strategy: 32_768,
   // the heights the strategy counts with the house: what an entity's capabilities draw, what a room holds
   'house-heights': 4096,
   wall: 16_384,
@@ -104,8 +106,10 @@ const BUDGETS = {
   // finishes and asks before it is switched off, the compact line's shorter forms); 51 since the reporter's LG house
   // (#47: LG's older integration read by its device sensor's attributes, both LG integrations known by their
   // signatures, LG's states and cycles worded in eight languages); 48 before
-  // 68 KB since 2026-11-11 (1.19: Russian's appliance stems, #167, about 900 B; measured at 66.8 KB)
-  appliances: 69_632,
+  // 68 KB since 2026-11-11 (1.19: Russian's appliance stems, #167, about 900 B; measured at 66.8 KB); 70 KB since
+  // 2026-11-15 (1.22: Bulgarian's appliance stems as written and as an id writes them, 0.9 KB, a head's two lines:
+  // measured at 68.8 KB)
+  appliances: 71_680,
   // the appliances' pictures: one product drawing a kind, fetched by the first card that draws one
   'appliance-art': 32_768,
   // the automations family: the card, the schedule model and its store. 20 KB since 1.9 (the family's English, the
@@ -156,8 +160,10 @@ const BUDGETS = {
   // monograms, fetched by the first remote card that draws an app
   'app-logos': 24_576,
   // the Vehicle card: the card (three layouts, its editor), what finds a car's entities on thirteen integrations and
-  // folds their words, its glyphs and its English (1.13, #84); measured at 20.2 KB
-  vehicle: 24_576,
+  // folds their words, its glyphs and its English (1.13, #84); measured at 20.2 KB. 26 KB since 2026-11-15 (1.22,
+  // #207: a car that burns fuel, its tank, a plug-in hybrid's two gauges, AdBlue, oil and the next service, and the
+  // words of five more integrations, 3.6 KB: measured at 24.0 KB)
+  vehicle: 26_624,
   // Fluvy's own details sheets (1.20, #162): the light's, the thermostat's, the cover's, the player's and the fan's,
   // what they share (the sheet, its keys and rows, its day) and their English, fetched the first time a card opens
   // one. Measured at 11.5 KB
