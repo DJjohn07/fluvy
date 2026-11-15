@@ -1,0 +1,104 @@
+# Fluvy
+
+> Fluvy is a theme and a card library for Home Assistant, installed through HACS. Its cards are Lovelace custom cards: in YAML a card is `type: custom:fluvy-<name>-card` plus the entity or entities it draws and any option of its editor.
+
+To write a card’s configuration, read its page: it has the card’s picture, the YAML that draws the picture, a table of every key (what it does, its type, its default, its values), the fields of its lists’ items and the older names it still reads. A key left at its default is left out. The same facts for every card at once are in cards.json.
+
+## Data
+
+- [cards.json](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards.json): every card’s keys, what each does, types, defaults, values, the editor’s words, its example and its pictures
+- [The live demo](https://acosta290.github.io/fluvy/): every card’s example on a simulated house, `?card=<card>` for one of them, with its YAML
+
+## Everyday
+
+- [Tile](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/tile.md): `custom:fluvy-tile-card`. A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini.
+- [Tiles](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/tiles.md): `custom:fluvy-tiles-card`. A group of compact or mini tiles, two to four per row, 8 px apart.
+- [Template](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/template.md): `custom:fluvy-template-card`. A tile whose name, line, icon, colour and fill are templates, with or without an entity; a Mushroom template card pastes in.
+- [Light](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/light.md): `custom:fluvy-light-card`. The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature.
+- [Slider](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/slider.md): `custom:fluvy-slider-card`. Any value on the precision ruler: a player’s volume with its mute, a number or a helper, a fan’s speed, another entity’s switch in its head.
+- [Room lights](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/lights.md): `custom:fluvy-lights-card`. A room’s lights on one card: one tap for the whole room, a round, chip or tile for each light, in its colour.
+- [Thermostat](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/thermostat.md): `custom:fluvy-thermostat-card`. Climate, water heater or humidifier on a dial, with modes, presets and fan speeds.
+- [Entities](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/entities.md): `custom:fluvy-entities-card`. Rows of entities: a switch for what toggles, the value for what is measured.
+- [Items](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/items.md): `custom:fluvy-items-card`. The items of a sensor’s list attribute, a row each — flights overhead, departures, deliveries — with a flights preset for FlightRadar24.
+- [Media](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/media.md): `custom:fluvy-media-card`. A media player: artwork, seek bar, transport and volume — full, compact row or hero.
+- [Now playing](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/now-playing.md): `custom:fluvy-now-playing-card`. The compact player of the home screen: artwork, thin progress, transport and volume.
+- [Remote](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/remote.md): `custom:fluvy-remote-card`. A TV remote in Fluvy’s hand: power, sources, a D-pad with OK, playback, volume routed where you like, channels, the apps with their logos, keys of your own.
+- [Cover](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/cover.md): `custom:fluvy-cover-card`. Blinds, shutters, garage doors and valves: vertical position ruler, tilt, open · stop · close, favourites.
+- [Fan](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/fan.md): `custom:fluvy-fan-card`. Speed ruler with steps, oscillation, direction and presets.
+- [Vacuum](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/vacuum.md): `custom:fluvy-vacuum-card`. Robot vacuum or mower: battery, start · stop · dock · locate, suction, a drive pad.
+- [Lock](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/lock.md): `custom:fluvy-lock-card`. Slide to unlock, never one accidental tap; codes, jammed state, related rows.
+- [Alarm](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/alarm.md): `custom:fluvy-alarm-card`. Arm modes as tiles and the keypad sheet for codes.
+- [Camera](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/camera.md): `custom:fluvy-camera-card`. A still that refreshes itself, or Home Assistant’s live stream, in the shape you choose; tap for the stream.
+- [Cameras](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/cameras.md): `custom:fluvy-cameras-card`. Several cameras at a glance, each picture live or refreshing itself with its name and what it sees; a sheet of them all.
+- [3D printer](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/printer.md): `custom:fluvy-printer-card`. A 3D printer’s job: progress, time left, heaters, layers, filament and the camera; pause, resume and stop. OctoPrint, PrusaLink, Bambu Lab, Moonraker, Creality, Elegoo, Anycubic, Snapmaker and FlashForge.
+- [Appliance](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/appliance.md): `custom:fluvy-appliance-card`. A washer, dryer, dishwasher, oven, hob, fridge, coffee machine, pet feeder, fountain, litter box or small appliance on a plug, pictured: what it does, when it is ready, what it uses, its reminders.
+- [Appliances](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/appliances.md): `custom:fluvy-appliances-card`. The house’s appliances as live rows, or their whole cards side by side: what runs, what is done, what waits.
+- [Vehicle](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/vehicle.md): `custom:fluvy-vehicle-card`. An electric car: its battery, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG and more.
+- [Weather](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/weather.md): `custom:fluvy-weather-card`. Condition, temperature, feels-like, wind and the daily or hourly forecast.
+- [Sensor](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/sensor.md): `custom:fluvy-sensor-card`. A sensor with its curve, trend, min, max and average, or up to three sensors on one chart.
+- [Readouts](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/readouts.md): `custom:fluvy-readouts-card`. Up to four values side by side with their trends.
+- [People](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/people.md): `custom:fluvy-people-card`. Who is home: avatars, zones, times and phone batteries, each person with a tap of their own.
+- [Openings](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/openings.md): `custom:fluvy-openings-card`. Doors, windows and motion at a glance, with what is open counted.
+- [Alerts](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/alerts.md): `custom:fluvy-alerts-card`. What needs a look — low batteries, devices gone, doors left open, leaks, updates, repairs — each from one line, as tiles, chips, rows or a banner, hidden while all is clear.
+
+## Rooms and the map
+
+- [Room](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/room.md): `custom:fluvy-room-card`. A room of the house from its area: its picture, its climate, what is on, and its controls.
+- [Map](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/map.md): `custom:fluvy-map-card`. Where everyone is: the house’s zones as columns of faces, a row a person, or Home Assistant’s map on a plate.
+
+## Structure and navigation
+
+- [Hello](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/hello.md): `custom:fluvy-hello-card`. The greeting: name, date, weather and avatar.
+- [Chips](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/chips.md): `custom:fluvy-chips-card`. A row of chips that navigate between views or open entities.
+- [Heading](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/heading.md): `custom:fluvy-heading-card`. A section title with its count and a link.
+- [Expander](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/expander.md): `custom:fluvy-expander-card`. Any cards folded away under a head: a tap opens them, on one surface or each on its own.
+- [Web page](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/web.md): `custom:fluvy-web-card`. A web page on a plate — a map, a chart, a site of your own — under a head, in a frame or bare; sandboxed as Home Assistant’s iframe card is.
+
+## Scenes, actions and helpers
+
+- [Scene](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/scene.md): `custom:fluvy-scene-card`. One scene, script or button as a tile with a done state.
+- [Scenes](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/scenes.md): `custom:fluvy-scenes-card`. A grid of scenes and scripts.
+- [Actions](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/actions.md): `custom:fluvy-actions-card`. Buttons and scripts as a list with run buttons.
+- [Helpers](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/helpers.md): `custom:fluvy-helpers-card`. Numbers, selects, texts, booleans and dates as their own controls.
+- [To-do](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/todo.md): `custom:fluvy-todo-card`. A to-do list: check, add, hide the done.
+- [Timer](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/timer.md): `custom:fluvy-timer-card`. A timer counting down live, with pause and cancel.
+- [Updates](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/updates.md): `custom:fluvy-updates-card`. Pending updates with install buttons and progress.
+- [Automations](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/automations.md): `custom:fluvy-automations-card`. Every automation of the house: on or off, run, last and next run; schedules written as native automations, created and edited in a sheet.
+
+## Energy
+
+- [Energy period](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-period.md): `custom:fluvy-energy-period-card`. The view’s date picker as a strip: ‹ the day, week, month or year › and back to today, Home Assistant’s own, so its energy cards follow it as Fluvy’s do.
+- [Energy usage](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-usage.md): `custom:fluvy-energy-usage-card`. Electricity, water or gas used by the hour, the day or the month, stacked by source or meter.
+- [Energy](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy.md): `custom:fluvy-energy-card`. Power right now, the day curve and the energy legend.
+- [Energy flow](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-flow.md): `custom:fluvy-energy-flow-card`. Where the house’s energy comes from and where it goes, live or over a period: import and export at once, every source, lanes in their origin’s colour.
+- [Energy balance](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-balance.md): `custom:fluvy-energy-balance-card`. What comes in against what goes out, live or over a period: the house is the remainder, so the totals agree; each phase of the grid, and the money.
+- [Grid](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/grid.md): `custom:fluvy-grid-card`. The grid right now: the net import or export, in and out at once, each phase with its voltage, the price and today’s totals.
+- [Batteries](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/batteries.md): `custom:fluvy-batteries-card`. The house’s batteries as one: their state of charge, full or empty in, the reserve on the ruler, a row per battery and their mode.
+- [Car charger](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/ev-charger.md): `custom:fluvy-ev-charger-card`. The car on its charger: its charge against the target, ready by when, what the session added and how much of it came from the sun, the charging mode.
+- [Where it went](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-sankey.md): `custom:fluvy-energy-sankey-card`. A day, week or month of energy from where to where, in true proportions: the grid, the battery and the sun into the house, the charge and the export, and the house into its devices.
+- [Energy score](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-score.md): `custom:fluvy-energy-score-card`. Self-powered, sun used and low-carbon as rings, the Energy dashboard’s own gauges, over imported, exported and net.
+- [Energy devices](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/energy-devices.md): `custom:fluvy-energy-devices-card`. Where the energy goes, device by device on one scale: nested circuits, and what no meter measures.
+- [Water & gas](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/meters.md): `custom:fluvy-meters-card`. Today’s water and gas against a typical day, what flows right now, and a leak sensor or a valve beside them.
+- [Gauge](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/gauge.md): `custom:fluvy-gauge-card`. A ring gauge for any numeric sensor with min, max and average, or centred on zero for a meter that runs both ways.
+- [Stat tiles](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/stat-tiles.md): `custom:fluvy-stat-tiles-card`. A headline value and a grid of stat tiles.
+- [Production](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/production.md): `custom:fluvy-production-card`. Hourly production bars with the forecast behind, stacked per array when there are several.
+- [History bars](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/history-bars.md): `custom:fluvy-history-bars-card`. A sensor’s last days, weeks or months as bars from its long-term statistics: the total and the average in the head, the value over each bar, and a strip of facts under them — the highest and lowest, or what it comes to in CO₂, trees, kilometres or money.
+- [Chart](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/chart.md): `custom:fluvy-chart-card`. Any time series on one chart — history, statistics, a list in an attribute (Nordpool’s prices, a solar forecast) or a weather’s forecast — past to future with now marked, thresholds in their colours and the cheapest hours found.
+- [Bars](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/bars.md): `custom:fluvy-bars-card`. Rows with a bar each: plants, batteries, strings, levels.
+- [Distribution](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/distribution.md): `custom:fluvy-distribution-card`. One stacked bar and a legend: who draws what.
+- [Humidity](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/humidity.md): `custom:fluvy-humidity-card`. Humidity on a comfort band, with dew point and trend.
+
+## Time
+
+- [Clock](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/clock.md): `custom:fluvy-clock-card`. Analog or digital, hero, side or tile, with or without weather.
+- [Calendar](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards/calendar.md): `custom:fluvy-calendar-card`. Agenda, month, week, month + day, timeline, upcoming or tile.
+
+## Guides
+
+- [The cards](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/cards.md): what every card shares (names, actions, colours, unavailable entities) and the longer guides
+- [Getting started](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/getting-started.md): the first dashboard
+- [The automatic dashboards](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/automatic-dashboard.md): the dashboards Fluvy builds from the house, and their options
+- [Energy](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/energy.md): the energy cards together
+- [The theme](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/theme.md): palettes, colours, a colour per card
+- [The settings panel](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/settings-panel.md): the house's settings
+- [Troubleshooting](https://raw.githubusercontent.com/acosta290/fluvy/main/docs/troubleshooting.md)

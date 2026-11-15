@@ -10,6 +10,8 @@ import { layoutKey } from './gallery.js';
 import { pictureName, type Manifest, type Mode } from './pictures.js';
 import { toYaml } from './yaml.js';
 
+/** Where the repository is read from by an assistant: a page as plain text. */
+const RAW = 'https://raw.githubusercontent.com/acosta290/fluvy/main/docs';
 /** The live demo: every card's examples on the simulated house, each with its YAML. */
 export const DEMO = 'https://acosta290.github.io/fluvy/';
 
@@ -257,4 +259,117 @@ export function indexBlock(
     return `## ${section}\n\n| | Card | What it is |\n| --- | --- | --- |\n${rows.join('\n')}`;
   });
   return [lead, ...tables].join('\n\n');
+}
+
+/** A key as the data says it: no group, and a default only where there is one. */
+const keyData = (key: Key): Record<string, unknown> => ({
+  key: key.key,
+  label: key.label,
+  ...(key.meaning ? { does: key.meaning } : {}),
+  ...(key.helper ? { helper: key.helper } : {}),
+  type: key.type,
+  ...(key.required ? { required: true } : {}),
+  ...('default' in key ? { default: key.default } : {}),
+  ...(key.defaultWords ? { default_in_words: key.defaultWords } : {}),
+  ...(key.values.length
+    ? { values: Object.fromEntries(key.values.map(({ value, label }) => [value, label])) }
+    : {}),
+  ...(key.range ? { range: key.range } : {}),
+});
+
+/** Every card as data: what `docs/cards.json` holds. */
+export function cardsData(cards: readonly CardDoc[], pictures: Manifest): unknown {
+  return {
+    about:
+      'Fluvy’s cards as data, generated from the cards’ editors by `pnpm docs:cards`. A card is `type` plus any of its `keys`; `does` says what a key does, `label` and `helper` are the editor’s words for it, `default` what the card does when the key is left out (never written by the editor), `values` a choice’s values with the editor’s word for each. `lists` are edited item by item: an item is the `id` field alone (a bare entity id) or a map with it and any of `item`. `example` draws the pictures; `layouts` are the example with one more key each; `demo` opens the example in the live demo. Paths are relative to docs/.',
+    cards: cards.map((card) => ({
+      type: `custom:${card.tag}`,
+      name: card.name,
+      description: card.description,
+      section: card.section,
+      page: `cards/${card.short}.md`,
+      ...(card.example
+        ? {
+            demo: demoOf(card.short),
+            pictures: {
+              light: `images/cards/${pictureName(card.short, 'light')}`,
+              dark: `images/cards/${pictureName(card.short, 'dark')}`,
+              ...(pictures[card.short]
+                ? { width: pictures[card.short]?.width, height: pictures[card.short]?.height }
+                : {}),
+            },
+            example: card.example.config,
+          }
+        : {}),
+      ...(card.layout
+        ? {
+            layout: card.layout,
+            layouts: Object.fromEntries(
+              card.drawn.flatMap((one) => (one.layout ? [[one.layout, one.config]] : [])),
+            ),
+          }
+        : {}),
+      keys: card.keys.map(keyData),
+      ...(card.lists.length
+        ? {
+            lists: card.lists.map((list) => ({
+              key: list.key,
+              label: list.label,
+              ...(list.meaning ? { does: list.meaning } : {}),
+              ...(list.helper ? { helper: list.helper } : {}),
+              id: list.id,
+              ...(list.sections ? { between_items: list.sections } : {}),
+              item: list.item.map(keyData),
+            })),
+          }
+        : {}),
+      ...(card.reads.length
+        ? {
+            older_names: card.reads.map((read) => ({
+              from: read.from,
+              ...(read.to ? { to: read.to } : {}),
+              ...(read.partly ? { some_values_only: true } : {}),
+            })),
+          }
+        : {}),
+    })),
+  };
+}
+
+/** The docs as an assistant finds its way in them: what Fluvy is, where the cards' data is, a line a card. */
+export function llmsText(cards: readonly CardDoc[], sections: readonly string[]): string {
+  const lines = [
+    '# Fluvy',
+    '',
+    '> Fluvy is a theme and a card library for Home Assistant, installed through HACS. Its cards are Lovelace custom cards: in YAML a card is `type: custom:fluvy-<name>-card` plus the entity or entities it draws and any option of its editor.',
+    '',
+    'To write a card’s configuration, read its page: it has the card’s picture, the YAML that draws the picture, a table of every key (what it does, its type, its default, its values), the fields of its lists’ items and the older names it still reads. A key left at its default is left out. The same facts for every card at once are in cards.json.',
+    '',
+    '## Data',
+    '',
+    `- [cards.json](${RAW}/cards.json): every card’s keys, what each does, types, defaults, values, the editor’s words, its example and its pictures`,
+    `- [The live demo](${DEMO}): every card’s example on a simulated house, \`?card=<card>\` for one of them, with its YAML`,
+    '',
+    ...sections.flatMap((section) => [
+      `## ${section}`,
+      '',
+      ...cards
+        .filter((card) => card.section === section)
+        .map(
+          (card) =>
+            `- [${card.name}](${RAW}/cards/${card.short}.md): \`custom:${card.tag}\`. ${card.description}`,
+        ),
+      '',
+    ]),
+    '## Guides',
+    '',
+    `- [The cards](${RAW}/cards.md): what every card shares (names, actions, colours, unavailable entities) and the longer guides`,
+    `- [Getting started](${RAW}/getting-started.md): the first dashboard`,
+    `- [The automatic dashboards](${RAW}/automatic-dashboard.md): the dashboards Fluvy builds from the house, and their options`,
+    `- [Energy](${RAW}/energy.md): the energy cards together`,
+    `- [The theme](${RAW}/theme.md): palettes, colours, a colour per card`,
+    `- [The settings panel](${RAW}/settings-panel.md): the house's settings`,
+    `- [Troubleshooting](${RAW}/troubleshooting.md)`,
+  ];
+  return `${lines.join('\n')}\n`;
 }
