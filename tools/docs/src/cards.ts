@@ -30,6 +30,7 @@ type Schema = readonly {
   name: string;
   selector?: Record<string, unknown>;
   type?: string;
+  flatten?: boolean;
   schema?: Schema;
 }[];
 /** What a card's editor shows (its class's, or the module a card every page carries keeps it in). */
@@ -141,7 +142,7 @@ const SECTIONS: ReadonlyArray<readonly [title: string, tags: readonly string[]]>
   ['Time', ['fluvy-clock-card', 'fluvy-calendar-card']],
 ];
 
-type Field = { name: string; selector?: Record<string, unknown> };
+type Field = { name: string; selector?: Record<string, unknown>; schema?: Schema };
 
 /**
  * The cards whose `name_lines` is their tiles' names (a tile, a set of them, the template card's, a room's and its
@@ -155,9 +156,14 @@ const TILE_NAMES = new Set([
   'fluvy-room-card',
 ]);
 
-/** Every field of a form, through its rows and its folded groups. */
+/**
+ * Every field of a form, through its rows and its folded groups; a group that holds its fields under a key of its own
+ * (a card's colours by state) is that key's.
+ */
 const flatten = (schema: Schema): Field[] =>
-  schema.flatMap((item) => (item.schema ? flatten(item.schema) : [item]));
+  schema.flatMap((item) =>
+    item.schema && (!item.name || item.flatten) ? flatten(item.schema) : [item],
+  );
 
 /** A select's values, in its order. */
 const valuesOf = (field: Field): string[] =>
@@ -166,10 +172,13 @@ const valuesOf = (field: Field): string[] =>
   )?.options?.map((o) => o.value) ?? [];
 
 /**
- * A key as the table names it: the key, with a select's values after it. A key the form shows in turns (one select for
- * a sensor alone, another beside others) is said once, with every value any of its selects offers.
+ * A key as the table names it: the key, with a select's values after it, or the keys a group held under it takes (a
+ * state's colour, by the state). A key the form shows in turns (one select for a sensor alone, another beside others)
+ * is said once, with every value any of its selects offers.
  */
 function option(field: Field, fields: readonly Field[]): string {
+  if (field.schema)
+    return `\`${field.name}\` (keys ${field.schema.map((f) => `\`${f.name}\``).join(', ')})`;
   const values = [...new Set(fields.filter((f) => f.name === field.name).flatMap(valuesOf))];
   return values.length
     ? `\`${field.name}\` (${values.map((value) => `\`${value}\``).join(', ')})`

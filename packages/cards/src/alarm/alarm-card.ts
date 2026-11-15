@@ -20,10 +20,16 @@ import {
   type GlyphName,
   type ChipItem,
   type OptionItem,
-  type Tone,
 } from '@fluvy/ui';
 
-import { css, html, type CSSResultGroup, type PropertyValues, type TemplateResult } from 'lit';
+import {
+  css,
+  html,
+  nothing,
+  type CSSResultGroup,
+  type PropertyValues,
+  type TemplateResult,
+} from 'lit';
 
 import { changedLine, changedShort, RowsCard, type RowsCardConfig } from '../lock/rows.js';
 
@@ -46,6 +52,8 @@ import {
   rowItems,
   selectField,
   headFields,
+  stateLabels,
+  stateTintFields,
 } from '../shared/form.js';
 
 import './keypad.js';
@@ -57,11 +65,12 @@ import { optionCell, optionColumnsFor, optionsHold, valuesHold } from '../shared
 import { TextRuler } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
 import { rowEndStyles } from '../shared/row-end.js';
+import { stateLook, STATE_TINT_KEYS, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import { alarmHeight } from '../devices-family.js';
 
 const s = strings('alarm');
 
-export interface AlarmCardConfig extends RowsCardConfig {
+export interface AlarmCardConfig extends RowsCardConfig, StateTintConfig {
   subtitle?: string;
   /** The modes to offer, in this order (`['disarm', 'arm_home', 'arm_away']`). Default: every mode the panel has. */
   modes?: readonly string[];
@@ -142,6 +151,9 @@ const MODES: readonly Mode[] = [
     value: 'v_bypass',
   },
 ];
+
+/** A panel's states, as Home Assistant writes them: what the editor offers a colour for. */
+const STATES = [...MODES.map((mode) => mode.state), 'arming', 'pending', 'triggered'];
 
 /** A panel that reports no features at all still arms home and away — the two every integration has. */
 const DEFAULT_FEATURES = 1 | 2;
@@ -247,6 +259,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
     'subtitle',
     'modes',
     'variant',
+    ...STATE_TINT_KEYS,
   ]);
   static override lists: readonly RowsListSpec[] = [
     { key: 'rows', title: 'editor.rows', ...rowItems() },
@@ -293,9 +306,10 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
         boolField('show_rows'),
         entitiesField('rows'),
         ...colourFields(),
+        ...stateTintFields(STATES),
         actionFields({ icon: true }),
       ],
-      ...formLabels({}),
+      ...stateLabels(formLabels({}), STATES, 'alarm_control_panel'),
     };
   }
 
@@ -495,13 +509,17 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
     const compact = this.compact;
     const state = view.state;
     const alerting = state === 'triggered' || state === 'arming' || state === 'pending';
-    const tone: Tone = unusable
-      ? 'off'
-      : alerting
-        ? 'warning'
-        : state.startsWith('armed_')
-          ? 'accent'
-          : 'neutral';
+    const armed = state.startsWith('armed_');
+    // its state's tone: the card's own (the accent while armed, a warning while it alerts), or the config's for the
+    // state; beyond the circle and the badge where the card is tinted by it
+    const colour = stateLook(
+      this.accents,
+      this.config,
+      state,
+      unusable ? 'off' : alerting ? 'warning' : armed ? 'accent' : 'neutral',
+    );
+    const { tone } = colour;
+    const tinted = tintOf(this.accents, this.config, colour, alerting || armed);
     const modes = this.modes(view);
     const lit = this.pending_
       ? MODES.find((mode) => mode.key === this.pending_)?.state
@@ -537,7 +555,9 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       label: s(this.hass, mode.tile),
       value: described ? s(this.hass, mode.value) : '',
       glyph: mode.glyph,
-      tone: mode.bit === 0 ? 'neutral' : alerting && !this.pending_ ? 'warning' : 'accent',
+      // the lit tile wears the state's tone (the mode in force, a warning while the panel alerts); the one just
+      // chosen, until the panel answers, the accent
+      tone: this.pending_ || unusable ? (mode.bit === 0 ? 'neutral' : 'accent') : tone,
       active: !unusable && lit === mode.state,
       // out of reach, every mode keeps its tile, at rest: the dashed tile takes no tap
       unavailable: unusable,
@@ -550,14 +570,17 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       title: name,
       ...this.subtitle(changedLine(this.hass, view), changedShort(this.hass, view)),
       badge: {
-        text: state.startsWith('armed_') ? s(this.hass, 'armed') : stateText(this.hass, view),
+        text: armed ? s(this.hass, 'armed') : stateText(this.hass, view),
         tone,
         lead: true,
       },
     });
     return html`<article
-        class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''} ${narrow ? 'is-compact' : ''}"
+        class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''} ${narrow ? 'is-compact' : ''} ${tinted.cls}"
         data-card
+        data-accent=${colour.accent ?? nothing}
+        data-surface=${tinted.surface}
+        data-edge=${tinted.edge}
       >
         ${head({
           icon: fitted.icon ? iconOf(view, this.config?.icon) : null,

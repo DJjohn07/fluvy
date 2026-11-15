@@ -15,6 +15,7 @@ import {
   type DevicePatch,
   type DeviceSettings,
   type EffectiveSettings,
+  type LightTint,
   type MessageKey,
   type SliderStyle,
   type WallSettings,
@@ -75,6 +76,16 @@ export const SLIDER_WORD: Readonly<Record<SliderStyle, MessageKey>> = {
   fill: 'option.tile_fill',
 };
 
+/**
+ * When a device shows its state's colour, as the options say it: "Never", not "Off", and "When active", not "When on" —
+ * a lock that is unlocked is not on.
+ */
+export const TINT_WORD: Readonly<Record<LightTint, 'never' | 'active' | 'always'>> = {
+  off: 'never',
+  on: 'active',
+  always: 'always',
+};
+
 /** A page background's word (#155): plain as the wall says it, the gradient as a chart's fill does. */
 export const backgroundWord = (
   ctx: Pick<PanelContext, 't' | 'hass'>,
@@ -107,6 +118,8 @@ export type HouseEdit = Partial<
     | 'wall'
     | 'lightTint'
     | 'lightColors'
+    | 'stateTint'
+    | 'stateTintStyle'
     | 'statuses'
     | 'sheets'
     | 'rooms'
@@ -587,6 +600,14 @@ export function changeLines(ctx: PanelContext): string[] {
     );
   if (house.lightColors !== undefined)
     lines.push(`${t('lights.title')} · ${t('lights.colors')} · ${onOff(house.lightColors)}`);
+  if (house.stateTint)
+    lines.push(
+      `${t('cards.title')} · ${t('cards.tint')} · ${localize(ctx.hass, `option.${TINT_WORD[house.stateTint]}`)}`,
+    );
+  if (house.stateTintStyle)
+    lines.push(
+      `${t('cards.title')} · ${t('cards.tint_style')} · ${localize(ctx.hass, `option.${house.stateTintStyle}`)}`,
+    );
   if (house.statuses)
     for (const name of STATUS_NAMES)
       if (house.statuses[name] !== ctx.settings.statuses[name])

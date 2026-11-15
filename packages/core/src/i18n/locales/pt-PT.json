@@ -623,6 +623,8 @@
     "window_entity": "Janela",
     "show_low_battery": "Avisar de bateria fraca",
     "found_helper": "Vazio: procurado no dispositivo",
+    "tint_style": "Mostrar como",
+    "state_colors": "Cores por estado",
     "line_readouts": "Leituras na linha",
     "readouts_first": "A primeira",
     "readouts_all": "Todas",
@@ -1601,6 +1603,8 @@
     "dashboard.thermostat_state": "Estado dos termóstatos",
     "dashboard.brief": "Breve",
     "dashboard.detailed": "Detalhado",
+    "cards.tint": "Cor do estado nos dispositivos",
+    "cards.tint_style": "Mostrar como",
     "dashboard.rooms_as": "Divisões como",
     "dashboard.room_pages": "Páginas",
     "dashboard.room_tabs": "Separadores",
@@ -2218,7 +2222,10 @@
     "tile_fill": "Preenchimento",
     "house_style": "Casa ({style})",
     "label": "Etiqueta",
-    "floor": "Piso"
+    "floor": "Piso",
+    "wash": "Matiz",
+    "edge": "Contorno",
+    "control": "Controlo"
   },
   "tone": {
     "accent": "Destaque",

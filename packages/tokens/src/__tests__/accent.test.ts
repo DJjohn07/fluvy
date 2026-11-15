@@ -63,6 +63,26 @@ const BULBS = [
 ];
 const KELVIN = ['#ff932c', '#ffa757', '#ffcea6', '#ffe4ce', '#fffefa'];
 
+/** Every palette a card can sit on: the presets, the community's, and a custom one of each character, base and fill. */
+const everyPalette: [string, PaletteSeed, Palette][] = [
+  ...palettes.map((palette): [string, PaletteSeed, Palette] => [
+    palette.name,
+    seeds[palette.name as keyof typeof seeds],
+    palette,
+  ]),
+  ...[
+    ...COMMUNITY_PALETTES.map((entry) => entry.palette),
+    ...CUSTOM_BASES.flatMap((base): CustomPalette[] => [
+      { character: 'soft', base, accent: '#3a7bd5' },
+      { character: 'vivid', base, accent: '#3a7bd5', fill: 'tint' },
+      { character: 'vivid', base, accent: '#e2ff3d', fill: 'solid' },
+    ]),
+  ].map((custom): [string, PaletteSeed, Palette] => {
+    const seed = customSeed(custom);
+    return [seed.key ?? seed.name, seed, derivePalette(seed)];
+  }),
+];
+
 describe('a card’s own colour on every palette', () => {
   it('clears the gates the palette’s accent clears, whatever the pick', () => {
     for (const palette of palettes) {
@@ -508,25 +528,6 @@ describe('a light card in its light’s whole colour, with the brightness (`full
 });
 
 describe('an inner fill on a washed surface (`--fluvy-inset`, 1.9)', () => {
-  /** Every palette a card can sit on: the presets, the community's, and a custom one of each character, base and fill. */
-  const everyPalette: [string, PaletteSeed, Palette][] = [
-    ...palettes.map((palette): [string, PaletteSeed, Palette] => [
-      palette.name,
-      seeds[palette.name as keyof typeof seeds],
-      palette,
-    ]),
-    ...[
-      ...COMMUNITY_PALETTES.map((entry) => entry.palette),
-      ...CUSTOM_BASES.flatMap((base): CustomPalette[] => [
-        { character: 'soft', base, accent: '#3a7bd5' },
-        { character: 'vivid', base, accent: '#3a7bd5', fill: 'tint' },
-        { character: 'vivid', base, accent: '#e2ff3d', fill: 'solid' },
-      ]),
-    ].map((custom): [string, PaletteSeed, Palette] => {
-      const seed = customSeed(custom);
-      return [seed.key ?? seed.name, seed, derivePalette(seed)];
-    }),
-  ];
   /** The least chroma a colour has: under it a grey, which has only its depth to keep. */
   const COLOUR = LIMITS.soft.accentChroma[0];
 
@@ -570,6 +571,60 @@ describe('an inner fill on a washed surface (`--fluvy-inset`, 1.9)', () => {
           if (fromHex(fill).c >= COLOUR)
             expect(deltaE(inset, page), at).toBeGreaterThanOrEqual(deltaE(wash, card) / 2);
         }
+      }
+  });
+});
+
+describe('a device card in its state’s tone (1.22, #196)', () => {
+  /** The tones a device card's state is drawn in: the accent, the statuses, a valve's water, a fan's, a thermostat's. */
+  const ROLES = (colors: Palette[PaletteMode]) =>
+    [
+      ['accent', colors.accent],
+      ['warning', colors.semantic.warning],
+      ['danger', colors.semantic.danger],
+      ['ok', colors.semantic.success],
+      ...(
+        [
+          'climate-heat',
+          'climate-cool',
+          'climate-dry',
+          'climate-fan',
+          'energy-water',
+          'security-armed',
+        ] as const
+      ).map((state) => [state, colors.state[state]] as const),
+    ] as const;
+
+  it('washes the card where its words, its glyph and its hairline read, at rest and active, on every palette', () => {
+    for (const [name, , palette] of everyPalette)
+      for (const mode of PALETTE_MODES) {
+        const colors = palette[mode];
+        for (const [tone, role] of ROLES(colors))
+          for (const level of [0, LIT_FLOOR]) {
+            const vars = new Map(litSurface(role, colors, level));
+            const wash = vars.get('--fluvy-card')!;
+            const at = (fg: string, min: number, what: string): void =>
+              expect(
+                contrastRatio(fg, wash),
+                `${name}/${mode} ${tone} ${level}: ${what}`,
+              ).toBeGreaterThanOrEqual(min);
+            at(colors.text.primary, 4.5, 'the name');
+            at(colors.text.secondary, 4.5, 'the line and the state that leads it');
+            at(role.ink, 3, 'the glyph, the knob and the ruler');
+            if (wash !== colors.surface.card) at(role.fillBorder, 1.35, 'the card’s edge');
+          }
+      }
+  });
+
+  it('says it at the card’s edge alone in an ink that stands off the card as a control does', () => {
+    for (const [name, , palette] of everyPalette)
+      for (const mode of PALETTE_MODES) {
+        const colors = palette[mode];
+        for (const [tone, role] of ROLES(colors))
+          expect(
+            contrastRatio(role.ink, colors.surface.card),
+            `${name}/${mode} ${tone}: the edge`,
+          ).toBeGreaterThanOrEqual(3);
       }
   });
 });

@@ -14,9 +14,12 @@ import {
   selectField,
   headFields,
   sliderFields,
+  stateLabels,
+  stateTintFields,
   textField,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
+import { STATE_TINT_KEYS } from '../shared/state-tint.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import type { CoverCardConfig } from './cover-card.js';
 
@@ -26,6 +29,9 @@ const coverStrings = strings('cover');
 
 export const base = [...HEAD_BASE, ...SLIDER_BASE];
 
+/** A cover's states, as Home Assistant writes them (a valve's are the same): what the editor offers a colour for. */
+const STATES = ['open', 'closed', 'opening', 'closing'];
+
 export const keys = configKeys<CoverCardConfig>()([
   'subtitle',
   'variant',
@@ -34,6 +40,7 @@ export const keys = configKeys<CoverCardConfig>()([
   'show_tilt',
   'show_favorites',
   'tilt_angle',
+  ...STATE_TINT_KEYS,
 ]);
 
 export const lists: readonly RowsListSpec[] = [
@@ -75,8 +82,9 @@ export function getConfigForm(): LovelaceConfigForm {
         onlyWhen(({ variant }) => variant === undefined || variant === 'full', row),
       ),
       ...colourFields(),
+      ...stateTintFields(STATES),
       actionFields({ icon: true }),
     ],
-    ...editorLabels(coverStrings, { tilt_angle: 'tilt_angle' }, {}),
+    ...stateLabels(editorLabels(coverStrings, { tilt_angle: 'tilt_angle' }, {}), STATES, 'cover'),
   };
 }

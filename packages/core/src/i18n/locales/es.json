@@ -623,6 +623,8 @@
     "window_entity": "Ventana",
     "show_low_battery": "Avisar de batería baja",
     "found_helper": "Vacío, se busca en su dispositivo",
+    "tint_style": "Mostrar como",
+    "state_colors": "Colores por estado",
     "line_readouts": "Lecturas en la línea",
     "readouts_first": "La primera",
     "readouts_all": "Todas",
@@ -1601,6 +1603,8 @@
     "dashboard.thermostat_state": "Estado de los termostatos",
     "dashboard.brief": "Breve",
     "dashboard.detailed": "Detallado",
+    "cards.tint": "Color del estado en los dispositivos",
+    "cards.tint_style": "Mostrar como",
     "dashboard.rooms_as": "Habitaciones como",
     "dashboard.room_pages": "Páginas",
     "dashboard.room_tabs": "Pestañas",
@@ -2218,7 +2222,10 @@
     "tile_fill": "Relleno",
     "house_style": "Casa ({style})",
     "label": "Etiqueta",
-    "floor": "Planta"
+    "floor": "Planta",
+    "wash": "Tinte",
+    "edge": "Borde",
+    "control": "Control"
   },
   "tone": {
     "accent": "Acento",

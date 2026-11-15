@@ -51,29 +51,41 @@ afterAll(() => setLanguageOverride(undefined));
 
 describe('what a thermostat is doing', () => {
   it('says the action in the action’s tone, the mode in the mode’s where it says none', () => {
+    // each with what it says as Home Assistant writes it: what a colour by state is asked of (#196)
     expect(read(house([trv('heat', { hvac_action: 'heating' })]))).toEqual({
       text: 'Heating',
+      key: 'heating',
       tone: 'heat',
     });
     expect(read(house([trv('heat', { hvac_action: 'idle' })]))).toEqual({
       text: 'Idle',
+      key: 'idle',
       tone: 'neutral',
     });
-    expect(read(house([trv('heat')]))).toEqual({ text: 'Heat', tone: 'heat' });
-    expect(read(house([trv('unavailable')]))).toEqual({ text: 'Unavailable', tone: 'off' });
+    expect(read(house([trv('heat')]))).toEqual({ text: 'Heat', key: 'heat', tone: 'heat' });
+    expect(read(house([trv('unavailable')]))).toEqual({
+      text: 'Unavailable',
+      key: 'unavailable',
+      tone: 'off',
+    });
   });
 
   it('says a window open only where it is asked, and only while the thermostat is on', () => {
     const open = trv('heat', { hvac_action: 'idle', window_open: true });
     // not asked: the action, as before
-    expect(read(house([open]))).toEqual({ text: 'Idle', tone: 'neutral' });
+    expect(read(house([open]))).toEqual({ text: 'Idle', key: 'idle', tone: 'neutral' });
     expect(read(house([open]), { show_window: true })).toEqual({
       text: 'Window open',
+      key: 'window',
       tone: 'warning',
     });
     expect(read(house([{ ...open, state: 'off' }]), { show_window: true }).text).toBe('Idle');
     const off = trv('off', { window_open: true });
-    expect(read(house([off]), { show_window: true })).toEqual({ text: 'Off', tone: 'heat' });
+    expect(read(house([off]), { show_window: true })).toEqual({
+      text: 'Off',
+      key: 'off',
+      tone: 'heat',
+    });
   });
 
   it('reads the window where the thermostat says it, a named sensor says it, or one on its device does', () => {
@@ -120,6 +132,7 @@ describe('what a thermostat is doing', () => {
     expect(read(house([held]), { show_window: true })).toEqual({
       text: 'No call for heat',
       short: 'Idle',
+      key: 'no_call_for_heat',
       tone: 'neutral',
     });
     const says = {
@@ -150,12 +163,12 @@ describe('what a thermostat is doing', () => {
       read(house([{ ...plain, state: mode }, entity('switch.heater', state)]), {
         state_entity: 'switch.heater',
       });
-    expect(by('on')).toEqual({ text: 'Heating', tone: 'heat' });
-    expect(by('off')).toEqual({ text: 'Idle', tone: 'neutral' });
-    expect(by('on', 'cool')).toEqual({ text: 'Cooling', tone: 'cool' });
-    expect(by('Defrosting')).toEqual({ text: 'Defrosting', tone: 'heat' });
+    expect(by('on')).toEqual({ text: 'Heating', key: 'heating', tone: 'heat' });
+    expect(by('off')).toEqual({ text: 'Idle', key: 'idle', tone: 'neutral' });
+    expect(by('on', 'cool')).toEqual({ text: 'Cooling', key: 'cooling', tone: 'cool' });
+    expect(by('Defrosting')).toEqual({ text: 'Defrosting', key: 'defrosting', tone: 'heat' });
     // it says nothing of the kind: the thermostat's own
-    expect(by('unavailable')).toEqual({ text: 'Heat', tone: 'heat' });
+    expect(by('unavailable')).toEqual({ text: 'Heat', key: 'heat', tone: 'heat' });
     expect(read(house([plain]), { state_entity: 'switch.gone' }).text).toBe('Heat');
   });
 
@@ -169,6 +182,7 @@ describe('what a thermostat is doing', () => {
     expect(read(house([trv('heat', { hvac_action: 'idle' })], german))).toEqual({
       text: 'Leerlauf',
       short: 'Bereit',
+      key: 'idle',
       tone: 'neutral',
     });
   });

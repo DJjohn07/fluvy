@@ -23,7 +23,6 @@ import {
   type ChipItem,
   type RulerChangeDetail,
   type RulerWindowDetail,
-  type Tone,
 } from '@fluvy/ui';
 
 import { css, html, nothing, type CSSResultGroup, type TemplateResult } from 'lit';
@@ -46,6 +45,7 @@ import { ITEM_ALIASES, type AliasSpec, type RowStyle } from '../shared/config.js
 import { chipRow } from '../shared/chips.js';
 import { HeadFit } from '../energy/head.js';
 import { COMPACT, drawnAs, listLength } from '../shared/heights.js';
+import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import {
   fitValueRow,
   STEPPER,
@@ -67,7 +67,7 @@ export interface CoverFavorite {
 /** `full` (default): the position ruler, tilt, the actions and the favourites. `compact`: the head and the actions. */
 export type CoverVariant = 'full' | 'compact';
 
-export interface CoverCardConfig extends FluvyCardConfig {
+export interface CoverCardConfig extends FluvyCardConfig, StateTintConfig {
   subtitle?: string;
   variant?: CoverVariant;
   favorites?: readonly CoverFavorite[];
@@ -412,8 +412,16 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     const position = reported === null ? null : (this.dragged ?? this.target.read(reported, near));
     const tilt = this.tiltOf(view);
     const open = view.status === 'ok' && (position !== null ? position > 0 : shown !== 'closed');
-    const active: Tone = valve ? 'water' : 'accent';
-    const tone: Tone = unusable ? 'off' : open || moving ? active : 'neutral';
+    // its state's tone: the card's own (the accent while it is open or moving, a valve's the water's), or the
+    // config's for the state; beyond the circle and the badge where the card is tinted by it
+    const colour = stateLook(
+      this.accents,
+      this.config,
+      shown,
+      unusable ? 'off' : open || moving ? (valve ? 'water' : 'accent') : 'neutral',
+    );
+    const { tone } = colour;
+    const tinted = tintOf(this.accents, this.config, colour, open || moving);
 
     const canPosition = view.supports(SET_POSITION);
     const canTilt =
@@ -529,9 +537,12 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     // the commands in equal cells, two rows where one would leave a cell under a finger's 44
     const cells = actionGap(this.contentWidth, row.length);
     return html`<article
-      class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''}"
+      class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''} ${tinted.cls}"
       style="--dv-action-gap:${cells.gap}px"
       data-card
+      data-accent=${colour.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({
         icon: fitted.icon ? iconOf(view, this.config?.icon) : null,
@@ -563,7 +574,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                   .step=${1}
                   .length=${160}
                   .band=${44}
-                  .tone=${open || moving ? active : 'neutral'}
+                  .tone=${unusable ? 'neutral' : tone}
                   ?inactive=${unusable || position === null}
                   ?disabled=${unusable}
                   .look=${sliderStyleOf(this.config)}

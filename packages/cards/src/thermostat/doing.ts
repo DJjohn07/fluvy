@@ -36,6 +36,11 @@ export interface Doing {
   readonly text: string;
   /** Fluvy's word where another is said: what a line too narrow for that one says. */
   readonly short?: string;
+  /**
+   * What it says, as Home Assistant writes it: the action, a window or a door that is open, what holds the heating
+   * back, else the state — what a colour by state is asked of (`state_colors`).
+   */
+  readonly key: string;
   /** The tone the word wears: its action's, never its mode's — idle and off are quiet, an open window a warning. */
   readonly tone: Tone;
 }
@@ -134,16 +139,18 @@ export function doing(
   tone: Tone,
   ask: DoingAsk = {},
 ): Doing {
-  if (!isUsable(view)) return { text: stateText(host.hass, view), tone: 'off' };
+  if (!isUsable(view)) return { text: stateText(host.hass, view), key: state, tone: 'off' };
   const off = state === 'off';
   if (!off && (ask.show_window || ask.window_entity)) {
     const open = opening(host.hass, view, ask.window_entity);
-    if (open) return { text: localize(host.hass, `climate.${open}_open`), tone: 'warning' };
+    if (open)
+      return { text: localize(host.hass, `climate.${open}_open`), key: open, tone: 'warning' };
     const held = view.attr<unknown>('heating_blocked_by');
     if (typeof held === 'string' && held && held !== 'hvac_off')
       return {
         text: haSaid(host, view, 'heating_blocked_by', held) ?? pretty(held),
         short: localize(host.hass, 'climate.action.idle'),
+        key: held,
         tone: 'neutral',
       };
   }
@@ -158,6 +165,7 @@ export function doing(
     return {
       text: said ?? short,
       ...(said && said !== short ? { short } : {}),
+      key: action,
       tone: known ?? tone,
     };
   }
@@ -166,6 +174,7 @@ export function doing(
       off && view.domain === 'climate'
         ? localize(host.hass, 'climate.mode.off')
         : stateText(host.hass, view),
+    key: state,
     tone,
   };
 }

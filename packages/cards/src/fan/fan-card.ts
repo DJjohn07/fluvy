@@ -27,7 +27,6 @@ import {
   type ChipItem,
   type RulerChangeDetail,
   type RulerWindowDetail,
-  type Tone,
 } from '@fluvy/ui';
 
 import { css, html, nothing, type CSSResultGroup, type TemplateResult } from 'lit';
@@ -43,6 +42,8 @@ import { HeadFit, SWITCH_SLOT } from '../energy/head.js';
 import { heldLabels, type Labels } from '../shared/axis.js';
 import { chipBlock, chipRows, COMPACT, drawnAs, ROW } from '../shared/heights.js';
 import { fanPercentage } from '../shared/scale.js';
+import { toneOf } from '../shared/colour.js';
+import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import { fitValueRow, STEPPER, STEPPER_HALVES, valueRowClass } from '../shared/value-row.js';
 
 const fanStrings = strings('fan');
@@ -50,7 +51,7 @@ const fanStrings = strings('fan');
 /** `full` (default): the speed with its stepper and ruler, the rows and the presets. `compact`: the head and the ruler. */
 export type FanVariant = 'full' | 'compact';
 
-export interface FanCardConfig extends FluvyCardConfig {
+export interface FanCardConfig extends FluvyCardConfig, StateTintConfig {
   subtitle?: string;
   variant?: FanVariant;
   /** The − and + beside the full card's speed (default). Off: the speed is set on its ruler, and the readout is the card's tap. */
@@ -385,7 +386,18 @@ export class FluvyFanCard extends Card<FanCardConfig> {
     const step = 100 / count;
     const speed = this.speedOf(view, on);
     const figure = this.dragged ?? speed;
-    const tone: Tone = unusable ? 'off' : on ? 'fan' : 'neutral';
+    // what its rows are drawn in: the fan's tone, or the card's own (`tone`, `color`)
+    const own = toneOf(this.config, 'fan');
+    // its state's tone: that one while it runs, or the config's for the state; beyond the circle where the card is
+    // tinted by it
+    const colour = stateLook(
+      this.accents,
+      this.config,
+      state,
+      unusable ? 'off' : on ? 'fan' : 'neutral',
+    );
+    const { tone } = colour;
+    const tinted = tintOf(this.accents, this.config, colour, on);
     // the compact card is the head and the ruler; so is the full one while off with `when_off: essentials` —
     // presets, oscillation and direction wait for the fan to run
     const bare = compact || (state === 'off' && this.config?.when_off === 'essentials');
@@ -429,11 +441,11 @@ export class FluvyFanCard extends Card<FanCardConfig> {
       rows.push(
         listRow({
           icon: keep ? 'swing' : null,
-          tone: unusable ? 'off' : oscillating ? 'fan' : 'neutral',
+          tone: unusable ? 'off' : oscillating ? own : 'neutral',
           title: this.t('fan.oscillate'),
           trailing: 'switch',
           on: oscillating,
-          switchTone: 'fan',
+          switchTone: own,
           unavailable: unusable,
           onToggle: (next) => {
             if (unusable) return;
@@ -523,9 +535,12 @@ export class FluvyFanCard extends Card<FanCardConfig> {
         : { trailing: SWITCH_SLOT }),
     });
     return html`<article
-      class="fv-card dv-card dv-fan ${unusable ? 'is-unavailable is-off' : ''}"
+      class="fv-card dv-card dv-fan ${unusable ? 'is-unavailable is-off' : ''} ${tinted.cls}"
       style=${turn}
       data-card
+      data-accent=${colour.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({
         icon: fitted.icon ? iconRef : null,
@@ -536,7 +551,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
         sub: fitted.line,
         trailing: unusable
           ? fitted.badge
-          : toggle(on, 'fan', (next) => this.power(view, next), name),
+          : toggle(on, on ? tone : own, (next) => this.power(view, next), name),
         cut: fitted.cut,
         ...this.headActions(view.id),
       })}
@@ -552,7 +567,7 @@ export class FluvyFanCard extends Card<FanCardConfig> {
                   .length=${this.contentWidth}
                   .minor=${scale.minor}
                   .major=${scale.major}
-                  .tone=${on && !unusable ? 'fan' : 'neutral'}
+                  .tone=${unusable ? 'neutral' : tone}
                   ?inactive=${speed === null || !on}
                   ?wake=${!unusable && speed !== null}
                   ?disabled=${unusable}

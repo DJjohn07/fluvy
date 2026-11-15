@@ -1,5 +1,10 @@
 // @vitest-environment happy-dom
-import { setCardDefaults, type HaFormSchemaItem, type HomeAssistant } from '@fluvy/core';
+import {
+  setCardDefaults,
+  setTintDefaults,
+  type HaFormSchemaItem,
+  type HomeAssistant,
+} from '@fluvy/core';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   cardForm,
@@ -20,6 +25,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
+  stateTintFields,
   textField,
 } from './form.js';
 import {
@@ -315,6 +321,33 @@ describe('editor defaults', () => {
     expect(
       editorDefaults({ schema: colourFields({ unavailable: false }) })!({ type: 't' }, undefined),
     ).not.toHaveProperty('unavailable');
+  });
+
+  it('shows the house’s devices’ state colour on a device card, as the house says it when asked, and never writes it (1.22, #196)', () => {
+    const shown = editorDefaults({ schema: stateTintFields(['locked', 'unlocked']) })!;
+    expect(shown({ type: 't' }, undefined)).toMatchObject({ tint: 'off', tint_style: 'wash' });
+    setTintDefaults({ tint: 'always', style: 'edge' });
+    expect(shown({ type: 't' }, undefined)).toMatchObject({ tint: 'always', tint_style: 'edge' });
+    setTintDefaults({ tint: 'off', style: 'wash' });
+    // untouched, nothing written; chosen, its own
+    expect(
+      withoutUntouchedDefaults(
+        { tint: 'off', tint_style: 'wash' },
+        { type: 't' },
+        { tint: 'off', tint_style: 'wash' },
+      ),
+    ).toEqual({});
+    expect(
+      withoutUntouchedDefaults(
+        { tint: 'on', tint_style: 'wash' },
+        { type: 't' },
+        { tint: 'off', tint_style: 'wash' },
+      ),
+    ).toEqual({ tint: 'on' });
+    // a card that shows its state in no colour shows none
+    expect(
+      editorDefaults({ schema: colourFields() })!({ type: 't' }, undefined),
+    ).not.toHaveProperty('tint');
   });
 
   it('never writes a number’s Automatic, even chosen after a value the config held', () => {

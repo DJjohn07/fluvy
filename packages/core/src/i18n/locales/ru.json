@@ -787,7 +787,10 @@
     "tile_fill": "Заливка",
     "house_style": "Общий ({style})",
     "label": "Подпись",
-    "floor": "Этаж"
+    "floor": "Этаж",
+    "wash": "Заливка",
+    "edge": "Рамка",
+    "control": "Элемент управления"
   },
   "tone": {
     "accent": "Акцент",
@@ -2041,6 +2044,8 @@
     "window_entity": "Окно",
     "show_low_battery": "Предупреждать о низком заряде",
     "found_helper": "Пусто: ищется на устройстве",
+    "tint_style": "Показывать как",
+    "state_colors": "Цвета по состояниям",
     "line_readouts": "Показания в строке",
     "readouts_first": "Первое",
     "readouts_all": "Все",
@@ -3072,6 +3077,8 @@
     "dashboard.thermostat_state": "Состояние термостатов",
     "dashboard.brief": "Кратко",
     "dashboard.detailed": "Подробно",
+    "cards.tint": "Цвет состояния устройств",
+    "cards.tint_style": "Показывать как",
     "dashboard.rooms_as": "Вид комнат",
     "dashboard.room_pages": "Страницы",
     "dashboard.room_tabs": "Вкладки",

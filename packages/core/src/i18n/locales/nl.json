@@ -623,6 +623,8 @@
     "window_entity": "Raam",
     "show_low_battery": "Lage batterij melden",
     "found_helper": "Leeg: gezocht op het apparaat",
+    "tint_style": "Tonen als",
+    "state_colors": "Kleuren per status",
     "line_readouts": "Meetwaarden op de regel",
     "readouts_first": "De eerste",
     "readouts_all": "Alle",
@@ -1601,6 +1603,8 @@
     "dashboard.thermostat_state": "Status van thermostaten",
     "dashboard.brief": "Kort",
     "dashboard.detailed": "Uitgebreid",
+    "cards.tint": "Apparaten tonen hun statuskleur",
+    "cards.tint_style": "Tonen als",
     "dashboard.rooms_as": "Kamers als",
     "dashboard.room_pages": "Pagina’s",
     "dashboard.room_tabs": "Tabbladen",
@@ -2218,7 +2222,10 @@
     "tile_fill": "Vulling",
     "house_style": "Huis ({style})",
     "label": "Label",
-    "floor": "Verdieping"
+    "floor": "Verdieping",
+    "wash": "Waas",
+    "edge": "Rand",
+    "control": "Bediening"
   },
   "tone": {
     "accent": "Accent",

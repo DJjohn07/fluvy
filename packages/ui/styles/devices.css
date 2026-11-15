@@ -72,8 +72,8 @@
   box-shadow: inset 0 0 0 1px var(--fluvy-border);
 }
 
+/* the knob's ring and dot are its tone's (`fv-knob--accent`; its state's where the card is tinted by it, 1.22) */
 .dv-slide .fv-knob {
-  --tone-ink: var(--fluvy-accent);
   --knob-halo: transparent; /* no ticks to cut; the track hairline stays whole */
 }
 

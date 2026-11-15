@@ -303,10 +303,12 @@
 }
 
 /* ---------- state changes ---------- */
-/* a light card lit in its colour (1.9) eases into it as a tile does; never on its first frame, which is drawn in the
-   colours it ends in (a transition runs from a style the page has shown, and the card's sheet is written before) */
+/* a light card lit in its colour (1.9) eases into it as a tile does, and so does a card tinted by what it says (1.22,
+   `fv-tint`: one that may be); never on its first frame, which is drawn in the colours it ends in (a transition runs
+   from a style the page has shown, and the card's sheet is written before) */
 .fv-tile,
 .sl-card,
+.fv-tint,
 .fv-option,
 .fv-ico,
 .fv-badge,

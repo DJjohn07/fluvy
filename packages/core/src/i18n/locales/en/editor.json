@@ -221,6 +221,8 @@
     "window_entity": "Window",
     "show_low_battery": "Warn of a low battery",
     "found_helper": "Empty: found on its device",
+    "tint_style": "Shown as",
+    "state_colors": "Colours by state",
     "line_readouts": "Readouts on the line",
     "readouts_first": "The first",
     "readouts_all": "All of them",

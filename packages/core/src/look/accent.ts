@@ -160,13 +160,20 @@ export const TONE_STATES: Readonly<Record<string, keyof PaletteModeColors['state
   vehicle: 'energy-water',
 };
 
+/** The status a tone is drawn in (`ui`'s tones table): a warning, a danger, what is good. */
+const TONE_STATUSES: Readonly<Record<string, keyof PaletteModeColors['semantic']>> = {
+  warning: 'warning',
+  danger: 'danger',
+  ok: 'success',
+};
+
 /** A lit surface in its light's whole colour as the lamp is bright (`full_brightness`): this mark, then its colour. */
 const FULL = 'full ';
 
 /**
  * What a lit surface is lit in on a palette × mode — a colour's family (`#rrggbb`, a white's: `WHITE`) or a tone of the
- * palette's own (`light`: its lit light) — and the names it is drawn by: a colour's, the accent's and the lit light's,
- * as its family writes them.
+ * palette's own (`light`: its lit light; a status: `warning`, `danger`, `ok`) — and the names it is drawn by: a
+ * colour's, the accent's and the lit light's, as its family writes them.
  */
 function litRole(
   paletteKey: string,
@@ -175,12 +182,13 @@ function litRole(
 ): readonly [RoleColors, readonly string[]] {
   const colors = colorsOf(paletteKey, mode);
   const state = TONE_STATES[source];
+  const status = TONE_STATUSES[source];
   return source.includes('#')
     ? [familyOf(paletteKey, mode, source), ['accent', 'state-light-active']]
     : state
       ? [colors.state[state], [`state-${state}`]]
-      : source === 'warning'
-        ? [colors.semantic.warning, ['warning']]
+      : status
+        ? [colors.semantic[status], [status]]
         : [colors.accent, ['accent']];
 }
 
@@ -246,6 +254,8 @@ export class AccentSheet {
   private items = new Set<string>();
   /** Each lit surface by its `data-surface`: what it is lit in and how far (`<source>-<level %>`). */
   private surfaces = new Set<string>();
+  /** Each surface that says a tone at its edge alone, by its `data-edge`: what the edge is drawn in. */
+  private edges = new Set<string>();
   /** What writes a see-through card's sheet (1.15, `look/glass.ts`): none while it is solid. */
   private see: GlassWriter | undefined;
   private written = '';
@@ -280,10 +290,11 @@ export class AccentSheet {
     this.see = writer;
   }
 
-  /** Forgets the items' colours and the lit surfaces before a render asks for them again. */
+  /** Forgets the items' colours, the lit surfaces and the edges before a render asks for them again. */
   begin(): void {
     this.items = new Set();
     this.surfaces = new Set();
+    this.edges = new Set();
   }
 
   /**
@@ -310,8 +321,8 @@ export class AccentSheet {
 
   /**
    * The ink a series is drawn in on the palette the card wears: a tone of the palette's (`heat`, `water`, the
-   * `accent`), or a colour of the user's (`#rrggbb`, as `accentCss` derives its family). Nothing for a tone without an
-   * ink of its own (`off`, `neutral`). What tells two curves apart (the sensor card's ΔE gate).
+   * `accent`, a status), or a colour of the user's (`#rrggbb`, as `accentCss` derives its family). Nothing for a tone
+   * without an ink of its own (`off`, `neutral`). What tells two curves apart (the sensor card's ΔE gate).
    */
   inkOf(source: string): Hex | undefined {
     const paletteKey = this.paletteKey || DEFAULT_PALETTE;
@@ -321,12 +332,13 @@ export class AccentSheet {
     const choice = choiceOf(paletteKey);
     const colors = colorsOf(paletteKey, this.mode);
     const state = TONE_STATES[source];
+    const status = TONE_STATUSES[source];
     const ink = source.startsWith('#')
       ? accentFamily(seedOf(choice), colors, source as Hex).ink
       : state
         ? colors.state[state].ink
-        : source === 'warning'
-          ? colors.semantic.warning.ink
+        : status
+          ? colors.semantic[status].ink
           : source === 'accent' || source === PALETTE_ACCENT
             ? colors.accent.ink
             : '';
@@ -341,6 +353,15 @@ export class AccentSheet {
     const key = `${source}-${Math.round(level * 20) * 5}`;
     this.surfaces.add(key);
     return key;
+  }
+
+  /**
+   * A surface that says a tone at its edge alone (a card tinted `edge`, 1.22, #196): the value for its `data-edge` —
+   * what the edge is drawn in, a tone of the palette's or a colour (`inkOf`).
+   */
+  edge(source: string): string {
+    this.edges.add(source);
+    return source;
   }
 
   /**
@@ -360,8 +381,8 @@ export class AccentSheet {
 
   /**
    * Writes the sheet: the host's colour and surface on the card's children, each item's on its `data-accent`, then
-   * each lit surface on its `data-surface` (after the host's: a lit card's surface is over its `card_color`); a
-   * see-through card's through its writer.
+   * each lit surface on its `data-surface` (after the host's: a lit card's surface is over its `card_color`) and each
+   * edge's ink on its `data-edge`; a see-through card's through its writer.
    */
   commit(): void {
     const rules: string[] = [];
@@ -382,6 +403,10 @@ export class AccentSheet {
       rules.push(
         `[data-surface="${key}"]{${litCss(this.paletteKey, this.mode, key.slice(0, dash), Number(key.slice(dash + 1)) / 100)}}`,
       );
+    }
+    for (const source of this.edges) {
+      const ink = this.inkOf(source);
+      if (ink) rules.push(`[data-edge="${source}"]{--fv-edge:${ink}}`);
     }
     const own = rules.join('');
     const css = this.see ? this.see(this.paletteKey, this.mode, own) : own;

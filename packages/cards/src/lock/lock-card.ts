@@ -51,17 +51,20 @@ import {
   rowItems,
   selectField,
   headFields,
+  stateLabels,
+  stateTintFields,
 } from '../shared/form.js';
 
 import { changedLine, changedShort, RowsCard, type RowsCardConfig } from './rows.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { configKeys, ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
 import { rowEndStyles } from '../shared/row-end.js';
+import { stateLook, STATE_TINT_KEYS, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import { lockHeight } from '../devices-family.js';
 
 const s = strings('lock');
 
-export interface LockCardConfig extends RowsCardConfig {
+export interface LockCardConfig extends RowsCardConfig, StateTintConfig {
   subtitle?: string;
   /** `full` (default): the slide and the rows. `compact`: the head and the slide. */
   variant?: 'full' | 'compact';
@@ -81,6 +84,8 @@ const CONFIRM_MS = 2000;
 const KNOB_BOX = 44;
 /** A `code_format` that only admits digits: `^\d{4}$`, `\d+`, `^[0-9]{4,8}$`. Anything else needs a real text field. */
 const NUMERIC = /^\^?(?:\\d|\[0-9\])(?:\{(\d+)(?:,(\d*))?\}|[+*])?\$?$/;
+/** A lock's states, as Home Assistant writes them: what the editor offers a colour for. */
+const STATES = ['locked', 'unlocked', 'locking', 'unlocking', 'open', 'opening', 'jammed'];
 /** Whether the card draws rows at all (the editor offers them only then): the compact card draws none. */
 const drawsRows = ({ variant }: Readonly<Record<string, unknown>>): boolean =>
   variant !== 'compact';
@@ -90,6 +95,8 @@ const drawsRows = ({ variant }: Readonly<Record<string, unknown>>): boolean =>
  * track and follows the finger; let go past 85 % of the travel and it commits, anywhere short of that
  * it springs back and nothing is called. A tap does nothing, a cancelled touch does nothing, the
  * keyboard asks twice, the latch asks in a sheet, and a lock with a code asks for it on the keypad.
+ * The knob keeps the accent (a jammed bolt alone turns it to the warning) until the card is tinted by its state (`tint`,
+ * 1.22, #196): its ring and its dot then wear the state's tone, in every style.
  */
 export class FluvyLockCard extends RowsCard<LockCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
@@ -203,7 +210,13 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
   }
 
   static override base = HEAD_BASE;
-  static override keys = configKeys<LockCardConfig>()(['rows', 'show_rows', 'subtitle', 'variant']);
+  static override keys = configKeys<LockCardConfig>()([
+    'rows',
+    'show_rows',
+    'subtitle',
+    'variant',
+    ...STATE_TINT_KEYS,
+  ]);
   static override lists: readonly RowsListSpec[] = [
     { key: 'rows', title: 'editor.rows', ...rowItems(), when: drawsRows },
   ];
@@ -220,9 +233,10 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
         onlyWhen(drawsRows, boolField('show_rows')),
         entitiesField('rows'),
         ...colourFields(),
+        ...stateTintFields(STATES),
         actionFields({ icon: true }),
       ],
-      ...formLabels({}),
+      ...stateLabels(formLabels({}), STATES, 'lock'),
     };
   }
 
@@ -539,7 +553,11 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
     const atStart = this.atStart;
     const frozen = this.frozen;
     const moving = frozen && !unusable;
-    const tone = this.tone(view, state);
+    // its state's tone: the card's own (the accent while the bolt is home, a warning while it is not), or the
+    // config's for the state; beyond the circle and the badge where the card is tinted by it
+    const colour = stateLook(this.accents, this.config, state, this.tone(view, state));
+    const { tone } = colour;
+    const tinted = tintOf(this.accents, this.config, colour, !atStart);
     const shown =
       view.stateObj && state !== view.state
         ? stateText(this.hass, { ...view, state, stateObj: { ...view.stateObj, state } })
@@ -566,8 +584,11 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
       badge: { text: shown, tone, lead: true },
     });
     return html`<article
-        class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''}"
+        class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''} ${tinted.cls}"
         data-card
+        data-accent=${colour.accent ?? nothing}
+        data-surface=${tinted.surface}
+        data-edge=${tinted.edge}
       >
         ${head({
           icon: fitted.icon ? (this.config?.icon ?? (atStart ? 'lock' : 'unlock')) : null,
@@ -580,7 +601,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
           ...this.headActions(view.id),
         })}
         <div
-          class="dv-slide ${atStart ? '' : 'dv-slide--reverse'} ${state === 'jammed' ? 'dv-slide--warning' : ''} ${frozen ? 'is-inert' : ''} ${moving ? 'is-moving' : ''}"
+          class="dv-slide ${atStart ? '' : 'dv-slide--reverse'} ${state === 'jammed' && !tinted.shown ? 'dv-slide--warning' : ''} ${frozen ? 'is-inert' : ''} ${moving ? 'is-moving' : ''}"
           data-control
           data-target
           role="button"
@@ -595,7 +616,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
           @blur=${() => this.resetConfirm()}
         >
           <span
-            class="fv-knob fv-knob--accent dv-slide__knob"
+            class="fv-knob fv-knob--${tinted.shown ? tone : 'accent'} dv-slide__knob"
             data-measure="value"
             style="left:4px;top:4px;width:36px;height:36px"
           ></span>

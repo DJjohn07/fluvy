@@ -12,7 +12,7 @@ import { BLUE, dozen, sheet as glass } from './glass.js';
  */
 
 /** The E-ink palette (`palettes/community/e-ink.fluvy-palette.json`), and the same in ink. */
-const LINE: CustomPalette = {
+export const LINE: CustomPalette = {
   character: 'soft',
   base: 'neutral',
   accent: '#1f1f1f',

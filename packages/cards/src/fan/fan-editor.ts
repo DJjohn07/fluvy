@@ -12,15 +12,21 @@ import {
   selectField,
   headFields,
   sliderFields,
+  stateLabels,
+  stateTintFields,
   whenOffField,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
+import { STATE_TINT_KEYS } from '../shared/state-tint.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
 import type { FanCardConfig } from './fan-card.js';
 
 /** The fan card's editor: fetched by its `editor()` the first time the card is edited, never by a dashboard. */
 
 export const base = [...HEAD_BASE, ...SLIDER_BASE];
+
+/** A fan's states, as Home Assistant writes them: what the editor offers a colour for. */
+const STATES = ['on', 'off'];
 
 export const keys = configKeys<FanCardConfig>()([
   'subtitle',
@@ -31,6 +37,7 @@ export const keys = configKeys<FanCardConfig>()([
   'show_oscillation',
   'show_direction',
   'when_off',
+  ...STATE_TINT_KEYS,
 ]);
 
 /** What the editor shows where the config says nothing: what the card does then. */
@@ -57,10 +64,9 @@ export function getConfigForm(): LovelaceConfigForm {
       whenOffField(),
       ...sliderFields(),
       ...colourFields(),
+      ...stateTintFields(STATES),
       actionFields({ icon: true }),
     ],
-    ...formLabels({
-      show_presets: 'fan.preset',
-    }),
+    ...stateLabels(formLabels({ show_presets: 'fan.preset' }), STATES, 'fan'),
   };
 }

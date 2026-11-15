@@ -787,7 +787,10 @@
     "tile_fill": "Заливка",
     "house_style": "Типовий ({style})",
     "label": "Підпис",
-    "floor": "Поверх"
+    "floor": "Поверх",
+    "wash": "Заливка",
+    "edge": "Рамка",
+    "control": "Елемент керування"
   },
   "tone": {
     "accent": "Акцент",
@@ -2041,6 +2044,8 @@
     "window_entity": "Вікно",
     "show_low_battery": "Попереджати про низький заряд",
     "found_helper": "Порожньо: шукається на пристрої",
+    "tint_style": "Показувати як",
+    "state_colors": "Кольори за станами",
     "line_readouts": "Показання в рядку",
     "readouts_first": "Перше",
     "readouts_all": "Усі",
@@ -3072,6 +3077,8 @@
     "dashboard.thermostat_state": "Стан термостатів",
     "dashboard.brief": "Стисло",
     "dashboard.detailed": "Докладно",
+    "cards.tint": "Колір стану пристроїв",
+    "cards.tint_style": "Показувати як",
     "dashboard.rooms_as": "Показ кімнат",
     "dashboard.room_pages": "Сторінки",
     "dashboard.room_tabs": "Вкладки",

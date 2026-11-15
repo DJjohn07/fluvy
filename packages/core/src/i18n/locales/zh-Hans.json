@@ -1496,7 +1496,10 @@
     "tile_fill": "填充",
     "house_style": "全屋（{style}）",
     "label": "标签",
-    "floor": "楼层"
+    "floor": "楼层",
+    "wash": "底色",
+    "edge": "边框",
+    "control": "控件"
   },
   "tone": {
     "accent": "强调色",
@@ -1948,6 +1951,8 @@
     "window_entity": "窗户",
     "show_low_battery": "电池电量低时提示",
     "found_helper": "留空：在设备上查找",
+    "tint_style": "显示方式",
+    "state_colors": "按状态设置颜色",
     "line_readouts": "行内读数",
     "readouts_first": "第一个",
     "readouts_all": "全部",
@@ -2950,6 +2955,8 @@
     "dashboard.thermostat_state": "恒温器状态",
     "dashboard.brief": "简要",
     "dashboard.detailed": "详细",
+    "cards.tint": "设备显示状态颜色",
+    "cards.tint_style": "显示方式",
     "dashboard.rooms_as": "房间显示为",
     "dashboard.room_pages": "页面",
     "dashboard.room_tabs": "标签页",

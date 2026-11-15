@@ -45,6 +45,7 @@ import { BrokenPictures, imageEntity, imageOf } from '../shared/picture.js';
 import type { WhenOff } from '../shared/config.js';
 import { chipRow, inForce, type Choice } from '../shared/chips.js';
 import { haWord, modeWord, pretty } from '../shared/mode-words.js';
+import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import { fitValueRow, STEPPER, STEPPER_HALVES, valueRowClass } from '../shared/value-row.js';
 import { degrees, doing, setpoint, type Doing } from './doing.js';
 import { batteryLevel, humidityOf, valveOf, windowBy, type ReadingsAsk } from './readings.js';
@@ -52,7 +53,7 @@ import { batteryLevel, humidityOf, valveOf, windowBy, type ReadingsAsk } from '.
 export type ThermostatVariant = 'dial' | 'compact' | 'ruler';
 export type RowStyle = 'chips' | 'full';
 
-export interface ThermostatCardConfig extends FluvyCardConfig, ReadingsAsk {
+export interface ThermostatCardConfig extends FluvyCardConfig, ReadingsAsk, StateTintConfig {
   /** The line under the name; empty hides it. Default: the area (left out where it is the name) and the humidity. */
   subtitle?: string;
   /** The word for what it is doing, in the head (default); hidden, nothing says it. */
@@ -599,9 +600,10 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
    * where it says more than the name ("Garderobe / Garderobe" said it twice) and the room's humidity. The word is
    * never lost (#185): where its badge cannot stand beside the name and the line it steps down into the line, after
    * the battery and before the rest, which gives way after it — Home Assistant's word to Fluvy's own where even alone
-   * it would not hold. What the line reads of other entities is watched while it reads them.
+   * it would not hold. The word wears `tone`: its action's, or the config's for it. What the line reads of other
+   * entities is watched while it reads them.
    */
-  private fitHead(view: EntityView, m: ThermostatModel, name: string): FittedHead {
+  private fitHead(view: EntityView, m: ThermostatModel, name: string, tone: Tone): FittedHead {
     const ask: ReadingsAsk & Pick<ThermostatCardConfig, 'show_state'> = this.config ?? {};
     const percent = (value: number): string => `${formatNumber(this.hass, value, { digits: 0 })} %`;
     const valve = valveOf(this.hass, view, ask);
@@ -630,9 +632,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       width,
       title: name,
       ...(low ? { sub: led() } : own),
-      badge: shown
-        ? { text: [said.text, figure].filter(Boolean).join(' · '), tone: said.tone }
-        : null,
+      badge: shown ? { text: [said.text, figure].filter(Boolean).join(' · '), tone } : null,
     });
     const stepped = shown && fitted.badge === nothing;
     if (stepped)
@@ -646,7 +646,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       ...fitted,
       line: warned(fitted.sub, [
         [low, 'warning'],
-        [stepped ? said.text : '', said.tone],
+        [stepped ? said.text : '', tone],
       ]),
     };
   }
@@ -730,6 +730,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
     figure: (v: number) => string,
     edge: (v: number) => string,
     now: string,
+    mode: Tone,
   ): TemplateResult {
     const range = m.target === undefined && m.low !== undefined && m.high !== undefined;
     const held = this.held;
@@ -785,7 +786,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
         ? html`${endButton(0, low as number)} – ${endButton(1, high as number)}`
         : text;
     const w = this.contentWidth;
-    const tone: Tone = idle ? 'neutral' : m.tone;
+    const tone: Tone = idle ? 'neutral' : mode;
     const ruler = (value: number, ariaLabel: string, commit: (v: number) => void): TemplateResult =>
       html`<fluvy-ruler
           .value=${value}
@@ -891,7 +892,27 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
     // fan speeds where they stand, nothing taking a tap; only the colours change (1.9)
     const unusable = !isUsable(view);
     const m = this.model(view);
-    const tone: Tone = unusable ? 'off' : m.tone;
+    // its tones: its mode's on the circle, the dial and the ruler, and what it is doing's on the badge and the line —
+    // the card's own, or the config's for the state (an action that runs in its mode's tone follows the mode's) — the
+    // second beyond the head where the card is tinted by it
+    const said = m.doing;
+    const mode = stateLook(
+      this.accents,
+      this.config,
+      this.stateOf(view),
+      unusable ? 'off' : m.tone,
+    );
+    const act =
+      said.tone === m.tone && !this.config?.state_colors?.[said.key]
+        ? mode
+        : stateLook(this.accents, this.config, said.key, said.tone);
+    const { tone } = mode;
+    const tinted = tintOf(
+      this.accents,
+      this.config,
+      act,
+      said.tone !== 'neutral' && said.tone !== 'off',
+    );
     const isPct = m.unit === '%';
     const figure = (v: number): string =>
       formatNumber(this.hass, v, { digits: m.step < 1 ? 1 : 0, minDigits: m.step < 1 ? 1 : 0 });
@@ -908,7 +929,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
         ? `${formatNumber(this.hass, v, { digits: 0 })} %`
         : `${formatNumber(this.hass, v, { digits: 0 })}°`;
 
-    const fitted = this.fitHead(view, m, name);
+    const fitted = this.fitHead(view, m, name, act.tone);
     // a preset and a fan speed in Home Assistant's words, else Fluvy's for a standard speed; the one in force is
     // among them whether the entity offers it or not (#202), while it can be read
     const preset = (p: string): Choice => ({
@@ -935,20 +956,23 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
     // their 12, on the 4 grid
     const radius = Math.min(84, Math.max(56, Math.floor(this.contentWidth / 8) * 4 - 22));
     return html`<article
-      class="fv-card cl-card ${unusable ? 'is-unavailable is-off' : ''} ${this.contentWidth < 292 ? 'is-narrow' : ''}"
+      class="fv-card cl-card ${unusable ? 'is-unavailable is-off' : ''} ${this.contentWidth < 292 ? 'is-narrow' : ''} ${tinted.cls}"
       data-card
+      data-accent=${act.accent ?? mode.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({ icon: fitted.icon ? iconOf(view, this.config?.icon) : null, picture: this.pictures.shown(imageOf(this.hass, this.config?.image)), pictureFailed: this.pictures.failed, tone, title: name, sub: fitted.line, trailing: fitted.badge, name: true, cut: fitted.cut, ...this.headActions(view.id) })}
       ${
         this.variant() !== 'dial'
-          ? this.renderValueRow(view, m, name, unusable, figure, edge, now)
+          ? this.renderValueRow(view, m, name, unusable, figure, edge, now, tone)
           : html`<div class="cl-dial-row">
               <fluvy-dial
                 .radius=${radius}
                 .tick=${10}
                 .large=${false}
                 .stepper=${this.config?.show_stepper !== false}
-                .tone=${m.off || unusable ? 'neutral' : m.tone}
+                .tone=${m.off || unusable ? 'neutral' : tone}
                 .min=${m.min}
                 .max=${m.max}
                 .step=${m.step}

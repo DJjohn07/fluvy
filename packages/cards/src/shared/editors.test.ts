@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { CATALOGUE, catalogue } from '../index.js';
 import type { Card, CardEditor } from './base.js';
 import { COMMON_ALIASES } from './config.js';
-import { visibleFields } from './form.js';
+import { holdsOwn, visibleFields } from './form.js';
 import { editorDefaults, FluvyRowsEditor, itemHelpers, itemLabels } from './rows-editor.js';
 
 /**
@@ -27,7 +27,9 @@ type CardClass = typeof Card & {
  * is held to the contract as any other.
  */
 const fields = (schema: readonly HaFormSchemaItem[]): HaFormSchemaItem[] =>
-  schema.flatMap((item) => (item.schema ? fields(item.schema) : item.name ? [item] : []));
+  schema.flatMap((item) =>
+    item.schema && !holdsOwn(item) ? fields(item.schema) : item.name ? [item] : [],
+  );
 /** The fields the editor may hide: those with a `when` of their own, or in a row with one. */
 const hideable = (schema: readonly HaFormSchemaItem[], hiding = false): HaFormSchemaItem[] =>
   schema.flatMap((item) => {

@@ -21,7 +21,6 @@ import {
   sheetStyles,
   type ActionItem,
   type ChipItem,
-  type Tone,
 } from '@fluvy/ui';
 
 import {
@@ -52,6 +51,7 @@ import { modeWord } from '../shared/mode-words.js';
 import { HeadFit } from '../energy/head.js';
 import { drawnAs } from '../shared/heights.js';
 import { statsRow, type StatText } from '../shared/readouts.js';
+import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
 import {
   MOWER_BITS,
   usual,
@@ -99,7 +99,7 @@ const FAILED_MS = 3000;
 /** `full` (default): the readouts, the battery, the commands and the suction. `compact`: the head and the commands. */
 export type VacuumVariant = 'full' | 'compact';
 
-export interface VacuumCardConfig extends FluvyCardConfig {
+export interface VacuumCardConfig extends FluvyCardConfig, StateTintConfig {
   subtitle?: string;
   variant?: VacuumVariant;
   show_battery?: boolean;
@@ -462,13 +462,18 @@ export class FluvyVacuumCard extends Card<VacuumCardConfig> {
     const compact = this.config?.variant === 'compact';
     const shown = this.stateOf(view);
     const running = shown === robot.running;
-    const tone: Tone = unusable
-      ? 'off'
-      : shown === 'error' || this.failed_
-        ? 'warning'
-        : running || shown === 'returning'
-          ? 'accent'
-          : 'neutral';
+    const failing = shown === 'error' || this.failed_;
+    const busy = running || shown === 'returning';
+    // its state's tone: the card's own (the accent while it works or returns, a warning while it fails), or the
+    // config's for the state; beyond the circle and the badge where the card is tinted by it
+    const colour = stateLook(
+      this.accents,
+      this.config,
+      this.failed_ ? 'error' : shown,
+      unusable ? 'off' : failing ? 'warning' : busy ? 'accent' : 'neutral',
+    );
+    const { tone } = colour;
+    const tinted = tintOf(this.accents, this.config, colour, failing || busy);
     const w = this.contentWidth;
     const has = (key: Command | 'suction' | 'battery'): boolean =>
       robot.bits[key] !== 0 && view.supports(robot.bits[key]);
@@ -602,9 +607,12 @@ export class FluvyVacuumCard extends Card<VacuumCardConfig> {
     const run = (key: string): void => this.command(view, robot, key as Command | 'drive');
 
     const card = html`<article
-      class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''}"
+      class="fv-card dv-card ${unusable ? 'is-unavailable is-off' : ''} ${tinted.cls}"
       style="--dv-action-gap:${gap}px"
       data-card
+      data-accent=${colour.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({
         icon: fitted.icon ? iconOf(view, this.config?.icon) : null,

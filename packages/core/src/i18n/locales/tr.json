@@ -623,6 +623,8 @@
     "window_entity": "Pencere",
     "show_low_battery": "Zayıf pili bildir",
     "found_helper": "Boşsa, cihazında aranır",
+    "tint_style": "Gösterim biçimi",
+    "state_colors": "Duruma göre renkler",
     "line_readouts": "Satırdaki okumalar",
     "readouts_first": "İlki",
     "readouts_all": "Tümü",
@@ -1601,6 +1603,8 @@
     "dashboard.thermostat_state": "Termostatların durumu",
     "dashboard.brief": "Kısa",
     "dashboard.detailed": "Ayrıntılı",
+    "cards.tint": "Cihazlar durum rengini gösterir",
+    "cards.tint_style": "Gösterim biçimi",
     "dashboard.rooms_as": "Odalar şöyle",
     "dashboard.room_pages": "Sayfalar",
     "dashboard.room_tabs": "Sekmeler",
@@ -2218,7 +2222,10 @@
     "tile_fill": "Dolgu",
     "house_style": "Ev ({style})",
     "label": "Etiket",
-    "floor": "Kat"
+    "floor": "Kat",
+    "wash": "Dolgu",
+    "edge": "Kenarlık",
+    "control": "Denetim"
   },
   "tone": {
     "accent": "Vurgu",

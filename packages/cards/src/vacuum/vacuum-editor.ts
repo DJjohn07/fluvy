@@ -23,8 +23,11 @@ import {
   sectionField,
   selectField,
   headFields,
+  stateLabels,
+  stateTintFields,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
+import { STATE_TINT_KEYS } from '../shared/state-tint.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
 import { DRIVE_SPEEDS, DRIVE_STYLES, driveProfile } from './drive.js';
 import type { VacuumCardConfig } from './vacuum-card.js';
@@ -45,6 +48,9 @@ const driven = (data: Data, hass?: HomeAssistant): boolean =>
 
 export const base = HEAD_BASE;
 
+/** A robot's states, as Home Assistant writes them (a mower's among them): what the editor offers a colour for. */
+const STATES = ['cleaning', 'mowing', 'returning', 'paused', 'idle', 'docked', 'error'];
+
 export const keys = configKeys<VacuumCardConfig>()([
   'subtitle',
   'variant',
@@ -59,6 +65,7 @@ export const keys = configKeys<VacuumCardConfig>()([
   'drive_style',
   'drive_entity',
   'drive',
+  ...STATE_TINT_KEYS,
 ]);
 
 /** What the editor shows where the config says nothing: what the card does then. */
@@ -128,21 +135,27 @@ export function getConfigForm(): LovelaceConfigForm {
       ),
       driveFields(),
       ...colourFields(),
+      ...stateTintFields(STATES),
       actionFields({ icon: true }),
     ],
-    ...editorLabels(
-      vacuumStrings,
-      { area_entity: 'area', duration_entity: 'elapsed' },
-      {
-        battery_entity: 'vacuum.battery',
-        remaining_entity: 'timer.remaining',
-        suction_style: 'editor.suction_style',
-        show_drive: 'drive.editor.show_drive',
-        drive_speed: 'drive.editor.drive_speed',
-        drive_style: 'drive.editor.drive_style',
-        drive_entity: 'drive.editor.drive_entity',
-        drive: 'drive.editor.drive',
-      },
+    ...stateLabels(
+      editorLabels(
+        vacuumStrings,
+        { area_entity: 'area', duration_entity: 'elapsed' },
+        {
+          battery_entity: 'vacuum.battery',
+          remaining_entity: 'timer.remaining',
+          suction_style: 'editor.suction_style',
+          show_drive: 'drive.editor.show_drive',
+          drive_speed: 'drive.editor.drive_speed',
+          drive_style: 'drive.editor.drive_style',
+          drive_entity: 'drive.editor.drive_entity',
+          drive: 'drive.editor.drive',
+        },
+      ),
+      STATES,
+      'vacuum',
+      'lawn_mower',
     ),
     computeHelper: (schema) => {
       const key = HELPERS[schema.name];

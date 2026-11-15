@@ -50,6 +50,9 @@ export type { CardLanguage };
 
 export const SETTINGS_KEY = 'fluvy';
 /**
+ * 7 since 1.22: the house says when a device card shows its state's colour beyond its circle and as what (`stateTint`,
+ * `stateTintStyle`, #196): never, as a wash, where a 6 stored none, each card drawing as it did, so nothing changes on
+ * upgrade (a 1.21 bundle reads a 7's as its own, and keeps both fields on a save).
  * 6 since 1.21: the house keeps the order of its rooms (`rooms`, #189): `auto` where a 5 stored none, each list by room
  * sorting as it did, so nothing changes on upgrade (a 1.20 bundle reads a 6's as its own, and keeps the field on a save).
  * 5 since 1.20: the house's `details` (our chart in Home Assistant's details dialog, #162) is on where a 4 stored none:
@@ -71,7 +74,7 @@ export const SETTINGS_KEY = 'fluvy';
  * one added inside such a field (1.16's `cards.unavailable`): a 1.15 bundle draws it as its default, and a save of
  * the cards from it writes the default back.
  */
-export const SETTINGS_VERSION = 6;
+export const SETTINGS_VERSION = 7;
 
 /** A palette saved to the house: a palette file as it was shared. */
 export type SavedPalette = PaletteFile;
@@ -110,6 +113,13 @@ export type Sheets = 'fluvy' | 'home-assistant';
 /** When a light card shows its light's colour on its surface: never, while the light is on, or at rest too. */
 export const LIGHT_TINTS = ['off', 'on', 'always'] as const;
 export type LightTint = (typeof LIGHT_TINTS)[number];
+
+/**
+ * As what a card shows a tone beyond its circle (1.22, #196): a wash of it over its surface, with its hairline; its
+ * closing edge alone, in the tone's ink; or its control alone (a lock's knob).
+ */
+export const TINT_STYLES = ['wash', 'edge', 'control'] as const;
+export type TintStyle = (typeof TINT_STYLES)[number];
 
 /**
  * How a card looks while what it shows is out of reach (1.16, #126): `dashed`, the unavailable skin (the page's fill,
@@ -190,6 +200,9 @@ export interface HouseSettings {
   readonly lightTint: LightTint;
   /** `light_colors` where a tile, a group of tiles, a room or a row of lights says none (1.9). */
   readonly lightColors: boolean;
+  /** A device card's `tint` and `tint_style` where the card says none (1.22, #196). */
+  readonly stateTint: LightTint;
+  readonly stateTintStyle: TintStyle;
   /** The statuses in colours of the house's own, over every palette (1.9); one left out is the palette's (Auto). */
   readonly statuses: StatusColours;
   /** How every chart and gauge is drawn where a card says nothing of its own (1.11). */
@@ -247,6 +260,8 @@ export interface EffectiveSettings {
   readonly wall: WallSettings;
   readonly lightTint: LightTint;
   readonly lightColors: boolean;
+  readonly stateTint: LightTint;
+  readonly stateTintStyle: TintStyle;
   /** The house's status colours, worn over this person's palette too. */
   readonly statuses: StatusColours;
   readonly charts: ChartSettings;
@@ -290,6 +305,9 @@ export const HOUSE_DEFAULTS: HouseSettings = {
   // the cards' keys new in 1.9 start where 1.8 drew them: no dashboard changes on upgrade
   lightTint: 'off',
   lightColors: false,
+  // a device's state in its circle and its badge alone, as before 1.22
+  stateTint: 'off',
+  stateTintStyle: 'wash',
   // every status the palette's own, as before 1.9
   statuses: {},
   // every chart as 1.10 drew it (`classic`), until the house chooses a style
@@ -433,6 +451,10 @@ export function parseHouse(raw: unknown): HouseSettings {
     wall: parseWall(value['wall']),
     lightTint: oneOf(value['lightTint'], LIGHT_TINTS) ? value['lightTint'] : d.lightTint,
     lightColors: typeof value['lightColors'] === 'boolean' ? value['lightColors'] : d.lightColors,
+    stateTint: oneOf(value['stateTint'], LIGHT_TINTS) ? value['stateTint'] : d.stateTint,
+    stateTintStyle: oneOf(value['stateTintStyle'], TINT_STYLES)
+      ? value['stateTintStyle']
+      : d.stateTintStyle,
     statuses: parseStatuses(value['statuses']),
     charts: parseChartSettings(value['charts']),
     chartSets: parseSavedSeries(value['chartSets']),
@@ -496,6 +518,8 @@ export function resolveSettings(
     wall: house.wall,
     lightTint: house.lightTint,
     lightColors: house.lightColors,
+    stateTint: house.stateTint,
+    stateTintStyle: house.stateTintStyle,
     statuses: house.statuses,
     charts: house.charts,
     chartSets: house.chartSets,

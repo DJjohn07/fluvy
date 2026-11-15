@@ -1367,6 +1367,8 @@
     "window_entity": "Okno",
     "show_low_battery": "Upozornit na slabou baterii",
     "found_helper": "Prázdné: hledá se na zařízení",
+    "tint_style": "Zobrazit jako",
+    "state_colors": "Barvy podle stavu",
     "line_readouts": "Hodnoty na řádku",
     "readouts_first": "První",
     "readouts_all": "Všechny",
@@ -1774,7 +1776,10 @@
     "tile_fill": "Výplň",
     "house_style": "Podle domu ({style})",
     "label": "Štítek",
-    "floor": "Podlaží"
+    "floor": "Podlaží",
+    "wash": "Nádech",
+    "edge": "Okraj",
+    "control": "Ovládací prvek"
   },
   "tone": {
     "accent": "Akcent",
@@ -3007,6 +3012,8 @@
     "dashboard.thermostat_state": "Stav termostatů",
     "dashboard.brief": "Stručně",
     "dashboard.detailed": "Podrobně",
+    "cards.tint": "Zařízení zobrazují barvu stavu",
+    "cards.tint_style": "Zobrazit jako",
     "dashboard.rooms_as": "Místnosti jako",
     "dashboard.room_pages": "Stránky",
     "dashboard.room_tabs": "Záložky",

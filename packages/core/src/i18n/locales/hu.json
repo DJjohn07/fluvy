@@ -573,6 +573,8 @@
     "window_entity": "Ablak",
     "show_low_battery": "A gyenge elem jelzése",
     "found_helper": "Üresen: az eszközén keresi",
+    "tint_style": "Megjelenítés módja",
+    "state_colors": "Színek állapot szerint",
     "line_readouts": "Kijelzők a sorban",
     "readouts_first": "Az első",
     "readouts_all": "Mind",
@@ -1037,7 +1039,10 @@
     "tile_fill": "Kitöltés",
     "house_style": "Ház ({style})",
     "label": "Felirat",
-    "floor": "Emelet"
+    "floor": "Emelet",
+    "wash": "Árnyalat",
+    "edge": "Keret",
+    "control": "Vezérlő"
   },
   "tone": {
     "accent": "Kiemelés",
@@ -3019,6 +3024,8 @@
     "dashboard.thermostat_state": "Termosztátok állapota",
     "dashboard.brief": "Rövid",
     "dashboard.detailed": "Részletes",
+    "cards.tint": "Az eszközök állapotszíne",
+    "cards.tint_style": "Megjelenítés módja",
     "dashboard.rooms_as": "Szobák megjelenése",
     "dashboard.room_pages": "Oldalak",
     "dashboard.room_tabs": "Lapok",

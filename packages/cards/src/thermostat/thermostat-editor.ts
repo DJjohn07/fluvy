@@ -20,11 +20,14 @@ import {
   sectionField,
   selectField,
   headFields,
+  stateLabels,
+  stateTintFields,
   textField,
   whenOffField,
 } from '../shared/form.js';
 import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
 import { configKeys } from '../shared/config.js';
+import { STATE_TINT_KEYS } from '../shared/state-tint.js';
 import { batteryLevel, valveOf, windowBy } from './readings.js';
 import {
   defaultModes,
@@ -37,6 +40,12 @@ import {
 /** The thermostat card's editor: fetched by its `editor()` the first time the card is edited, never by a dashboard. */
 
 export const base = HEAD_BASE;
+
+/**
+ * What a thermostat says it is doing, as Home Assistant writes a climate's and a humidifier's actions: what the editor
+ * offers a colour for (a mode's, by its state, is the YAML's to say).
+ */
+const STATES = ['heating', 'cooling', 'drying', 'fan', 'humidifying', 'idle', 'off'];
 
 /** A sensor a picker may show: what was found, where it is an entity of its own and no climate's attribute. */
 const picked = (entity: string | undefined): string | undefined =>
@@ -110,6 +119,7 @@ export const keys = configKeys<ThermostatCardConfig>()([
   'show_battery',
   'battery_entity',
   'humidity_entity',
+  ...STATE_TINT_KEYS,
 ]);
 
 type Data = Readonly<Record<string, unknown>>;
@@ -182,17 +192,23 @@ export function getConfigForm(): LovelaceConfigForm {
       whenOffField(),
       doingFields(),
       ...colourFields(),
+      ...stateTintFields(STATES),
       actionFields({ icon: true }),
     ],
-    ...formLabels({
-      modes: 'editor.modes',
-      modes_style: 'editor.modes_style',
-      show_presets: 'climate.preset',
-      preset_style: 'editor.preset_style',
-      show_fan: 'climate.fan',
-      fan_style: 'editor.fan_style',
-      show_battery: 'editor.show_low_battery',
-      battery_entity: 'vacuum.battery',
-    }),
+    ...stateLabels(
+      formLabels({
+        modes: 'editor.modes',
+        modes_style: 'editor.modes_style',
+        show_presets: 'climate.preset',
+        preset_style: 'editor.preset_style',
+        show_fan: 'climate.fan',
+        fan_style: 'editor.fan_style',
+        show_battery: 'editor.show_low_battery',
+        battery_entity: 'vacuum.battery',
+      }),
+      STATES,
+      'climate.hvac_action',
+      'humidifier.action',
+    ),
   };
 }

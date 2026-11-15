@@ -5,6 +5,7 @@ import {
   localize,
   sliderDefaults,
   stepAside,
+  tintDefaults,
   type HaFormSchemaItem,
   type HomeAssistant,
   type LovelaceCardConfig,
@@ -20,6 +21,7 @@ import {
   foldConditions,
   type FormLabeler,
   formLabels,
+  holdsOwn,
   LABEL_FORM,
   NUMBER_DEFAULTS,
   SECTION_FORM,
@@ -500,6 +502,7 @@ export const withList = (
 const selectsOf = (schema: readonly HaFormSchemaItem[]): Map<string, readonly unknown[]> =>
   new Map(
     schema.flatMap((item): Array<[string, readonly unknown[]]> => {
+      if (holdsOwn(item)) return [];
       if (item.schema) return [...selectsOf(item.schema)];
       const select = item.selector?.['select'] as { options?: readonly unknown[] } | undefined;
       return select
@@ -555,6 +558,32 @@ const unworded = (
 
 const sameValue = (a: unknown, b: unknown): boolean =>
   a === b || JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * The form's value with each group that holds its fields under a key of its own (`holdsOwn`: a card's colours by state)
+ * holding those chosen alone: a field cleared leaves it, and a group of none leaves the config, as a cleared field does.
+ */
+const chosenOf = (
+  value: Readonly<Record<string, unknown>>,
+  schema: readonly HaFormSchemaItem[],
+): Readonly<Record<string, unknown>> => {
+  const next = { ...value };
+  const visit = (items: readonly HaFormSchemaItem[]): void => {
+    for (const item of items) {
+      const held = next[item.name];
+      if (!holdsOwn(item)) visit(item.schema ?? []);
+      else if (held && typeof held === 'object') {
+        const chosen = Object.entries(held).filter(
+          ([, entry]) => entry !== undefined && entry !== '',
+        );
+        if (chosen.length) next[item.name] = Object.fromEntries(chosen);
+        else delete next[item.name];
+      }
+    }
+  };
+  visit(schema);
+  return next;
+};
 
 /**
  * The form's value as config: a default the user left as it was stays out of the config (it was only shown), and a
@@ -905,7 +934,7 @@ export class FluvyRowsEditor extends LitElement {
     const fields = cardFields(this.spec);
     const own = withoutUntouchedDefaults(
       unworded(
-        foldConditions(event.detail.value, config, conditionsOf(fields)),
+        foldConditions(chosenOf(event.detail.value, fields), config, conditionsOf(fields)),
         config,
         selectsOf(fields),
       ),
@@ -1022,6 +1051,13 @@ export class FluvyRowsEditor extends LitElement {
   }
 
   private readonly addLabel: Labeler = () => this.t('editor.add');
+
+  /**
+   * The card's own fields are named by the card, told Home Assistant's own words as a form's contract hands them
+   * (`hass.localize`: a state's, for its colour).
+   */
+  private readonly cardLabel: Labeler = (schema) =>
+    this.spec?.computeLabel(schema, (key) => this.hass?.localize?.(key) ?? '');
 
   /** A section or a divider joins the list's end, to be dragged where it belongs. */
   private addSection(list: RowsListSpec, type: 'section' | 'divider'): void {
@@ -1207,7 +1243,7 @@ export class FluvyRowsEditor extends LitElement {
         .hass=${this.hass}
         .data=${data}
         .schema=${this.schema(spec, asked, choices)}
-        .computeLabel=${spec.computeLabel}
+        .computeLabel=${this.cardLabel}
         .computeHelper=${helper}
         @value-changed=${this.onCard}
       ></ha-form>
@@ -1259,7 +1295,8 @@ export function withoutLists(
  * (`hide_empty`), a list that stays in sight while it is empty, its items by Home Assistant's names where it may name
  * them otherwise (`names`); on a card with a surface (`card_opacity`), the house's
  * opacity and border for every card; on a card of entities (`unavailable`), how the house draws every card out of
- * reach; on a card with a slider (`slider_style`), the house's style and the words under it.
+ * reach; on a card with a slider (`slider_style`), the house's style and the words under it; on a device card
+ * (`tint_style`), when the house's devices show their state's colour, and as what.
  */
 export function editorDefaults(
   form: LovelaceConfigForm,
@@ -1278,7 +1315,8 @@ export function editorDefaults(
   const surface = shows('card_opacity');
   const away = shows('unavailable');
   const sliders = shows('slider_style');
-  return Object.keys(shared).length || surface || away || sliders
+  const tints = shows('tint_style');
+  return Object.keys(shared).length || surface || away || sliders || tints
     ? (config, hass) => ({
         ...shared,
         ...(surface
@@ -1286,6 +1324,7 @@ export function editorDefaults(
           : {}),
         ...(away ? { unavailable: cardDefaults().unavailable } : {}),
         ...(sliders ? { slider_style: 'house', slider_words: sliderDefaults().words } : {}),
+        ...(tints ? { tint: tintDefaults().tint, tint_style: tintDefaults().style } : {}),
         ...defaults?.(config, hass),
       })
     : defaults;

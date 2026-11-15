@@ -623,6 +623,8 @@
     "window_entity": "Fenster",
     "show_low_battery": "Schwache Batterie melden",
     "found_helper": "Leer: auf dem Gerät gesucht",
+    "tint_style": "Anzeigen als",
+    "state_colors": "Farben nach Zustand",
     "line_readouts": "Messwerte in der Zeile",
     "readouts_first": "Der erste",
     "readouts_all": "Alle",
@@ -1601,6 +1603,8 @@
     "dashboard.thermostat_state": "Zustand der Thermostate",
     "dashboard.brief": "Kurz",
     "dashboard.detailed": "Ausführlich",
+    "cards.tint": "Geräte zeigen ihre Zustandsfarbe",
+    "cards.tint_style": "Anzeigen als",
     "dashboard.rooms_as": "Räume als",
     "dashboard.room_pages": "Seiten",
     "dashboard.room_tabs": "Tabs",
@@ -2218,7 +2222,10 @@
     "tile_fill": "Füllung",
     "house_style": "Haus ({style})",
     "label": "Beschriftung",
-    "floor": "Etage"
+    "floor": "Etage",
+    "wash": "Tönung",
+    "edge": "Rand",
+    "control": "Bedienelement"
   },
   "tone": {
     "accent": "Akzent",

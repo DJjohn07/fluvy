@@ -476,6 +476,8 @@
     "dashboard.thermostat_state": "Thermostat state",
     "dashboard.brief": "Brief",
     "dashboard.detailed": "Detailed",
+    "cards.tint": "Devices show their state’s colour",
+    "cards.tint_style": "Shown as",
     "dashboard.rooms_as": "Rooms as",
     "dashboard.room_pages": "Pages",
     "dashboard.room_tabs": "Tabs",

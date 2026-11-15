@@ -733,7 +733,10 @@
     "tile_fill": "Fill",
     "house_style": "House ({style})",
     "label": "Label",
-    "floor": "Floor"
+    "floor": "Floor",
+    "wash": "Wash",
+    "edge": "Edge",
+    "control": "Control"
   },
   "tone": {
     "accent": "Accent",

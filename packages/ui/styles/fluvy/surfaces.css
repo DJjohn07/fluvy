@@ -32,6 +32,43 @@
   box-shadow: var(--fv-hover-edge, none);
 }
 
+/* a card on a wash of a tone (`data-surface`, core's look/accent.ts: a light card on its light's colour, 1.9 —
+   tint_strength soft or brightness, or always at rest; the whole fill is a lit tile's skin, .fv-card.is-lit, which a
+   step of the fill under 100 % wears too: full_brightness, its colours written on the step's surface — and a card
+   tinted by what it says, 1.22, #196): a ruler's words take the secondary ink and its resting ticks half the wash's
+   hairline, so both read on it (the tokens' gates hold the secondary ink and the hairline); and where its circle
+   wears the wash's own tone (`is-glow`: a lit lamp's, a state's), the circle and the switch's thumb stand on it as
+   plain-card discs, a lit tile's. A lit skin is left out at no weight (`:where`): a see-through card's resting ticks
+   (glass.css) still come after these */
+.fv-frame {
+  --fv-card-plain: var(--fluvy-card);
+}
+
+.fv-card[data-surface]:where(:not(.is-lit)) {
+  --fv-tick-off: color-mix(in srgb, var(--fluvy-border-strong) 50%, var(--fluvy-border));
+}
+
+.fv-card[data-surface]:where(:not(.is-lit)) fluvy-ruler {
+  --fluvy-border-strong: var(--fv-tick-off);
+}
+
+.fv-card[data-surface]:where(:not(.is-lit)) .fv-ruler-labels span {
+  color: var(--fluvy-text-secondary);
+}
+
+.fv-card.is-glow :is(.fv-card__head > .fv-ico, .fv-switch.is-on .fv-switch__thumb) {
+  background: var(--fv-card-plain);
+}
+
+/* a card that says a tone at its edge alone (`tint_style: edge`, 1.22, #196): its closing edge in the tone's ink (core
+   writes `--fv-edge` on its `data-edge`) — on a card without its border too, where the edge is the tone's alone, and
+   two wide on a surface read by its edges (`--fluvy-shade` 0), whose own edge is an ink already; a card another's
+   surface holds has no edge to say it with */
+.fv-card[data-edge],
+:host([borderless]) .fv-card[data-edge] {
+  box-shadow: var(--fv-held, inset 0 0 0 calc(2px - 1px * var(--fluvy-shade, 1)) var(--fv-edge));
+}
+
 /* cards stacked inside a frame; a frame that is itself a card never inherits this */
 .fv-frame .fv-card + .fv-card {
   margin-top: 16px;

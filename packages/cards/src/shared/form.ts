@@ -9,6 +9,7 @@ import {
   type HaFormSchemaItem,
   type HomeAssistant,
   type KeyOf,
+  LIGHT_TINTS,
   type LovelaceCardConfig,
   type LovelaceConfigForm,
   type MessageKey,
@@ -16,6 +17,7 @@ import {
   SLIDER_WORDS,
   sliderDefaults,
   type SliderStyle,
+  TINT_STYLES,
   TOGGLE_DOMAINS,
   UNAVAILABLE_LOOKS,
 } from '@fluvy/core';
@@ -23,6 +25,7 @@ import { TONES } from '@fluvy/ui';
 import { headLines } from './head-lines.js';
 import type { EditorChoices, RowsListSpec, SelectOption } from './rows-editor.js';
 import { asksGroups, statesOf } from './lists.js';
+import { pretty } from './mode-words.js';
 import { LADDERS, ladderOf, unitClass } from './units.js';
 import words from '@fluvy/core/locales/en/editor.json';
 
@@ -377,6 +380,13 @@ export const fieldRow = (...schema: HaFormSchemaItem[]): HaFormSchemaItem => {
   };
 };
 
+/**
+ * Whether a group holds its fields under a key of its own (a card's colours by state, `state_colors`), as Home
+ * Assistant's form does with a named group it does not flatten: its fields are that key's, never the card's.
+ */
+export const holdsOwn = (item: HaFormSchemaItem): boolean =>
+  Boolean(item.schema && item.name && !item.flatten);
+
 /** A group of fields under a title of its own, folded until opened (Home Assistant's expandable section). */
 export const sectionField = (
   title: MessageKey,
@@ -624,6 +634,68 @@ export const colourFields = ({ state = false, unavailable = true } = {}): HaForm
  */
 export const tintField = (options: readonly OptionWord[] = ['on', 'always']): HaFormSchemaItem =>
   selectField('tint', options, { words: { off: 'never' } });
+
+/** Whether a card's tint is asked to show (`tint`: its own, else the house's the editor shows): what a style acts on. */
+const tints = ({ tint }: Readonly<Record<string, unknown>>): boolean =>
+  tint === 'on' || tint === 'always';
+
+/**
+ * When a card shows a tone beyond its circle and as what (1.22, #196), on one row: `tint` (never, while what it says
+ * is active — "When active", a lock that is unlocked is not on — or at rest too) and `tint_style` (a wash, the card's
+ * edge, its control), a choice only while the tone shows. The house's, shown and never written, until one is chosen
+ * (`editorDefaults`).
+ */
+export const tintFields = (): HaFormSchemaItem =>
+  fieldRow(
+    selectField('tint', LIGHT_TINTS, { words: { off: 'never', on: 'active' } }),
+    onlyWhen(tints, selectField('tint_style', TINT_STYLES)),
+  );
+
+/**
+ * A device card's state in colour (1.22, #196): its tint (`tintFields`) and, folded under a title of their own, its
+ * states' colours (`state_colors`, held under that key) — for each of `states` a tone, None, or a colour typed, empty
+ * while it keeps the card's own. A state is named in Home Assistant's own words (`stateLabels`).
+ */
+export const stateTintFields = (states: readonly string[]): HaFormSchemaItem[] => [
+  tintFields(),
+  {
+    type: 'expandable',
+    name: 'state_colors',
+    helper: 'editor.item_color_own_helper',
+    schema: states.map((name) => ({
+      name,
+      selector: {
+        select: {
+          mode: 'dropdown',
+          custom_value: true,
+          options: [...optionChoices(['none']), ...toneSelector().select.options],
+        },
+      },
+    })),
+  },
+];
+
+/**
+ * A form's labels with its states' (`stateTintFields`) in Home Assistant's own words, where the editor is told them
+ * (`localize`): a state of one of `domains` (a robot's, a mower's), or a value of an attribute of one
+ * (`climate.hvac_action`: a thermostat's action), the first that has a word; else the state, tidied.
+ */
+export const stateLabels = (
+  labels: { readonly computeLabel: FormLabeler },
+  states: readonly string[],
+  ...domains: readonly string[]
+): { readonly computeLabel: FormLabeler } => ({
+  computeLabel: (schema, localize) => {
+    if (!states.includes(schema.name)) return labels.computeLabel(schema, localize);
+    for (const source of domains) {
+      const [domain, attribute] = source.split('.');
+      const key = `component.${domain}.entity_component._.${attribute ? `state_attributes.${attribute}.` : ''}state.${schema.name}`;
+      const word = localize(key);
+      if (word && word !== key) return word;
+    }
+    return pretty(schema.name);
+  },
+});
 
 /**
  * A lit light in its bulb's colour (`light_colors`), and beside it how a white shows then (`light_whites`: by its

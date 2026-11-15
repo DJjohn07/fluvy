@@ -1588,6 +1588,56 @@ describe('the settings panel', () => {
     guest.panel.remove();
   });
 
+  it('lets the house say when the devices show their state’s colour and as what, never until chosen (1.22, #196)', async () => {
+    const { panel, root, button, handle, previews, settle } = await mount();
+    const card = () =>
+      [...root.querySelectorAll<HTMLElement>('.pn-card')].find(
+        (c) => c.querySelector('.fv-card__title')?.textContent?.trim() === 'Cards',
+      )!;
+    const labels = () =>
+      [...card().querySelectorAll('.pn-label')].map((label) => label.textContent?.trim());
+    /** A chip of the row under a label of the card's. */
+    const chip = (label: string, words: string) => {
+      const above = [...card().querySelectorAll('.pn-label')].find(
+        (l) => l.textContent?.trim() === label,
+      );
+      return [...(above?.nextElementSibling?.querySelectorAll<HTMLElement>('.fv-chip') ?? [])].find(
+        (c) => c.textContent?.trim() === words,
+      );
+    };
+    // never, by default: nothing changes on upgrade; as what is a choice only while they show it
+    expect(labels()).toContain('Devices show their state’s colour');
+    expect(labels()).not.toContain('Shown as');
+    expect(
+      chip('Devices show their state’s colour', 'Never')?.classList.contains('is-active'),
+    ).toBe(true);
+    chip('Devices show their state’s colour', 'When active')!.click();
+    await settle();
+    expect(labels()).toContain('Shown as');
+    expect(chip('Shown as', 'Wash')?.classList.contains('is-active')).toBe(true);
+    expect(root.querySelector('.pn-bar__text')?.textContent?.trim()).toBe(
+      'Cards · Devices show their state’s colour · When active',
+    );
+    chip('Shown as', 'Edge')!.click();
+    await settle();
+    expect(root.querySelector('.pn-bar__text')?.textContent?.trim()).toBe('2 changes');
+    // shown on every card at once, saved only from the bar
+    expect(previews.at(-1)).toEqual({ stateTint: 'on', stateTintStyle: 'edge' });
+    button('Save')!.click();
+    await settle();
+    expect([handle.settings().stateTint, handle.settings().stateTintStyle]).toEqual(['on', 'edge']);
+    panel.remove();
+    // someone who is not an administrator reads it, and changes nothing
+    const guest = await mount(false);
+    const theirs = [...guest.root.querySelectorAll<HTMLElement>('.pn-card')].find(
+      (c) => c.querySelector('.fv-card__title')?.textContent?.trim() === 'Cards',
+    )!;
+    [...theirs.querySelectorAll<HTMLElement>('.fv-chip')].at(-1)?.click();
+    await guest.settle();
+    expect(guest.previews.at(-1)).not.toEqual(expect.objectContaining({ stateTint: 'always' }));
+    guest.panel.remove();
+  });
+
   it('lets the house draw every card without its border, drawn until chosen (1.19, #171)', async () => {
     const { panel, root, row, button, handle, previews, settle } = await mount();
     // drawn, by default: nothing changes on upgrade
@@ -2228,7 +2278,11 @@ describe('the settings panel', () => {
     host.content = 289;
     await panel.updateComplete;
     expect(tracks()).toBe('2');
-    expect(chip('Always')?.getAttribute('style')).toContain('span 2');
+    // the lights' own Always, beside their When on (the devices' row says When active)
+    const always = [...(chip('When on')?.parentElement?.children ?? [])].find(
+      (c) => c.textContent?.trim() === 'Always',
+    );
+    expect(always?.getAttribute('style')).toContain('span 2');
     panel.remove();
   });
 
@@ -2943,7 +2997,7 @@ describe('the settings panel', () => {
     panel.remove();
   });
 
-  it('exports every setting and the automatic dashboard’s options, and imports them back — the charts and their sets too (1.11), the cards’ surface (1.15), their look out of reach (1.16), their border, a person’s hold to slide and the page’s background, the house’s and a dashboard’s own (1.19), whether the details dialog’s history is ours (1.20), the order of the house’s rooms (1.21)', async () => {
+  it('exports every setting and the automatic dashboard’s options, and imports them back — the charts and their sets too (1.11), the cards’ surface (1.15), their look out of reach (1.16), their border, a person’s hold to slide and the page’s background, the house’s and a dashboard’s own (1.19), whether the details dialog’s history is ours (1.20), the order of the house’s rooms (1.21), the devices’ state colour (1.22)', async () => {
     const saved: { type: string; url_path?: string; config?: unknown }[] = [];
     // the long lists' caps travel too, list by list (#78)
     const caps = { lights: 12, humidity: 'none' };
@@ -3032,6 +3086,9 @@ describe('the settings panel', () => {
       sheets: 'home-assistant',
       // the order every list by room reads the rooms in (1.21, #189)
       rooms: { sort: 'home_assistant', order: ['kitchen', 'hall'] },
+      // when the devices show their state's colour, and as what (1.22, #196)
+      stateTint: 'always',
+      stateTintStyle: 'edge',
     });
     // and the person's own: their sliders wait for a hold on a touch screen (1.19, #166)
     await handle.store.savePersonal({ language: 'es', haptics: false, holdToSlide: true });
@@ -3075,6 +3132,8 @@ describe('the settings panel', () => {
       background,
       sheets: 'home-assistant',
       rooms: { sort: 'home_assistant', order: ['kitchen', 'hall'] },
+      stateTint: 'always',
+      stateTintStyle: 'edge',
     });
     expect(exported['personal']).toMatchObject({
       version: SETTINGS_VERSION,
@@ -3106,6 +3165,8 @@ describe('the settings panel', () => {
       background: BACKGROUND_DEFAULTS,
       sheets: 'fluvy',
       rooms: { sort: 'auto', order: [] },
+      stateTint: 'off',
+      stateTintStyle: 'wash',
     });
     await handle.store.savePersonal({ language: 'auto', haptics: true, holdToSlide: false });
     importSettings(
@@ -3140,6 +3201,10 @@ describe('the settings panel', () => {
     localStorage.removeItem('fluvy:device');
     expect(handle.settings().sheets).toBe('home-assistant');
     expect(handle.settings().rooms).toEqual({ sort: 'home_assistant', order: ['kitchen', 'hall'] });
+    expect([handle.settings().stateTint, handle.settings().stateTintStyle]).toEqual([
+      'always',
+      'edge',
+    ]);
     expect(saved.at(-1)?.config).toEqual({
       strategy: {
         type: 'custom:fluvy-home',

@@ -509,6 +509,56 @@ form for a line that holds no more.
 - **The automatic dashboards**: one option, Thermostat state: Brief (the default, nothing written) · Detailed, which
   writes `show_valve`, `show_window` and `show_battery` on the thermostats and `show_action` on the rooms.
 
+## A device's state in colour (1.22, #196)
+
+A device card says its state in its circle and its badge (§ Header pattern), and, asked, beyond them: the Lock, Cover
+(a blind, a garage, a gate, a valve), Alarm, Vacuum (a mower), Fan and Thermostat cards, in the Light card's words.
+Nothing by itself: `tint` is off where the card and the house say nothing, and a house upgraded draws what it drew.
+
+- **The tone is the card's own state table**, as before: a lock's locked and locking the accent, any other state the
+  warning; a cover open or moving the accent (a valve's the water's), closed the neutral; an alarm armed the accent,
+  arming, pending and triggered the warning, disarmed the neutral; a robot working or returning the accent, its error
+  the warning; a fan on its own; a thermostat its action's (the circle, the dial and the ruler its mode's). The card's
+  `tone` and `color` stand in for the accent and a domain's tone, never for a status, a warning staying the warning's
+  (they did nothing on these six cards before 1.22, though their editor offered them). `state_colors` names a state's
+  own (`{ unlocked: danger, locked: ok }`: a tone, a colour, `none`), and the circle, the badge, the word that leads the
+  line, the control and the tint all follow it (`stateLook`). A state left out keeps the card's.
+- **When** (`tint`): `off`, `on` (while the device is active: unlocked, open or moving, armed or alerting, working, on,
+  heating or cooling) or `always` (a rest that has a tone too: a locked lock's accent, an `ok` of the person's). The
+  neutral has no colour to show, so a closed cover, a disarmed alarm and an idle thermostat never wash; out of reach a
+  card keeps its skin, never tinted.
+- **As** (`tint_style`):
+  - **`wash`** (the default) is the Light card's lit surface (`litSurface`, `[data-surface]`, § Light colour): the
+    tone's fill over the card at the lit floor while active, its rest wash (two fifths of the cap) at rest, its hairline
+    the fill's, its inner fills the wash's deeper step, its words at 4.5, the tone's ink at 3 and the hairline at 1.35 on
+    every palette and mode — the statuses' too (`litRole` knows the warning, the danger and `ok`, the success).
+    The circle and a switch's thumb stand on it as plain-card discs (`is-glow`), as a lit lamp's. Active, the wash is
+    over a `card_color`; at rest the `card_color` is its rest.
+  - **`edge`** is the card's closing hairline alone in the tone's ink (`[data-edge]`, `--fv-edge`, written by the card's
+    sheet): 1 px; 2 px on a surface read by its edges (E-ink: `--fluvy-shade` 0, where the edge is an ink already); on a
+    card without its border (`card_border: false`) too, the tone being then its only edge.
+  - **`control`** is the control alone: the lock's knob, its ring and its dot in the tone (the reporter's mock-up).
+    The other five's controls already wear their state (the cover's and the fan's ruler, the alarm's lit mode, the
+    robot's command, the thermostat's dial), so nothing more is drawn. The knob takes the tone under `wash` and `edge`
+    too: an accent knob on a warning's wash is not gated. Untinted it keeps the accent, a jammed bolt's the warning's;
+    tinted, a warning knob says unlocked and jammed alike, unless `state_colors` gives jammed the danger.
+- **No dot and no ring is added**; the knob's ring is its own anatomy. The tint eases in (`fv-tint`: background 320 ms,
+  the edge's shadow with it), never on the card's first frame, at once under reduced motion.
+- **See-through cards** take the wash at their opacity (the see-through writer's), the edge an ink over the background;
+  a card the Expander holds draws no surface and no edge of its own (`--fv-held`), so it says its state with its control
+  and its words.
+- **The editor**: one row after the colours, "Show its colour" (Never · When active · Always) and "Shown as" (Wash ·
+  Edge · Control) while the colour shows, then a folded group, "Colours by state", a tone (or None, or a colour typed)
+  for each state, named in Home Assistant's own word for it (`stateLabels`). The house's are shown, never written.
+- **The house**: fluvy's settings → Appearance → Cards: "Devices show their state's colour" (Never · When active ·
+  Always) and, while not Never, "Shown as" (`stateTint`, `stateTintStyle`, settings version 7). The automatic
+  dashboards write nothing: their cards follow the house's.
+- **One module for a card that shows a tone now** (`cards/shared/state-tint.ts`): `stateLook(accents, config, state,
+  usual)` the tone a state is drawn in; `tintOf(accents, config, { tone, accent }, active, house?)` what the card's root
+  wears of it (`cls`: `fv-tint`, `is-glow` on a wash; `surface` for `data-surface`, `edge` for `data-edge`; `shown`).
+  A card of another kind hands its own house default; a tone that is not a state's (a reading past a threshold) is
+  said the same way.
+
 ## Clocks and calendar
 
 - Analog face = the ruler's ticks bent into a circle: majors R/10 in ink, minors R/20 in border-strong (majors only at R 56); hour hand 0.52 R inside the numerals, minute 0.85 R and second 0.88 R over the numerals to the tick ring, widths 6/4/2 (R ≥ 96) · 5/3/2 (72) · 4/3/2 (56), round caps; only the second hand carries a counterweight (cap radius + 8); the cap is the Fluvy knob without halo or lift, 28 / 20 / 16. Numerals 14/600 secondary at 0.75 R (12/600 at R 56). Plain clocks are accent; a weather clock takes the sky's tone (accent at night, solar by day). Digital time 64/72 at −0.03 em, tabular, ink pulled onto the column (−0.06 em, declared `data-align="optical"`); seconds or AM/PM as a 24 unit on the baseline; date 14/500 secondary — the full date in a 320 column, "Thu 17 Sep" in narrow columns and tiles.

@@ -189,3 +189,44 @@ describe('a lit light card’s surface (1.9, #41)', () => {
     }
   });
 });
+
+describe('a card tinted by what it says (1.22, #196)', () => {
+  const sheetOf = (accents: AccentSheet): string[] => {
+    const host = document.createElement('div');
+    const root = host.attachShadow({ mode: 'open' });
+    accents.adopt(root);
+    accents.commit();
+    return [...root.adoptedStyleSheets[0]!.cssRules].map((rule) => rule.cssText);
+  };
+
+  it('is washed in a status as the palette writes it: a warning, a danger, what is good', () => {
+    const noir = derivePalette(seedOf('noir')).light;
+    expect(litCss('noir', 'light', 'warning', 0.6)).toContain(
+      `--fluvy-border:${noir.semantic.warning.fillBorder};`,
+    );
+    expect(litCss('noir', 'light', 'danger', 0.6)).toContain(
+      `--fluvy-border:${noir.semantic.danger.fillBorder};`,
+    );
+    expect(litCss('noir', 'light', 'ok', 0)).toContain(
+      `--fluvy-border:${noir.semantic.success.fillBorder};`,
+    );
+  });
+
+  it('writes the ink of each edge it says a tone at on its data-edge, forgotten by a render that asks for none', () => {
+    const accents = new AccentSheet();
+    accents.wears('linen', 'light');
+    accents.begin();
+    expect(accents.edge('danger')).toBe('danger');
+    expect(accents.edge('heat')).toBe('heat');
+    // the same edge twice is one rule; a tone without an ink of its own says none
+    accents.edge('danger');
+    accents.edge('neutral');
+    const rules = sheetOf(accents);
+    expect(rules).toEqual([
+      `[data-edge="danger"] { --fv-edge: ${linen.light.semantic.danger.ink}; }`,
+      `[data-edge="heat"] { --fv-edge: ${linen.light.state['climate-heat'].ink}; }`,
+    ]);
+    accents.begin();
+    expect(sheetOf(accents)).toEqual([]);
+  });
+});

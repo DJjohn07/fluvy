@@ -1306,6 +1306,8 @@
     "window_entity": "Okno",
     "show_low_battery": "Ostrzegaj o słabej baterii",
     "found_helper": "Puste: szukane na urządzeniu",
+    "tint_style": "Pokaż jako",
+    "state_colors": "Kolory według stanu",
     "line_readouts": "Odczyty w wierszu",
     "readouts_first": "Pierwszy",
     "readouts_all": "Wszystkie",
@@ -2162,7 +2164,10 @@
     "tile_fill": "Wypełnienie",
     "house_style": "Dom ({style})",
     "label": "Etykieta",
-    "floor": "Piętro"
+    "floor": "Piętro",
+    "wash": "Podbarwienie",
+    "edge": "Obramowanie",
+    "control": "Element sterujący"
   },
   "page": {
     "menu": "Otwórz menu",
@@ -2685,6 +2690,8 @@
     "dashboard.thermostat_state": "Stan termostatów",
     "dashboard.brief": "Krótko",
     "dashboard.detailed": "Szczegółowo",
+    "cards.tint": "Urządzenia pokazują kolor stanu",
+    "cards.tint_style": "Pokaż jako",
     "dashboard.rooms_as": "Pomieszczenia jako",
     "dashboard.room_pages": "Strony",
     "dashboard.room_tabs": "Zakładki",

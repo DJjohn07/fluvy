@@ -573,6 +573,8 @@
     "window_entity": "窓",
     "show_low_battery": "バッテリー低下を表示",
     "found_helper": "空のときはデバイスから検出",
+    "tint_style": "表示方法",
+    "state_colors": "状態ごとの色",
     "line_readouts": "行内の表示値",
     "readouts_first": "最初のみ",
     "readouts_all": "すべて",
@@ -1037,7 +1039,10 @@
     "tile_fill": "塗りつぶし",
     "house_style": "家（{style}）",
     "label": "ラベル",
-    "floor": "フロア"
+    "floor": "フロア",
+    "wash": "全体を淡く",
+    "edge": "枠線",
+    "control": "操作部"
   },
   "tone": {
     "accent": "アクセント",
@@ -2907,6 +2912,8 @@
     "dashboard.thermostat_state": "サーモスタットの状態",
     "dashboard.brief": "簡易",
     "dashboard.detailed": "詳細",
+    "cards.tint": "デバイスの状態の色を表示",
+    "cards.tint_style": "表示方法",
     "dashboard.rooms_as": "部屋の形式",
     "dashboard.room_pages": "ページ",
     "dashboard.room_tabs": "タブ",

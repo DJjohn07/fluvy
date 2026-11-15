@@ -78,6 +78,8 @@ describe('parsing stored settings', () => {
         },
         lightTint: 'always',
         lightColors: true,
+        stateTint: 'on',
+        stateTintStyle: 'edge',
         statuses: { warning: '#DC630B', danger: 'red' },
         cards: { opacity: 60, blur: false, unavailable: 'quiet', border: false },
         sheets: 'home-assistant',
@@ -109,6 +111,8 @@ describe('parsing stored settings', () => {
       wall: WALL_DEFAULTS,
       lightTint: 'always',
       lightColors: true,
+      stateTint: 'on',
+      stateTintStyle: 'edge',
       statuses: { warning: '#dc630b' },
       charts: CHART_DEFAULTS,
       chartSets: [],
@@ -125,7 +129,6 @@ describe('parsing stored settings', () => {
     const upgraded = parseHouse({ version: 5, palette: 'volt' });
     expect(upgraded.rooms).toEqual({ sort: 'auto', order: [] });
     expect(upgraded.version).toBe(SETTINGS_VERSION);
-    expect(SETTINGS_VERSION).toBe(6);
     expect(HOUSE_DEFAULTS.rooms).toEqual({ sort: 'auto', order: [] });
     expect(parseRooms({ sort: 'home_assistant' })).toEqual({ sort: 'home_assistant', order: [] });
     expect(parseRooms({ order: ['living'] })).toEqual({ sort: 'auto', order: ['living'] });
@@ -219,6 +222,24 @@ describe('parsing stored settings', () => {
     expect(resolveSettings(parseHouse({ lightTint: 'on' }), PERSONAL_DEFAULTS).lightTint).toBe(
       'on',
     );
+  });
+
+  it('reads the devices’ state colour: never, as a wash, where a 6 stored none (1.22, #196: nothing changes on upgrade)', () => {
+    // a 1.21 house stored none: every device card draws its state in its circle and its badge alone, as before
+    const upgraded = parseHouse({ version: 6, palette: 'volt' });
+    expect([upgraded.stateTint, upgraded.stateTintStyle]).toEqual(['off', 'wash']);
+    expect(upgraded.version).toBe(SETTINGS_VERSION);
+    expect(SETTINGS_VERSION).toBe(7);
+    expect([HOUSE_DEFAULTS.stateTint, HOUSE_DEFAULTS.stateTintStyle]).toEqual(['off', 'wash']);
+    // a word it does not know: never, as a wash
+    const broken = parseHouse({ stateTint: 'state', stateTintStyle: 'glow' });
+    expect([broken.stateTint, broken.stateTintStyle]).toEqual(['off', 'wash']);
+    // the house's, whoever looks
+    const chosen = resolveSettings(
+      parseHouse({ stateTint: 'always', stateTintStyle: 'control' }),
+      PERSONAL_DEFAULTS,
+    );
+    expect([chosen.stateTint, chosen.stateTintStyle]).toEqual(['always', 'control']);
   });
 
   it('reads the cards’ surface, each broken field as solid and blurred (1.15: nothing changes on upgrade)', () => {

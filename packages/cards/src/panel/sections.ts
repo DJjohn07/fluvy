@@ -18,6 +18,7 @@ import {
   type IconPlace,
   LANGUAGES,
   LIGHT_TINTS,
+  type LightTint,
   localize,
   offeredLanguages,
   parsePalette,
@@ -38,6 +39,8 @@ import {
   type TabContent,
   type TabStyle,
   tabsOf,
+  TINT_STYLES,
+  type TintStyle,
   type Chrome,
   UNAVAILABLE_LOOKS,
   type UnavailableLook,
@@ -111,6 +114,7 @@ import {
   lookTitle,
   paletteTitle,
   SLIDER_WORD,
+  TINT_WORD,
   STATUS_STARTS,
   STATUS_SWATCHES,
   swatchColors,
@@ -980,8 +984,10 @@ const OPACITY_MARKS = [0, 25, 50, 75, 100] as const;
  * Every card's surface where a card says nothing of its own (1.15, #121): how opaque it is, on the ruler a light's
  * brightness is set on (5 % steps, its figure at the row's end), whether what shows through a see-through card is
  * blurred — said always, as a card may be see-through of its own on a solid house — whether it draws its border (1.19,
- * #171) and how a card out of reach looks (1.16, #126: dashed, or as when off). The house's, an administrator's to set;
- * shown on the preview and the page while it is chosen.
+ * #171), how a card out of reach looks (1.16, #126: dashed, or as when off) and when a device card shows its state's
+ * colour beyond its circle (1.22, #196: never, as before; while it is active; at rest too) and, while it does, as what
+ * (a wash, its edge, its control). The house's, an administrator's to set; shown on the preview and the page while it
+ * is chosen.
  */
 function cardsCard(ctx: PanelContext): TemplateResult {
   const { shown, admin } = ctx;
@@ -1064,6 +1070,31 @@ function cardsCard(ctx: PanelContext): TemplateResult {
         ? (key) => ctx.editHouse({ cards: { ...shown.cards, unavailable: key as UnavailableLook } })
         : null,
     )}
+    <p class="fv-label pn-label">${ctx.t('cards.tint')}</p>
+    ${choice(
+      ctx,
+      LIGHT_TINTS.map((tint) => ({
+        key: tint,
+        label: localize(ctx.hass, `option.${TINT_WORD[tint]}`),
+        active: shown.stateTint === tint,
+      })),
+      admin ? (key) => ctx.editHouse({ stateTint: key as LightTint }) : null,
+    )}
+    ${
+      // as what is a choice only while they show it
+      shown.stateTint === 'off'
+        ? nothing
+        : html`<p class="fv-label pn-label">${ctx.t('cards.tint_style')}</p>
+            ${choice(
+              ctx,
+              TINT_STYLES.map((style) => ({
+                key: style,
+                label: localize(ctx.hass, `option.${style}`),
+                active: shown.stateTintStyle === style,
+              })),
+              admin ? (key) => ctx.editHouse({ stateTintStyle: key as TintStyle }) : null,
+            )}`
+    }
   </section>`;
 }
 

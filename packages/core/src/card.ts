@@ -28,6 +28,7 @@ import {
   UNAVAILABLE_LOOKS,
   type CardSurface,
   type LightTint,
+  type TintStyle,
   type UnavailableLook,
 } from './settings/schema.js';
 import {
@@ -147,6 +148,26 @@ export const lightDefaults = (): HouseLights => houseLights;
 export function setLightDefaults(next: HouseLights): void {
   if (next.tint === houseLights.tint && next.colors === houseLights.colors) return;
   houseLights = { tint: next.tint, colors: next.colors };
+  for (const card of live) card.requestUpdate();
+}
+
+/**
+ * What the house says of a tone a card shows beyond its circle where the card says nothing (fluvy's settings →
+ * Appearance › Cards, 1.22, #196): a device card's `tint` (never, until the house chooses) and its `tint_style`.
+ */
+export interface HouseTint {
+  readonly tint: LightTint;
+  readonly style: TintStyle;
+}
+let houseTint: HouseTint = { tint: 'off', style: 'wash' };
+
+/** The house's tint, as the settings last said (a card's own `tint` and `tint_style` win). */
+export const tintDefaults = (): HouseTint => houseTint;
+
+/** The house's tint changed (saved, or previewed in the panel): every card draws again with it. */
+export function setTintDefaults(next: HouseTint): void {
+  if (next.tint === houseTint.tint && next.style === houseTint.style) return;
+  houseTint = { tint: next.tint, style: next.style };
   for (const card of live) card.requestUpdate();
 }
 
