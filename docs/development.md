@@ -91,7 +91,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `chart` | 24 KB | the chart engine: the scales, paths, bars, axes, rings and gauges every chart is drawn with, the gauges that move, the styles, their sheet, a house's series colours fitted to each mode |
 | `chart-card` | 17 KB | the Chart card: the readers of its series (history, statistics, a list, a forecast), its editor, its English |
 | `energy-period` | 17 KB | the Energy period card (the strip, its picker and its sheet) and the Energy usage card, their English |
-| `energy` | 87 KB | the energy family and its sheet, the history bars with it |
+| `energy` | 88 KB | the energy family and its sheet, the history bars with it |
 | `history-bars-readings` | 8 KB | a counter read by its readings, the recorder's history |
 | `media` | 16 KB | the player and the now-playing strip |
 | `devices` | 36 KB | the lock, the alarm and its keypad, the camera and the cameras, the printer, the job's times, the rows the lock, the alarm and the camera are built on |
@@ -141,7 +141,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `activity` | 32 KB | the Activity page |
 | `history` | 16 KB | the History page |
 | `details-history` | 10 KB | our history in Home Assistant's details dialog (1.20, #162): the block, its readers of the recorder and its English; fetched the first time a dialog shows it |
-| `lang` | 44 KB | a language's catalogue (`lang-de`, `lang-fr`, …) |
+| `lang` | 48 KB | a language's catalogue (`lang-de`, `lang-fr`, …) |
 | `rolldown-runtime` | 2 KB | the bundler's runtime |
 | `loader.js` | 4 KB | the loader the integration puts on every page |
 

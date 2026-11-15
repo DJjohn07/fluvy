@@ -62,16 +62,18 @@ const BUDGETS = {
   // editor and its English. 17 KB since 2026-11-13 (1.20: following an Energy date picker, `collection_key`, #181, and
   // the round's double tap on its rows and head, #179): measured at 16.6 KB; 16 before
   'chart-card': 17_408,
-  // the energy family: every energy card, the flow's drawing and motion, the model they share, its sheet. 87 KB since
-  // 2026-11-14 (1.21, #190, 0.9 KB: Where it went's words in their bars' order in the fewest tiers and the lift of a
-  // word's bar, Production's arrays past four as Other, a forecast's miss shared): measured at 86.5 KB; 86 KB since
-  // 2026-11-13 (1.20, 4.6 KB: Production's forecast from Home Assistant, tomorrow and the days ahead, #183; every
-  // array counted, History bars summing sensors, the flow's names on two lines, imported meters, #181, #183; the
-  // round's double tap, #179): measured at 85.5 KB; 81 KB since 2026-11-12 (1.19.1, #170, 0.9 KB: the flow's steady layout, its words giving way before its list, the house's words
-  // clear of its lanes, two sources of a kind told apart by their devices); 80 KB since 1.10 (its sheet left core,
-  // 2.4 KB); 76 since 1.9 (the family's English, the history bars' live day and resets, the power chart's axes); 64
-  // before
-  energy: 89_088,
+  // the energy family: every energy card, the flow's drawing and motion, the model they share, its sheet. 88 KB since
+  // 2026-11-15 (1.22, #202, 0.6 KB: the flow's names on three lines and its last-resort lane, Production's badge by the
+  // hour, Where it went's words said to a screen reader): measured at 87.0 KB; 87 KB since 2026-11-14 (1.21, #190,
+  // 0.9 KB: Where it went's words in their bars' order in the fewest tiers and the lift of a word's bar, Production's
+  // arrays past four as Other, a forecast's miss shared): measured at 86.5 KB; 86 KB since 2026-11-13 (1.20, 4.6 KB:
+  // Production's forecast from Home Assistant, tomorrow and the days ahead, #183; every array counted, History bars
+  // summing sensors, the flow's names on two lines, imported meters, #181, #183; the round's double tap, #179):
+  // measured at 85.5 KB; 81 KB since 2026-11-12 (1.19.1, #170, 0.9 KB: the flow's steady layout, its words giving way
+  // before its list, the house's words clear of its lanes, two sources of a kind told apart by their devices); 80 KB
+  // since 1.10 (its sheet left core, 2.4 KB); 76 since 1.9 (the family's English, the history bars' live day and
+  // resets, the power chart's axes); 64 before
+  energy: 90_112,
   // the Energy period card: the strip, its picker and its sheet (1.11, #62); the Energy usage card joins it. 17 KB
   // since 2026-11-13 (1.20: water and gas over the range, #181, and the period's bar, #182): measured at 16.7 KB; 16
   // before
@@ -222,17 +224,19 @@ const BUDGETS = {
   // our history in Home Assistant's details dialog (1.20, #162): the block, its readers and its English; measured at
   // 7.3 KB
   'details-history': 10_240,
-  // 44 KB since 2026-11-13 (1.20: Customise's words, #170, the details sheets' and dialog's, #162, the drive pad's, the
-  // Expander's, the alerts' and the round's editor words, about 3 KB a language: Russian, the longest, went 140 B over
-  // 40, and Ukrainian, #176, stands beside it); 40 KB since 2026-11-11 (1.19: Russian, #167, whose Cyrillic is two bytes a letter: its catalogue measured 35.9 KB,
-  // where no Latin one passes 32); 32 KB since 2026-11-06 (1.16: a card's look when unavailable and its brightness while on, #126 #124, the names'
-  // and roles' editor words, #125 #127, which commands ask first, unknown names said: Hungarian and Slovak, the longest,
-  // went 64 B over 30); 30 KB since 2026-11-04 (the pet devices' words, #112, and the Vehicle card's, #84: its states, its line, its
-  // controls and rows, its editor and the parts a car's entities play, 1.2 KB a language; Hungarian, the longest, went
-  // over 28); 28 since 1.11 (the date picker's, the units', a row's real last change's, the web page's and the Items
-  // card's words, the flights preset's among them: Japanese, the longest, went 320 B over 24); 24 since 1.9 (the
-  // appliances' and the alerts' words), 20 in 1.8, 16 before
-  lang: 45_056,
+  // 48 KB since 2026-11-15 (1.22: the cards' names and what each card is, #193, 3.6 to 4.4 KB a language: Russian and
+  // Ukrainian, the longest, went 2.2 KB over 44); 44 KB since 2026-11-13 (1.20: Customise's words, #170, the details
+  // sheets' and dialog's, #162, the drive pad's, the Expander's, the alerts' and the round's editor words, about 3 KB a
+  // language: Russian, the longest, went 140 B over 40, and Ukrainian, #176, stands beside it); 40 KB since 2026-11-11
+  // (1.19: Russian, #167, whose Cyrillic is two bytes a letter: its catalogue measured 35.9 KB, where no Latin one
+  // passes 32); 32 KB since 2026-11-06 (1.16: a card's look when unavailable and its brightness while on, #126 #124,
+  // the names' and roles' editor words, #125 #127, which commands ask first, unknown names said: Hungarian and Slovak,
+  // the longest, went 64 B over 30); 30 KB since 2026-11-04 (the pet devices' words, #112, and the Vehicle card's, #84:
+  // its states, its line, its controls and rows, its editor and the parts a car's entities play, 1.2 KB a language;
+  // Hungarian, the longest, went over 28); 28 since 1.11 (the date picker's, the units', a row's real last change's,
+  // the web page's and the Items card's words, the flights preset's among them: Japanese, the longest, went 320 B over
+  // 24); 24 since 1.9 (the appliances' and the alerts' words), 20 in 1.8, 16 before
+  lang: 49_152,
   'rolldown-runtime': 2048,
   'loader.js': 4096,
 };
