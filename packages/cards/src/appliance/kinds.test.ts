@@ -437,8 +437,18 @@ describe('what an appliance is', () => {
       'Robotický vysavač',
       'Robotická sekačka',
       'Nabíječka elektromobilu',
+      'RoboVac',
+      'Robot mower',
+      'Pool robot',
+      'Robotický vysávač',
+      'Robotická kosačka',
+      'Robot sprzątający',
+      'Robot koszący',
     ])
       expect(byWords(name), name).toEqual({ excluded: 'name' });
+    // a robot that cleans or mows is never one; the kitchen's (a food processor) is a blender, in every language
+    for (const name of ['Kuchyňský robot', 'Kuchynský robot', 'Robot kuchenny', 'Robot planetarny'])
+      expect(byWords(name), name).toEqual({ kind: 'blender', by: 'words' });
     expect(kindOf(signals({ domains: new Set(['vacuum']), name: 'Waschmaschine' }))).toEqual({
       excluded: 'vacuum',
     });

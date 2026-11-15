@@ -33,7 +33,7 @@
   "outdoor": [
     "bahçe",
     "bahce",
-    "dış",
+    "(^|[ _-])dış(ı|ta)?([ _-]|$)",
     "dis mekan",
     "dışarı",
     "disari",
@@ -46,7 +46,7 @@
     "giriş yolu",
     "giris yolu",
     "otopark",
-    "çatı",
+    "(^|[ _-])çatı",
     "sundurma"
   ],
   "solar": [
@@ -60,9 +60,9 @@
     "pv\\b",
     "panel"
   ],
-  "grid": ["şebeke", "sebeke", "sayaç", "sayac", "ithal", "alım\\b", "net_"],
+  "grid": ["şebeke", "sebeke", "sayaç", "sayac", "ithal", "(^|[ _-])alım\\b", "net_"],
   "grid_export": ["veriş", "veris", "verilen", "ihracat", "satış", "satis"],
-  "battery": ["batarya", "pil\\b", "akü", "aku\\b", "depolama"],
+  "battery": ["batarya", "pil\\b", "akü(sü)?\\b", "aku\\b", "depolama"],
   "charger": [
     "şarj istasyonu",
     "sarj istasyonu",

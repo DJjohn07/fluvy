@@ -1,7 +1,16 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { APPLIANCE_OUT, CJK, generate, generateAppliance, ordered, OUT, pattern } from './build.js';
+import {
+  APPLIANCE_OUT,
+  CJK,
+  generate,
+  generateAppliance,
+  ordered,
+  OUT,
+  pattern,
+  plainStem,
+} from './build.js';
 import { plain } from '../../../packages/core/src/plain.js';
 import {
   catalogueCodes,
@@ -395,6 +404,24 @@ describe('the generated patterns', () => {
     );
     expect(stem(pattern(['sensor', 'センサー'], 'words'), 'iu', 'Living room sensor')).toBe(
       'sensor',
+    );
+  });
+
+  it('are built plain, as every name is read, but the words that join a place: a regex’s escapes as written (#198)', async () => {
+    expect(plainStem('lumière')).toBe('lumiere');
+    expect(plainStem('(^|[ _-])dış(ı|ta)?([ _-]|$)')).toBe('(^|[ _-])dis(i|ta)?([ _-]|$)');
+    expect(plainStem('(?<=\\p{L})előrejelz')).toBe('(?<=\\p{L})elorejelz');
+    expect(plainStem('сч[её]тчик\\b')).toBe('сч[ее]тчик\\b');
+    const rules = [...(await generate()).matchAll(/^export const (\w+) = \/(.*)\/\w+;$/gm)];
+    expect(rules.length).toBe(14);
+    for (const [, name, source] of rules)
+      if (name !== 'PLACE_JOINS') expect(plainStem(source!), name).toBe(source);
+    const appliance = [...(await generateAppliance()).matchAll(/ = \/(.*)\/i;$|, \/(.*)\/i\],$/gm)];
+    expect(appliance.length).toBe(21);
+    for (const [, never, kind] of appliance) expect(plainStem(never ?? kind!)).toBe(never ?? kind);
+    // Czech's house needs no word with its accent: "Dům" is read "dum"
+    expect(await generate()).toMatch(
+      /HOME_POWER = [^\n]*\|\(\^\|\[ _-\]\)d\(um\|omu\)\(\[ _-\]\|\$\)\|/,
     );
   });
 

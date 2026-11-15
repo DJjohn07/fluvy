@@ -142,8 +142,7 @@
     "真空",
     "机器人",
     "洗地机",
-    "vacuum",
-    "robot"
+    "vacuum"
   ],
   "appliance_washer_dryer": ["洗干一体", "洗烘一体", "洗烘"],
   "appliance_dishwasher": ["洗碗机"],

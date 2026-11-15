@@ -126,8 +126,9 @@
   "place_joins": ["a", "v", "vo"],
   "appliance_never": [
     "vysavac",
-    "robot",
-    "roboticky[ _-]vysavac",
+    "robotick",
+    "robot[ _-]vysavac",
+    "kosack",
     "(^|[ _-])fen([ _-]|$)",
     "kulma",
     "holiaci[ _-]strojcek",
@@ -159,7 +160,13 @@
   ],
   "appliance_sandwich_maker": ["sendvicovac", "toastovac", "kontaktny[ _-]gril"],
   "appliance_toaster": ["hriankovac"],
-  "appliance_blender": ["mixer", "stolovy[ _-]mixer", "tycovy[ _-]mixer", "smoothie[ _-]mixer"],
+  "appliance_blender": [
+    "mixer",
+    "stolovy[ _-]mixer",
+    "tycovy[ _-]mixer",
+    "smoothie[ _-]mixer",
+    "kuchynsky[ _-]robot"
+  ],
   "appliance_feeder": ["krmidlo", "davkovac[ _-]krmiva", "automaticke[ _-]krmenie"],
   "appliance_fountain": [
     "fontana[ _-]pre[ _-]zvierata",

@@ -55,11 +55,14 @@ language, so the card starts from Fluvy's.
   is reads as one line under the name and feeds the picker's search.
 - **The naming words**, `packages/core/src/i18n/words/<code>.json`: the stems the automatic dashboard reads a house
   by (what people call their lights, their garden, the solar inverter, the grid meter, a forecast), and the
-  `appliance_*` stems an appliance card tells a washer from a dishwasher by (plain lower-case letters: a name is read
-  with its accents taken off and in ordinary width, so "Kühlschrank" is `kuhlschrank`, "Płyta" is `plyta`, "Счётчик"
-  is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian or Ukrainian й stays й, a letter of its own; a
-  Ukrainian word with an apostrophe, written ', ’ or ʼ or left without one, is matched by a stem that stops before it,
-  `подвір` for "Подвір’я", or carries every way, `з['’ʼ]?єднання`). A stem in Latin or Cyrillic letters is
+  `appliance_*` stems an appliance card tells a washer from a dishwasher by (plain lower-case letters). Every name is
+  read plain, its accents taken off and in ordinary width, so "Kühlschrank" is `kuhlschrank`, "Płyta" is `plyta`,
+  "Dům" is `dum`, "Счётчик" is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian or Ukrainian й stays
+  й, a letter of its own. Every stem is built plain too, so a language writes its words with their marks ("lumière")
+  or without them and a name matches either way; a short word that stands apart only by its marks is written as a word
+  (Turkish "dış", outside, is `(^|[ _-])dış(ı|ta)?([ _-]|$)`, never the "dis" of "dishwasher"). A Ukrainian word with an
+  apostrophe, written ', ’ or ʼ or left without one, is matched by a stem that stops before it, `подвір` for
+  "Подвір’я", or carries every way, `з['’ʼ]?єднання`. A stem in Latin or Cyrillic letters is
   matched as its category asks (a light's as a whole word, a place's noise as whole words, a forecast's where a word
   begins, so "predict" is never read in "unpredictable", the rest as a substring); a language that closes a compound
   with a forecast's word says so with a stem of its own regex, matched as written (`(?<=\p{L})prognos`:
@@ -76,7 +79,8 @@ language, so the card starts from Fluvy's.
   so a stem needs no lookaround against a longer word another list carries (a stem may still carry one against a
   word no list has: `電気(?!毛布)`, a blanket is no light); words that stand apart each hold, and the first list wins
   ("wine fridge" is the wine cooler, listed before the fridge). An appliance card reads what is never an appliance
-  first: a name with one of those words is none, whatever kind's word overlaps it. Inside one list the build orders
+  first: a name with one of those words is none, whatever kind's word overlaps it, so they say only what is never
+  one ("robot vacuum", "robotická sekačka", never a bare "robot": "Kuchyňský robot" is a blender). Inside one list the build orders
   the stems: a stem is tried after any longer stem that begins with it (温度計 before 温度, "frigorifero" before
   "frigo"), so stems that nest need no care in the list; a stem carrying regex of its own keeps its place among the
   others like it. They never ship: every language's stems are merged into

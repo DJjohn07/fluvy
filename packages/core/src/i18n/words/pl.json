@@ -225,7 +225,7 @@
   "place_joins": ["i", "w", "we", "na", "oraz"],
   "appliance_never": [
     "odkurzacz",
-    "robot",
+    "robot[ _-](sprzatajac|odkurzajac|koszac|myjac|mopujac)",
     "(^|[ _-])mop([ _-]|$)",
     "suszarka[ _-]do[ _-]wlosow",
     "lokowka",
@@ -271,7 +271,13 @@
     "grill[ _-]kontaktowy"
   ],
   "appliance_toaster": ["toster"],
-  "appliance_blender": ["blender", "mikser", "koktajlownic"],
+  "appliance_blender": [
+    "blender",
+    "mikser",
+    "koktajlownic",
+    "robot[ _-]kuchenny",
+    "robot[ _-]planetarny"
+  ],
   "appliance_feeder": ["karmnik", "karmidlo", "dozownik[ _-]karmy", "podajnik[ _-]karmy"],
   "appliance_fountain": [
     "poidlo",

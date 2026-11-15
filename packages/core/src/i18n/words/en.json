@@ -63,7 +63,9 @@
   "place_joins": ["the", "of", "in", "and"],
   "appliance_never": [
     "vacuum",
-    "robot",
+    "robo(t|tic)?[ _-]?vac",
+    "robot(ic)?[ _-]?(cleaner|mower|lawn[ _-]?mower|mop)",
+    "(mowing|lawn|pool|window|cleaning)[ _-]?robot",
     "roomba",
     "(^|[ _-])mop([ _-]|$)",
     "warming[ _-]drawer",

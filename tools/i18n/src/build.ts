@@ -15,12 +15,13 @@
  * and `place_joins` whole words, no letter beside them whatever its marks — for a stem in Latin or Cyrillic; a join
  * that ends in an apostrophe (an elision: "d'", "dell'") leans on the word after it, either apostrophe. A stem in kana
  * or kanji is matched as a substring whatever its category's shape (Japanese writes no spaces between words): its
- * alternation follows the word-shaped one. The appliance words are plain lower-case letters, matched against a name
- * with its accents taken off and its width made ordinary ("Kühlschrank" is read as "kuhlschrank", as Home Assistant
- * writes it into an entity's id; "ＬＥＤ" as "led"); a kana's voicing mark stays (が is not か). The place's noise is
- * read so too, plain at build (`snimac`, `temperature` for `température`), on a name made plain letter by letter where
- * it stands (`placeName` in packages/cards/src/strategy/home-registry.ts: "Snímač" is read as "snimac"); the words
- * that join it are read as written, a mark making another word ("és" is "and", "là" is no "la").
+ * alternation follows the word-shaped one. Every rule is matched against a name read plain, its accents taken off and
+ * its width made ordinary ("Kühlschrank" is read as "kuhlschrank", as Home Assistant writes it into an entity's id;
+ * "ＬＥＤ" as "led"; a kana's voicing mark stays, が is not か), so every stem is built plain (`plainStem`: "lumière"
+ * is `lumiere`, "Dům" `dum`) — the appliance words are written plain lower-case letters besides; the place's noise is
+ * read so letter by letter where it stands (`placeName` in packages/cards/src/strategy/home-registry.ts: "Snímač" is
+ * read as "snimac"). The words that join it are read and built as written, a mark making another word ("és" is
+ * "and", "là" is no "la").
  *
  * Every regex captures the stem it found as the first group that takes part in the match — the alternation of its
  * stems, never the separator a word shape consumes around them (a stem's own groups are numbered after it). Where
@@ -110,6 +111,16 @@ const OWN_REGEX = /[\\[\]$^]|\(\?/;
 /** A stem as a regex fragment: escaped, unless it carries regex of its own. */
 const fragment = (stem: string): string =>
   OWN_REGEX.test(stem) ? stem : stem.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * A stem as a name is read (`plain`): its letters plain ("Dům" and "dum" one stem, "dış" "dis"), its regex's escapes
+ * as written (`\p{L}` is no `\p{l}`), so a language writes its words with their marks and a name matches with or
+ * without them.
+ */
+export const plainStem = (stem: string): string =>
+  stem.replace(/\\p\{[^}]*\}|\\.|[^\\]+/giu, (part) =>
+    part.startsWith('\\') ? part : plain(part),
+  );
 
 /**
  * The letters every match of a stem begins with: a plain stem's are the stem; a stem of its own regex's, those before
@@ -249,9 +260,8 @@ export async function generate(): Promise<string> {
   const { codes, lists } = await stemsOf(CATEGORIES.map(({ category }) => category));
   const lines = CATEGORIES.map(({ category, name, shape, written }) => {
     const stems = lists.get(category) ?? [];
-    // the place's noise reads a plain name, so is written plain; the words that join it are read as written
-    const source =
-      shape === 'words' && !written ? pattern(stems.map(plain), shape) : pattern(stems, shape);
+    // every rule reads a plain name, so is built plain; the words that join a place's noise are read as written
+    const source = pattern(written ? stems : stems.map(plainStem), shape);
     const flags = shape === 'words' ? 'giu' : shape === 'start' ? 'iu' : 'i';
     return `/** ${category}: ${stems.length} stems in ${codes.join(', ')}. */\nexport const ${name} = ${literal(source, flags)};`;
   });
@@ -265,8 +275,9 @@ export async function generate(): Promise<string> {
 export async function generateAppliance(): Promise<string> {
   const categories = ['appliance_never', 'charger', ...KINDS.map((kind) => `appliance_${kind}`)];
   const { codes, lists } = await stemsOf(categories);
-  const stems = (category: string): string[] => lists.get(category) ?? [];
-  const never = [...stems('appliance_never'), ...stems('charger').map(plain)];
+  // a name is read plain, so every stem is built plain
+  const stems = (category: string): string[] => (lists.get(category) ?? []).map(plainStem);
+  const never = [...stems('appliance_never'), ...stems('charger')];
   const rows = KINDS.map((kind) => {
     const own = stems(`appliance_${kind}`);
     return `  /** ${kind}: ${own.length} stems. */\n  ['${kind}', ${literal(pattern(own, 'substring'), 'i')}],`;

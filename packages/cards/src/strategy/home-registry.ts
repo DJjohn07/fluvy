@@ -369,9 +369,12 @@ export class HomeRegistry {
   stateClass(id: string): string {
     return String(this.attr<string>(id, 'state_class') ?? '');
   }
-  /** The id and the name together, in ordinary width (a full-width "ＬＥＤ" reads as "LED"): what the word rules look at. */
+  /**
+   * The id and the name together, read plain (`plain`: "Dům" reads "dum", a full-width "ＬＥＤ" "led"): what the
+   * word rules look at, every one of them built plain.
+   */
   label(id: string): string {
-    return `${id} ${this.name(id)}`.normalize('NFKC');
+    return plain(`${id} ${this.name(id)}`);
   }
 
   deviceName(id: string): string | undefined {
@@ -396,7 +399,7 @@ export class HomeRegistry {
   displayName(id: string): string {
     return this.called(id, () => {
       const own = this.ownName(id);
-      return GENERIC.test(own.trim()) ? (this.deviceName(id) ?? own) : own;
+      return GENERIC.test(plain(own.trim())) ? (this.deviceName(id) ?? own) : own;
     });
   }
   /** What a list row calls a device's reading (a battery, a phone): the device, else the display name. */
@@ -511,11 +514,11 @@ export class HomeRegistry {
     );
   }
   outdoor(id: string): boolean {
-    const where = `${this.label(id)} ${this.areaName(this.areaOf(id)) ?? ''}`;
+    const where = `${this.label(id)} ${plain(this.areaName(this.areaOf(id)) ?? '')}`;
     return says(where, PLACE_WORDS) === 'outdoor';
   }
   private isLightSwitch(id: string): boolean {
-    return id.startsWith('switch.') && says(plain(this.label(id)), SWITCH_WORDS) === 'light';
+    return id.startsWith('switch.') && says(this.label(id), SWITCH_WORDS) === 'light';
   }
   private fromWeather(id: string): boolean {
     return WEATHER_PLATFORMS.test(this.platform(id)) || this.forecast(id);

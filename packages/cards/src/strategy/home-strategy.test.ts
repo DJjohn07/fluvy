@@ -439,6 +439,103 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ).toEqual([[], undefined, [], undefined]);
     }
   });
+
+  it('reads every language’s names plain, their marks written or left off, whatever the id says: a place, an energy role, a setting that is no appliance', () => {
+    // each name on an id that says nothing, so the name alone is read
+    const outdoors: ReadonlyArray<readonly [name: string, outdoor: boolean]> = [
+      ['Světlo Dvůr', true],
+      ['Vonkajšie svetlo', true],
+      ['Erkély lámpa', true],
+      ['Außenlampe', true],
+      ['Lampe allée', true],
+      ['Luz jardín', true],
+      ['Luce giardino', true],
+      ['Luz área externa', true],
+      ['Luz área exterior', true],
+      ['Lampa ogród', true],
+      ['Bahçe ışığı', true],
+      ['Dış lamba', true],
+      ['Фонарь во дворе', true],
+      ['Ліхтар на подвір’ї', true],
+      // Turkish's "dış" (outside) and "çatı" (roof) are words, never the letters of a dishwasher's or a location's
+      ['Dishwasher plug', false],
+      ['Location display', false],
+      ['Kuchyně', false],
+    ];
+    const lamps = new HomeRegistry(
+      house(outdoors.map(([name], at) => entity(`switch.p${at}`, 'off', { friendly_name: name }))),
+    );
+    outdoors.forEach(([name, outdoor], at) =>
+      expect(lamps.outdoor(`switch.p${at}`), name).toBe(outdoor),
+    );
+
+    /** The role a power reading of that name takes, alone in a house of that language. */
+    const role = (name: string, language: string): string | undefined => {
+      const roles = findEnergyRoles(powerHouse([power('sensor.x', name)], language), null);
+      return roles.solarPowers.length
+        ? 'solar'
+        : roles.gridPower
+          ? 'grid'
+          : roles.batteryPowers.length
+            ? 'battery'
+            : roles.charger
+              ? 'charger'
+              : roles.homePower
+                ? 'home'
+                : undefined;
+    };
+    const roles: ReadonlyArray<
+      readonly [language: string, name: string, role: string | undefined]
+    > = [
+      ['cs', 'Střídač', 'solar'],
+      ['cs', 'Dům', 'home'],
+      ['cs', 'Úložiště', 'battery'],
+      ['sk', 'Sieť', 'grid'],
+      ['sk', 'Úložisko', 'battery'],
+      ['sk', 'Domácnosť', 'home'],
+      ['hu', 'Hálózat', 'grid'],
+      ['hu', 'Energiatároló', 'battery'],
+      ['hu', 'Töltőállomás', 'charger'],
+      ['hu', 'Ház', 'home'],
+      ['de', 'Zähler', 'grid'],
+      ['de', 'Ladesäule', 'charger'],
+      ['fr', 'Réseau', 'grid'],
+      ['es', 'Estación de carga', 'charger'],
+      ['pt-BR', 'Relógio', 'grid'],
+      ['pt-BR', 'Residência', 'home'],
+      ['pt-PT', 'Habitação', 'home'],
+      ['pl', 'Sieć', 'grid'],
+      ['pl', 'Ładowarka', 'charger'],
+      ['pl', 'Zużycie domu', 'home'],
+      ['tr', 'Güneş paneli', 'solar'],
+      ['tr', 'Şebeke', 'grid'],
+      ['tr', 'Akü', 'battery'],
+      ['tr', 'Toplam tüketim', 'home'],
+      ['ru', 'Счётчик электроэнергии', 'grid'],
+      ['uk', 'Лічильник енергії', 'grid'],
+      // Turkish's battery (akü) and what is bought (alım) are words: a cherry tree and a name are none
+      ['tr', 'Sakura', undefined],
+      ['tr', 'Salim', undefined],
+    ];
+    for (const [language, name, said] of roles) expect(role(name, language), name).toBe(said);
+
+    // a setting of an appliance's plug is no appliance, its words read plain
+    const settings = [
+      'Dětská pojistka pračky',
+      'Detská poistka práčky',
+      'Gyerekzár mosógép',
+      'Sécurité enfant lave-linge',
+      'Válvula riego',
+      'Modalità lavatrice',
+      'Dźwięk zmywarki',
+      'Çocuk kilidi bulaşık makinesi',
+      'Férias máquina de lavar',
+    ];
+    const plugs = new HomeRegistry(
+      house(settings.map((name, at) => entity(`switch.s${at}`, 'off', { friendly_name: name }))),
+    );
+    settings.forEach((name, at) => expect(plugs.appliances, name).not.toContain(`switch.s${at}`));
+  });
 });
 
 describe('custom:fluvy-home strategy — a place named by its device, no separator left hanging', () => {

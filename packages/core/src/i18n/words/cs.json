@@ -57,7 +57,7 @@
   "home": [
     "domacnost",
     "domov",
-    "(^|[ _-])d(um|ům|omu)([ _-]|$)",
+    "(^|[ _-])d(um|omu)([ _-]|$)",
     "spotreba[ _-]domu",
     "celkova[ _-]spotreba",
     "odber[ _-]domu"
