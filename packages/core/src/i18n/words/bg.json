@@ -77,7 +77,7 @@
     "balkon",
     "garazh",
     "basein",
-    "verand",
+    "(^|[ _-])veranda(ta)?([ _-]|$)",
     "besedk"
   ],
   "solar": [

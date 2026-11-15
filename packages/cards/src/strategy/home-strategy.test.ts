@@ -12,7 +12,7 @@ import { FluvyHomeStrategy } from './home-strategy.js';
 import { HomeRegistry } from './home-registry.js';
 import { roomParts } from './rooms.js';
 import type { View } from './types.js';
-import { BATTERY_POWER, FORECAST, TODAY } from './words.generated.js';
+import { BATTERY_POWER, FORECAST, NOT_APPLIANCE, TODAY } from './words.generated.js';
 import {
   hcCoffee,
   hcDishwasher,
@@ -26,7 +26,7 @@ import {
   plugWasher,
   tuyaKettle,
 } from '../appliance/fixtures/index.js';
-import { areaContents, inList, type HomeAssistant, type RoomTuning } from '@fluvy/core';
+import { areaContents, inList, plain, type HomeAssistant, type RoomTuning } from '@fluvy/core';
 
 import {
   DEMO_ENERGY_SOURCES,
@@ -649,6 +649,13 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ['Utensil drawer light', false],
       ['Køkken', false],
       ['Lys uden dæmper', false],
+      // a Swedish jetty, never a coffee maker; a Czech veranda as a word, never Dutch or German change
+      ['Lampa på bryggan', true],
+      ['Badbrygga lampa', true],
+      ['Kaffebryggare', false],
+      ['Světlo na verandě', true],
+      ['Verandering lamp', false],
+      ['Lampe verändert', false],
     ];
     const lamps = new HomeRegistry(
       house(outdoors.map(([name], at) => entity(`switch.p${at}`, 'off', { friendly_name: name }))),
@@ -715,6 +722,24 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       // Turkish's battery (akü) and what is bought (alım) are words: a cherry tree and a name are none
       ['tr', 'Sakura', undefined],
       ['tr', 'Salim', undefined],
+      // a stem is a word where another language would hold it: Dutch PV in a Danish dishwasher, Turkish "ev" at the
+      // end of Czech "ohřev" (heating), Turkish "akü" in Czech "tlaku" (pressure's), Swedish "elnät" in Czech
+      // "uhelnatý", French "borne" in a Danish child lock
+      ['da', 'Opvaskemaskine effekt', undefined],
+      ['nl', 'PV-installatie', 'solar'],
+      ['nl', 'PV omvormer', 'solar'],
+      ['cs', 'Ohřev vody', undefined],
+      ['cs', 'Ohřev TUV', undefined],
+      ['tr', 'Ev tüketimi', 'home'],
+      ['tr', 'Evin gücü', 'home'],
+      ['tr', 'Akü gücü', 'battery'],
+      ['cs', 'Jednotka tlaku', undefined],
+      ['cs', 'Oxid uhelnatý', undefined],
+      ['fr', 'Borne de recharge', 'charger'],
+      ['da', 'Børnesikring', undefined],
+      // a device's own word before the grid's: a charger's or a battery's meter is the device's
+      ['de', 'Wallbox Zähler', 'charger'],
+      ['de', 'Akku Zähler', 'battery'],
     ];
     for (const [language, name, said] of roles) expect(role(name, language), name).toBe(said);
 
@@ -738,6 +763,12 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       house(settings.map((name, at) => entity(`switch.s${at}`, 'off', { friendly_name: name }))),
     );
     settings.forEach((name, at) => expect(plugs.appliances, name).not.toContain(`switch.s${at}`));
+    // Swedish's mode (läge) and quiet (tyst) are words, never German "Anlage", Dutch "opgeslagen" or Polish
+    // "statystyki"
+    for (const name of ['Alarmanlage', 'Heizungsanlage', 'Instellingen opgeslagen', 'Statystyki'])
+      expect(NOT_APPLIANCE.test(plain(name)), name).toBe(false);
+    for (const name of ['Tyst läge', 'Läge', 'Viloläge'])
+      expect(NOT_APPLIANCE.test(plain(name)), name).toBe(true);
   });
 
   it('reads a Bulgarian house by its names as written and by the ids Home Assistant made of them: its lights, its garden and yard, its appliances’ switches, a child lock and a timer that are none', () => {

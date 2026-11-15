@@ -78,7 +78,7 @@
   "appliance_washer": ["washer", "washing[ _-]?machine"],
   "appliance_dryer": ["dryer", "tumble"],
   "appliance_microwave": ["microwave"],
-  "appliance_oven": ["oven"],
+  "appliance_oven": ["(^|[ _-])oven"],
   "appliance_hob": ["(^|[ _-])hob([ _-]|$)", "cooktop", "induction"],
   "appliance_hood": ["(^|[ _-])hood([ _-]|$)", "extractor"],
   "appliance_wine": ["wine"],

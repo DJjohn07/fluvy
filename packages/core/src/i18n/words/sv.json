@@ -1,6 +1,6 @@
 {
   "light": [
-    "[a-z]*lamp(?:an?|or(?:na)?)",
+    "(?!till)[a-z]*lamp(?:an?|or(?:na)?)",
     "[a-z]*belysning(?:en)?",
     "[a-z]*ljus(?:et)?",
     "[a-z]*ljusstake",
@@ -30,10 +30,10 @@
     "baksida",
     "framsida",
     "växthus",
-    "brygga"
+    "brygga(?!re)"
   ],
   "solar": ["solcell", "solel", "solenergi", "solproduktion", "växelriktare"],
-  "grid": ["elnät", "elmätare", "huvudmätare", "köpt"],
+  "grid": ["(^|[ _-])elnät", "elmätare", "huvudmätare", "köpt"],
   "grid_export": ["(?:^|[ ._-])såld(?![a-z])", "inmat"],
   "battery": ["energilager"],
   "charger": [
@@ -61,9 +61,13 @@
     "knapplås",
     "spärr",
     "semester",
-    "(?<!l)läge",
+    "(^|[ _-])läge(t|n|na)?([ _-]|$)",
+    "nattläge",
+    "viloläge",
+    "sparläge",
+    "ekoläge",
     "ljud",
-    "tyst",
+    "(^|[ _-])tyst",
     "aktivera",
     "indikator",
     "ventil"
@@ -115,7 +119,7 @@
   "appliance_washer": ["tvattmaskin"],
   "appliance_dryer": ["torktumlare", "tumlare", "torkskap"],
   "appliance_microwave": ["mikrovag"],
-  "appliance_oven": ["(?<!l|bastu)ugn"],
+  "appliance_oven": ["(?<!l|bastu)ugn(?!ing)"],
   "appliance_hob": ["spishall", "induktion", "keramikhall", "gashall", "kokplatt"],
   "appliance_hood": ["koksflakt", "spisflakt", "flaktkapa", "spiskapa"],
   "appliance_wine": ["vinkylskap", "vinkyl", "vinskap"],

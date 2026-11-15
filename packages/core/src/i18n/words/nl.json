@@ -21,7 +21,7 @@
     "zwembad",
     "veranda"
   ],
-  "solar": ["zonnepanelen", "omvormer", "zonne", "pv"],
+  "solar": ["zonnepanelen", "omvormer", "zonne", "(^|[ _-])pv([ _-]|$)"],
   "grid": ["net", "netstroom", "meter", "slimme meter", "afname"],
   "grid_export": ["teruglever", "terug_", "export"],
   "battery": ["accu", "thuisbatterij", "batterij"],

@@ -25,14 +25,15 @@ type Role = 'solar' | 'export' | 'grid' | 'battery' | 'charger' | 'home';
 
 /**
  * The roles a reading's name can say, the first listed winning where a name says two that stand apart: the sun,
- * what leaves the house, the grid, the battery, the car's charger, the house itself.
+ * what leaves the house, the battery, the car's charger, the grid, the house itself. A device's own word comes before
+ * the grid's, so a battery's or a charger's meter is its device's ("Wallbox Zähler", "Battery meter").
  */
 const ROLE_WORDS: Rules<Role> = [
   ['solar', SOLAR],
   ['export', GRID_EXPORT],
-  ['grid', GRID],
   ['battery', BATTERY_POWER],
   ['charger', CHARGER],
+  ['grid', GRID],
   ['home', HOME_POWER],
 ];
 

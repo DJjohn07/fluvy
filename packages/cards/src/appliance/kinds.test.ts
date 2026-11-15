@@ -320,6 +320,11 @@ describe('what an appliance is', () => {
       ['mikrobolgeovn', 'microwave'],
       ['Ovn', 'oven'],
       ['Dampovn', 'oven'],
+      ['Stegeovn', 'oven'],
+      ['Bageovn', 'oven'],
+      ['Komfurovn', 'oven'],
+      ['Ovnen i køkkenet', 'oven'],
+      ['Steam oven', 'oven'],
       ['Kogeplade', 'hob'],
       ['Induktionskogeplade', 'hob'],
       ['Komfur', 'hob'],
@@ -528,6 +533,27 @@ describe('what an appliance is', () => {
     // the cooling of a room (kylning) or a calm mode (lugnt)
     for (const name of ['Tvättstuga uttag', 'Hall', 'Bastuugn', 'Kylning vardagsrum', 'Lugnt läge'])
       expect(byWords(name), name).toBeUndefined();
+    // nor a Czech or Slovak word with Danish's "ovn" or English's "oven" inside it: a workroom's or a house's socket,
+    // a working day, horizontal blinds, a comparison, a level
+    for (const name of [
+      'Pracovní zásuvka',
+      'Domovní zásuvka',
+      'Pracovna',
+      'Pracovní den',
+      'Vodorovné žaluzie',
+      'Srovnání',
+      'Úroveň',
+      'Pracovné dni',
+      'Porovnať',
+    ])
+      expect(byWords(name), name).toBeUndefined();
+    // nor Czech's last days ("posledních" holds "lednic"), its temperature probe ("teplotní" holds "plotn") or Swedish
+    // vacuuming ("dammsugning" holds "ugn")
+    for (const name of ['Posledních 24 hodin', 'Teplotní sonda', 'Dammsugning'])
+      expect(byWords(name), name).toBeUndefined();
+    // a Danish child lock is no French charging post ("borne"), a coffee maker no Swedish jetty
+    expect(byWords('Børnesikring')).toBeUndefined();
+    expect(byWords('Kaffebryggare')).toEqual({ kind: 'coffee', by: 'words' });
   });
 
   it('never takes a vacuum, a charger, a hair dryer or what waits for 1.10 for an appliance', () => {

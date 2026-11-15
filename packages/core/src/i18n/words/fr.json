@@ -30,7 +30,7 @@
   "grid": ["réseau", "reseau", "compteur", "linky", "soutirage"],
   "grid_export": ["injection", "injecté", "injecte", "export", "revente"],
   "battery": ["batterie", "accumulateur", "stockage"],
-  "charger": ["borne", "chargeur", "point de charge"],
+  "charger": ["(^|[ _-])borne([ _-]|$)", "chargeur", "point de charge"],
   "home": ["maison", "logement", "consommation totale", "conso"],
   "today": ["aujourd", "journée", "journee", "jour"],
   "forecast": ["prévis", "previs", "prédict"],

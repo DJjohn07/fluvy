@@ -32,7 +32,14 @@
     "(^|[ _.-])ude(?!n([ _.-]|$))"
   ],
   "solar": ["solcelle", "solpanel", "solanlæg", "solenergi", "solproduktion", "vekselretter"],
-  "grid": ["elnet", "elmåler", "elmaaler", "netimport", "fra[ _-]nettet", "købt[ _-]?strøm"],
+  "grid": [
+    "(^|[ _-])elnet",
+    "elmåler",
+    "elmaaler",
+    "netimport",
+    "fra[ _-]nettet",
+    "købt[ _-]?strøm"
+  ],
   "grid_export": ["eksport", "solgt[ _-]?strøm", "til[ _-]nettet", "overskudsstrøm"],
   "battery": ["batteri", "energilager"],
   "charger": ["billader", "elbil[ _-]lader", "ladestander", "ladeboks", "ladepunkt"],
@@ -106,7 +113,16 @@
   "appliance_washer": ["vaskemaskin"],
   "appliance_dryer": ["torretumbler", "torreskab"],
   "appliance_microwave": ["mikrobolgeovn", "mikrobolge", "mikroovn"],
-  "appliance_oven": ["ovn"],
+  "appliance_oven": [
+    "(^|[ _-])ovn",
+    "stegeovn",
+    "bageovn",
+    "dampovn",
+    "kombiovn",
+    "komfurovn",
+    "pizzaovn",
+    "indbygningsovn"
+  ],
   "appliance_hob": ["kogeplade", "komfur"],
   "appliance_hood": ["emhaette"],
   "appliance_wine": ["vinkoleskab", "vinkoler", "vinskab"],

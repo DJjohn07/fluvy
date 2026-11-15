@@ -62,7 +62,7 @@
   ],
   "grid": ["şebeke", "sebeke", "sayaç", "sayac", "ithal", "(^|[ _-])alım\\b", "net_"],
   "grid_export": ["veriş", "veris", "verilen", "ihracat", "satış", "satis"],
-  "battery": ["batarya", "pil\\b", "akü(sü)?\\b", "aku\\b", "depolama"],
+  "battery": ["batarya", "(^|[ _-])pil\\b", "(^|[ _-])akü(sü)?\\b", "(^|[ _-])aku\\b", "depolama"],
   "charger": [
     "şarj istasyonu",
     "sarj istasyonu",
@@ -72,8 +72,8 @@
     "sarj unitesi"
   ],
   "home": [
-    "ev\\b",
-    "evin\\b",
+    "(^|[ _-])ev\\b",
+    "(^|[ _-])evin\\b",
     "toplam tüketim",
     "toplam tuketim",
     "tüketim",

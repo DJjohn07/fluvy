@@ -29,7 +29,7 @@
     "bazen",
     "venkovn",
     "exterier",
-    "verand"
+    "(^|[ _-])verand(a|u|y|e|ou|ach|ami)([ _-]|$)"
   ],
   "solar": [
     "fotovolt",
@@ -161,12 +161,12 @@
     "indukce",
     "varic",
     "sporak",
-    "plotn",
+    "(?<!te)plotn",
     "plotynk"
   ],
   "appliance_hood": ["digestor", "odsavac[ _-]par"],
   "appliance_wine": ["vinoteka", "lednice[ _-]na[ _-]vino", "chladic[ _-]vina"],
-  "appliance_fridge": ["lednic", "lednick", "chladnicka", "chladnick"],
+  "appliance_fridge": ["(?<!pos)lednic", "lednick", "chladnicka", "chladnick"],
   "appliance_freezer": ["mraznicka", "mraznic", "mrazak"],
   "appliance_coffee": ["kavovar", "kavovy[ _-]automat", "espresso"],
   "appliance_kettle": ["rychlovarna[ _-]konvice", "konvice", "varic[ _-]vody"],
