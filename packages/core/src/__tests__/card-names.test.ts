@@ -1,7 +1,15 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import type { CustomCardEntry } from '../ha/types.js';
-import { addEnglish, languageOf, pageLanguage, wordsIn, type KeyOf } from '../i18n/index.js';
+import {
+  addEnglish,
+  ensureLanguage,
+  languageOf,
+  pageLanguage,
+  setLanguageOverride,
+  wordsIn,
+  type KeyOf,
+} from '../i18n/index.js';
 import about from '../i18n/locales/en/cards-about.json';
 import { announceCard, cardKey, describeCards } from '../register.js';
 
@@ -40,14 +48,28 @@ describe('the card picker’s list', () => {
     expect(entry('fluvy-energy-flow-card')?.description).toBe(about['cards-about']['energy-flow']);
   });
 
-  it('rewrites the same entries of the same array as the page’s language changes', () => {
-    languageOf({ language: 'de' });
-    expect(pageLanguage()).toBe('de');
+  it('speaks the person’s choice as soon as its words land, in the same entries of the same array', async () => {
+    setLanguageOverride('de');
+    await ensureLanguage('de');
     expect(window.customCards).toBe(list);
     expect(entry('fluvy-tile-card')).toBe(tile);
-    // a word asked without Home Assistant's language leaves the page's alone
+    expect(tile?.name).toBe('Fluvy · Kachel');
+    expect(tile?.description).toMatch(/^Eine Leuchte, ein Schalter/);
+  });
+
+  it('follows Home Assistant’s language once the person leaves it to Home Assistant', async () => {
+    setLanguageOverride(undefined);
+    await ensureLanguage('cs');
+    languageOf({ language: 'cs' });
+    expect(pageLanguage()).toBe('cs');
+    expect(tile?.name).toBe('Fluvy · Dlaždice');
+    expect(entry('fluvy-energy-flow-card')?.name).toBe('Fluvy · Tok energie');
+  });
+
+  it('is not turned back to English by a word asked without Home Assistant’s language', () => {
     languageOf(undefined);
-    expect(pageLanguage()).toBe('de');
+    expect(pageLanguage()).toBe('cs');
+    expect(tile?.name).toBe('Fluvy · Dlaždice');
     languageOf({ language: 'en' });
     expect(tile?.name).toBe('Fluvy · Tile');
   });
