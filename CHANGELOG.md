@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Visible on upgrade
+
+- German reads as German and in Home Assistant's own words, thanks to @sebfrie: an unavailable entity says "Nicht
+  verfügbar", a lock's buttons "Verriegeln" and "Entriegeln", tap and hold "Verhalten bei Antippen" and "Verhalten bei
+  Festhalten", idle energy "Leerlauf", phones "Smartphones", and the settings' tabs "Erscheinungsbild" and
+  "Anwendungsbereich"; editor switches say "… anzeigen", and phrases translated word for word read as a German speaker
+  says them.
+
 ### Added
 
 - Czech, thanks to @DJjohn07: every card, page, dialog and editor form, the settings panel's language list and the
