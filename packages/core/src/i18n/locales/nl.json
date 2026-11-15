@@ -682,7 +682,8 @@
     "calendars": "Agenda’s",
     "lists": "Takenlijsten",
     "timers": "Timers",
-    "whole_home": "Hele huis"
+    "whole_home": "Hele huis",
+    "all_lights": "Alle lampen"
   },
   "page": {
     "menu": "Menu openen",
@@ -1603,6 +1604,10 @@
     "dashboard.rooms_as": "Kamers als",
     "dashboard.room_pages": "Pagina’s",
     "dashboard.room_tabs": "Tabbladen",
+    "template.lights": "Verlichting",
+    "template.lights_sub": "Alle lampen, daarna kamer voor kamer",
+    "template.climate": "Klimaat",
+    "template.climate_sub": "Thermostaten, ventilatoren en metingen, kamer voor kamer",
     "dashboard.names": "Namen",
     "dashboard.names_auto": "Automatisch",
     "dashboard.names_entity": "Entiteitsnaam",

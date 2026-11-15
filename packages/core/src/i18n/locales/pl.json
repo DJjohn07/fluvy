@@ -2688,6 +2688,10 @@
     "dashboard.rooms_as": "Pomieszczenia jako",
     "dashboard.room_pages": "Strony",
     "dashboard.room_tabs": "Zakładki",
+    "template.lights": "Światła",
+    "template.lights_sub": "Wszystkie światła, potem według pomieszczeń",
+    "template.climate": "Klimat",
+    "template.climate_sub": "Termostaty, wentylatory i odczyty według pomieszczeń",
     "dashboard.names": "Nazwy",
     "dashboard.names_auto": "Automatycznie",
     "dashboard.names_entity": "Nazwa encji",
@@ -3034,7 +3038,8 @@
     "calendars": "Kalendarze",
     "lists": "Listy zadań",
     "timers": "Minutniki",
-    "whole_home": "Cały dom"
+    "whole_home": "Cały dom",
+    "all_lights": "Wszystkie światła"
   },
   "template": {
     "card": "Szablon",

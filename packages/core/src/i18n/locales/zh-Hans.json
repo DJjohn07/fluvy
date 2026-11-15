@@ -2953,6 +2953,10 @@
     "dashboard.rooms_as": "房间显示为",
     "dashboard.room_pages": "页面",
     "dashboard.room_tabs": "标签页",
+    "template.lights": "灯光",
+    "template.lights_sub": "所有灯光，然后逐个房间",
+    "template.climate": "空调",
+    "template.climate_sub": "恒温器、风扇和读数，逐个房间",
     "dashboard.names": "名称",
     "dashboard.names_auto": "自动",
     "dashboard.names_entity": "实体名称",
@@ -3117,7 +3121,8 @@
     "calendars": "日历",
     "lists": "待办事项",
     "timers": "计时器",
-    "whole_home": "全屋"
+    "whole_home": "全屋",
+    "all_lights": "所有灯光"
   },
   "template": {
     "card": "模板",

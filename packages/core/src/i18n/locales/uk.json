@@ -3075,6 +3075,10 @@
     "dashboard.rooms_as": "Показ кімнат",
     "dashboard.room_pages": "Сторінки",
     "dashboard.room_tabs": "Вкладки",
+    "template.lights": "Світло",
+    "template.lights_sub": "Усе світло, далі за кімнатами",
+    "template.climate": "Клімат",
+    "template.climate_sub": "Термостати, вентилятори й показання за кімнатами",
     "dashboard.names": "Назви",
     "dashboard.names_auto": "Автоматично",
     "dashboard.names_entity": "Назва сутності",
@@ -3323,7 +3327,8 @@
     "calendars": "Календарі",
     "lists": "Списки справ",
     "timers": "Таймери",
-    "whole_home": "Увесь дім"
+    "whole_home": "Увесь дім",
+    "all_lights": "Усе світло"
   },
   "template": {
     "card": "Шаблон",

@@ -2,6 +2,21 @@
 
 exports[`the automatic dashboards’ parts (#170) > keep their ids for a house with one of everything (golden file) 1`] = `
 {
+  "climate": {
+    "climate": [
+      "thermostats",
+      "fans",
+      "weather",
+      "humidity",
+      "temperatures",
+    ],
+    "room-bedroom": [
+      "readings",
+    ],
+    "room-garden": [
+      "readings",
+    ],
+  },
   "energy": {
     "devices": [
       "consumption",
@@ -151,6 +166,24 @@ exports[`the automatic dashboards’ parts (#170) > keep their ids for a house w
       "helpers",
       "updates",
       "camera",
+    ],
+  },
+  "lights": {
+    "lights": [
+      "lights:bedroom",
+      "lights:living_room",
+      "lights:kitchen",
+      "lights:outdoor",
+      "scenes",
+    ],
+    "room-bedroom": [
+      "lights",
+    ],
+    "room-kitchen": [
+      "lights",
+    ],
+    "room-living_room": [
+      "lights",
     ],
   },
   "rooms": {

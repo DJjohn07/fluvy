@@ -632,7 +632,8 @@
     "calendars": "Naptárak",
     "lists": "Teendőlisták",
     "timers": "Időzítők",
-    "whole_home": "Egész ház"
+    "whole_home": "Egész ház",
+    "all_lights": "Minden lámpa"
   },
   "page": {
     "menu": "Menü megnyitása",
@@ -3021,6 +3022,10 @@
     "dashboard.rooms_as": "Szobák megjelenése",
     "dashboard.room_pages": "Oldalak",
     "dashboard.room_tabs": "Lapok",
+    "template.lights": "Világítás",
+    "template.lights_sub": "Minden lámpa, majd szobánként",
+    "template.climate": "Klíma",
+    "template.climate_sub": "Termosztátok, ventilátorok és mérések, szobánként",
     "dashboard.names": "Nevek",
     "dashboard.names_auto": "Automatikus",
     "dashboard.names_entity": "Entitás neve",

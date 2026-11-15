@@ -682,7 +682,8 @@
     "calendars": "Kalender",
     "lists": "To-do-Listen",
     "timers": "Timer",
-    "whole_home": "Ganzes Haus"
+    "whole_home": "Ganzes Haus",
+    "all_lights": "Alle Lichter"
   },
   "page": {
     "menu": "Menü öffnen",
@@ -1603,6 +1604,10 @@
     "dashboard.rooms_as": "Räume als",
     "dashboard.room_pages": "Seiten",
     "dashboard.room_tabs": "Tabs",
+    "template.lights": "Beleuchtung",
+    "template.lights_sub": "Alle Lichter, dann Raum für Raum",
+    "template.climate": "Raumklima",
+    "template.climate_sub": "Thermostate, Ventilatoren und Messwerte, Raum für Raum",
     "dashboard.names": "Namen",
     "dashboard.names_auto": "Automatisch",
     "dashboard.names_entity": "Entitätsname",

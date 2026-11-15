@@ -1986,7 +1986,7 @@ function roomsCard(ctx: PanelContext): TemplateResult | typeof nothing {
 }
 
 /**
- * The Dashboards tab: the five templates as rows (a created one opens; an administrator creates the others with
+ * The Dashboards tab: the seven templates as rows (a created one opens; an administrator creates the others with
  * one tap), the house's order of its rooms, then a card of options per dashboard the house has.
  */
 export function dashboards(ctx: PanelContext, actions: DashboardActions): TemplateResult {

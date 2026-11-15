@@ -1,15 +1,15 @@
 # The automatic dashboards
 
-Five dashboards Fluvy builds by itself, each from one line of configuration:
+Seven dashboards Fluvy builds by itself, each from one line of configuration:
 
 ```yaml
 strategy:
-  type: custom:fluvy-home      # or fluvy-rooms, fluvy-energy, fluvy-security, fluvy-wall
+  type: custom:fluvy-home      # or fluvy-rooms, fluvy-energy, fluvy-security, fluvy-wall, fluvy-lights, fluvy-climate
 ```
 
 The panel's *Dashboards* tab creates any of them with one tap (as `/fluvy-auto`, `/fluvy-rooms`, `/fluvy-energy`,
-`/fluvy-security`, `/fluvy-wall`); any dashboard with that raw configuration is the same thing. Each is rebuilt every
-time it opens, from the registries, so a new device shows up by itself.
+`/fluvy-security`, `/fluvy-wall`, `/fluvy-lights`, `/fluvy-climate`); any dashboard with that raw configuration is the
+same thing. Each is rebuilt every time it opens, from the registries, so a new device shows up by itself.
 
 | Template | What it is for |
 | --- | --- |
@@ -18,6 +18,8 @@ time it opens, from the registries, so a new device shows up by itself.
 | **Energy** (`custom:fluvy-energy`) | Now (the flow, the balance, the house by source, the grid, the batteries, the car charger), Today (the Energy period bar across the view, and the day's flow, where it went, the score, the balance and the range's usage of electricity, water and gas following it), Production, Devices, Water & gas, Meters |
 | **Security** (`custom:fluvy-security`) | Security (the alarm, what locks, what opens, the first four cameras on one Cameras card), Cameras (twelve cameras on one Cameras card across the view, the rest a "N more" row away), Openings room by room, every one |
 | **Wall** (`custom:fluvy-wall`) | two columns for a tablet on the wall, read from a metre away: the greeting, the clock, the readings, the scenes and the rooms; the thermostat, the security rows and who is home |
+| **Lights** (`custom:fluvy-lights`) | Home's Lights view first (*All lights*), then a tab a room that has a light or a scene: its own scenes and lights, as its page draws them ([Lights and Climate](#lights-and-climate)) |
+| **Climate** (`custom:fluvy-climate`) | Home's Climate view first (*Whole home*), then a tab a room that has a thermostat, a fan or a reading: its own, as its page draws them ([Lights and Climate](#lights-and-climate)) |
 
 ## What the home dashboard builds
 
@@ -36,7 +38,7 @@ time it opens, from the registries, so a new device shows up by itself.
 Views a house has nothing for are left out. Every view keeps the same three columns (two on the wall), so the header
 never moves between tabs, and blocks are cut into the columns so that they end on one line. A room's page is a
 subview: it opens from its card, never from the tabs, and its heading leads back (unless the room is a tab: the Rooms
-dashboard with `rooms_as: tabs`).
+dashboard with `rooms_as: tabs`, the Lights and Climate dashboards).
 
 ## A room's page
 
@@ -94,6 +96,30 @@ strategy:
   rooms_as: tabs
   greeting_tabs: show   # the tabs as chips under the greeting too: a kiosk without a header
 ```
+
+## Lights and Climate
+
+Two dashboards of one kind of thing each, room by room (1.22, #202), which the panel's *Dashboards* tab creates as
+`/fluvy-lights` and `/fluvy-climate`:
+
+```yaml
+strategy:
+  type: custom:fluvy-lights     # or custom:fluvy-climate
+  tile_size: compact            # Lights: the tiles as rows
+```
+
+- **The first tab** is Home's own view of it, whole: *All lights* (every light by area, then the scenes and the light
+  automations) or *Whole home* (the thermostats, the fans, the weather, the humidity and the temperatures).
+- **Then a tab a room that holds some**, in the house's order of its rooms: the parts of the room's page of that kind,
+  as its page draws them, with their caps and their "N more" rows. Lights: its scenes and its lights. Climate: its
+  thermostats, its fans and its readings (each reading named by what it measures where it alone measures it). A room
+  with none of them has no tab; a house with none has the first tab alone.
+- A room's tab is at its page's path (`room-<area id>`) and its parts keep the page's ids (`room-kitchen/lights`), so
+  Customise names them as it names them on the Rooms dashboard. A room hidden in Customise is gone from the
+  dashboard: no card leads to it there.
+- **Options**: Lights takes `tile_size`, `tile_switch` and `scenes_style`; Climate `thermostat_variant` and
+  `thermostat_state`; both take `greeting_tabs`, `background`, `caps` and `exclude` ([Options](#options)). Home
+  Assistant's pencil offers the first of them on its *Edit dashboard*, as on every automatic dashboard.
 
 ## Capped lists
 
@@ -187,12 +213,12 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | Option | Values | Templates | What it does |
 | --- | --- | --- | --- |
 | `hide` | view names: `rooms`, `lights`, `climate`, `energy`, `security`, `media`, `agenda`, `sensors` (home); `today`, `production`, `devices`, `water`, `meters` (energy); `cameras`, `openings` (security) | home, energy, security | views left out (the first view always stays) |
-| `thermostat_variant` | `dial` (default), `compact`, `ruler` | home, rooms, wall | how the thermostats are drawn |
-| `thermostat_state` | `brief` (default), `detailed` | home, rooms, wall | what the thermostats say of what they are doing: as each card does by itself, or (`detailed`) with how far its valve is open, an open window and a low battery, each found where there is one (the thermostat card's `show_valve`, `show_window` and `show_battery`), a room's climate row saying what its thermostat is doing and what it is set to (the room card's `show_action`). Nothing is written until it is chosen; see [Thermostat](cards.md#thermostat) |
-| `tile_size` | `large` (default), `compact` | home, rooms | the tiles' size on the Lights view, the Home view and a room's page |
-| `tile_switch` | `show` (default), `hide`, `value`, `rocker` | home, rooms | the large tiles' switches, the lights' and the appliances': beside their icon circles, hidden (a tap on a tile's circle switches it, a tap on the tile opens its details), the level's figure in their place (the tile card's `show_switch`), or wall rockers (the tile card's `switch_style: rocker`: each tile then switches and nothing more, with no ruler, and a compact tile's rocker stands at its row's end) |
+| `thermostat_variant` | `dial` (default), `compact`, `ruler` | home, rooms, wall, climate | how the thermostats are drawn |
+| `thermostat_state` | `brief` (default), `detailed` | home, rooms, wall, climate | what the thermostats say of what they are doing: as each card does by itself, or (`detailed`) with how far its valve is open, an open window and a low battery, each found where there is one (the thermostat card's `show_valve`, `show_window` and `show_battery`), a room's climate row saying what its thermostat is doing and what it is set to (the room card's `show_action`). Nothing is written until it is chosen; see [Thermostat](cards.md#thermostat) |
+| `tile_size` | `large` (default), `compact` | home, rooms, lights | the tiles' size on the Lights view, the Home view and a room's page |
+| `tile_switch` | `show` (default), `hide`, `value`, `rocker` | home, rooms, lights | the large tiles' switches, the lights' and the appliances': beside their icon circles, hidden (a tap on a tile's circle switches it, a tap on the tile opens its details), the level's figure in their place (the tile card's `show_switch`), or wall rockers (the tile card's `switch_style: rocker`: each tile then switches and nothing more, with no ruler, and a compact tile's rocker stands at its row's end) |
 | `group_by` | `none` (default), `room` | home | which room a light or a scene belongs to (1.21): Home's lights under their rooms' quiet labels, and the scenes of Home and of the Lights view under theirs, the names short under each ([by room](#by-room)) |
-| `scenes_style` | `tiles` (default), `chips` | home, rooms | the scenes as pills that fill their rows on one card, the last run one filled, by room on Home and on the Lights view; twelve before their "N more" row |
+| `scenes_style` | `tiles` (default), `chips` | home, rooms, lights | the scenes as pills that fill their rows on one card, the last run one filled, by room on Home and on the Lights view; twelve before their "N more" row |
 | `flow_style` | `stream` (default; `ribbons` reads as it), `legs`, `rail` | home, energy | the energy flow's drawing |
 | `room_variant` | `photo` (default: a photo where the area has one, else a tile), `tile`, `row` | home, rooms | the rooms' cards |
 | `room_name_position` | `bottom` (default), `top` | home, rooms | where a room's photo carries its name: at its foot beside the quick actions, or at its top, the foot then theirs alone; the panel offers it while the rooms may be photos |
@@ -203,8 +229,7 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `camera_refresh` | `5`, `10` (default), `30` | security | seconds between the cameras' stills |
 | `scenes_max` | `4`, `6` (default), `8` | wall | how many scenes the wall offers as chips |
 | `name_lines` | `1` (default), `2` | all | the names of the cards it names after the house's entities (a light, a thermostat, a lock, a camera, an energy reading) in two lines where one would cut them, their heads a line taller (each card's `name_lines`, [The cards](cards.md)); a tile's name stays on its line. Nothing is written until it is chosen |
-| `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were) |
-| `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were): the way between them on a kiosk with no header |
+| `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security, lights, climate | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were): the way between them on a kiosk with no header |
 | `rooms_as` | `pages` (default), `tabs` | rooms | each room a page behind its card, or a tab of its own after *All rooms*, in the house's order of its rooms (1.22, [Rooms as tabs](#rooms-as-tabs)) |
 | `background` | `type`: `plain`, `gradient`, `color` or `image`, and that type's own keys: `colors` (one hex, or two from the top to the bottom), `image` (a path of Home Assistant's such as `/local/backgrounds/garden.jpg`, or a web address), `dim` (0 to 80 in steps of 5, default 40), `blur` (default `false`) | all | what lies behind this dashboard's cards in place of the house's (default: the house's, the panel's *Appearance › Background*; below); `type: plain` keeps this dashboard plain whatever the house chooses |
 | `caps` | a list's own number or `none` by its key (`caps: { lights: 12, humidity: none }`), or `none` for every list | all | how many of a long list a view shows (default: the house's caps, above, each with its "N more" row); the panel offers *Shortened* (the default) or *In full* |
@@ -251,10 +276,10 @@ strategy:
 
 The rooms stand in the house's order, the panel's *Dashboards › Rooms in order*
 ([the settings panel](settings-panel.md#rooms-in-order)): every list by room follows it, the Rooms view, the Lights
-view's groups, the lists a "N more" page splits by room, a wall's rooms, the rooms' tabs of the Rooms dashboard with
-`rooms_as: tabs` and the room pages' tabs of the Rooms dashboard. *Automatic*, the default, is each list as it always
-sorted: the rooms floor by floor and A to Z, a list by room its biggest room first. What Customise moved on a
-dashboard stays that dashboard's own, over the house's.
+view's groups, the lists a "N more" page splits by room, a wall's rooms, the rooms' tabs (the Rooms dashboard's with
+`rooms_as: tabs`, the Lights and Climate dashboards') and the room pages' tabs of the Rooms dashboard. *Automatic*,
+the default, is each list as it always sorted: the rooms floor by floor and A to Z, a list by room its biggest room
+first. What Customise moved on a dashboard stays that dashboard's own, over the house's.
 
 ## Names
 

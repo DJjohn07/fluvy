@@ -3010,6 +3010,10 @@
     "dashboard.rooms_as": "Miestnosti ako",
     "dashboard.room_pages": "Stránky",
     "dashboard.room_tabs": "Záložky",
+    "template.lights": "Svetlá",
+    "template.lights_sub": "Všetky svetlá, potom po miestnostiach",
+    "template.climate": "Vykurovanie a chladenie",
+    "template.climate_sub": "Termostaty, ventilátory a merania po miestnostiach",
     "dashboard.names": "Názvy",
     "dashboard.names_auto": "Automaticky",
     "dashboard.names_entity": "Názov entity",
@@ -3174,7 +3178,8 @@
     "calendars": "Kalendáre",
     "lists": "Zoznamy úloh",
     "timers": "Časovače",
-    "whole_home": "Celý dom"
+    "whole_home": "Celý dom",
+    "all_lights": "Všetky svetlá"
   },
   "template": {
     "card": "Šablóna",

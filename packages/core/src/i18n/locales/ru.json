@@ -3075,6 +3075,10 @@
     "dashboard.rooms_as": "Вид комнат",
     "dashboard.room_pages": "Страницы",
     "dashboard.room_tabs": "Вкладки",
+    "template.lights": "Свет",
+    "template.lights_sub": "Весь свет, затем по комнатам",
+    "template.climate": "Климат",
+    "template.climate_sub": "Термостаты, вентиляторы и показания по комнатам",
     "dashboard.names": "Названия",
     "dashboard.names_auto": "Автоматически",
     "dashboard.names_entity": "Название объекта",
@@ -3323,7 +3327,8 @@
     "calendars": "Календари",
     "lists": "Списки дел",
     "timers": "Таймеры",
-    "whole_home": "Весь дом"
+    "whole_home": "Весь дом",
+    "all_lights": "Весь свет"
   },
   "template": {
     "card": "Шаблон",

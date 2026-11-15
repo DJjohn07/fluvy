@@ -4,6 +4,11 @@ import { DEMO_ROOMS, demoHass, type DemoEntity } from '@fluvy/demo-home';
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
 // the cards register their heights with core: the strategy lays columns out with them
 import { familiesDefined } from '../index.js';
+// Home Assistant's form, as a test's page stands it in
+import type { FormStub } from '../shared/fixtures/editor.js';
+import '../shared/fixtures/editor.js';
+import type { FluvyStrategyForm } from '../panel/strategy-form.js';
+import { defineStrategies } from './define.js';
 import { generate, generateWith } from './generate.js';
 import { strategyOptions, templateById, TEMPLATES } from './templates.js';
 import type { Card, FluvyStrategyConfig, MoreHost, TemplateId, View } from './types.js';
@@ -13,8 +18,9 @@ afterAll(() => familiesDefined);
 
 /*
  * A room as a tab (1.22, #202): the Rooms dashboard's rooms as tabs where it is asked (`rooms_as: tabs`), each at its
- * page's path with its page's parts and no way back, one hidden among the tabs still a page. Without the option, a
- * house is 1.21's.
+ * page's path with its page's parts and no way back, one hidden among the tabs still a page; and the Lights and the
+ * Climate dashboards, Home's view of each whole, then a tab a room that holds some. Without the option and without
+ * those dashboards, a house is 1.21's.
  */
 
 const entity = (
@@ -302,5 +308,211 @@ describe('the Rooms dashboard with its rooms as tabs (#202)', () => {
     });
     expect(strategyOptions({ rooms_as: 'rail' }, templateById('rooms'))).toEqual({});
     expect(strategyOptions({ rooms_as: 'tabs' }, templateById('home'))).toEqual({});
+  });
+});
+
+describe('the Lights and the Climate dashboards (#202)', () => {
+  it('open with Home’s own view of each, whole', async () => {
+    const home = await built('home');
+    for (const [id, path, title] of [
+      ['lights', 'lights', 'All lights'],
+      ['climate', 'climate', 'Whole home'],
+    ] as const) {
+      const { views, hosts } = await built(id);
+      const [first] = views;
+      expect(first).toMatchObject({ path, title });
+      // every card of Home's view but the links to Home's own pages, under the same ids
+      const link = (card: string): string => card.replaceAll('/fluvy-auto/', `/fluvy-${id}/`);
+      expect(held(first as View)).toEqual(held(viewOf(home.views, path)).map(link).sort());
+      expect(partsOf(hosts, path)).toEqual(partsOf(home.hosts, path));
+    }
+  });
+
+  it('give a room a tab where it holds some, in the house’s order: its page’s own parts', async () => {
+    const rooms = await built('rooms');
+    const lights = await built('lights');
+    // the kitchen, the living room and the bedroom have lights; the garden and the hallway none
+    expect(tabsOf(lights.views).map((view) => [view.path, view.title])).toEqual([
+      ['lights', 'All lights'],
+      ['room-kitchen', 'Kitchen'],
+      ['room-living_room', 'Living room'],
+      ['room-bedroom', 'Bedroom'],
+    ]);
+    expect(partsOf(lights.hosts, 'room-kitchen')).toEqual(['scenes', 'lights']);
+    expect(partsOf(lights.hosts, 'room-bedroom')).toEqual(['lights']);
+    const climate = await built('climate');
+    // the garden's thermometer is a reading of its own; the kitchen and the hallway have no climate
+    expect(tabsOf(climate.views).map((view) => view.path)).toEqual([
+      'climate',
+      'room-living_room',
+      'room-bedroom',
+      'room-garden',
+    ]);
+    expect(partsOf(climate.hosts, 'room-living_room')).toEqual(['thermostats', 'fans', 'readings']);
+    expect(partsOf(climate.hosts, 'room-bedroom')).toEqual(['thermostats', 'readings']);
+    expect(partsOf(climate.hosts, 'room-garden')).toEqual(['readings']);
+    // each part is its room's page's own: the same cards, with their names and their "N more" row
+    const page = (path: string, ids: readonly string[]): string[] =>
+      (rooms.hosts.find((host) => host.path === path)?.parts ?? [])
+        .filter((part) => ids.includes(part.id))
+        .flatMap((part) => part.cards)
+        .map((card) => JSON.stringify(card).replaceAll('/fluvy-rooms/', '/fluvy-x/'))
+        .sort();
+    const tab = (view: View): string[] =>
+      held(view).map((card) => card.replaceAll(/\/fluvy-(lights|climate)\//g, '/fluvy-x/'));
+    for (const room of ['kitchen', 'living_room', 'bedroom'])
+      expect(tab(viewOf(lights.views, `room-${room}`)), room).toEqual(
+        page(`room-${room}`, ['scenes', 'lights']),
+      );
+    for (const room of ['living_room', 'bedroom', 'garden'])
+      expect(tab(viewOf(climate.views, `room-${room}`)), room).toEqual(
+        page(`room-${room}`, ['thermostats', 'fans', 'readings']),
+      );
+    // a fan by its name, a room's one thermometer by what it measures
+    const living = viewOf(climate.views, 'room-living_room');
+    expect(ofKind(living, 'fan')[0]).toMatchObject({ entity: 'fan.living_room' });
+    expect(ofKind(living, 'readouts')[0]?.['rows']).toEqual([
+      { entity: 'sensor.living_room_temperature', name: 'Temperature' },
+      { entity: 'sensor.living_room_humidity', name: 'Humidity' },
+    ]);
+  });
+
+  it('keep the lists’ caps, each "N more" page back to its room’s tab, and lift them when asked', async () => {
+    const { views } = await built('lights');
+    const kitchen = viewOf(views, 'room-kitchen');
+    expect(ofKind(kitchen, 'tile')).toHaveLength(6);
+    expect(cardsOf(kitchen).find((card) => card['more_path'])).toMatchObject({
+      more: 2,
+      more_path: '/fluvy-lights/room-kitchen-lights',
+    });
+    // the only pages behind the tabs are the lists' own: a room is never one
+    expect(views.filter((view) => view.subview).map((view) => [view.path, view.back_path])).toEqual(
+      [['room-kitchen-lights', '/fluvy-lights/room-kitchen']],
+    );
+    const whole = await built('lights', { caps: 'none' });
+    expect(ofKind(viewOf(whole.views, 'room-kitchen'), 'tile')).toHaveLength(8);
+    expect(whole.views.filter((view) => view.subview)).toEqual([]);
+  });
+
+  it('draw their cards as the dashboard’s options ask', async () => {
+    const lights = await built('lights', {
+      tile_size: 'compact',
+      tile_switch: 'rocker',
+      scenes_style: 'chips',
+    });
+    const kitchen = viewOf(lights.views, 'room-kitchen');
+    for (const tile of ofKind(kitchen, 'tile'))
+      expect(tile).toMatchObject({ size: 'compact', switch_style: 'rocker' });
+    expect(ofKind(kitchen, 'scenes')[0]).toMatchObject({ variant: 'chips' });
+    const climate = await built('climate', {
+      thermostat_variant: 'compact',
+      thermostat_state: 'detailed',
+    });
+    for (const path of ['climate', 'room-living_room', 'room-bedroom'])
+      for (const thermostat of ofKind(viewOf(climate.views, path), 'thermostat'))
+        expect(thermostat, path).toMatchObject({
+          variant: 'compact',
+          show_valve: true,
+          show_window: true,
+          show_battery: true,
+        });
+  });
+
+  it('leave out what the dashboard leaves out, and a tab a person hid: it is no page', async () => {
+    const { views } = await built('lights', {
+      exclude: ['light.bedroom_*'],
+      edit: { views: { 'room-living_room': { hidden: true } } },
+    });
+    expect(views.map((view) => view.path)).toEqual([
+      'lights',
+      'room-kitchen',
+      'room-kitchen-lights',
+    ]);
+  });
+
+  it('show a room’s part on the first tab as well, still the room’s own', async () => {
+    const { views } = await built('lights', {
+      edit: { views: { lights: { also: ['room-kitchen/scenes'] } } },
+    });
+    expect(
+      ofKind(viewOf(views, 'lights'), 'scenes').map((card) => (card['scenes'] as string[])[0]),
+    ).toContain('scene.kitchen_cooking');
+  });
+
+  it('are the only tab where no room holds any, and build for a house without rooms', async () => {
+    const bare = demoHass({ more: [] }) as unknown as HomeAssistant;
+    bare.areas = {};
+    for (const id of ['lights', 'climate'] as const) {
+      const { views } = await built(id, {}, bare);
+      expect(
+        views.map((view) => view.path),
+        id,
+      ).toEqual([id]);
+    }
+  });
+
+  it('offer their own options, the settings file’s too: no views to leave out', () => {
+    const keys = (id: TemplateId): string[] => templateById(id).options.map((option) => option.key);
+    expect(keys('lights')).toEqual([
+      'tile_size',
+      'tile_switch',
+      'scenes_style',
+      'greeting_tabs',
+      'background',
+      'caps',
+      'exclude',
+    ]);
+    expect(keys('climate')).toEqual([
+      'thermostat_variant',
+      'thermostat_state',
+      'greeting_tabs',
+      'background',
+      'caps',
+      'exclude',
+    ]);
+    expect(
+      strategyOptions(
+        { tile_size: 'compact', thermostat_variant: 'ruler', hide: ['room-kitchen'] },
+        templateById('lights'),
+      ),
+    ).toEqual({ tile_size: 'compact' });
+    expect(
+      strategyOptions(
+        { tile_size: 'compact', thermostat_variant: 'ruler', greeting_tabs: 'show' },
+        templateById('climate'),
+      ),
+    ).toEqual({ thermostat_variant: 'ruler', greeting_tabs: 'show' });
+  });
+
+  it('answer Home Assistant’s pencil with the form, each with its most used options', async () => {
+    defineStrategies();
+    const fieldsOf = async (id: TemplateId): Promise<string[]> => {
+      const strategy = customElements.get(`ll-strategy-dashboard-fluvy-${id}`) as unknown as {
+        getConfigElement(): Promise<FluvyStrategyForm>;
+      };
+      const form = await strategy.getConfigElement();
+      form.hass = { language: 'en', panelUrl: `fluvy-${id}` } as unknown as HomeAssistant;
+      form.setConfig({ type: `custom:fluvy-${id}` });
+      document.body.append(form);
+      for (let round = 0; round < 4; round++) {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await form.updateComplete;
+      }
+      const fields = form.shadowRoot!.querySelector<FormStub>('ha-form')!;
+      const names = fields.schema.map((field) => field.name);
+      form.remove();
+      return names;
+    };
+    expect(await fieldsOf('lights')).toEqual([
+      'tile_size',
+      'tile_switch',
+      'scenes_style',
+      'greeting_tabs',
+    ]);
+    expect(await fieldsOf('climate')).toEqual([
+      'thermostat_variant',
+      'thermostat_state',
+      'greeting_tabs',
+    ]);
   });
 });

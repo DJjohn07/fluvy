@@ -682,7 +682,8 @@
     "calendars": "Takvimler",
     "lists": "Yapılacaklar listeleri",
     "timers": "Zamanlayıcılar",
-    "whole_home": "Tüm ev"
+    "whole_home": "Tüm ev",
+    "all_lights": "Tüm ışıklar"
   },
   "page": {
     "menu": "Menüyü aç",
@@ -1603,6 +1604,10 @@
     "dashboard.rooms_as": "Odalar şöyle",
     "dashboard.room_pages": "Sayfalar",
     "dashboard.room_tabs": "Sekmeler",
+    "template.lights": "Işıklar",
+    "template.lights_sub": "Tüm ışıklar, ardından oda oda",
+    "template.climate": "İklim",
+    "template.climate_sub": "Termostatlar, vantilatörler ve ölçümler, oda oda",
     "dashboard.names": "Adlar",
     "dashboard.names_auto": "Otomatik",
     "dashboard.names_entity": "Varlık adı",

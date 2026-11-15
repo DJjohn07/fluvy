@@ -682,7 +682,8 @@
     "calendars": "Calendarios",
     "lists": "Listas de tareas",
     "timers": "Temporizadores",
-    "whole_home": "Toda la casa"
+    "whole_home": "Toda la casa",
+    "all_lights": "Todas las luces"
   },
   "page": {
     "menu": "Abrir el menú",
@@ -1603,6 +1604,10 @@
     "dashboard.rooms_as": "Habitaciones como",
     "dashboard.room_pages": "Páginas",
     "dashboard.room_tabs": "Pestañas",
+    "template.lights": "Luces",
+    "template.lights_sub": "Todas las luces, luego habitación a habitación",
+    "template.climate": "Clima",
+    "template.climate_sub": "Termostatos, ventiladores y lecturas, habitación a habitación",
     "dashboard.names": "Nombres",
     "dashboard.names_auto": "Automático",
     "dashboard.names_entity": "Nombre de la entidad",

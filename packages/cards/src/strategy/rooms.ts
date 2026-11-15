@@ -1,6 +1,16 @@
 import { climateAttribute, holdsSomething, type AreaRegistryEntry } from '@fluvy/core';
 import { applianceSections } from './appliances.js';
-import { byArea, capped, each, foldAt, moreAfter, moreKeys } from './caps.js';
+import {
+  byArea,
+  capped,
+  each,
+  foldAt,
+  moreAfter,
+  moreKeys,
+  NO_LIST,
+  type Capped,
+  type ListSpec,
+} from './caps.js';
 import { arranged, listed, part } from './edit.js';
 import type { HomeRegistry } from './home-registry.js';
 import {
@@ -23,7 +33,7 @@ import {
   tileRows,
   when,
 } from './layout.js';
-import type { Card, Section, StrategyContext, View, ViewSpec } from './types.js';
+import type { CapKey, Card, Section, StrategyContext, View, ViewSpec } from './types.js';
 
 /*
  * The rooms: a view of every room of the house (its card, grouped by floor when there are floors), and a subview
@@ -31,7 +41,8 @@ import type { Card, Section, StrategyContext, View, ViewSpec } from './types.js'
  * lights, covers, gates, fans, media, plugs, readings, openings and cameras, the rest of it as rows, its automations on
  * a card of their own, and its appliances across under them. Every card stands in a part of its view (#170): a room's
  * card `room:<area id>`, a floor's heading `floor:<floor id>` (`other` over the rooms on no floor), a room's lists by
- * their own names. Where a dashboard asks (1.22, #202), a room is a tab of it at its page's path, under no way back.
+ * their own names. Where a dashboard asks (1.22, #202), a room is a tab of it at its page's path, under no way back,
+ * whole or kept to some of its parts.
  */
 
 /** The areas a dashboard shows: those with something to show, by the room card's own rule, floor by floor. */
@@ -188,16 +199,29 @@ export function roomParts(home: HomeRegistry, areaId: string): RoomParts {
 
 /**
  * One room: everything it holds, in the home view's reading order, under a way back to where it was opened from (a
- * tab is opened from nowhere: none); each list at the house's cap, with its "N more" row.
+ * tab is opened from nowhere: none); each list at the house's cap, with its "N more" row. `only` keeps it to some of
+ * its parts, by their ids (the Lights dashboard's room is its scenes and its lights): the others are no parts of the
+ * view, and gather no list on it.
  */
 export function roomSections(
   ctx: StrategyContext,
   area: AreaRegistryEntry,
   back: RoomBack | undefined,
   columns = 3,
+  only?: readonly CapKey[],
 ): Section[] {
   const { home, t } = ctx;
   const parts = roomParts(home, area.area_id);
+  const holds = (key: CapKey): boolean => !only || only.includes(key);
+  /** A list of the room at its cap, where the view holds it. */
+  const list = (
+    spec: ListSpec,
+    items: readonly string[],
+    every: (items: readonly string[]) => readonly (readonly Card[])[],
+  ): Capped => (holds(spec.key) ? capped(ctx, spec, items, every) : NO_LIST);
+  /** The cards of one part of the room, where the view holds it. */
+  const own = <T extends Card | readonly Card[]>(key: CapKey, pieces: readonly T[]): T[] =>
+    holds(key) ? part(ctx, key, pieces) : [];
   const found = home.contents(area.area_id).climate;
   // the room's own readings, else the sensors its area names (a thermostat's or an appliance's reading is its card's)
   const named = (['temperature', 'humidity'] as const).flatMap((kind) => {
@@ -213,44 +237,33 @@ export function roomSections(
   const camera = (id: string): Card => full('camera', { entity: id });
   const rows = (title: string, ids: readonly string[], extra: Record<string, unknown> = {}): Card =>
     full('entities', { title, rows: entityRows(home, ids), ...extra });
-  const thermostats = capped(
-    ctx,
+  const thermostats = list(
     { key: 'thermostats', title: 'strategy.thermostats', icon: 'fluvy:thermo' },
     parts.thermostats,
     each((id) => thermostat(id, ctx.style)),
   );
-  const lights = capped(
-    ctx,
+  const lights = list(
     { key: 'lights', title: 'room.lights', icon: 'fluvy:bulb' },
     parts.lights,
     (ids) => lightGroups(ctx, ids),
   );
-  const covers = capped(
-    ctx,
+  const covers = list(
     { key: 'covers', title: 'room.covers', icon: 'fluvy:blinds' },
     parts.covers,
     (ids) => [[coverTiles(home, ids)]],
   );
-  const gates = capped(
-    ctx,
+  const gates = list(
     { key: 'gates', title: 'strategy.gates', icon: 'fluvy:door' },
     parts.gates,
     each(gate),
   );
-  const fans = capped(
-    ctx,
-    { key: 'fans', title: 'room.fans', icon: 'fluvy:fan' },
-    parts.fans,
-    each(fan),
-  );
-  const players = capped(
-    ctx,
+  const fans = list({ key: 'fans', title: 'room.fans', icon: 'fluvy:fan' }, parts.fans, each(fan));
+  const players = list(
     { key: 'media', title: 'room.media', icon: 'fluvy:speaker' },
     parts.players,
     each(player),
   );
-  const plugs = capped(
-    ctx,
+  const plugs = list(
     { key: 'appliances', title: 'strategy.appliances', icon: 'fluvy:plug' },
     parts.appliances,
     (ids) => tileRows(applianceTiles(home, ids, ctx.style)),
@@ -264,39 +277,34 @@ export function roomSections(
     measured.filter((other) => kindOf(other) === kindOf(id)).length > 1
       ? home.displayName(id)
       : t(`room.${kindOf(id)}`);
-  const readings = capped(
-    ctx,
+  const readings = list(
     { key: 'readings', title: 'strategy.readings', icon: 'fluvy:thermo' },
     measured,
     (ids) => readoutsCards(home, ids, {}, measureName).map((card) => [card]),
   );
-  const cameras = capped(
-    ctx,
+  const cameras = list(
     { key: 'cameras', title: 'strategy.cameras', icon: 'fluvy:camera' },
     parts.cameras,
     each(camera),
   );
-  const scenes = capped(
-    ctx,
+  const scenes = list(
     { key: 'scenes', title: 'strategy.scenes', icon: 'fluvy:sparkle', ...scenesCap(ctx.style) },
     parts.scenes,
     (ids) => [[scenesCard(ctx, t('strategy.scenes'), ids, { room: area.name })]],
   );
-  const rest = capped(
-    ctx,
+  const rest = list(
     { key: 'devices', title: 'strategy.devices', icon: 'fluvy:devices' },
     parts.rest,
     (ids) => byArea(ctx, ids, t('strategy.devices'), (title, own) => [rows(title, own)]),
   );
-  const openings = listed(ctx, 'openings', parts.openings);
-  const automations = listed(ctx, 'automations', parts.automations);
+  const openings = holds('openings') ? listed(ctx, 'openings', parts.openings) : [];
+  const automations = holds('automations') ? listed(ctx, 'automations', parts.automations) : [];
   const sections = flowed(
     ctx,
     [
       ...when(back, (to) => [part(ctx, 'back', [heading(to.title, 'fluvy:home', [], to.path)])]),
       // its scenes first, a tap each, as its card's quick actions are read before its devices (#172)
-      ...part(
-        ctx,
+      ...own(
         'scenes',
         when(scenes.shown.length, () =>
           moreAfter(
@@ -305,16 +313,14 @@ export function roomSections(
           ),
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'thermostats',
         moreAfter(
           thermostats.shown.map((id) => [thermostat(id, ctx.style)]),
           thermostats,
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'lights',
         when(lights.shown.length, () =>
           moreAfter(
@@ -326,8 +332,7 @@ export function roomSections(
           ),
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'covers',
         when(covers.shown.length, () =>
           moreAfter(
@@ -342,32 +347,28 @@ export function roomSections(
         ),
       ),
       // a garage door or a gate as a cover, as the security view draws it
-      ...part(
-        ctx,
+      ...own(
         'gates',
         moreAfter(
           gates.shown.map((id) => [gate(id)]),
           gates,
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'fans',
         moreAfter(
           fans.shown.map((id) => [fan(id)]),
           fans,
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'media',
         moreAfter(
           players.shown.map((id) => [player(id)]),
           players,
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'appliances',
         when(plugs.shown.length, () =>
           moreAfter(
@@ -379,8 +380,7 @@ export function roomSections(
           ),
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'readings',
         moreAfter(
           readoutsCards(home, readings.shown, {}, measureName).map((card) => [card]),
@@ -388,8 +388,7 @@ export function roomSections(
         ),
       ),
       // the openings and the safety sensors on one card scoped to the room, which folds them itself at their cap
-      ...part(
-        ctx,
+      ...own(
         'openings',
         when(openings.length, () => [
           [
@@ -401,23 +400,20 @@ export function roomSections(
           ],
         ]),
       ),
-      ...part(
-        ctx,
+      ...own(
         'cameras',
         moreAfter(
           cameras.shown.map((id) => [camera(id)]),
           cameras,
         ),
       ),
-      ...part(
-        ctx,
+      ...own(
         'devices',
         when(rest.shown.length, () => [[rows(t('strategy.devices'), rest.shown, moreKeys(rest))]]),
       ),
       // its automations on their own card, each with its switch, its last and next run (the card folds them at their
       // cap); no `+`: a schedule added there would be of no room, and never on this card
-      ...part(
-        ctx,
+      ...own(
         'automations',
         when(automations.length, () => [
           [
@@ -438,21 +434,27 @@ export function roomSections(
     ...(sections.length || !back
       ? sections
       : [section(heading(back.title, 'fluvy:home', [], back.path))]),
-    ...applianceSections(ctx, parts.devices, columns),
+    // the appliances across the page are the whole room's
+    ...(only ? [] : applianceSections(ctx, parts.devices, columns)),
   ];
 }
 
 /**
  * A room as a tab of its dashboard (1.22, #202), at its page's own path (`room-<area id>`): its card's link, its
- * parts' ids and what another view shows of it (`also`) are the page's. It always stands, as its page does.
+ * parts' ids and what another view shows of it (`also`) are the page's. Whole, it always stands, as its page does;
+ * kept to some of its parts (`only`), a room with none of them is no tab.
  */
-export const roomAsTab = (area: AreaRegistryEntry, columns: number): ViewSpec => ({
+export const roomAsTab = (
+  area: AreaRegistryEntry,
+  columns: number,
+  only?: readonly CapKey[],
+): ViewSpec => ({
   key: `room-${area.area_id}`,
   icon: area.icon ?? 'fluvy:home',
   title: 'strategy.rooms',
   name: area.name,
-  build: (ctx) => roomSections(ctx, area, undefined, columns),
-  when: () => true,
+  build: (ctx) => roomSections(ctx, area, undefined, columns, only),
+  ...(only ? {} : { when: () => true }),
 });
 
 /** The subview of a room. */

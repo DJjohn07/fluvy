@@ -9,13 +9,13 @@ import type {
   ViewSpec,
 } from './types.js';
 import { ENERGY_VIEWS } from './views/energy.js';
-import { HOME_VIEWS } from './views/home.js';
-import { roomTab, roomsViews } from './views/rooms.js';
+import { climateView, HOME_VIEWS, lightsView } from './views/home.js';
+import { byRoomViews, roomTab, roomsViews } from './views/rooms.js';
 import { SECURITY_VIEWS } from './views/security.js';
 import { WALL_VIEWS, wallRooms } from './views/wall.js';
 
 /*
- * The dashboards Fluvy builds by itself: five templates, each a strategy (`custom:fluvy-<id>`) with its views, its
+ * The dashboards Fluvy builds by itself: seven templates, each a strategy (`custom:fluvy-<id>`) with its views, its
  * frame (the greeting and the tabs, or none), its columns, the rooms it opens as subviews and the options its raw
  * configuration honours (the panel's Dashboards tab edits them, and the settings file carries them).
  */
@@ -320,6 +320,36 @@ export const TEMPLATES: readonly Template[] = [
       CAPS,
       EXCLUDE,
     ],
+  },
+  {
+    id: 'lights',
+    type: 'custom:fluvy-lights',
+    url: 'fluvy-lights',
+    icon: 'fluvy:bulb',
+    title: 'template.lights',
+    description: 'template.lights_sub',
+    columns: 3,
+    header: 'hello',
+    views: byRoomViews(
+      { key: 'lights', icon: 'fluvy:bulb', title: 'strategy.all_lights', build: lightsView },
+      ['scenes', 'lights'],
+    ),
+    options: [TILES, SWITCHES, SCENES, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
+  },
+  {
+    id: 'climate',
+    type: 'custom:fluvy-climate',
+    url: 'fluvy-climate',
+    icon: 'fluvy:thermo',
+    title: 'template.climate',
+    description: 'template.climate_sub',
+    columns: 3,
+    header: 'hello',
+    views: byRoomViews(
+      { key: 'climate', icon: 'fluvy:thermo', title: 'strategy.whole_home', build: climateView },
+      ['thermostats', 'fans', 'readings'],
+    ),
+    options: [THERMOSTAT, THERMOSTAT_STATE, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
   },
 ];
 

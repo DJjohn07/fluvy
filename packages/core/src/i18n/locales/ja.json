@@ -632,7 +632,8 @@
     "calendars": "カレンダー",
     "lists": "ToDoリスト",
     "timers": "タイマー",
-    "whole_home": "家全体"
+    "whole_home": "家全体",
+    "all_lights": "すべての照明"
   },
   "page": {
     "menu": "メニューを開く",
@@ -2909,6 +2910,10 @@
     "dashboard.rooms_as": "部屋の形式",
     "dashboard.room_pages": "ページ",
     "dashboard.room_tabs": "タブ",
+    "template.lights": "照明",
+    "template.lights_sub": "すべての照明、続いて部屋ごとに",
+    "template.climate": "空調",
+    "template.climate_sub": "サーモスタット、ファン、測定値を部屋ごとに",
     "dashboard.names": "名前",
     "dashboard.names_auto": "自動",
     "dashboard.names_entity": "エンティティ名",

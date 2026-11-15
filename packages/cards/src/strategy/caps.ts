@@ -125,6 +125,9 @@ export interface Capped {
   readonly path: string | undefined;
 }
 
+/** A list that shows none and leaves none to a subview: one a person hid, one its view does not hold. */
+export const NO_LIST: Capped = { shown: [], all: [], rest: 0, path: undefined };
+
 /**
  * A view to build on: its path, its title and icon for the way back, the template's columns, what a person changed
  * on its dashboard, and what it has to do with the dashboard's other views (`more`: the parts it takes from them, or
@@ -167,7 +170,7 @@ export function capped(
     title: ctx.t(list.title),
     icon: list.icon,
   });
-  if (hiddenPart(ctx, list.key)) return { shown: [], all: [], rest: 0, path: undefined };
+  if (hiddenPart(ctx, list.key)) return NO_LIST;
   const cap = capOf(ctx.caps, list.key, list.cap);
   if (items.length <= cap || (ROWS.has(list.key) && items.length === cap + 1))
     return { shown: items, all: items, rest: 0, path: undefined };

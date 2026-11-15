@@ -23,7 +23,7 @@
   <a href="https://acosta290.github.io/fluvy/?palette=linen"><img src="https://raw.githubusercontent.com/acosta290/fluvy/main/docs/images/readme/hero.webp" width="822" alt="Fluvy on the Linen palette: light and plug tiles, a thermostat, the day's energy in the soft style and a media player"></a>
 </p>
 
-Fluvy brings one design to the whole of Home Assistant: a theme, sixty-six cards, five automatic dashboards, a
+Fluvy brings one design to the whole of Home Assistant: a theme, sixty-six cards, seven automatic dashboards, a
 settings panel, the Activity and History pages, and Home Assistant's own pages restyled to match — all from one
 set of design tokens, installed as one integration through HACS. Every card is drawn on a 4 px grid, checked
 by an alignment measurer, and holds from a phone to a wall tablet, in light and dark, in seventeen languages.
@@ -193,9 +193,9 @@ preferences and builds Home, Rooms, Lights, Climate, Energy, Security, Media, Ag
 attention first (hidden while all is clear), lights grouped by room, a card a room that opens the room's own page,
 the large appliances as whole cards side by side and the small ones as rows, the running thermostat first,
 the home's forecast, the whole Energy dashboard read (every grid connection, the battery's charge, water and gas),
-batteries and phones told apart. Four more templates build
-a dashboard each — **Rooms** (a tab a floor), **Energy**, **Security** and a **Wall** for a tablet — and the panel
-creates any of them with one tap. Every one is rebuilt every time it opens, so a new device simply shows up.
+batteries and phones told apart. Six more templates build
+a dashboard each — **Rooms** (a tab a floor, or a tab a room), **Energy**, **Security**, a **Wall** for a tablet, and
+**Lights** and **Climate** room by room — and the panel creates any of them with one tap. Every one is rebuilt every time it opens, so a new device simply shows up.
 [How they read a home](docs/automatic-dashboard.md).
 
 ## What you get
@@ -211,7 +211,8 @@ creates any of them with one tap. Every one is rebuilt every time it opens, so a
 - **Energy as your meters read it**: a house that imports and exports at once shows both, per phase; with nothing
   configured the cards read the Energy dashboard, and a day, a week or a month add up to its own figures — or
   follow its date picker, beside Home Assistant's own cards.
-- **Five automatic dashboards** built from your registries: the home, the rooms, the energy, the security, a wall.
+- **Seven automatic dashboards** built from your registries: the home, the rooms, the energy, the security, a wall,
+  the lights and the climate.
 - **Wall mode** for a tablet: no sidebar, no header, a screensaver with the clock, dark at night, the screen kept
   awake — `?kiosk` on the dashboard's address and the tablet remembers, a × in the corner is the way out.
 - **A settings panel** for the house and for each person.
@@ -264,9 +265,9 @@ Open **Fluvy** in the sidebar.
 - **Charts** — the style every chart is drawn in, the gauge, the series' colours and motion, for the house.
 - **Scope** — where the look applies: your dashboards only, or everywhere in Home Assistant; whether the frame,
   the icons and the pages are Fluvy's.
-- **Dashboards** — create any of the five automatic dashboards with one tap and set its options, or add a
+- **Dashboards** — create any of the seven automatic dashboards with one tap and set its options, or add a
   dashboard of your own with `strategy: { type: custom:fluvy-home }` (or `fluvy-rooms`, `fluvy-energy`,
-  `fluvy-security`, `fluvy-wall`) in its raw configuration.
+  `fluvy-security`, `fluvy-wall`, `fluvy-lights`, `fluvy-climate`) in its raw configuration.
 - **Wall** — what this tablet is, which dashboards are walls, the screensaver, day and night, the background.
 - **Preferences** — language, motion and haptics, per person.
 
@@ -282,7 +283,7 @@ options.
 | [The settings panel](docs/settings-panel.md) | the six tabs, house and personal settings, where they are stored |
 | [The theme](docs/theme.md) | palettes, custom accents, shapes, the tokens |
 | [The cards](docs/cards.md) | every card, with its configuration |
-| [The automatic dashboards](docs/automatic-dashboard.md) | what the five templates build from your home, and how to steer them |
+| [The automatic dashboards](docs/automatic-dashboard.md) | what the seven templates build from your home, and how to steer them |
 | [Wall mode](docs/wall.md) | a tablet on the wall: the kiosk, the screensaver, day and night |
 | [Activity and History](docs/pages.md) | the two pages |
 | [Everywhere](docs/shell.md) | what the shell restyles, and what to expect after a Home Assistant release |

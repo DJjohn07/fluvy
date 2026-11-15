@@ -849,7 +849,7 @@ form for a line that holds no more.
 
 ## Dashboards (the panel's tab)
 
-- Five templates as rows in one card: a created one is a row that opens (accent circle, its url as the sub, the bare
+- Seven templates as rows in one card: a created one is a row that opens (accent circle, its url as the sub, the bare
   chevron); a missing one carries its description as the sub and a small quiet button at its end ("Create", 36 tall,
   radius 12) — the row is the tap target, the button says what the tap does; while it is being made the sub says so
   and the row takes no second tap. Then one card of options per dashboard the house has, headed by the dashboard's
@@ -951,6 +951,11 @@ form for a line that holds no more.
   there; on a wide screen they stay (a mouse has no other way along the row).
 - Never in the edit mode, a subview or a one-view dashboard (Home Assistant's own title stays), and never on a
   dashboard that does not wear the look.
+- **A tab a room** (1.22, #202: the Rooms dashboard's `rooms_as: tabs`, the Lights and Climate dashboards): the
+  rooms are ordinary views, so their tabs are these, in the house's order of its rooms after the first ("All rooms",
+  "All lights", "Whole home"), each its area's name and icon. A dozen of them is one row that scrolls on a phone as
+  any other; nothing is added to the bar. A kiosk has no header: its way between rooms is the greeting's chips
+  (`greeting_tabs: show`).
 - The panel's card: a header mock on the card fill with the hairline (radius 12, 56 tall), the four styles as option
   tiles with their glyphs, the content as filling chips, the name as a switch row; *Hidden* and *Original* (Home Assistant's own),
   with nothing more to choose, each say why in a hint (*Hidden*: where the automatic dashboards' chips under the

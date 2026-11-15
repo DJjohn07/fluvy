@@ -1,12 +1,13 @@
 import type { AreaRegistryEntry } from '@fluvy/core';
 import { flowed } from '../layout.js';
 import { roomAsTab, roomPart, roomsOf, roomsView } from '../rooms.js';
-import type { Section, StrategyContext, ViewSpec } from '../types.js';
+import type { CapKey, Section, StrategyContext, ViewSpec } from '../types.js';
 
 /*
  * The rooms dashboard (`custom:fluvy-rooms`): a tab a floor when the house has two or more, else every room on one
  * tab; each room a card that opens the room's own subview. Where it is asked (`rooms_as: tabs`, 1.22, #202), "All
- * rooms" first, every room's card under its floor's heading, then a tab a room.
+ * rooms" first, every room's card under its floor's heading, then a tab a room. And the dashboards of one kind of
+ * thing (`custom:fluvy-lights`, `custom:fluvy-climate`): Home's view of it, then a tab a room that holds some.
  */
 
 /** The columns of the views of rooms. */
@@ -86,3 +87,15 @@ export function roomTab(ctx: StrategyContext, area: AreaRegistryEntry): string {
     !ctx.style.roomTabs && floors.length >= 2 && floors.find((f) => f.floor_id === area.floor_id);
   return floor ? `floor-${floor.floor_id}` : 'rooms';
 }
+
+/**
+ * The views of a dashboard of one kind of thing, room by room: Home's view of it whole (`first`), then a tab a room
+ * that holds some, in the house's order of its rooms — its page's own parts of that kind (`parts`), with their ids,
+ * their caps and their names.
+ */
+export const byRoomViews =
+  (first: ViewSpec, parts: readonly CapKey[]) =>
+  (ctx: StrategyContext): ViewSpec[] => [
+    first,
+    ...roomsOf(ctx.home).map((area) => roomAsTab(area, COLUMNS, parts)),
+  ];
