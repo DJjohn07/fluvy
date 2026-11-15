@@ -69,7 +69,7 @@ import {
   type NumberKeys,
 } from '../shared/units.js';
 
-import { Card, HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE, Card } from '../shared/base.js';
 import { stateWord } from '../shared/domain.js';
 
 import {
@@ -424,7 +424,7 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
     new Ticker(this, () => Math.floor(Date.now() / HOUR) !== this.hour);
   }
 
-  static override base = HEAD_BASE;
+  static override base = BADGE_BASE;
   static override keys = configKeys<ProductionCardConfig>()([
     'subtitle',
     'forecast_entity',
@@ -480,7 +480,7 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
         entityField(['sensor']),
         fieldRow(nameField(), textField('subtitle')),
         iconField(),
-        headFields(),
+        headFields({ badge: true }),
         ...colourFields(),
         choiceField('day', [
           ['today', 'common.today'],

@@ -395,3 +395,31 @@ describe('a device’s state that gives way leads the line (#196)', () => {
     ).toEqual(['warning: Unlocked']);
   });
 });
+
+describe('a head asked to show no badge of its own (show_badge: false, #203)', () => {
+  /** A fitter on a card that says `show_badge: false`. */
+  function unbadged(): HeadFit {
+    const fit = fitter();
+    Object.assign((fit as unknown as { host: object }).host, { showBadge: false });
+    return fit;
+  }
+  const lock = {
+    title: 'Front door lock',
+    sub: 'Since 14:51',
+    badge: { text: 'Unlocked', tone: 'warning' as const, lead: true },
+  };
+
+  it('draws none, and its word never leads the line where the badge would have given way', () => {
+    const wide = unbadged().fit({ ...lock, width: 320 });
+    expect([wide.badge, wide.line]).toEqual([nothing, 'Since 14:51']);
+    const narrow = unbadged().fit({ ...lock, width: 132 });
+    expect([narrow.badge, narrow.line]).toEqual([nothing, 'Since 14:51']);
+  });
+
+  it('keeps a badge of the person’s own, and gives the room to what it would have taken', () => {
+    const own = unbadged().fit({ ...lock, badge: { ...lock.badge, own: true }, width: 320 });
+    expect(own.badge).not.toBe(nothing);
+    const room = unbadged().fit({ title: 'Washing machine', badge, trailing: 44, width: 320 });
+    expect(room.badge).toBe(nothing);
+  });
+});

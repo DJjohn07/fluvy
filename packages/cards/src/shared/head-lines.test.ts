@@ -148,7 +148,12 @@ describe('the editors (#191)', () => {
       expect(shown).toContain('name_lines');
       // a room's and its lights' are their tiles', on a row of their own
       if (tag === 'fluvy-lights-card' || tag === 'fluvy-room-card') return;
-      expect(rows(form.schema as Field[])).toContainEqual(['show_icon', 'name_lines']);
+      // the badge's switch between them where the head carries a badge of its own (#203)
+      expect(rows(form.schema as Field[])).toContainEqual(
+        shown.includes('show_badge')
+          ? ['show_icon', 'show_badge', 'name_lines']
+          : ['show_icon', 'name_lines'],
+      );
     },
   );
 

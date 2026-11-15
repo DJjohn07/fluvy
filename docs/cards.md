@@ -31,6 +31,19 @@ entity: sensor.inverter_e2_south_power
 name_lines: 2   # "Inverter E2 South / MPPT total power", where one line said "Inverter E2 So…"
 ```
 
+A card whose head carries a badge of its own, its state or a count (the lock, alarm, cover, vacuum, thermostat,
+appliance, 3D printer, vehicle, humidity, timer, updates, gauge, distribution and bars cards, and the energy balance,
+grid, car charger, batteries, energy devices, energy usage and production cards), also takes `show_badge` (1.22):
+`false` hides it, and its word does not step down into the line under the name either; a badge you give a card
+yourself (`badge`) still shows. The thermostat's `show_state` is its older name. The editor offers it beside the
+icon's choice.
+
+```yaml
+type: custom:fluvy-cover-card
+entity: cover.office_blind
+show_badge: false   # no "Open" beside the name: the ruler and its words say it
+```
+
 An `icon` left out — a card's, a row's or a
 tile's — is the one you set for the entity in Home Assistant (in its settings, or a helper's, a scene's or a script's
 own), else Fluvy's glyph for its kind, drawn open or shut as it stands (a door, a gate, a garage, a window), else its
@@ -814,7 +827,7 @@ is Home Assistant's own word for the action where Fluvy speaks the page's langua
 one), and it wears the action's tone: heating, preheating and defrosting the heat's, cooling the cool's, idle and off
 quiet, whatever tone the card, its dial and its mode tiles keep for the mode. In a column too narrow for the badge
 beside the name (half a section, a long name) the word leads the line under the name instead ("Heating · 46 % RH"),
-so it is always said; `show_state: false` hides it.
+so it is always said; `show_badge: false` hides it (`show_state`, its older name, still does).
 
 What else the card says of what the device is doing is asked for, each off until it is:
 

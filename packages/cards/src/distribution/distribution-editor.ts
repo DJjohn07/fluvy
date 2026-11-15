@@ -45,6 +45,7 @@ export const base: readonly BaseKey[] = [
   ...ACTIONS_BASE,
   'show_icon',
   'name_lines',
+  'show_badge',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -85,7 +86,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       iconField(),
-      headFields(),
+      headFields({ badge: true }),
       ...colourFields(),
       entitiesField('entities', ['sensor'], true),
       onlyWhen(holdsDevice('entities'), namesField()),

@@ -1,5 +1,5 @@
 import { strings, type HomeAssistant, type LovelaceConfigForm } from '@fluvy/core';
-import { HEAD_BASE, SLIDER_BASE } from '../shared/base.js';
+import { BADGE_BASE, SLIDER_BASE } from '../shared/base.js';
 import {
   actionFields,
   boolField,
@@ -31,7 +31,7 @@ import type { CoverCardConfig } from './cover-card.js';
 
 const coverStrings = strings('cover');
 
-export const base = [...HEAD_BASE, ...SLIDER_BASE];
+export const base = [...BADGE_BASE, ...SLIDER_BASE];
 
 /** A cover's states, as Home Assistant writes them (a valve's are the same): what the editor offers a colour for. */
 const STATES = ['open', 'closed', 'opening', 'closing'];
@@ -150,7 +150,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['cover', 'valve']),
       nameIconFields(),
-      headFields(),
+      headFields({ badge: true }),
       fieldRow(ownTextField('subtitle'), numberField('tilt_angle', 0, 360)),
       fieldRow(
         selectField('variant', ['full', 'compact']),

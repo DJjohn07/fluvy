@@ -42,7 +42,7 @@ import { iconOf } from '../shared/domain.js';
 import { HeadFit, warned, type FittedHead } from '../energy/head.js';
 import { optionCell, optionColumnsFor, optionsHold, valuesHeld } from '../shared/options.js';
 import { BrokenPictures, imageEntity, imageOf } from '../shared/picture.js';
-import type { WhenOff } from '../shared/config.js';
+import type { AliasSpec, WhenOff } from '../shared/config.js';
 import { chipRow, inForce, type Choice } from '../shared/chips.js';
 import { haWord, modeWord, pretty } from '../shared/mode-words.js';
 import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
@@ -56,8 +56,6 @@ export type RowStyle = 'chips' | 'full';
 export interface ThermostatCardConfig extends FluvyCardConfig, ReadingsAsk, StateTintConfig {
   /** The line under the name; empty hides it. Default: the area (left out where it is the name) and the humidity. */
   subtitle?: string;
-  /** The word for what it is doing, in the head (default); hidden, nothing says it. */
-  show_state?: boolean;
   /**
    * A picture of the person's own in the circle's place (#99): an address, or an entity whose picture it is (an air
    * conditioner's product picture, `image.living_ac`). The circle's glyph where it cannot be read.
@@ -538,6 +536,8 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
   static override editor(): Promise<CardEditor> {
     return import('./thermostat-editor.js');
   }
+  /** What it is doing is its head's badge: `show_badge` (#203) is every head's word for what `show_state` was. */
+  static override aliases: AliasSpec = { keys: [{ from: 'show_state', to: 'show_badge' }] };
 
   static getStubConfig(_hass: unknown, entities: readonly string[]): ThermostatCardConfig {
     return {
@@ -604,7 +604,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
    * entities is watched while it reads them.
    */
   private fitHead(view: EntityView, m: ThermostatModel, name: string, tone: Tone): FittedHead {
-    const ask: ReadingsAsk & Pick<ThermostatCardConfig, 'show_state'> = this.config ?? {};
+    const ask: ReadingsAsk = this.config ?? {};
     const percent = (value: number): string => `${formatNumber(this.hass, value, { digits: 0 })} %`;
     const valve = valveOf(this.hass, view, ask);
     const battery = batteryLevel(this.hass, view, ask);
@@ -613,7 +613,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       this.follows(read?.entity);
     this.follows(ask.state_entity);
     const said = m.doing;
-    const shown = ask.show_state !== false;
+    const shown = this.showBadge;
     // out of reach, the word is the state's alone
     const figure = valve && isUsable(view) ? percent(valve.value) : '';
     const low =

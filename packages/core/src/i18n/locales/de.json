@@ -657,6 +657,7 @@
     "tilt_style": "Neigung als",
     "tilt_steps": "Schritte",
     "tilt_slats": "Lamellen",
+    "show_badge": "Badge anzeigen",
     "thresholds": "Schwellenwerte",
     "thresholds_helper": "Ein Messwert nimmt die Farbe des nächsten Schwellenwerts an, den er überschreitet",
     "threshold_value": "Wert",

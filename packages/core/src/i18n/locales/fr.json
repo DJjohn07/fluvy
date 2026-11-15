@@ -657,6 +657,7 @@
     "tilt_style": "Inclinaison en",
     "tilt_steps": "Pas",
     "tilt_slats": "Lames",
+    "show_badge": "Afficher le badge",
     "thresholds": "Seuils",
     "thresholds_helper": "Une mesure prend la couleur du seuil le plus proche qu’elle a franchi",
     "threshold_value": "Valeur",

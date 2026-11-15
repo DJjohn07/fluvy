@@ -1,5 +1,5 @@
 import { chartDefaults, strings as words, type LovelaceConfigForm } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE } from '../shared/base.js';
 import {
   actionFields,
   boolField,
@@ -23,7 +23,7 @@ import { bandOf, type HumidityCardConfig } from './humidity-card.js';
 
 const strings = words('humidity');
 
-export const base = HEAD_BASE;
+export const base = BADGE_BASE;
 
 export const keys = configKeys<HumidityCardConfig>()([
   'subtitle',
@@ -50,7 +50,7 @@ export function getConfigForm(): LovelaceConfigForm {
       entityField(['sensor', 'number', 'input_number']),
       fieldRow(nameField(), ownTextField('subtitle')),
       iconField(),
-      headFields(),
+      headFields({ badge: true }),
       ...colourFields(),
       fieldRow(numberField('low', 0, 100), numberField('high', 0, 100)),
       // the band's three looks: the ruler's ticks with the marker (the classic one), the ruler read lit with the knob,

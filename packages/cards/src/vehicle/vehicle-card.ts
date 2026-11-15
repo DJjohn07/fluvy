@@ -912,6 +912,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<VehicleCardConfig>()([
@@ -1052,7 +1053,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         entityField(undefined, 'entity', false),
         boolField('scan'),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         selectField('variant', VEHICLE_VARIANTS),
         fieldRow(
           choiceField('energy', [

@@ -90,7 +90,7 @@ const pointer = mousePointer(page);
 {
   const titles = [
     ['Slats · half open', 344],
-    ['Slats · presets', 488],
+    ['Slats · presets, its badge hidden', 488],
     ['Slats · no position', 336],
     ['Steps · as before', 328],
   ];
@@ -116,7 +116,7 @@ const pointer = mousePointer(page);
 
 /* ---------- presets ---------- */
 {
-  const card = cardOf(page, 'Slats · presets');
+  const card = cardOf(page, 'Slats · presets, its badge hidden');
   const rows = card.locator('.cv-presets');
   const [position, tilt] = [rows.nth(0), rows.nth(1)];
   check(

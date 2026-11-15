@@ -222,6 +222,7 @@ export class FluvyEnergyBalanceCard extends Card<EnergyBalanceCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyBalanceCardConfig>()([
@@ -270,7 +271,7 @@ export class FluvyEnergyBalanceCard extends Card<EnergyBalanceCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('period', BALANCE_PERIODS)),
-        headFields(),
+        headFields({ badge: true }),
         // over a period, a date picker to follow; the chips while none is followed
         fieldRow(
           onlyWhen(periodic, collectionField()),

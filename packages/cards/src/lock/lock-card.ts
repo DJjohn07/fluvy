@@ -35,7 +35,7 @@ import { keyed } from 'lit/directives/keyed.js';
 
 import '../alarm/keypad.js';
 import type { FluvyKeypad } from '../alarm/keypad.js';
-import { Card, HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE, Card } from '../shared/base.js';
 
 import {
   actionFields,
@@ -209,7 +209,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
     this.confirming_ = false;
   }
 
-  static override base = HEAD_BASE;
+  static override base = BADGE_BASE;
   static override keys = configKeys<LockCardConfig>()([
     'rows',
     'show_rows',
@@ -228,7 +228,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
       schema: [
         entityField(['lock']),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         fieldRow(ownTextField('subtitle'), selectField('variant', ['full', 'compact'])),
         onlyWhen(drawsRows, boolField('show_rows')),
         entitiesField('rows'),

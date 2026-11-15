@@ -63,7 +63,7 @@ import { automationEntity, AutomationStore } from '../automations/store.js';
 import { buildNotice, noticeId, type NoticeTrigger } from '../automations/notice.js';
 import { sharedGap } from '../cover/common.js';
 import { HeadFit, nameWidth } from '../energy/head.js';
-import { Card, HEAD_BASE, type HeadConfig } from '../shared/base.js';
+import { BADGE_BASE, Card, type HeadConfig } from '../shared/base.js';
 import { statusToneOf, toneOf } from '../shared/colour.js';
 import { configKeys } from '../shared/config.js';
 import { unitWord, widestDuration } from '../shared/duration.js';
@@ -1445,7 +1445,7 @@ export class FluvyApplianceCard extends Card<ApplianceCardConfig> {
     new Ticker(this, () => this.timed());
   }
 
-  static override base = HEAD_BASE;
+  static override base = BADGE_BASE;
   static override keys = configKeys<ApplianceCardConfig>()([
     'device',
     'kind',
@@ -1624,7 +1624,7 @@ export class FluvyApplianceCard extends Card<ApplianceCardConfig> {
         entityField(undefined, 'entity', false),
         fieldRow(kindField(), selectField('variant', APPLIANCE_VARIANTS)),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         choiceField('unit', [
           ['both', 'appliance.o_both_units'],
           ['main', 'appliance.o_main_unit'],

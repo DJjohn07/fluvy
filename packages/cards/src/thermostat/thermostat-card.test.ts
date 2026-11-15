@@ -665,9 +665,10 @@ describe('what it is asked to say with it (#185)', () => {
   });
 
   it('hides the word where asked: no badge, and nothing of it in the line', async () => {
-    let card = await drawn({ show_state: false, show_valve: true });
+    let card = await drawn({ show_badge: false, show_valve: true });
     expect([badge(card), line(card)]).toEqual([null, '46 % RH']);
     card.remove();
+    // `show_state`, its older name, says the same
     card = await drawn({ show_state: false, show_battery: true }, 172);
     expect(line(card)).toBe('Battery 8 %');
     card.remove();
@@ -703,7 +704,6 @@ describe('what it is asked to say with it (#185)', () => {
     const shown = (more: Partial<ThermostatCardConfig>) =>
       thermostatEditor.defaults(config({ entity: valve.entity_id, ...more }), hass);
     expect(shown({})).toMatchObject({
-      show_state: true,
       show_valve: false,
       show_window: false,
       show_battery: false,
@@ -717,15 +717,15 @@ describe('what it is asked to say with it (#185)', () => {
     // what cannot act is not offered: a humidifier has no valve and no window, a hidden word no options
     const fields = (data: Record<string, unknown>) =>
       shownNames(visibleFields(thermostatEditor.getConfigForm().schema, data, hass));
-    const climate = fields({ entity: valve.entity_id, show_state: true });
+    const climate = fields({ entity: valve.entity_id, show_badge: true });
     expect(climate).toEqual(
       expect.arrayContaining(['state_entity', 'show_valve', 'valve_attribute', 'show_window']),
     );
-    const humidifier = fields({ entity: 'humidifier.bedroom', show_state: true });
-    expect(humidifier).toEqual(expect.arrayContaining(['show_state', 'state_entity']));
+    const humidifier = fields({ entity: 'humidifier.bedroom', show_badge: true });
+    expect(humidifier).toEqual(expect.arrayContaining(['show_badge', 'state_entity']));
     expect(humidifier).not.toEqual(expect.arrayContaining(['show_valve']));
     expect(humidifier).not.toEqual(expect.arrayContaining(['humidity_entity']));
-    const hidden = fields({ entity: valve.entity_id, show_state: false });
+    const hidden = fields({ entity: valve.entity_id, show_badge: false });
     expect(hidden).not.toEqual(expect.arrayContaining(['state_entity']));
     expect(hidden).toEqual(expect.arrayContaining(['show_battery', 'humidity_entity']));
   });

@@ -106,10 +106,11 @@ export const sheet: SheetSpec = {
     slats('Slats · half open', { entity: 'cover.ct_office' }),
     slats('Slats · shut', { entity: 'cover.ct_office_shut' }),
     slats('Slats · open', { entity: 'cover.ct_office_open' }),
-    slats('Slats · presets', {
+    slats('Slats · presets, its badge hidden', {
       entity: 'cover.ct_office_presets',
       position_presets: [0, 50, 100],
       tilt_presets: [0, 50, 100],
+      show_badge: false,
     }),
     slats('Slats · counted as it comes down', { entity: 'cover.ct_kitchen', direction: 'down' }),
     slats('Slats · a cover that reports it turned round', {

@@ -194,6 +194,7 @@ export class FluvyGridCard extends Card<GridCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<GridCardConfig>()([
@@ -241,7 +242,7 @@ export class FluvyGridCard extends Card<GridCardConfig> {
         ...measureFields(),
         entitiesField('voltages', ['sensor']),
         fieldRow(entityField(['sensor'], 'price', false), iconField()),
-        headFields(),
+        headFields({ badge: true }),
         entitiesField('readouts', ['sensor']),
         // the Energy dashboard's totals (no readouts of its own) can follow a date picker
         onlyWhen((data) => !listed(data, 'readouts').length, collectionField()),

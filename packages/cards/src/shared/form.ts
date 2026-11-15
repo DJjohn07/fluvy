@@ -879,11 +879,16 @@ const namesHead = (data: Readonly<Record<string, unknown>>): boolean =>
   headLines({ ...data, type: String(data['type']), name_lines: 2 }) > 0;
 
 /**
- * A card's head: whether it shows its circle, and — where its layout draws a head that names it — its name in one
- * line (the default) or two where one would cut it (`name_lines`, #191: the head a line taller), on one row.
+ * A card's head: whether it shows its circle, whether it shows its own badge where it carries one (`badge`:
+ * `show_badge`, #203), and — where its layout draws a head that names it — its name in one line (the default) or two
+ * where one would cut it (`name_lines`, #191: the head a line taller), on one row.
  */
-export const headFields = (): HaFormSchemaItem =>
-  fieldRow(showIconField(), onlyWhen(namesHead, nameLinesField()));
+export const headFields = ({ badge = false } = {}): HaFormSchemaItem =>
+  fieldRow(
+    showIconField(),
+    ...(badge ? [boolField('show_badge')] : []),
+    onlyWhen(namesHead, nameLinesField()),
+  );
 
 /** What a card of a list says while the list has nothing to show, and whether it hides then (`EmptyList`). */
 export const emptyFields = (): HaFormSchemaItem =>

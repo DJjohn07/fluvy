@@ -7,7 +7,7 @@ import {
   type KeyOf,
   type LovelaceConfigForm,
 } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE } from '../shared/base.js';
 import {
   actionFields,
   boolField,
@@ -46,7 +46,7 @@ const drivable = (data: Data, hass?: HomeAssistant): boolean =>
 const driven = (data: Data, hass?: HomeAssistant): boolean =>
   data['show_drive'] === true && drivable(data, hass);
 
-export const base = HEAD_BASE;
+export const base = BADGE_BASE;
 
 /** A robot's states, as Home Assistant writes them (a mower's among them): what the editor offers a colour for. */
 const STATES = ['cleaning', 'mowing', 'returning', 'paused', 'idle', 'docked', 'error'];
@@ -122,7 +122,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['vacuum', 'lawn_mower']),
       nameIconFields(),
-      headFields(),
+      headFields({ badge: true }),
       fieldRow(ownTextField('subtitle'), selectField('variant', ['full', 'compact'])),
       fieldRow(boolField('show_battery'), entityField(['sensor'], 'battery_entity', false)),
       fieldRow(

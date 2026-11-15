@@ -33,7 +33,7 @@ import {
 
 import { changedLine, changedShort, RowsCard, type RowsCardConfig } from '../lock/rows.js';
 
-import { Card, HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE, Card } from '../shared/base.js';
 
 import { iconOf } from '../shared/domain.js';
 
@@ -252,7 +252,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
     });
   }
 
-  static override base = HEAD_BASE;
+  static override base = BADGE_BASE;
   static override keys = configKeys<AlarmCardConfig>()([
     'rows',
     'show_rows',
@@ -293,7 +293,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       schema: [
         entityField(['alarm_control_panel']),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         fieldRow(ownTextField('subtitle'), selectField('variant', ['tiles', 'compact'])),
         // every mode until the panel is known, then its own (`choices`), dragged into the order they show in
         orderedField(

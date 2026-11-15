@@ -6,7 +6,7 @@ import {
   type HomeAssistant,
   type LovelaceConfigForm,
 } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE } from '../shared/base.js';
 import { chartEngine } from '../shared/chart-load.js';
 import {
   actionFields,
@@ -43,7 +43,7 @@ import { dialOf, GAUGE_STATS, GAUGE_VARIANTS, type GaugeCardConfig } from './gau
 
 const strings = words('gauge');
 
-export const base = HEAD_BASE;
+export const base = BADGE_BASE;
 
 export const keys = configKeys<GaugeCardConfig>()([
   'subtitle',
@@ -122,7 +122,7 @@ export function getConfigForm(): LovelaceConfigForm {
       ),
       // a moving gauge moves, or rests on its first frame
       onlyWhen(moving, boolField('animate')),
-      headFields(),
+      headFields({ badge: true }),
       ...colourFields(),
       fieldRow(
         numberField('min', -1_000_000, 1_000_000, 0.1),

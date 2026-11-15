@@ -4,7 +4,7 @@ import {
   type LovelaceConfigForm,
   type MessageKey,
 } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE } from '../shared/base.js';
 import {
   actionFields,
   boolField,
@@ -39,7 +39,7 @@ import {
 
 /** The thermostat card's editor: fetched by its `editor()` the first time the card is edited, never by a dashboard. */
 
-export const base = HEAD_BASE;
+export const base = BADGE_BASE;
 
 /**
  * What a thermostat says it is doing, as Home Assistant writes a climate's and a humidifier's actions: what the editor
@@ -76,7 +76,6 @@ export const defaults: EditorDefaults = (config, hass) => {
     show_presets: true,
     show_fan: true,
     when_off: 'all',
-    show_state: true,
     show_valve: false,
     show_window: false,
     show_battery: false,
@@ -109,7 +108,6 @@ export const keys = configKeys<ThermostatCardConfig>()([
   'preset_style',
   'fan_style',
   'when_off',
-  'show_state',
   'state_entity',
   'show_valve',
   'valve_entity',
@@ -124,8 +122,8 @@ export const keys = configKeys<ThermostatCardConfig>()([
 
 type Data = Readonly<Record<string, unknown>>;
 
-/** The card says what the thermostat is doing: what the word's own options act on. */
-const said = (data: Data): boolean => data['show_state'] !== false;
+/** The card says what the thermostat is doing (its badge, `show_badge`): what the word's own options act on. */
+const said = (data: Data): boolean => data['show_badge'] !== false;
 /** …and it is a climate: a valve and a window are a radiator's, the room's humidity a room's. */
 const climate = (data: Data): boolean => String(data['entity']).startsWith('climate.');
 
@@ -136,13 +134,13 @@ const foundField = (name: string, ...domains: string[]): HaFormSchemaItem => ({
 });
 
 /**
- * What the thermostat is doing (#185), folded: the word's switch; then what may be said with it, each off until
- * asked — the action from another entity, the valve's opening and an open window (a climate's), a low battery and the
- * room's humidity from another sensor. A sensor left empty is found, and its picker shows which.
+ * What the thermostat is doing (#185), folded: what may be said with the word (its badge's switch is the head's,
+ * `show_badge`), each off until asked — the action from another entity, the valve's opening and an open window (a
+ * climate's), a low battery and the room's humidity from another sensor. A sensor left empty is found, and its picker
+ * shows which.
  */
 const doingFields = (): HaFormSchemaItem =>
   sectionField('editor.doing', [
-    boolField('show_state'),
     onlyWhen(said, {
       ...entityField(['sensor', 'binary_sensor', 'switch', 'input_boolean'], 'state_entity', false),
       helper: 'editor.state_entity_helper',
@@ -175,7 +173,7 @@ export function getConfigForm(): LovelaceConfigForm {
       // the person's own picture in the circle's place: an address, or an entity whose picture it is
       textField('image'),
       ownTextField('subtitle'),
-      headFields(),
+      headFields({ badge: true }),
       fieldRow(selectField('variant', ['dial', 'compact', 'ruler']), boolField('show_stepper')),
       fieldRow(boolField('show_modes'), selectField('modes_style', ['tiles', 'chips', 'full'])),
       // a climate's seven until the entity is known: then its own (`choices`), dragged into the order they show in

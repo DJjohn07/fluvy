@@ -88,12 +88,13 @@ export interface FittedHead {
 }
 
 /**
- * A card that says how its head's circle shows (`Card.showIcon`, from its `show_icon`), and the lines its name may take
- * (`Card.nameLines`, from its `name_lines`).
+ * A card that says how its head's circle shows (`Card.showIcon`, from its `show_icon`), the lines its name may take
+ * (`Card.nameLines`, from its `name_lines`), and whether its own badge shows (`Card.showBadge`, from its `show_badge`).
  */
 interface IconHost {
   readonly showIcon?: ShowIcon;
   readonly nameLines?: 1 | 2;
+  readonly showBadge?: boolean;
 }
 
 /**
@@ -179,6 +180,8 @@ export class HeadFit implements ReactiveController {
 
   fit(o: HeadFitOptions): FittedHead {
     const host = this.host as LitElement & IconHost;
+    // the card's own badge asked away (`show_badge: false`, #203): none, nor its word in the line; the person's stays
+    if (o.badge && !o.badge.own && host.showBadge === false) return this.fit({ ...o, badge: null });
     const show = o.icon ?? host.showIcon ?? 'auto';
     const pill = o.badge ? this.ruler.pill('fv-badge', o.badge.text, BADGE_SIDES) : 0;
     let trailing = o.badge ? pill : (o.trailing ?? 0);

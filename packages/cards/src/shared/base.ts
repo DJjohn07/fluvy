@@ -25,12 +25,14 @@ import type { Band, Thresholds } from './thresholds.js';
 
 /**
  * What a card with a head honours of its circle: whether it shows (`HeadFit` reads it through `Card.showIcon`), and
- * what it answers (#179) — none of it until one is set, the circle then a button of its own; and its name in two lines
- * where one would cut it (`name_lines: 2`, #191; `Card.nameLines`), the head a line taller.
+ * what it answers (#179) — none of it until one is set, the circle then a button of its own; its name in two lines
+ * where one would cut it (`name_lines: 2`, #191; `Card.nameLines`), the head a line taller; and, on a card whose head
+ * carries a badge of its own (a state, a count), whether it shows (`show_badge`, #203; `Card.showBadge`).
  */
 export interface HeadConfig {
   show_icon?: ShowIcon;
   name_lines?: NameLines;
+  show_badge?: boolean;
   icon_tap_action?: ActionConfig;
   icon_hold_action?: ActionConfig;
   icon_double_tap_action?: ActionConfig;
@@ -86,6 +88,9 @@ export const HEAD_BASE: readonly BaseKey[] = [
   'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
+
+/** The same for a card whose head carries a badge of its own (a state, a count): whether it shows (#203). */
+export const BADGE_BASE: readonly BaseKey[] = [...HEAD_BASE, 'show_badge'];
 
 /** What a card with a slider honours of the base besides (1.18, #144): the style its sliders are drawn in, and the words under a bar or a liquid. */
 export const SLIDER_BASE: readonly BaseKey[] = ['slider_style', 'slider_words'];
@@ -353,6 +358,11 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
   /** Whether the head's circle shows (`show_icon`); a value it does not know is `auto`, as none is. */
   get showIcon(): ShowIcon {
     return (this.config as HeadConfig | undefined)?.show_icon ?? 'auto';
+  }
+
+  /** Whether the head's own badge shows (`show_badge`, #203): unless its config says `false`. */
+  get showBadge(): boolean {
+    return (this.config as HeadConfig | undefined)?.show_badge !== false;
   }
 
   /**

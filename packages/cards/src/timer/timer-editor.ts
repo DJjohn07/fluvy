@@ -1,5 +1,5 @@
 import { strings, type LovelaceConfigForm } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { BADGE_BASE } from '../shared/base.js';
 import {
   actionFields,
   boolField,
@@ -18,7 +18,7 @@ import type { TimerCardConfig } from './timer-card.js';
 
 const s = strings('timer');
 
-export const base = HEAD_BASE;
+export const base = BADGE_BASE;
 
 export const keys = configKeys<TimerCardConfig>()(['show_gauge', 'show_actions']);
 
@@ -30,7 +30,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['timer']),
       nameIconFields(),
-      headFields(),
+      headFields({ badge: true }),
       ...colourFields(),
       fieldRow(boolField('show_gauge'), boolField('show_actions')),
       actionFields({ icon: true }),

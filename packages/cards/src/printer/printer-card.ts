@@ -575,6 +575,7 @@ export class FluvyPrinterCard extends Card<PrinterCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<PrinterCardConfig>()([
@@ -633,7 +634,7 @@ export class FluvyPrinterCard extends Card<PrinterCardConfig> {
         },
         entityField(undefined, 'entity', false),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         selectField('variant', PRINTER_VARIANTS),
         orderedField(
           'readouts',

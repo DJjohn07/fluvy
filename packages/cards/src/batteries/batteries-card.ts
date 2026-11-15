@@ -130,6 +130,7 @@ export class FluvyBatteriesCard extends Card<BatteriesCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<BatteriesCardConfig>()([
@@ -179,7 +180,7 @@ export class FluvyBatteriesCard extends Card<BatteriesCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), numberField('reserve', 0, 100, 1)),
-        headFields(),
+        headFields({ badge: true }),
         entityField(['select', 'input_select'], 'mode', false),
         ...colourFields(),
         numberFields({ units: LADDERS.power }),

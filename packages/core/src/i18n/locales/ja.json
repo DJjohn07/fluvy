@@ -607,6 +607,7 @@
     "tilt_style": "チルトの表示",
     "tilt_steps": "ステップ",
     "tilt_slats": "スラット",
+    "show_badge": "バッジを表示",
     "thresholds": "しきい値",
     "thresholds_helper": "測定値は、超えたしきい値のうち最も近いものの色になります",
     "threshold_value": "値",

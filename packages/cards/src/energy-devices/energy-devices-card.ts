@@ -204,6 +204,7 @@ export class FluvyEnergyDevicesCard extends Card<EnergyDevicesCardConfig> {
     ...ACTIONS_BASE,
     'show_icon',
     'name_lines',
+    'show_badge',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyDevicesCardConfig>()([
@@ -270,7 +271,7 @@ export class FluvyEnergyDevicesCard extends Card<EnergyDevicesCardConfig> {
       schema: [
         titleFields(),
         iconField(),
-        headFields(),
+        headFields({ badge: true }),
         ...colourFields(),
         entitiesField('entities', ['sensor']),
         // the Energy dashboard's devices (no rows of its own) can follow a date picker

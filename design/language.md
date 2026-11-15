@@ -216,6 +216,12 @@ key hold.
   the weather's hero) has none to take, and the editor offers it only where it acts (`headLines`, the one rule of the
   drawing, the declared height and the form); a room's and the room lights' `name_lines` is their tiles'. The automatic
   dashboards' *Long names* (`name_lines: 2`) writes it on the cards they name after the house's entities.
+- **A badge asked away (1.22, #203):** `show_badge: false` on every head card whose head carries a badge of the
+  card's own (a state, what it is doing, a count, a total), honoured once in `HeadFit`, read through the card as
+  `show_icon` is (`Card.showBadge`): no badge, and no word stepping down into the line either; its room is the name's
+  and the line's. A badge of the person's own (`badge`: words, an entity, a template) still shows. The editor offers
+  the switch beside the circle's choice, only on those cards; a card whose badge is asked for already (the energy
+  flow's `badge`, the openings' `show_count`) keeps its own key. The thermostat's `show_state` is its older name.
 - **Custom heads follow the same rule:** a player's art and its words are one button (the head's), a mini row's art
   and words likewise; the now-playing strip's art and titles; a greeting with no avatar (hidden, or no person to be)
   takes the tap and the hold on its words; a room's photo and its row run the room's `tap_action` (its path, or the

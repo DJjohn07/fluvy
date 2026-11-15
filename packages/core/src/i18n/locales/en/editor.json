@@ -249,6 +249,7 @@
     "tilt_style": "Tilt as",
     "tilt_steps": "Steps",
     "tilt_slats": "Slats",
+    "show_badge": "Show the badge",
     "thresholds": "Thresholds",
     "thresholds_helper": "A reading takes the colour of the nearest threshold it is past",
     "threshold_value": "Value",

@@ -24,7 +24,7 @@ import { modeRow } from '../energy/mode-row.js';
 import { valueRow, type Figure } from '../shared/value-row.js';
 import { deviceName, readoutParts, scaled, scaleOf, watts } from '../energy/power.js';
 import { statsCols, statsStyles, type Stat } from '../energy/stats.js';
-import { Card, HEAD_BASE, type BaseKey } from '../shared/base.js';
+import { BADGE_BASE, type BaseKey, Card } from '../shared/base.js';
 import { toneOf } from '../shared/colour.js';
 import { configKeys } from '../shared/config.js';
 import {
@@ -104,7 +104,7 @@ export class FluvyEvChargerCard extends Card<EvChargerCardConfig> {
     `,
   ];
 
-  static override base: readonly BaseKey[] = HEAD_BASE;
+  static override base: readonly BaseKey[] = BADGE_BASE;
   static override keys = configKeys<EvChargerCardConfig>()([
     'invert',
     'level',
@@ -127,7 +127,7 @@ export class FluvyEvChargerCard extends Card<EvChargerCardConfig> {
       schema: [
         entityField(['sensor']),
         nameIconFields(),
-        headFields(),
+        headFields({ badge: true }),
         boolField('invert'),
         fieldRow(entityField(['sensor'], 'level', false), textField('target')),
         fieldRow(textField('ready_by'), entityField(['sensor', 'binary_sensor'], 'status', false)),
