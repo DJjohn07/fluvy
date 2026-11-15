@@ -690,6 +690,35 @@ export const showActionField = ({ item = false } = {}): HaFormSchemaItem =>
     : boolField('show_action');
 
 /**
+ * Which of a small tile's readouts its line says (`line_readouts`, 1.22, #197): the first (the default), or every
+ * one, the last giving way first.
+ */
+export const lineReadoutsField = (): HaFormSchemaItem =>
+  choiceField('line_readouts', [
+    ['first', 'editor.readouts_first'],
+    ['all', 'editor.readouts_all'],
+  ]);
+
+/** Whether a tile's line may say more than its first readout (`lineReadoutsField`): a small one with two or more. */
+export const joinsReadouts = (size: unknown, readouts: number): boolean =>
+  size !== 'large' && readouts > 1;
+
+/** The most readouts a tile of a card's list names (`key`, `alias`: where the card keeps its tiles). */
+export const mostReadouts = (
+  data: Readonly<Record<string, unknown>>,
+  key: string,
+  alias?: string,
+): number =>
+  Math.max(
+    0,
+    ...listed(data, key, alias).map((tile) =>
+      typeof tile === 'object' && tile !== null
+        ? listed(tile as Readonly<Record<string, unknown>>, 'readouts').length
+        : 0,
+    ),
+  );
+
+/**
  * Whether a tile that switches draws a switch that has a style (`switchStyleField`), from its size and what it is
  * asked of its switch (`show_switch`): a large tile that shows it, or a compact one, whose rocker stands at its row's
  * end. A mini tile's circle stays its switch.

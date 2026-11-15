@@ -76,6 +76,8 @@ export type { NameLines };
 export type ShowSwitch = boolean | 'value';
 /** What a tile's switch is drawn as (`switch_style`, #177): the toggle (the default), or a wall rocker. */
 export type SwitchStyle = 'toggle' | 'rocker';
+/** The readouts a small tile's line says (`line_readouts`, #197): the first (the default), or every one. */
+export type LineReadouts = 'first' | 'all';
 
 /**
  * One readout of a tile, in the Grid card's shape (#197): its sensor, a name of its own — its label in a foot, said
@@ -96,8 +98,8 @@ export interface TileItem {
   color?: string;
   /**
    * Sensors shown as small readouts in the foot of a large tile (a plug's power, its energy today, its cost): two, or
-   * three when the tile is wide; the first one joins the state line of a small tile. Each is an id, or a sensor with
-   * what it says of its own (`TileReadout`).
+   * three when the tile is wide; the first one joins the state line of a small tile, or every one where its card asks
+   * (`line_readouts`). Each is an id, or a sensor with what it says of its own (`TileReadout`).
    */
   readouts?: ReadonlyArray<string | TileReadout>;
   /** Where its last change is read from (#67): a timestamp sensor, or `attribute:<name>` of its own; else Home Assistant's. */
@@ -140,6 +142,11 @@ export interface TileCardConfig extends FluvyCardConfig, LightColours, Omit<Tile
   name_lines?: NameLines;
   /** `always`: a tile shows its colour at rest too — a wash of it and its hairline (`on`, the default: only when on). */
   tint?: Tint;
+  /**
+   * A compact or mini tile's line says every readout that can be read (`all`, #197), in their order after its state
+   * and its level, the last giving way first; the first alone (`first`, the default).
+   */
+  line_readouts?: LineReadouts;
 }
 
 /**
@@ -305,8 +312,9 @@ export const tintsAtRest = (
  * not to show its switch (`show_switch`, #160), its circle is the switch, and the three sizes are one tile. Asked for
  * a wall rocker (`switch_style`, #177), its switch is a plate standing on end — a large tile's where its toggle
  * stood, a compact one's at its row's end, its own tap then opening the details — and it switches and nothing more:
- * no ruler, no level. Active = the tone's pastel fill in every size; unavailable = the off skin on the same anatomy,
- * at the same size.
+ * no ruler, no level. A small tile's line says its first readout after its state, or every one where asked
+ * (`line_readouts`, #197), the last giving way first. Active = the tone's pastel fill in every size; unavailable = the
+ * off skin on the same anatomy, at the same size.
  */
 export class FluvyTileCard extends Card<TileCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
@@ -593,12 +601,12 @@ export class FluvyTileCard extends Card<TileCardConfig> {
 
   /**
    * A tile's state line fitted to its tile: what does not fit loses its " · " segments from the end (a large tile's
-   * "· 11 days ago", a small one's reading); a reading that does not fit alone says itself in the first of its shorter
-   * forms that does ("5.1M queries", "12 days ago": `shorterForms`, #93); a word that cannot fit at all is a dash or
-   * nothing (`dash`) — never a cut. The room is the tile's width less its sides (16 on a large or compact tile, 12 on a
-   * mini, or what a narrower mini can spare around its 44 circle) and, where the line sits beside the circle (a large
-   * tile's off skin, a compact one 128 or wider, an inner one 136 or wider), the circle and its gap; a compact tile's
-   * rocker takes its plate and its gap too.
+   * "· 11 days ago", a small one's readings, the last first); a reading that does not fit alone says itself in the
+   * first of its shorter forms that does ("5.1M queries", "12 days ago": `shorterForms`, #93); a word that cannot fit
+   * at all is a dash or nothing (`dash`) — never a cut. The room is the tile's width less its sides (16 on a large or
+   * compact tile, 12 on a mini, or what a narrower mini can spare around its 44 circle) and, where the line sits beside
+   * the circle (a large tile's off skin, a compact one 128 or wider, an inner one 136 or wider), the circle and its
+   * gap; a compact tile's rocker takes its plate and its gap too.
    */
   private fitState(line: string, size: TileSize, view: EntityView, fit: LineFit = {}): string {
     const {
@@ -907,10 +915,12 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         doubleNow,
       );
       const own = told?.line ?? this.tileLine(item, view, lit, level, false, true);
-      // its line says its first readout where it can be read, on a tile that can
-      const [first] = this.readings(item, name);
+      // its line says its first readout, or every one where it is asked (`line_readouts`) — those that can be read, on
+      // a tile that can
+      const readings = this.readings(item, name);
+      const joined = this.config?.line_readouts === 'all' ? readings : readings.slice(0, 1);
       const line = this.fitState(
-        [own, ...(usable && first?.ok ? [onLine(first)] : [])].join(' · '),
+        [own, ...(usable ? joined.filter(({ ok }) => ok).map(onLine) : [])].join(' · '),
         size,
         view,
         { dash: !usable, inside, words, figure, plated, forms: told?.forms },

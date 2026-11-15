@@ -2908,14 +2908,19 @@ the palette's share (`--fluvy-shade`: none on a surface read by its edges).
 ## A tile's readouts (1.22, #197)
 
 A large tile's foot draws two or three readouts as its width holds; a compact or a mini tile says its first on its
-line after its state, as it always has.
+line after its state, as it always has. Asked, a small tile says more of them, and nothing about it moves: its height
+is its config's.
 
 - **A readout's own words**: a readout may name itself (`name`), in the Grid card's shape. The name stands before its
   figure on the line ("CPU 55 °C"), so two of one measure read apart, and is its label in a large tile's foot, where a
   name may end in an ellipsis and a measure's word ("Power", "Today") never does. Its `unit` and `decimals` are the
   one rule of units (§ Readouts and text).
+- **On the line** (`line_readouts: all`): every reading that can be read joins the line in its list's order, after
+  the state and the level, each a " · " segment ("On · 70 % · 12 W · 0.4 kWh"). The line is the tile's one unwrapped
+  line, fitted as it always was: the last segment gives way first, a reading whole or not at all, a word never cut. A
+  reading that cannot be read is left out; a tile that cannot be read says its word alone.
 - **The editors** list a tile's readouts item by item (the rows editor; a group's or a room's tile, Home Assistant's
-  list of objects in its form).
+  list of objects in its form) and offer over them the line's choice on a small tile with two or more.
 
 ## Vehicle (1.13)
 

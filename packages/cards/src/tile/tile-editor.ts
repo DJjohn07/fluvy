@@ -14,7 +14,10 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  joinsReadouts,
   lightColourFields,
+  lineReadoutsField,
+  listed,
   nameField,
   nameIconFields,
   nameLinesField,
@@ -52,6 +55,7 @@ export const keys = configKeys<TileCardConfig>()([
   'switch_style',
   'show_action',
   'readouts',
+  'line_readouts',
   'since',
   'tint',
   'light_colors',
@@ -64,6 +68,7 @@ export const defaults: EditorDefaults = () => ({
   show_switch: true,
   switch_style: 'toggle',
   show_action: false,
+  line_readouts: 'first',
   since: '',
   tint: 'on',
   light_colors: lightDefaults().colors,
@@ -114,8 +119,10 @@ export const READOUTS: RowsListSpec = {
   },
 };
 
-/** The readouts, where the tile draws them. */
-export const lists: readonly RowsListSpec[] = [{ ...READOUTS, when: drawsReadouts }];
+/** The readouts where the tile draws them, and over them what a small one's line says of them. */
+export const lists: readonly RowsListSpec[] = [
+  { ...READOUTS, fields: ['line_readouts'], when: drawsReadouts },
+];
 
 export function getConfigForm(): LovelaceConfigForm {
   return {
@@ -138,8 +145,13 @@ export function getConfigForm(): LovelaceConfigForm {
       // a light's colours, for a light; the slider's style where a large tile's foot is one
       onlyWhen(({ entity }) => String(entity).startsWith('light.'), lightColourFields()),
       ...sliderFields(true).map((row) => onlyWhen(largeRuled, row)),
-      // the readouts are edited item by item (the rows editor takes the field out of the form)
+      // the readouts are edited item by item, and over them what a small tile's line says of them, where it has two
+      // or more: the first, or every one (the rows editor takes both out of the form)
       entitiesField('readouts', ['sensor']),
+      onlyWhen(
+        (data) => joinsReadouts(data['size'], listed(data, 'readouts').length),
+        lineReadoutsField(),
+      ),
       // a small tile's tap toggles what toggles, a large one's opens; its circle may be its switch
       actionFields({ icon: true, tap: null, iconTap: null }),
     ],

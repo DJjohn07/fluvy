@@ -26,8 +26,11 @@ import {
   fieldRow,
   formLabels,
   iconField,
+  joinsReadouts,
   lightColourFields,
+  lineReadoutsField,
   listed,
+  mostReadouts,
   nameIconFields,
   nameLinesField,
   onlyWhen,
@@ -143,6 +146,7 @@ export const keys = configKeys<RoomCardConfig>()([
   'exclude',
   'tint',
   'switch_style',
+  'line_readouts',
   'light_colors',
   'light_whites',
 ]);
@@ -284,6 +288,7 @@ export const defaults: EditorDefaults = (config, hass) => {
     name_position: 'bottom',
     name_lines: '1',
     switch_style: 'toggle',
+    line_readouts: 'first',
     show_count: true,
     show_climate: true,
     readout_style: 'row',
@@ -365,6 +370,11 @@ export function getConfigForm(): LovelaceConfigForm {
       ),
       // its tiles' switches as wall rockers, each at its tile's end
       onlyWhen(drawsTiles, switchStyleField()),
+      // what its tiles' lines say of their readouts, where a tile has two or more: the first, or every one
+      onlyWhen(
+        (form) => drawsTiles(form) && joinsReadouts('compact', mostReadouts(form, 'tiles')),
+        lineReadoutsField(),
+      ),
       onlyWhen(drawsLights, lightColourFields()),
       // where the room opens, where none is chosen
       actionFields({ icon: true, tap: null }),

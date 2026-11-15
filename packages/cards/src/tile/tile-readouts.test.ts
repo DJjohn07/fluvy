@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import type { HomeAssistant, LovelaceCardConfig } from '@fluvy/core';
-import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { familiesDefined } from '../index.js';
+import { FluvyRoomCard } from '../room/room-card.js';
 import {
   cardForm,
   drawEditor,
@@ -10,6 +11,7 @@ import {
   shownNames,
   type FormStub,
 } from '../shared/fixtures/editor.js';
+import { stateLineWidths } from '../shared/fixtures/widths.js';
 import type { FluvyRowsEditor } from '../shared/rows-editor.js';
 import { FluvyTilesCard } from '../tiles/tiles-card.js';
 import { FluvyTileCard } from './tile-card.js';
@@ -18,9 +20,10 @@ import { FluvyTileCard } from './tile-card.js';
 afterAll(() => familiesDefined);
 
 /**
- * A tile's readouts (#197) may each be a sensor with a name, a unit and decimals of its own, as the Grid card's are:
- * its name before its figure on a small tile's line and over it in a large tile's foot, its figure in the unit and the
- * decimals it asks for; a bare id reads as it always did. The editors list them item by item.
+ * A small tile's readouts (#197): its line says the first after its state, as it always did, or every one that can be
+ * read where its card asks (`line_readouts: all`), the last giving way first; and a readout may be a sensor with a
+ * name, a unit and decimals of its own, as the Grid card's are. Its height never changes, and nothing changes where
+ * the config asks for none of it.
  */
 
 const STAMP = '2026-09-17T19:00:00+00:00';
@@ -61,13 +64,30 @@ const LIVE = {
     '°C',
     'temperature',
   ),
+  'light.desk': state('light.desk', 'on', {
+    friendly_name: 'Desk lamp',
+    brightness: 128,
+    supported_color_modes: ['brightness'],
+  }),
   'switch.nas': state('switch.nas', 'on', { friendly_name: 'NAS' }),
   'sensor.nas_cpu': sensor('sensor.nas_cpu', '55', 'NAS CPU temperature', '°C', 'temperature'),
   'sensor.nas_disk': sensor('sensor.nas_disk', '41', 'NAS disk temperature', '°C', 'temperature'),
   'switch.heater': state('switch.heater', 'on', { friendly_name: 'Heater' }),
   'sensor.heater_power': sensor('sensor.heater_power', '1840', 'Heater power', 'W', 'power'),
   'sensor.heater_energy': sensor('sensor.heater_energy', '6.4', 'Heater energy', 'kWh', 'energy'),
+  'sensor.gone': state('sensor.gone', 'unavailable', {
+    friendly_name: 'Washing machine power',
+    unit_of_measurement: 'W',
+    device_class: 'power',
+  }),
 };
+/** The same house where nothing can be read, each keeping its name and its unit, as Home Assistant keeps them. */
+const DEAD = Object.fromEntries(
+  Object.entries(LIVE).map(([id, s]) => [
+    id,
+    { ...s, state: 'unavailable', attributes: { ...s.attributes, brightness: undefined } },
+  ]),
+);
 
 const house = (states: Record<string, unknown> = LIVE): HomeAssistant =>
   ({
@@ -127,6 +147,79 @@ const lineOf = async (config: Record<string, unknown>, width?: number): Promise<
   line((await drawn(config, width))[0]!);
 
 const WASHER = ['sensor.washer_power', 'sensor.washer_energy', 'sensor.washer_drum'];
+const washer = (more: Record<string, unknown> = {}) => ({
+  entity: 'switch.washer',
+  size: 'compact',
+  readouts: WASHER,
+  ...more,
+});
+
+describe('a small tile’s line says its first readout, or every one where asked (`line_readouts`, #197)', () => {
+  afterEach(() => document.body.replaceChildren());
+
+  it('the first alone, as it always did, compact or mini', async () => {
+    expect(await lineOf(washer())).toBe('On · 142 W');
+    expect(await lineOf(washer({ line_readouts: 'first' }))).toBe('On · 142 W');
+    expect(await lineOf(washer({ size: 'mini' }))).toBe('On · 142 W');
+  });
+
+  it('every one in their order after the state and the level, compact or mini', async () => {
+    expect(await lineOf(washer({ line_readouts: 'all' }))).toBe('On · 142 W · 0.8 kWh · 40 °C');
+    expect(await lineOf(washer({ size: 'mini', line_readouts: 'all' }))).toBe(
+      'On · 142 W · 0.8 kWh · 40 °C',
+    );
+    const lamp = { entity: 'light.desk', size: 'compact', line_readouts: 'all' };
+    expect(await lineOf({ ...lamp, readouts: WASHER.slice(0, 2) })).toBe(
+      'On · 50 % · 142 W · 0.8 kWh',
+    );
+  });
+
+  it('a reading that cannot be read is left out; a tile that cannot be read says none', async () => {
+    const readouts = ['sensor.gone', 'sensor.washer_energy'];
+    expect(await lineOf(washer({ readouts, line_readouts: 'all' }))).toBe('On · 0.8 kWh');
+    const [dead] = await drawn(washer({ line_readouts: 'all' }), 360, DEAD);
+    expect(line(dead!)).toBe('Unavailable');
+  });
+
+  it('a group says it for its tiles, a room for its own', async () => {
+    const tiles = [
+      { entity: 'switch.washer', readouts: WASHER.slice(0, 2) },
+      { entity: 'switch.heater', readouts: ['sensor.heater_power'] },
+    ];
+    const group = await drawn({ type: 'custom:fluvy-tiles-card', line_readouts: 'all', tiles });
+    expect(group.map(line)).toEqual(['On · 142 W · 0.8 kWh', 'On · 1.84 kW']);
+    expect((await drawn({ type: 'custom:fluvy-tiles-card', tiles })).map(line)).toEqual([
+      'On · 142 W',
+      'On · 1.84 kW',
+    ]);
+    const room = await drawn({
+      type: 'custom:fluvy-room-card',
+      area: 'utility',
+      variant: 'tile',
+      controls: 'tiles',
+      line_readouts: 'all',
+      tiles,
+    });
+    expect(room.map(line)).toEqual(['On · 142 W · 0.8 kWh', 'On · 1.84 kW']);
+    expect(customElements.get('fluvy-room-card')).toBe(FluvyRoomCard);
+  });
+
+  describe('as wide as the tile is', () => {
+    let restore: () => void;
+    beforeAll(() => {
+      restore = stateLineWidths();
+    });
+    afterAll(() => restore());
+
+    it('the last gives way first, each reading whole or not at all', async () => {
+      const all = washer({ line_readouts: 'all' });
+      // a compact tile's words have its width less its 16 sides and its circle's 56
+      expect(await lineOf(all, 360)).toBe('On · 142 W · 0.8 kWh · 40 °C');
+      expect(await lineOf(all, 260)).toBe('On · 142 W · 0.8 kWh');
+      expect(await lineOf(all, 200)).toBe('On · 142 W');
+    });
+  });
+});
 
 describe('a readout says what it is of its own: a name, a unit, decimals (#197)', () => {
   afterEach(() => document.body.replaceChildren());
@@ -137,9 +230,9 @@ describe('a readout says what it is of its own: a name, a unit, decimals (#197)'
   ];
 
   it('its name before its figure on a line, and over it in a large tile’s foot', async () => {
-    expect(await lineOf({ entity: 'switch.nas', size: 'compact', readouts: NAS })).toBe(
-      'On · CPU 55 °C',
-    );
+    expect(
+      await lineOf({ entity: 'switch.nas', size: 'compact', readouts: NAS, line_readouts: 'all' }),
+    ).toBe('On · CPU 55 °C · Disk 41 °C');
     const [large] = await drawn({ entity: 'switch.nas', readouts: NAS });
     expect(cells(large!, '.fv-tile__foot')).toEqual([
       ['CPU', '55 °C'],
@@ -158,9 +251,9 @@ describe('a readout says what it is of its own: a name, a unit, decimals (#197)'
       { entity: 'sensor.heater_power', unit: 'kW', decimals: 2 },
       { entity: 'sensor.heater_energy', decimals: '0' },
     ];
-    expect(await lineOf({ entity: 'switch.heater', size: 'compact', readouts })).toBe(
-      'On · 1.84 kW',
-    );
+    expect(
+      await lineOf({ entity: 'switch.heater', size: 'compact', readouts, line_readouts: 'all' }),
+    ).toBe('On · 1.84 kW · 6 kWh');
     const [large] = await drawn({ entity: 'switch.heater', readouts });
     expect(cells(large!, '.fv-tile__foot')).toEqual([
       ['Power', '1.84 kW'],
@@ -185,7 +278,23 @@ describe('a readout says what it is of its own: a name, a unit, decimals (#197)'
   });
 });
 
-describe('the editors list a tile’s readouts one by one (#197)', () => {
+describe('a tile’s height is its config’s, whatever its readouts say (#197)', () => {
+  it.each(['compact', 'mini', 'large'] as const)('%s', (size) => {
+    const plain = { type: 'custom:fluvy-tile-card', entity: 'switch.washer', size };
+    const asked = { ...plain, readouts: WASHER, line_readouts: 'all' } as const;
+    expect(FluvyTileCard.layoutHeight(asked)).toBe(FluvyTileCard.layoutHeight(plain));
+    const group = { type: 'custom:fluvy-tiles-card', size, tiles: [{ entity: 'switch.washer' }] };
+    expect(
+      FluvyTilesCard.layoutHeight({
+        ...group,
+        line_readouts: 'all',
+        tiles: [{ entity: 'switch.washer', readouts: WASHER }],
+      }),
+    ).toBe(FluvyTilesCard.layoutHeight(group));
+  });
+});
+
+describe('the editors offer each where it acts (#197)', () => {
   afterEach(() => document.body.replaceChildren());
 
   const editorOf = async (
@@ -196,18 +305,28 @@ describe('the editors list a tile’s readouts one by one (#197)', () => {
     (editor as HTMLElement & { hass: HomeAssistant }).hass = house();
     return drawEditor(editor, config as LovelaceCardConfig);
   };
+  /** The fields drawn over a list's items: the tile's own, over its readouts. */
+  const head = (editor: FluvyRowsEditor): string[] =>
+    shownNames(editor.shadowRoot!.querySelector<FormStub>('.list__fields')?.schema ?? []);
   const items = (editor: FluvyRowsEditor): FormStub[] => [
     ...editor.shadowRoot!.querySelectorAll<FormStub>('.item ha-form'),
   ];
   const tile = (more: Record<string, unknown>) =>
     editorOf(FluvyTileCard, { type: 'custom:fluvy-tile-card', entity: 'switch.washer', ...more });
 
-  it('the tile’s readouts item by item, out of its own form', async () => {
+  it('the tile’s readouts item by item, and over them what a small tile’s line says, with two or more', async () => {
     const two = WASHER.slice(0, 2);
     expect(listTitles(await tile({ size: 'compact', readouts: two }))).toEqual(['Readouts']);
-    expect(
-      shownNames(cardForm(await tile({ size: 'compact', readouts: two })).schema),
-    ).not.toContain('readouts');
+    expect(head(await tile({ size: 'compact', readouts: two }))).toEqual(['line_readouts']);
+    expect(head(await tile({ size: 'compact', readouts: two.slice(0, 1) }))).toEqual([]);
+    expect(head(await tile({ size: 'mini', readouts: two }))).toEqual(['line_readouts']);
+    expect(head(await tile({ size: 'mini', readouts: two.slice(0, 1) }))).toEqual([]);
+    // a large tile's foot draws them all
+    expect(head(await tile({ readouts: two }))).toEqual([]);
+    // nor are they in the tile's own form
+    const form = shownNames(cardForm(await tile({ size: 'compact', readouts: two })).schema);
+    expect(form).not.toContain('readouts');
+    expect(form).not.toContain('line_readouts');
   });
 
   it('each readout with its name, its unit and its decimals, and one with nothing of its own goes back as its id', async () => {
@@ -243,13 +362,27 @@ describe('the editors list a tile’s readouts one by one (#197)', () => {
     ]);
   });
 
-  it('a group has no readouts of its own: each of its tiles has its own', async () => {
-    const editor = await editorOf(FluvyTilesCard, {
-      type: 'custom:fluvy-tiles-card',
-      tiles: [{ entity: 'switch.washer', readouts: WASHER }],
-    });
-    expect(shownNames(cardForm(editor).schema)).not.toContain('readouts');
-    expect(shownNames(items(editor)[0]!.schema)).toContain('readouts');
+  it('a group’s and a room’s by the most readouts one of its tiles has; a group has no readouts of its own', async () => {
+    const group = (tiles: unknown[], more: Record<string, unknown> = {}) =>
+      editorOf(FluvyTilesCard, { type: 'custom:fluvy-tiles-card', tiles, ...more });
+    const shown = async (editor: Promise<FluvyRowsEditor>): Promise<string[]> =>
+      shownNames(cardForm(await editor).schema).filter((name) => name.includes('readouts'));
+    expect(await shown(group(['switch.washer']))).toEqual([]);
+    expect(
+      await shown(group(['switch.heater', { entity: 'switch.washer', readouts: WASHER }])),
+    ).toEqual(['line_readouts']);
+    expect(await shown(group([{ entity: 'switch.washer', readouts: WASHER.slice(0, 1) }]))).toEqual(
+      [],
+    );
+    const room = (more: Record<string, unknown>) =>
+      editorOf(FluvyRoomCard, {
+        type: 'custom:fluvy-room-card',
+        area: 'utility',
+        tiles: [{ entity: 'switch.washer', readouts: WASHER }],
+        ...more,
+      });
+    expect(await shown(room({ controls: 'tiles' }))).toEqual(['line_readouts']);
+    expect(await shown(room({ controls: 'rows' }))).toEqual([]);
   });
 
   it('a group’s tile edits its readouts as a list of objects, each sensor alone back as its id', async () => {

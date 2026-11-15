@@ -59,6 +59,7 @@ import type { CardEditor, Press } from '../shared/base.js';
 import type { LightColours, Tint } from '../shared/colour.js';
 import {
   FluvyTileCard,
+  type LineReadouts,
   type NameLines,
   type SwitchStyle,
   type TileItem,
@@ -120,6 +121,8 @@ export interface RoomCardConfig extends FluvyCardConfig, LightColours, RoomTunin
    * details, the rocker switching it; a tile may say its own.
    */
   switch_style?: SwitchStyle;
+  /** Its tiles' lines say every readout that can be read (`all`, #197), the last giving way first; the first (`first`, the default). */
+  line_readouts?: LineReadouts;
   /** The quick actions at the end of its head, its row or its picture (default). */
   show_quick_actions?: boolean;
   /** The arrows that say the room opens (default); hidden, the words have their room and a tap still opens it. */
