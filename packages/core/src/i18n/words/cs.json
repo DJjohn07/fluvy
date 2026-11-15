@@ -6,24 +6,43 @@
     "lampa",
     "lampicka",
     "osvetleni",
-    "luster",
+    "lustr",
+    "lustry",
+    "zarovka",
+    "zarovky",
+    "zarivka",
+    "zarivky",
+    "bodovka",
+    "bodovky",
     "led",
     "pasek",
     "reflektor",
     "spot"
   ],
   "outdoor": [
-    "zahrada",
-    "dvorek",
-    "terasa",
+    "zahrad",
+    "dvor",
+    "dvur",
+    "teras",
     "balkon",
     "garaz",
     "bazen",
     "venkovn",
     "exterier",
-    "veranda"
+    "verand"
   ],
-  "solar": ["fotovolt", "solar", "fve", "menic", "invertor", "inverter", "solarni[ _-]panely"],
+  "solar": [
+    "fotovolt",
+    "solar",
+    "fve",
+    "(^|[ _-])fv([ _-]|$)",
+    "elektrarn",
+    "menic",
+    "stridac",
+    "invertor",
+    "inverter",
+    "solarni[ _-]panely"
+  ],
   "grid": [
     "distribuc",
     "elektromer",
@@ -34,17 +53,11 @@
   ],
   "grid_export": ["pretok", "export", "dodavka[ _-]do[ _-]site", "prebytek", "vykup"],
   "battery": ["baterie", "akumulator", "uloziste", "(^|[ _-])bess([ _-]|$)"],
-  "charger": [
-    "wallbox",
-    "nabijecka[ _-]auta",
-    "ev[ _-]nabijecka",
-    "nabijeci[ _-]bod",
-    "nabijeci[ _-]stanice"
-  ],
+  "charger": ["wallbox", "nabijeck", "nabijeci[ _-]bod", "nabijeci[ _-]stanice"],
   "home": [
     "domacnost",
     "domov",
-    "(^|[ _-])domu?([ _-]|$)",
+    "(^|[ _-])d(um|ům|omu)([ _-]|$)",
     "spotreba[ _-]domu",
     "celkova[ _-]spotreba",
     "odber[ _-]domu"
@@ -124,8 +137,8 @@
   "place_joins": ["a", "v", "ve"],
   "appliance_never": [
     "vysavac",
-    "robot",
     "roboticky[ _-]vysavac",
+    "sekack",
     "(^|[ _-])fen([ _-]|$)",
     "kulma",
     "holici[ _-]strojek",
@@ -138,15 +151,23 @@
     "prani[ _-]a[ _-]suseni"
   ],
   "appliance_dishwasher": ["mycka[ _-]nadobi", "mycka", "myti[ _-]nadobi"],
-  "appliance_washer": ["pracka", "prani[ _-]pradla"],
+  "appliance_washer": ["prack", "prani[ _-]pradla"],
   "appliance_dryer": ["susicka", "suseni[ _-]pradla"],
   "appliance_microwave": ["mikrovlnna[ _-]trouba", "mikrovlnka", "mikrovln"],
-  "appliance_oven": ["pecici[ _-]trouba", "trouba"],
-  "appliance_hob": ["varna[ _-]deska", "indukcni[ _-]deska", "indukce", "varic"],
+  "appliance_oven": ["pecici[ _-]trouba", "troub"],
+  "appliance_hob": [
+    "varna[ _-]deska",
+    "indukcni[ _-]deska",
+    "indukce",
+    "varic",
+    "sporak",
+    "plotn",
+    "plotynk"
+  ],
   "appliance_hood": ["digestor", "odsavac[ _-]par"],
   "appliance_wine": ["vinoteka", "lednice[ _-]na[ _-]vino", "chladic[ _-]vina"],
-  "appliance_fridge": ["lednice", "lednick", "chladnicka", "chladnick"],
-  "appliance_freezer": ["mraznicka", "mraznick", "mrazak"],
+  "appliance_fridge": ["lednic", "lednick", "chladnicka", "chladnick"],
+  "appliance_freezer": ["mraznicka", "mraznic", "mrazak"],
   "appliance_coffee": ["kavovar", "kavovy[ _-]automat", "espresso"],
   "appliance_kettle": ["rychlovarna[ _-]konvice", "konvice", "varic[ _-]vody"],
   "appliance_air_fryer": [
@@ -157,7 +178,14 @@
   ],
   "appliance_sandwich_maker": ["sendvicovac", "toastovac", "kontaktni[ _-]gril"],
   "appliance_toaster": ["topinkovac", "opekac"],
-  "appliance_blender": ["mixer", "stolni[ _-]mixer", "tycovy[ _-]mixer", "smoothie[ _-]mixer"],
+  "appliance_blender": [
+    "mixer",
+    "stolni[ _-]mixer",
+    "tycovy[ _-]mixer",
+    "smoothie[ _-]mixer",
+    "blender",
+    "kuchynsky[ _-]robot"
+  ],
   "appliance_feeder": ["krmitko", "davkovac[ _-]krmiva", "automaticke[ _-]krmeni"],
   "appliance_fountain": [
     "fontana[ _-]pro[ _-]zvirata",
@@ -167,8 +195,10 @@
   ],
   "appliance_litter_box": [
     "kocici[ _-]toaleta",
+    "toaleta[ _-]pro[ _-]kocky",
     "kocici[ _-]wc",
     "zachod[ _-]pro[ _-]kocku",
-    "kocici[ _-]zachod"
+    "kocici[ _-]zachod",
+    "kuvet"
   ]
 }

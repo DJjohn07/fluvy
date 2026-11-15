@@ -368,6 +368,77 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ).toEqual([[], undefined, [], undefined]);
     }
   });
+
+  it('reads a Czech house by its names in any case they are said in: its lights, its garden and terrace, its appliances’ switches, a child lock that is none', () => {
+    const registry = new HomeRegistry(
+      house([
+        entity('switch.lustr_obyvak', 'on', { friendly_name: 'Lustr obývák' }),
+        entity('switch.zarovka_chodba', 'off', { friendly_name: 'Žárovka chodba' }),
+        entity('switch.zarivka_dilna', 'off', { friendly_name: 'Zářivka dílna' }),
+        entity('switch.zahradni_osvetleni', 'off', { friendly_name: 'Zahradní osvětlení' }),
+        entity('switch.svetlo_na_terase', 'off', { friendly_name: 'Světlo na terase' }),
+        entity('switch.lampa_na_dvorku', 'off', { friendly_name: 'Lampa na dvorku' }),
+        entity('switch.zasuvka_pracky', 'off', { friendly_name: 'Zásuvka pračky' }),
+        entity('switch.detska_pojistka_mycky', 'off', { friendly_name: 'Dětská pojistka myčky' }),
+      ]),
+    );
+    const { lights, appliances } = registry;
+    const lit = [
+      'switch.lustr_obyvak',
+      'switch.zarovka_chodba',
+      'switch.zarivka_dilna',
+      'switch.zahradni_osvetleni',
+      'switch.svetlo_na_terase',
+      'switch.lampa_na_dvorku',
+    ];
+    expect(lights).toEqual(expect.arrayContaining(lit));
+    for (const id of lit) expect(registry.outdoor(id), id).toBe(lit.indexOf(id) >= 3);
+    expect(lights).not.toContain('switch.zasuvka_pracky');
+    expect(appliances).toContain('switch.zasuvka_pracky');
+    expect(appliances).not.toContain('switch.detska_pojistka_mycky');
+  });
+
+  it('names a Czech house’s energy readings’ roles: the inverter, what is bought and sold, the battery, the charger, the house', () => {
+    const registry = powerHouse(
+      [
+        power('sensor.stridac', 'Střídač'),
+        power('sensor.odber_ze_site', 'Odběr ze sítě'),
+        power('sensor.pretok_do_site', 'Přetok do sítě'),
+        power('sensor.baterie', 'Baterie'),
+        power('sensor.nabijecka', 'Nabíječka elektromobilu'),
+        power('sensor.dum', 'Dům'),
+      ],
+      'cs',
+    );
+    expect(findEnergyRoles(registry, null)).toMatchObject({
+      solarPowers: [{ id: 'sensor.stridac' }],
+      gridPower: 'sensor.odber_ze_site',
+      gridImport: 'sensor.odber_ze_site',
+      gridExport: 'sensor.pretok_do_site',
+      batteryPowers: [{ id: 'sensor.baterie' }],
+      charger: 'sensor.nabijecka',
+      homePower: 'sensor.dum',
+    });
+    // the sun as a Czech house names its array (FV, a plant: elektrárna), and the house by its own name ("Dům")
+    for (const [id, name] of Object.entries({
+      'sensor.fv_vyroba': 'FV výroba',
+      'sensor.elektrarna_vykon': 'Elektrárna výkon',
+    }))
+      expect(findEnergyRoles(powerHouse([power(id, name)], 'cs'), null).solarPowers, name).toEqual([
+        expect.objectContaining({ id }),
+      ]);
+    expect(
+      findEnergyRoles(powerHouse([power('sensor.shelly_em', 'Dům')], 'cs'), null).homePower,
+    ).toBe('sensor.shelly_em');
+    // a home cinema, a mains filter and a sunny side say no role: "dům", "síť" and the sun are words of their own
+    for (const name of ['Domácí kino', 'Síťový filtr', 'Slunečná strana']) {
+      const roles = findEnergyRoles(powerHouse([power('sensor.x', name)], 'cs'), null);
+      expect(
+        [roles.solarPowers, roles.gridPower, roles.batteryPowers, roles.homePower],
+        name,
+      ).toEqual([[], undefined, [], undefined]);
+    }
+  });
 });
 
 describe('custom:fluvy-home strategy — a place named by its device, no separator left hanging', () => {

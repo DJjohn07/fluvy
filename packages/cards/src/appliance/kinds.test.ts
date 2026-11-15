@@ -293,6 +293,18 @@ describe('what an appliance is', () => {
       ['Sendvičovač', 'sandwich_maker'],
       ['Dávkovač krmiva', 'feeder'],
       ['Kočičí toaleta', 'litter_box'],
+      // …and in the cases a name says it in: the washer's, the oven's, the fridge's temperature, a chest freezer
+      ['Teplota pračky', 'washer'],
+      ['zasuvka_trouby', 'oven'],
+      ['Teplota v lednici', 'fridge'],
+      ['Lednice na víno', 'wine'],
+      ['Mraznice', 'freezer'],
+      ['Sporák', 'hob'],
+      ['Indukční plotna', 'hob'],
+      ['Plotýnka', 'hob'],
+      ['Blender', 'blender'],
+      ['Toaleta pro kočky', 'litter_box'],
+      ['Kuveta', 'litter_box'],
       // Simplified Chinese, its Han anywhere in the name
       ['洗衣机', 'washer'],
       ['洗烘一体机', 'washer_dryer'],
@@ -422,6 +434,9 @@ describe('what an appliance is', () => {
       'Робот-пилосос',
       'Сушарка для рук',
       'Зарядна станція',
+      'Robotický vysavač',
+      'Robotická sekačka',
+      'Nabíječka elektromobilu',
     ])
       expect(byWords(name), name).toEqual({ excluded: 'name' });
     expect(kindOf(signals({ domains: new Set(['vacuum']), name: 'Waschmaschine' }))).toEqual({

@@ -451,7 +451,7 @@ const cs: Table = {
   'links.install': 'Nainstalovat',
   'links.github': 'GitHub',
   'banner.text':
-    'Simulovaná domácnost: Martin byt ve čtvrtek večer. Každá karta, stránka i nastavení jsou skutečné; Home Assistant zde nahrazuje jednoduchá simulace, která změní stav 140 ms po zavolání akce. Nic není připojeno.',
+    'Simulovaná domácnost: byt Marty ve čtvrtek večer. Všechny karty, stránky i nastavení jsou skutečné; Home Assistant je zde nahrazen jednoduchou simulací, která změní stav 140 ms po zavolání akce. Nic není připojeno.',
   'banner.ok': 'Rozumím',
   'notice.more_info': 'Otevře podrobnosti entity {entity} v Home Assistantovi',
   'notice.navigate': 'Otevře {path} v Home Assistantovi',
