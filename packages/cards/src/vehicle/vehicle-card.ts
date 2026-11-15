@@ -1682,17 +1682,12 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         return words(s(this.hass, 'oil_check'), 'warning');
       case 'service':
         return words(s(this.hass, 'service_due'), 'warning');
-      case 'open':
-        // an engine's car opens a bonnet where an electric one opens its front boot
-        return words(
-          s(
-            this.hass,
-            r.open === 'frunk' && r.energy !== 'electric'
-              ? 'bonnet_open'
-              : `${r.open ?? 'doors'}_open`,
-          ),
-          'warning',
-        );
+      case 'open': {
+        // an engine's car opens a bonnet where an electric one opens its front boot; a line too short for "Boot open"
+        // names the part alone, in the warning's ink, as a car's own display does ("Багажник" at 152)
+        const part = r.open === 'frunk' && r.energy !== 'electric' ? 'bonnet' : (r.open ?? 'doors');
+        return words(s(this.hass, `${part}_open`), 'warning', s(this.hass, part));
+      }
       case 'complete':
         return words(s(this.hass, 'limit_reached'), 'ok', s(this.hass, 'limit_reached_short'));
       case 'waiting':

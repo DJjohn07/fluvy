@@ -512,6 +512,24 @@ describe('a car that burns fuel (#207)', () => {
     ).toBe('Bonnet open');
   });
 
+  it('names what stands open alone where its line cannot say it is open, as a car’s own display does', async () => {
+    // 11 a letter: half a section's 112 holds "Bonnet" (66) and "Windows" (77), not "Bonnet open" nor "Window open"
+    const at = async (car: CarFixture, width: number, changes = {}): Promise<string> => {
+      const card = await mount({ device: car.device }, house(changes), width, 11);
+      const said = line(card);
+      document.body.replaceChildren();
+      return said;
+    };
+    const bonnet = {
+      'binary_sensor.octavia_bonnet': { state: 'on' },
+      'sensor.octavia_adblue_range': { state: '3400' },
+    };
+    expect(await at(OCTAVIA, 360, bonnet)).toBe('Bonnet open');
+    expect(await at(OCTAVIA, 152, bonnet)).toBe('Bonnet');
+    expect(await at(KIA, 360)).toBe('Window open');
+    expect(await at(KIA, 152)).toBe('Windows');
+  });
+
   it('fills its tank from its litres and the card’s tank_size, else says the litres it holds', async () => {
     const litres = await mount({ device: CLIO.device });
     expect(gauges(litres)[0]).toMatchObject({ label: 'Fuel', figure: '29L', range: 'Range 512km' });

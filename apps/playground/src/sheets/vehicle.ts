@@ -1,3 +1,4 @@
+import type { HomeAssistant } from '@fluvy/core';
 import { FluvyVehicleCard } from '../../../../packages/cards/src/vehicle/vehicle-card.js';
 import type { StateSeed } from '../hass.js';
 import type { SheetSpec } from '../scenes.js';
@@ -21,7 +22,9 @@ if (!customElements.get('fluvy-vehicle-card'))
  * (its 12 V battery wearing the battery's class, never its own), an Octavia diesel on MySkoda whose AdBlue runs low, a
  * Niro plug-in hybrid on Kia's charging at home, an XC60 plug-in hybrid on Volvo's whose tank says litres, a Clio on
  * Renault's whose tank is read from its litres, a Fiesta on Ford's out of reach; their own rows, the tank as a ring,
- * compact, strips, half a section, a phone's column, a desktop's column and its band.
+ * compact, strips, half a section, a phone's column, a desktop's column and its band. Then each warning a line says, at
+ * half a section's narrowest: a boot, a front boot, a door, a window and a bonnet left open, a low range, a low tank,
+ * the AdBlue.
  */
 
 /** The mock's moment: the times to full are counted from it. */
@@ -819,6 +822,22 @@ const card = (device: string, extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
+/** The house with some of its states said otherwise: a frame's own moment (a boot left open, a door). */
+const said =
+  (states: Readonly<Record<string, string>>) =>
+  (hass: HomeAssistant): HomeAssistant => ({
+    ...hass,
+    states: {
+      ...hass.states,
+      ...Object.fromEntries(
+        Object.entries(states).flatMap(([id, state]) => {
+          const was = hass.states[id];
+          return was ? [[id, { ...was, state }]] : [];
+        }),
+      ),
+    },
+  });
+
 export const sheet: SheetSpec = {
   states: [
     ...MODEL_Y,
@@ -1087,6 +1106,27 @@ export const sheet: SheetSpec = {
       title: 'Whole card · fuel, half a section',
       width: 360,
       cards: [card('d-208', { cols: 6 }), card('d-niro', { energy: 'hybrid', cols: 6 })],
+    },
+    // each of a line's warnings in half a section's narrowest column: what stands open, the range, the tank, the AdBlue
+    {
+      title: 'Compact · what each warns of, half a section',
+      width: 360,
+      hass: said({
+        'cover.model_s_trunk': 'open',
+        'cover.model_x_frunk': 'open',
+        'binary_sensor.yaris_cross_driver_door': 'on',
+        'binary_sensor.xc60_hood': 'on',
+      }),
+      cards: [
+        card('d-model-s', { variant: 'compact', cols: 6 }),
+        card('d-model-x', { variant: 'compact', cols: 6 }),
+        card('d-yaris', { variant: 'compact', cols: 6 }),
+        card('d-ev6', { variant: 'compact', cols: 6 }),
+        card('d-xc60', { variant: 'compact', energy: 'hybrid', tank_size: 71, cols: 6 }),
+        card('d-model-3', { variant: 'compact', low_range: 300, cols: 6 }),
+        card('d-208', { variant: 'compact', cols: 6 }),
+        card('d-octavia', { variant: 'compact', cols: 6 }),
+      ],
     },
     {
       title: 'A phone’s column · plug-in hybrid',
