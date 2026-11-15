@@ -9849,7 +9849,7 @@
     {
       "type": "custom:fluvy-vehicle-card",
       "name": "Vehicle",
-      "description": "An electric car: its battery, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG and more.",
+      "description": "A car, electric, petrol, diesel or plug-in hybrid: its battery or tank, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot and more.",
       "section": "Everyday",
       "page": "cards/vehicle.md",
       "demo": "https://acosta290.github.io/fluvy/?card=vehicle",

@@ -4,7 +4,7 @@
 
 `custom:fluvy-vehicle-card` · [All cards](../cards.md#everyday) · [Try it live](https://acosta290.github.io/fluvy/?card=vehicle)
 
-An electric car: its battery, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG and more.
+A car, electric, petrol, diesel or plug-in hybrid: its battery or tank, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot and more.
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="../images/cards/vehicle-dark.webp"><img src="../images/cards/vehicle-light.webp" width="392" alt="The Vehicle card, drawn from the configuration below"></picture>
 

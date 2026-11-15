@@ -773,7 +773,7 @@
     "slider": "Dowolna wartość na precyzyjnej linijce: głośność odtwarzacza z wyciszeniem, liczba lub pomocnik, prędkość wentylatora, przełącznik innej encji u góry.",
     "vacuum": "Robot odkurzający lub kosiarka: bateria, start · stop · powrót do stacji · zlokalizuj, moc ssania, sterowanie ręczne.",
     "thermostat": "Klimatyzacja, podgrzewacz wody lub nawilżacz na tarczy, z trybami, ustawieniami i prędkościami wentylatora.",
-    "vehicle": "Samochód elektryczny: bateria, zasięg i limit ładowania, kiedy będzie pełny, gdzie jest, a jego zamek, klimatyzacja, ładowanie, bagażnik i szyby w jednym wierszu. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG i inne.",
+    "vehicle": "Samochód elektryczny, spalinowy lub hybrydowy plug-in: bateria lub zbiornik, zasięg i limit ładowania, kiedy będzie pełny, gdzie jest, a jego zamek, klimatyzacja, ładowanie, bagażnik i szyby w jednym wierszu. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot i inne.",
     "items": "Pozycje atrybutu listy czujnika, wiersz na każdą (loty nad głową, odjazdy, przesyłki), z ustawieniem lotów dla FlightRadar24.",
     "chart": "Dowolny szereg czasowy na jednym wykresie (historia, statystyki, lista w atrybucie jak ceny Nordpool lub prognoza słoneczna albo prognoza pogody), od przeszłości do przyszłości z zaznaczonym teraz, progami w ich kolorach i znalezionymi najtańszymi godzinami.",
     "swipe": "Dowolne karty, po jednej na stronę, przewijane przesunięciem palca lub znacznikami stron pod nimi: obok siebie na szerokim ekranie, od ostatniej z powrotem do pierwszej."

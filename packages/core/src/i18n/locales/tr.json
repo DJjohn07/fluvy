@@ -2052,7 +2052,7 @@
     "slider": "Hassas cetvelde herhangi bir değer: bir oynatıcının sesi ve sessize alma, bir sayı veya yardımcı, bir fanın hızı, üst kısımda başka bir varlığın anahtarı.",
     "vacuum": "Robot süpürge veya biçme makinesi: pil, başlat · durdur · şarj istasyonuna dön · bul, emiş, sürüş kumandası.",
     "thermostat": "Bir kadranda klima, su ısıtıcı veya nemlendirici; modlar, ön ayarlar ve fan hızlarıyla.",
-    "vehicle": "Bir elektrikli araç: bataryası, menzili ve şarj sınırı, ne zaman dolacağı, nerede olduğu ve tek satırda kilit, klima, şarj, bagaj ve camlar. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG ve daha fazlası.",
+    "vehicle": "Elektrikli, benzinli, dizel ya da plug-in hibrit bir araç: bataryası ya da deposu, menzili ve şarj sınırı, ne zaman dolacağı, nerede olduğu ve tek satırda kilit, klima, şarj, bagaj ve camlar. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot ve daha fazlası.",
     "items": "Bir sensörün liste özniteliğindeki öğeler, her biri bir satır (üstten geçen uçuşlar, kalkışlar, teslimatlar), FlightRadar24 için bir uçuş ön ayarıyla.",
     "chart": "Tek grafikte herhangi bir zaman serisi (geçmiş, istatistikler, Nordpool fiyatları veya güneş tahmini gibi bir öznitelikteki liste ya da bir hava durumunun tahmini), şimdi işaretli olarak geçmişten geleceğe, eşikler kendi renklerinde ve en ucuz saatler bulunmuş.",
     "swipe": "Herhangi kartlar, sayfa başına bir tane, kaydırarak ya da altlarındaki sayfa işaretleriyle çevrilir: geniş ekranda yan yana, sondan yeniden başa."

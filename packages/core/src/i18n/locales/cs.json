@@ -720,7 +720,7 @@
     "slider": "Jakákoli hodnota na přesném pravítku: hlasitost přehrávače se ztlumením, číslo nebo pomocník, rychlost ventilátoru, vypínač jiné entity ve vrchu.",
     "vacuum": "Robotický vysavač nebo sekačka: baterie, spustit · zastavit · zpět do doku · najít, sací výkon, ovládací kříž.",
     "thermostat": "Klimatizace, ohřívač vody nebo zvlhčovač na číselníku, s režimy, předvolbami a rychlostmi ventilátoru.",
-    "vehicle": "Elektromobil: baterie, dojezd a limit nabití, kdy bude nabitý, kde je, a zámek, klimatizace, nabíjení, kufr a okna v jednom řádku. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG a další.",
+    "vehicle": "Auto elektrické, benzinové, naftové nebo plug-in hybridní: baterie nebo nádrž, dojezd a limit nabití, kdy bude nabité, kde je, a zámek, klimatizace, nabíjení, kufr a okna v jednom řádku. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot a další.",
     "items": "Položky atributu seznamu senzoru, řádek pro každou (lety nad hlavou, odjezdy, zásilky), s předvolbou letů pro FlightRadar24.",
     "chart": "Jakákoli časová řada v jednom grafu (historie, statistiky, seznam v atributu jako ceny Nordpool nebo solární předpověď, nebo předpověď počasí), od minulosti po budoucnost s vyznačeným teď, prahy v jejich barvách a nalezenými nejlevnějšími hodinami.",
     "swipe": "Libovolné karty, jedna na stránku, listované přejetím prstem nebo značkami stránek pod nimi: na širokém displeji vedle sebe, od poslední zase k první."

@@ -497,17 +497,17 @@ function carFromAbove(low: Readonly<Partial<Record<Wheel, boolean>>>): TemplateR
 }
 
 /**
- * An electric car: its battery on the charge cards' ruler (or as a ring) with its range and its charge limit marked,
- * when it will be full while it charges — the clock time and how long — a range that runs low, a cabin too cold or too
- * hot to get into, how long since it last said anything; where it is and how far it has gone; its lock, climate,
- * charging, boot, front boot, windows and sentry as one row of rounds, each acting on the car (and asking first where
- * that matters) or opening what it reads; its tyres from above. Given its device (or any of its entities) it finds the
- * rest: Tesla's three integrations, Renault, Volvo and Škoda, and Kia and Hyundai, MySkoda, Polestar, MG, Volkswagen's
- * two and BMW's CarData from HACS, by their own words; any other by what its entities are, and by `roles`. A car that
- * burns fuel (#207) draws its tank in the battery's place — its level in its tone, its range beside it, the warning's
- * when it runs low — and says on its line what is in it, its AdBlue, its oil and its service when they call; a plug-in
- * hybrid draws its battery and its tank (`energy`). Toyota's, Ford's, Mercedes-Benz's and Stellantis's integrations
- * from HACS are read for their tanks too.
+ * A car, electric, burning fuel or both: an electric one's battery on the charge cards' ruler (or as a ring) with its
+ * range and its charge limit marked, when it will be full while it charges — the clock time and how long — a range that
+ * runs low, a cabin too cold or too hot to get into, how long since it last said anything; where it is and how far it
+ * has gone; its lock, climate, charging, boot, front boot, windows and sentry as one row of rounds, each acting on the
+ * car (and asking first where that matters) or opening what it reads; its tyres from above. Given its device (or any of
+ * its entities) it finds the rest: Tesla's three integrations, Renault, Volvo and Škoda, and Kia and Hyundai, MySkoda,
+ * Polestar, MG, Volkswagen's two and BMW's CarData from HACS, by their own words; any other by what its entities are,
+ * and by `roles`. A car that burns fuel (#207) draws its tank in the battery's place — its level in its tone, its range
+ * beside it, the warning's when it runs low — and says on its line what is in it, its AdBlue, its oil and its service
+ * when they call; a plug-in hybrid draws its battery and its tank (`energy`). Toyota's, Ford's, Mercedes-Benz's and
+ * Stellantis's integrations from HACS are read for their tanks too.
  */
 export class FluvyVehicleCard extends Card<VehicleCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */

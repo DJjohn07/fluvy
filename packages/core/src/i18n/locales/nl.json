@@ -2052,7 +2052,7 @@
     "slider": "Elke waarde op de precisieliniaal: het volume van een speler met dempen, een getal of een helper, de snelheid van een ventilator, de schakelaar van een andere entiteit in de kop.",
     "vacuum": "Robotstofzuiger of maaier: accu, starten · stoppen · naar het dock · zoeken, zuigkracht, een rijbediening.",
     "thermostat": "Klimaat, boiler of luchtbevochtiger op een draaiknop, met modi, presets en ventilatorstanden.",
-    "vehicle": "Een elektrische auto: zijn accu, bereik en laadlimiet, wanneer hij vol is, waar hij is, en zijn slot, klimaat, laden, kofferbak en ramen op één rij. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG en meer.",
+    "vehicle": "Een elektrische auto, benzine- of dieselauto of plug-in hybride: zijn accu of tank, bereik en laadlimiet, wanneer hij vol is, waar hij is, en zijn slot, klimaat, laden, kofferbak en ramen op één rij. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot en meer.",
     "items": "De items van het lijstattribuut van een sensor, een rij per item (vluchten boven je, vertrektijden, bezorgingen), met een vluchtenpreset voor FlightRadar24.",
     "chart": "Elke tijdreeks in één grafiek (historie, statistieken, een lijst in een attribuut zoals de prijzen van Nordpool of een zonneverwachting, of de verwachting van het weer), van verleden naar toekomst met nu gemarkeerd, drempels in hun kleuren en de goedkoopste uren gevonden.",
     "swipe": "Willekeurige kaarten, één per pagina, om te vegen of via de paginamarkeringen eronder: naast elkaar op een breed scherm, van de laatste weer naar de eerste."

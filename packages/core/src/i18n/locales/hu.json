@@ -1865,7 +1865,7 @@
     "slider": "Bármely érték a precíziós vonalzón: egy lejátszó hangereje a némítással, egy szám vagy segéd, egy ventilátor sebessége, egy másik entitás kapcsolója a fejben.",
     "vacuum": "Robotporszívó vagy fűnyíró: akku, indítás · leállítás · vissza a dokkolóra · keresés, szívóerő, kézi vezetés.",
     "thermostat": "Klíma, vízmelegítő vagy párásító egy tárcsán, üzemmódokkal, előbeállításokkal és ventilátorfokozatokkal.",
-    "vehicle": "Egy villanyautó: akkuja, hatótávja és töltési limitje, mikor lesz tele, hol van, valamint a zár, a klíma, a töltés, a csomagtartó és az ablakok egy sorban. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG és mások.",
+    "vehicle": "Egy villanyautó, benzines vagy dízel autó, vagy plug-in hibrid: akkuja vagy tankja, hatótávja és töltési limitje, mikor lesz tele, hol van, valamint a zár, a klíma, a töltés, a csomagtartó és az ablakok egy sorban. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot és mások.",
     "items": "Egy érzékelő listaattribútumának elemei, elemenként egy sor (járatok a fejed fölött, indulások, csomagok), FlightRadar24-járatok előbeállítással.",
     "chart": "Bármely idősor egy diagramon (előzmények, statisztikák, egy attribútumban lévő lista, mint a Nordpool árai vagy egy napelemes előrejelzés, vagy egy időjárás előrejelzése), a múlttól a jövőig a jelen megjelölésével, a küszöbértékek a színeikben és a legolcsóbb órák megtalálva.",
     "swipe": "Bármilyen kártyák, oldalanként egy, húzással vagy az alattuk lévő oldaljelekkel lapozva: széles kijelzőn egymás mellett, az utolsótól újra az elsőig."

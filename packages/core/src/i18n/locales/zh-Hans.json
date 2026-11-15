@@ -702,7 +702,7 @@
     "slider": "把任意值放到精确标尺上：播放器音量与静音、数值或辅助元素、风扇风速、另一实体的开关放在头部。",
     "vacuum": "扫地机器人或割草机：电量、启动 · 停止 · 回充 · 定位、吸力、方向摇杆。",
     "thermostat": "空调、热水器或加湿器做成旋钮：模式、预设与风速。",
-    "vehicle": "电动车：电量、续航与充电上限、充满时间、位置，以及一行内的门锁、空调、充电、后备箱与车窗。支持 Tesla、BMW、Renault、Volvo、Kia、Hyundai、Volkswagen、Škoda、Polestar、MG 等。",
+    "vehicle": "电动车、燃油车或插电混动车：电量或油量、续航与充电上限、充满时间、位置，以及一行内的门锁、空调、充电、后备箱与车窗。支持 Tesla、BMW、Renault、Volvo、Kia、Hyundai、Volkswagen、Škoda、Polestar、MG、Toyota、Ford、Mercedes-Benz、Peugeot 等。",
     "items": "传感器列表属性里的条目，每行一条——头顶航班、出发、快递——内置 FlightRadar24 航班预设。",
     "chart": "任意时间序列画在一张图上：历史、统计、属性里的列表（Nordpool 电价、光伏预报）或天气预报；过去到未来并标出现在，阈值按颜色分段，并找出最便宜的时段。",
     "swipe": "任意卡片，每页一张，滑动或点按下方的页标翻页：宽屏上并排显示，也可从最后一页回到第一页。"

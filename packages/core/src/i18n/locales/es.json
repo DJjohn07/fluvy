@@ -2052,7 +2052,7 @@
     "slider": "Cualquier valor en la regla de precisión: el volumen de un reproductor con su silencio, un número o un ayudante, la velocidad de un ventilador, el interruptor de otra entidad en su cabecera.",
     "vacuum": "Robot aspirador o cortacésped: batería, iniciar · parar · volver a la base · localizar, succión, un mando de conducción.",
     "thermostat": "Clima, calentador de agua o humidificador en un dial, con modos, preajustes y velocidades del ventilador.",
-    "vehicle": "Un coche eléctrico: su batería, autonomía y límite de carga, cuándo estará lleno, dónde está, y su cierre, clima, carga, maletero y ventanillas en una fila. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG y más.",
+    "vehicle": "Un coche eléctrico, de gasolina, diésel o híbrido enchufable: su batería o depósito, autonomía y límite de carga, cuándo estará lleno, dónde está, y su cierre, clima, carga, maletero y ventanillas en una fila. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot y más.",
     "items": "Los elementos del atributo de lista de un sensor, una fila cada uno (vuelos sobre tu casa, salidas, entregas), con un preajuste de vuelos para FlightRadar24.",
     "chart": "Cualquier serie temporal en un gráfico (historial, estadísticas, una lista en un atributo como los precios de Nordpool o una previsión solar, o la previsión de un tiempo), del pasado al futuro con el ahora marcado, los umbrales en sus colores y las horas más baratas encontradas.",
     "swipe": "Cualquier tarjeta, una por página, que se pasa deslizando o con las marcas de página debajo: lado a lado en una pantalla ancha, de la última de vuelta a la primera."
