@@ -733,7 +733,10 @@
     "tile_fill": "Fyll",
     "house_style": "Standard ({style})",
     "label": "Etikett",
-    "floor": "Våning"
+    "floor": "Våning",
+    "wash": "Toning",
+    "edge": "Kant",
+    "control": "Kontroll"
   },
   "tone": {
     "accent": "Accent",
@@ -837,7 +840,8 @@
     "thermostat": "Termostat",
     "vehicle": "Fordon",
     "items": "Objekt",
-    "chart": "Diagram"
+    "chart": "Diagram",
+    "swipe": "Svep"
   },
   "activity": {
     "title": "Aktivitet",
@@ -1542,9 +1546,10 @@
     "slider": "Valfritt värde på precisionslinjalen: en spelares volym med ljud av, ett nummer eller en hjälpare, en fläkts hastighet, en annan entitets brytare i huvudet.",
     "vacuum": "Robotdammsugare eller robotgräsklippare: batteri, starta · stoppa · docka · lokalisera, sugkraft, en styrplatta.",
     "thermostat": "Klimat, varmvattenberedare eller luftfuktare på en ratt, med lägen, förinställningar och fläkthastigheter.",
-    "vehicle": "En elbil: batteri, räckvidd och laddningsgräns, när den är fulladdad, var den är, och dess lås, klimat, laddning, baklucka och fönster på en rad. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG med flera.",
+    "vehicle": "En bil, el, bensin, diesel eller laddhybrid: batteri eller tank, räckvidd och laddningsgräns, när den är full, var den är, och dess lås, klimat, laddning, baklucka och fönster på en rad. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG, Toyota, Ford, Mercedes-Benz, Peugeot med flera.",
     "items": "Objekten i en sensors listattribut, en rad vart (flygplan ovanför, avgångar, leveranser), med en flygförinställning för FlightRadar24.",
-    "chart": "Valfri tidsserie i ett diagram (historik, statistik, en lista i ett attribut som Nordpools priser eller en solprognos, eller ett väders prognos) från dåtid till framtid med nu markerat, tröskelvärden i sina färger och de billigaste timmarna utpekade."
+    "chart": "Valfri tidsserie i ett diagram (historik, statistik, en lista i ett attribut som Nordpools priser eller en solprognos, eller ett väders prognos) från dåtid till framtid med nu markerat, tröskelvärden i sina färger och de billigaste timmarna utpekade.",
+    "swipe": "Valfria kort, ett per sida, som bläddras med ett svep eller med sidmarkeringarna under dem: sida vid sida på en bred skärm, runt från den sista till den första."
   },
   "chart-card": {
     "title": "Diagram",
@@ -1579,9 +1584,6 @@
     "editor.kind_area": "Yta",
     "editor.span": "Period",
     "editor.span_helper": "24h, today, today+tomorrow, 7d, eller valfri 12h eller 3d",
-    "editor.thresholds": "Tröskelvärden",
-    "editor.threshold_value": "Från",
-    "editor.threshold_helper": "Linjen tar den här färgen från det här värdet och uppåt, till nästa tröskelvärde",
     "editor.color_helper": "Tomt: kortets färg, eller palettens seriefärger för flera. Palettens färger följer den; ett färgnamn eller en #hex förblir som den skrevs",
     "editor.highlight_hours": "Timmar att markera",
     "editor.show_legend": "Visa förklaring",
@@ -1601,6 +1603,12 @@
     "gauge.filling": "Fylls",
     "colour.series_n": "Serie {n}",
     "colour.notice": "Observera"
+  },
+  "cover-card": {
+    "closed": "Stängd",
+    "open": "Öppen",
+    "partly_open": "Delvis öppen",
+    "down": "stängd"
   },
   "customise": {
     "title": "Anpassa",
@@ -2052,6 +2060,8 @@
     "window_entity": "Fönster",
     "show_low_battery": "Varna för lågt batteri",
     "found_helper": "Tomt: hittas på dess enhet",
+    "tint_style": "Visas som",
+    "state_colors": "Färger efter tillstånd",
     "line_readouts": "Mätvärden på raden",
     "readouts_first": "Det första",
     "readouts_all": "Alla",
@@ -2063,7 +2073,29 @@
     "names_full": "Fullständigt namn",
     "names_entity": "Entitetens namn",
     "names_device": "Enhetens namn",
-    "names_helper": "Där inget eget namn är angivet"
+    "names_helper": "Där inget eget namn är angivet",
+    "position_tilt": "Position och lutning",
+    "direction": "Positionen anger",
+    "direction_up": "Hur långt den är öppen",
+    "direction_down": "Hur långt den är stängd",
+    "invert_position": "Omvänd position",
+    "invert_tilt": "Omvänd lutning",
+    "invert_helper": "För ett skydd som rapporterar 100 % när det är stängt; rättas helst i dess integration",
+    "position_presets": "Förinställda positioner",
+    "tilt_presets": "Förinställda lutningar",
+    "open_label": "Ord för öppen",
+    "closed_label": "Ord för stängd",
+    "tilt_style": "Lutning som",
+    "tilt_steps": "Steg",
+    "tilt_slats": "Lameller",
+    "show_badge": "Visa märket",
+    "thresholds": "Tröskelvärden",
+    "thresholds_helper": "Ett mätvärde tar färgen från det närmaste tröskelvärde det har passerat",
+    "threshold_value": "Värde",
+    "threshold_helper": "Ett tal, en entitet eller en mall",
+    "below": "Under värdet",
+    "below_helper": "Av: från värdet och uppåt",
+    "past_threshold": "Passerat tröskelvärde"
   },
   "energy-period-card": {
     "name": "Energiperiod",
@@ -3087,6 +3119,15 @@
     "dashboard.thermostat_state": "Termostatens tillstånd",
     "dashboard.brief": "Kort",
     "dashboard.detailed": "Detaljerat",
+    "cards.tint": "Enheter visar färgen för sitt tillstånd",
+    "cards.tint_style": "Visas som",
+    "dashboard.rooms_as": "Rum som",
+    "dashboard.room_pages": "Sidor",
+    "dashboard.room_tabs": "Flikar",
+    "template.lights": "Lampor",
+    "template.lights_sub": "Alla lampor, sedan rum för rum",
+    "template.climate": "Klimat",
+    "template.climate_sub": "Termostater, fläktar och mätvärden, rum för rum",
     "dashboard.names": "Namn",
     "dashboard.names_auto": "Automatiskt",
     "dashboard.names_entity": "Entitetens namn",
@@ -3197,7 +3238,13 @@
     "readout_style_help": "På en rad ger en etikett som inte får plats vika för sin ikon. På flera stannar orden och mätvärdena radbryts.",
     "readout_labels": "Mätvärdenas etiketter",
     "words": "Ord",
-    "icons": "Ikoner"
+    "icons": "Ikoner",
+    "show_state": "Visa dess tillstånd",
+    "show_quick_states": "Visa deras tillstånd",
+    "quick_states_help": "Under eller bredvid varje ikon: ett mätvärde med sin enhet, en dörr öppen eller stängd, en lampas ljusstyrka.",
+    "quick_state_position": "Deras tillstånd",
+    "under": "Under ikonen",
+    "beside": "Bredvid ikonen"
   },
   "sheets": {
     "more": "Mer i Home Assistant",
@@ -3310,7 +3357,29 @@
     "calendars": "Kalendrar",
     "lists": "Att-göra-listor",
     "timers": "Timrar",
-    "whole_home": "Hela hemmet"
+    "whole_home": "Hela hemmet",
+    "all_lights": "Alla lampor"
+  },
+  "swipe": {
+    "page": "Sida {n} av {count}",
+    "pages": "Sidor",
+    "previous": "Föregående sida",
+    "next": "Nästa sida",
+    "counter": "{n} / {count}",
+    "empty": "Inga kort än",
+    "editor.cards": "Kort",
+    "editor.cards_helper": "Ett per sida, i den här ordningen",
+    "editor.style": "Stil",
+    "editor.o_card": "Ett kort",
+    "editor.columns": "Kort sida vid sida",
+    "editor.gap": "Avstånd mellan korten (px)",
+    "editor.start": "Sidan som visas först",
+    "editor.show_indicators": "Visa sidmarkeringarna",
+    "editor.loop": "Gå runt från den sista sidan",
+    "editor.remember": "Kom ihåg sidan",
+    "editor.o_session": "Medan fliken är öppen",
+    "editor.autoplay": "Bläddra automatiskt var (sekunder)",
+    "editor.autoplay_helper": "0: bara en person bläddrar. Den väntar medan ett finger, pekaren eller fokus är på den"
   },
   "template": {
     "card": "Mall",
@@ -3456,7 +3525,32 @@
     "trunk_open": "Bagagelucka öppen",
     "frunk_open": "Främre bagage öppet",
     "port": "Port",
-    "tyre_ok": "OK"
+    "tyre_ok": "OK",
+    "fuel_range": "Bränsleräckvidd",
+    "fuel_volume": "I tanken",
+    "adblue": "AdBlue",
+    "oil": "Olja",
+    "service": "Nästa service",
+    "bonnet": "Motorhuv",
+    "bonnet_open": "Motorhuven öppen",
+    "low_fuel": "Lite bränsle",
+    "adblue_low": "Lite AdBlue",
+    "oil_check": "Kontrollera oljan",
+    "service_due": "Dags för service",
+    "in_tank": "{volume} i tanken",
+    "service_in": "Service om {when}",
+    "fuel_of": "Bränsle {percent} %",
+    "level_low": "Låg",
+    "level_ok": "OK",
+    "check": "Kontrollera",
+    "due": "Dags",
+    "role.fuel_low": "Varning för lite bränsle",
+    "role.service_time": "Tid till service",
+    "editor.energy": "Drivlina",
+    "editor.electric": "El",
+    "editor.hybrid": "Laddhybrid",
+    "editor.tank_size": "Tankvolym",
+    "editor.tank_size_helper": "I enheten för det som finns i den (L, gal): dess nivå, där bilen bara anger hur mycket som finns i den"
   },
   "web": {
     "card": "Webbsida",

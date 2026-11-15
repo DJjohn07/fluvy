@@ -555,6 +555,22 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
     expect(appliances).not.toContain('switch.diskmaskin_barnlas');
   });
 
+  it('takes a Swedish home’s own forecast first (forecast_hem), never a city that holds the letters (Chemnitz)', () => {
+    /** These weather services in the registry's order (the demo home has its own, left out). */
+    const weather = (...ids: string[]): readonly string[] =>
+      new HomeRegistry(house(ids.map((id) => entity(id, 'sunny')))).weather.filter((id) =>
+        ids.includes(id),
+      );
+    expect(weather('weather.accuweather', 'weather.forecast_hem')).toEqual([
+      'weather.forecast_hem',
+      'weather.accuweather',
+    ]);
+    expect(weather('weather.dwd_berlin', 'weather.dwd_chemnitz')).toEqual([
+      'weather.dwd_berlin',
+      'weather.dwd_chemnitz',
+    ]);
+  });
+
   it('names a Swedish house’s energy readings’ roles: the inverter, what is bought and sold, the home battery, the charger, the house', () => {
     const registry = powerHouse(
       [

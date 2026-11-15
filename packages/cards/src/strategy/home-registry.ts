@@ -92,6 +92,8 @@ const OPENINGS = new Set([
 ]);
 /** A plug's second switch (USB, child lock…): the plain outlet sorts first. */
 const TWIN_SWITCH = /outlet|usb|child|lock/i;
+/** The home's own forecast by its id, as Home Assistant names it after the home: Swedish's "hem" a word, no Chemnitz. */
+const HOME_FORECAST = /home|casa|hogar|[._]hem(?:_|$)/i;
 /**
  * What a switch's name says it is, read plain: a light, else an appliance of a kind or never one (電気ケトル is a kettle
  * on its plug, not the light 電気; a light's words win over a kind's that stand apart: "oven light").
@@ -637,11 +639,11 @@ export class HomeRegistry {
         .map(({ id }) => id),
     );
   }
-  /** Weather services, the home's own forecast first (`weather.forecast_home`, `…casa`). */
+  /** Weather services, the home's own forecast first (`weather.forecast_home`, `…casa`, Swedish `…hem`). */
   get weather(): readonly string[] {
     return this.memo('weather', () =>
       [...this.domain('weather')].sort(
-        (a, b) => Number(!/home|casa|hogar/i.test(a)) - Number(!/home|casa|hogar/i.test(b)),
+        (a, b) => Number(!HOME_FORECAST.test(a)) - Number(!HOME_FORECAST.test(b)),
       ),
     );
   }
