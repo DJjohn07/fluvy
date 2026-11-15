@@ -730,7 +730,8 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
 
   /**
    * The same in its segments, the first whole and the rest optional, each with its short form: what needs a hand
-   * ("Rinse aid" for "Add rinse aid", "Empty" for "Waiting to be unloaded"), how long it has run ("42 min").
+   * ("Rinse aid" for "Add rinse aid", "Empty" for "Waiting to be unloaded"), how long it has run ("42 min"). None where
+   * the row's end already says its state and there is no when to add ("Off", its cycle long over): it is said once.
    */
   private segments(line: Line, now: number, room = Infinity): Segment[] {
     const { shown, r } = line;
@@ -761,7 +762,7 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
     return [
       ...(said ? [{ text: said }] : []),
       ...(when ? [{ text: when, optional: Boolean(said), ...(short ? { short } : {}) }] : []),
-    ].concat(said || when ? [] : [{ text: word }]);
+    ];
   }
 
   /** How far a row's cycle is (0–1): done is all of it, at rest none. */
@@ -883,7 +884,7 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
           ${keep ? html`<span class="fv-ico fv-ico--${line.tone}" data-icon>${icon(line.item.icon ?? kindGlyph(line.r.kind))}</span>` : nothing}
           <span class="fv-row__text"
             ><span class="fv-row__title" data-name>${line.title}</span
-            >${compact ? nothing : html`<span class="fv-row__sub ${line.attention ? 'fv-row__sub--warning' : ''}">${sub}</span>`}</span
+            >${compact || !sub ? nothing : html`<span class="fv-row__sub ${line.attention ? 'fv-row__sub--warning' : ''}">${sub}</span>`}</span
           >
           <span class="fv-row__value ${line.attention ? 'fv-row__value--warning' : ''}"
             >${value}</span

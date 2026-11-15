@@ -1050,6 +1050,20 @@ export const sheet: SheetSpec = {
       title: 'Appliances · tiles, pictures kept',
       cards: [list({ variant: 'tiles', max_rows: 6, picture_min: 32 })],
     }),
+    // three hours on, the dryer switched off long after its cycle: its state said once, at its row's end
+    frame({
+      title: 'Appliances · past midnight, the dryer long off',
+      cards: [
+        list({
+          _now: new Date(now + 3 * 3_600_000).toISOString(),
+          appliances: [
+            { device: 'lg-dryer', name: 'Dryer' },
+            { device: 'lt-dish', name: 'Dishwasher' },
+            { device: 'miele-coffee', name: 'Coffee machine' },
+          ],
+        }),
+      ],
+    }),
     frame({
       title: 'Appliances · none',
       cards: [list({ appliances: [] }), list({ show: 'active', appliances: ['miele-coffee'] })],

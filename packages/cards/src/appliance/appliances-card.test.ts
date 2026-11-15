@@ -184,6 +184,23 @@ describe('the house’s appliances', () => {
     expect(titles(card)).toEqual(['Backofen', 'Kühlschrank', 'Laundry']);
   });
 
+  it('says a state once: an appliance switched off long after its cycle says it at its row’s end alone', async () => {
+    const row = async (at: number): Promise<{ sub: string | null; value: string }> => {
+      const card = await mount({ appliances: ['lg-dryer'], _now: new Date(at).toISOString() });
+      const bar = root(card).querySelector('.al-rows .fv-row--bar');
+      const said = {
+        sub: bar?.querySelector('.fv-row__sub') ? text(bar.querySelector('.fv-row__sub')) : null,
+        value: text(bar?.querySelector('.fv-row__value')),
+      };
+      card.remove();
+      return said;
+    };
+    // done 40 minutes ago: what it waits for under its name
+    expect(await row(NOW)).toEqual({ sub: 'Waiting to be unloaded · 40 min', value: 'Done' });
+    // switched off and its cycle hours behind it: "Off" at its end, nothing under its name to say it again
+    expect(await row(NOW + 3 * 3_600_000)).toEqual({ sub: null, value: 'Off' });
+  });
+
   it('says why it is empty, and hides itself then where asked', async () => {
     const none = await mount({ appliances: [] });
     expect(text(root(none).querySelector('.fv-empty-state'))).toBe('No appliance found');
