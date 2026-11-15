@@ -1947,7 +1947,12 @@
     "show_window": "显示窗户未关",
     "window_entity": "窗户",
     "show_low_battery": "电池电量低时提示",
-    "found_helper": "留空：在设备上查找"
+    "found_helper": "留空：在设备上查找",
+    "names": "名称",
+    "names_full": "完整名称",
+    "names_entity": "实体名称",
+    "names_device": "设备名称",
+    "names_helper": "用于未单独命名的项目"
   },
   "energy-period-card": {
     "name": "能源周期",

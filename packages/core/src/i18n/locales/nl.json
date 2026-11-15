@@ -622,7 +622,12 @@
     "show_window": "Open raam tonen",
     "window_entity": "Raam",
     "show_low_battery": "Lage batterij melden",
-    "found_helper": "Leeg: gezocht op het apparaat"
+    "found_helper": "Leeg: gezocht op het apparaat",
+    "names": "Namen",
+    "names_full": "Volledige naam",
+    "names_entity": "Entiteitsnaam",
+    "names_device": "Apparaatnaam",
+    "names_helper": "Waar geen eigen naam is ingesteld"
   },
   "strategy": {
     "home": "Thuis",

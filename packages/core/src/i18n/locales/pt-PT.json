@@ -622,7 +622,12 @@
     "show_window": "Mostrar uma janela aberta",
     "window_entity": "Janela",
     "show_low_battery": "Avisar de bateria fraca",
-    "found_helper": "Vazio: procurado no dispositivo"
+    "found_helper": "Vazio: procurado no dispositivo",
+    "names": "Nomes",
+    "names_full": "Nome completo",
+    "names_entity": "Nome da entidade",
+    "names_device": "Nome do dispositivo",
+    "names_helper": "Onde não está definido um nome próprio"
   },
   "strategy": {
     "home": "Início",

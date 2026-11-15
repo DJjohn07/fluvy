@@ -622,7 +622,12 @@
     "show_window": "Açık pencereyi göster",
     "window_entity": "Pencere",
     "show_low_battery": "Zayıf pili bildir",
-    "found_helper": "Boşsa, cihazında aranır"
+    "found_helper": "Boşsa, cihazında aranır",
+    "names": "Adlar",
+    "names_full": "Tam ad",
+    "names_entity": "Varlık adı",
+    "names_device": "Cihaz adı",
+    "names_helper": "Kendi adı ayarlanmamış olanlarda"
   },
   "strategy": {
     "home": "Ana sayfa",

@@ -1,10 +1,13 @@
 import {
   areaOf,
   floorsInOrder,
+  listedName,
   localize,
   registryText,
+  resolveEntity,
   roomRank,
   type EntityName,
+  type FluvyCardConfig,
   type HomeAssistant,
 } from '@fluvy/core';
 import { chips, type ChipItem } from '@fluvy/ui';
@@ -173,14 +176,14 @@ function byHouse<T extends GroupItem>(
 /**
  * A config's list as its card lays it out: in the house's groups where it asks for them (`group_by`), else in its own
  * sections (`groupsOf`: a list with none is one group under no label) — and each name short inside a group
- * (`shortNames`: Home Assistant's own for the entity; one the config gives is never touched) whose label is a room's or
- * a floor's of the house: a section of the person's own words ("Night") says nothing of what its names repeat
- * ("Good night"), so those stay whole unless the config asks (`short_names: true`), and none is short where it says
- * no.
+ * (`shortNames`: Home Assistant's own for the entity, or the one the card asks of every item, `names`; one the config
+ * gives an item is never touched) whose label is a room's or a floor's of the house: a section of the person's own
+ * words ("Night") says nothing of what its names repeat ("Good night"), so those stay whole unless the config asks
+ * (`short_names: true`), and none is short where it says no.
  */
 export function laidOut<T extends GroupItem>(
   hass: HomeAssistant | undefined,
-  config: Grouped,
+  config: Grouped & Pick<FluvyCardConfig, 'names'>,
   list: unknown,
 ): Group<T>[] {
   const by = config.group_by;
@@ -196,7 +199,10 @@ export function laidOut<T extends GroupItem>(
   );
   const nameOf = (item: T): string | undefined => {
     const name: unknown = hass?.states[item.entity]?.attributes['friendly_name'];
-    return item.name === undefined && typeof name === 'string' ? name : undefined;
+    if (item.name !== undefined || typeof name !== 'string') return undefined;
+    return config.names === undefined
+      ? name
+      : listedName(hass, resolveEntity(hass, item.entity), config.names);
   };
   return groups.map((group) => {
     const named = group.items.filter((item) => nameOf(item) !== undefined);

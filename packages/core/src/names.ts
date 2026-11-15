@@ -16,6 +16,13 @@ export type EntityNameItem =
 /** A configured name: the person's own words, or the parts Home Assistant's editor composes one of. */
 export type EntityName = string | EntityNameItem | readonly EntityNameItem[];
 
+/**
+ * How a card of a list names the items that say no name of their own (`names`, 1.22, #200): each by its entity's own
+ * name (`entity`), by its device's (`device`), as Home Assistant says it (`full`, the default), or by the parts a
+ * `name` is made of.
+ */
+export type ItemNames = 'entity' | 'device' | 'full' | EntityNameItem | readonly EntityNameItem[];
+
 /** The registries a name's parts are read from; any may be absent (a page without Home Assistant, a test). */
 type NameRegistries = Partial<Pick<HomeAssistant, 'entities' | 'devices' | 'areas' | 'floors'>>;
 
@@ -133,6 +140,27 @@ export function entityName(
   };
   return hass?.formatEntityName?.(stateObj, name) ?? formatName(stateObj, name, hass ?? {});
 }
+
+/**
+ * The parts a card's `names` asks of an item that says none (`ItemNames`): Home Assistant's; none for the friendly
+ * name, which words of the person's own ask for too (one name is never every item's).
+ */
+const askedName = (names: unknown): EntityName | undefined =>
+  names === 'entity' || names === 'device'
+    ? { type: names }
+    : typeof names === 'object' && names
+      ? (names as EntityName)
+      : undefined;
+
+/**
+ * The name a card of a list shows for an item that says none of its own: the one the card's `names` asks for, else
+ * its own (`view.name`), where none is asked or the parts asked for say nothing of it (a helper has no device).
+ */
+export const listedName = (
+  hass: HomeAssistant | undefined,
+  view: EntityView,
+  names: unknown,
+): string => entityName(hass, view, askedName(names)) || view.name;
 
 /**
  * A `name` where no entity is named (a room's, a greeting's): words as they are, Home Assistant's parts by their words

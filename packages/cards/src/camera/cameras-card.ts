@@ -51,9 +51,11 @@ import {
   entitiesField,
   entityField,
   fieldRow,
+  holdsDevice,
   iconField,
   listed,
   nameIconFields,
+  namesField,
   numberField,
   onlyWhen,
   selectField,
@@ -298,6 +300,7 @@ export class FluvyCamerasCard extends Card<CamerasCardConfig> {
   /** The cameras have no entity of their own: the head's icon, the card's colours and actions are its base. */
   static override base: readonly BaseKey[] = [
     'entities',
+    'names',
     'icon',
     'tone',
     'color',
@@ -334,6 +337,8 @@ export class FluvyCamerasCard extends Card<CamerasCardConfig> {
       alias: 'entities',
       title: 'cameras.title',
       domains: ['camera'],
+      // how the cameras that say no name are named stands over them
+      fields: ['names'],
       keys: [
         'entity',
         'name',
@@ -391,6 +396,8 @@ export class FluvyCamerasCard extends Card<CamerasCardConfig> {
         headFields(),
         { name: 'area', selector: { area: {} } },
         entitiesField('entities', ['camera']),
+        // the cameras' names, the list's or the area's
+        onlyWhen(holdsDevice('cameras', 'entities', 'camera'), namesField()),
         fieldRow(
           selectField('variant', ['grid', 'list', 'compact']),
           onlyWhen(

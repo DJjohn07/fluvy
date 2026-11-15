@@ -9,9 +9,11 @@ import {
   entitiesField,
   entityField,
   fieldRow,
+  holdsDevice,
   iconField,
   idsOnly,
   nameField,
+  namesField,
   numberField,
   onlyWhen,
   selectField,
@@ -32,6 +34,7 @@ const strings = words('distribution');
 /** A share of many sensors has no entity of its own: its head's icon, tone and colour, and its actions on the head. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -60,6 +63,8 @@ export const lists: readonly RowsListSpec[] = [
     key: 'entities',
     title: 'editor.entities',
     domains: ['sensor'],
+    // how the sensors that say no name are named stands over them
+    fields: ['names'],
     keys: ['entity', 'name', 'tone', 'color'],
     schema: [
       entityField(['sensor']),
@@ -83,6 +88,7 @@ export function getConfigForm(): LovelaceConfigForm {
       headFields(),
       ...colourFields(),
       entitiesField('entities', ['sensor'], true),
+      onlyWhen(holdsDevice('entities'), namesField()),
       fieldRow(numberField('max_rows', 2, 10), selectField('variant', ['stack', 'rows'])),
       // the stack's style: the rows draw no bar
       onlyWhen((data) => data['variant'] !== 'rows', selectField('chart', ['classic', 'soft'])),

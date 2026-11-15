@@ -622,7 +622,12 @@
     "show_window": "Afficher une fenêtre ouverte",
     "window_entity": "Fenêtre",
     "show_low_battery": "Signaler une batterie faible",
-    "found_helper": "Vide, recherché sur son appareil"
+    "found_helper": "Vide, recherché sur son appareil",
+    "names": "Noms",
+    "names_full": "Nom complet",
+    "names_entity": "Nom de l’entité",
+    "names_device": "Nom de l’appareil",
+    "names_helper": "Là où aucun nom propre n’est défini"
   },
   "strategy": {
     "home": "Accueil",

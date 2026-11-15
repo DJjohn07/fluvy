@@ -622,7 +622,12 @@
     "show_window": "Offenes Fenster anzeigen",
     "window_entity": "Fenster",
     "show_low_battery": "Schwache Batterie melden",
-    "found_helper": "Leer: auf dem Gerät gesucht"
+    "found_helper": "Leer: auf dem Gerät gesucht",
+    "names": "Namen",
+    "names_full": "Vollständiger Name",
+    "names_entity": "Entitätsname",
+    "names_device": "Gerätename",
+    "names_helper": "Wo kein eigener Name festgelegt ist"
   },
   "strategy": {
     "home": "Zuhause",

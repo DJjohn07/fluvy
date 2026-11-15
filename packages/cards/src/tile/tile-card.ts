@@ -971,6 +971,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       const stats = item.readouts.map((id) => {
         const r = this.entity(id);
         const p = valueParts(this.hass, r);
+        const said = this.nameFor(r, undefined);
         const short =
           r.deviceClass === 'power'
             ? this.t('energy.power')
@@ -978,7 +979,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
               ? this.t('energy.today')
               : r.deviceClass === 'monetary'
                 ? this.t('energy.cost')
-                : r.name.replace(name, '').trim() || r.name;
+                : said.replace(name, '').trim() || said;
         return { label: short, value: p.value, unit: p.unit };
       });
       // two share the foot as 46 % and 54 % (64 and 76 in a 172 tile), three equal thirds, while every label and every

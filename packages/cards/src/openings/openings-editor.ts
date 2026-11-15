@@ -10,8 +10,10 @@ import {
   entitiesField,
   entityField,
   fieldRow,
+  holdsDevice,
   iconField,
   nameIconFields,
+  namesField,
   numberField,
   onlyWhen,
   selectField,
@@ -33,6 +35,7 @@ const s = strings('openings');
 /** The openings have no entity of their own: the head's icon, tone and colour are the base fields it honours. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -87,6 +90,8 @@ export const lists: readonly RowsListSpec[] = [
     alias: 'entities',
     title: 'editor.rows',
     domains: ['binary_sensor', 'cover', 'lock'],
+    // how the rows that say no name are named stands over them
+    fields: ['names'],
     keys: [
       'entity',
       'name',
@@ -138,6 +143,7 @@ export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
       entitiesField('entities', ['binary_sensor', 'cover', 'lock'], true),
+      onlyWhen(holdsDevice('rows', 'entities'), namesField()),
       titleFields(),
       iconField(),
       headFields(),

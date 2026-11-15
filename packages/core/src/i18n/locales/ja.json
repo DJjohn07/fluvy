@@ -572,7 +572,12 @@
     "show_window": "窓の開放を表示",
     "window_entity": "窓",
     "show_low_battery": "バッテリー低下を表示",
-    "found_helper": "空のときはデバイスから検出"
+    "found_helper": "空のときはデバイスから検出",
+    "names": "名前",
+    "names_full": "完全な名前",
+    "names_entity": "エンティティ名",
+    "names_device": "デバイス名",
+    "names_helper": "個別の名前がない項目に使います"
   },
   "strategy": {
     "home": "ホーム",

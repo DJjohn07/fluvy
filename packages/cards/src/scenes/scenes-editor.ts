@@ -15,7 +15,9 @@ import {
   fieldRow,
   formLabels,
   groupFields,
+  holdsDevice,
   nameIconFields,
+  namesField,
   onlyWhen,
   selectField,
   textField,
@@ -36,6 +38,7 @@ const DOMAINS: readonly string[] = ['scene', 'script', 'button', 'input_button',
  */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'color',
   'card_color',
   'card_opacity',
@@ -63,6 +66,8 @@ export const lists: readonly RowsListSpec[] = [
     domains: DOMAINS,
     // a label among the scenes opens a group of them (#189)
     sections: 'labels',
+    // how the scenes that say no name are named stands over them
+    fields: ['names'],
     keys: [
       'entity',
       'name',
@@ -103,6 +108,7 @@ export function getConfigForm(): LovelaceConfigForm {
       fieldRow(textField('title'), selectField('variant', ['tiles', 'chips'])),
       onlyWhen(tiles, selectField('columns', ['auto', '1', '2'])),
       entitiesField('entities', DOMAINS, true),
+      onlyWhen(holdsDevice('scenes', 'entities'), namesField()),
       ...groupFields('scenes', 'entities'),
       fieldRow(accentField(), accentField('card_color', { none: true })),
       ...cardSurfaceFields(),

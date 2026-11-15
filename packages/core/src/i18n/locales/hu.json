@@ -572,7 +572,12 @@
     "show_window": "A nyitott ablak megjelenítése",
     "window_entity": "Ablak",
     "show_low_battery": "A gyenge elem jelzése",
-    "found_helper": "Üresen: az eszközén keresi"
+    "found_helper": "Üresen: az eszközén keresi",
+    "names": "Nevek",
+    "names_full": "Teljes név",
+    "names_entity": "Entitás neve",
+    "names_device": "Eszköz neve",
+    "names_helper": "Ahol nincs megadva saját név"
   },
   "strategy": {
     "home": "Otthon",

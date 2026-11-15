@@ -8,9 +8,12 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  holdsDevice,
   iconField,
   isSelectRow,
   nameIconFields,
+  namesField,
+  onlyWhen,
   selectField,
   selectRowChoices,
   selectRowFields,
@@ -31,6 +34,7 @@ import type { HelpersCardConfig } from './helpers-card.js';
 /** A card of many helpers has no entity of its own: its head's icon, tone and colour, its tap ("…") and its hold. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -72,6 +76,8 @@ export const lists: readonly RowsListSpec[] = [
     key: 'rows',
     alias: 'entities',
     title: 'editor.rows',
+    // how the rows that say no name are named stands over them
+    fields: ['names'],
     keys: [
       'entity',
       'name',
@@ -105,6 +111,7 @@ export function getConfigForm(): LovelaceConfigForm {
       ...sliderFields(),
       ...colourFields(),
       entitiesField('entities', undefined, true),
+      onlyWhen(holdsDevice('rows', 'entities'), namesField()),
       emptyFields(),
       actionFields({ icon: true, many: true }),
     ],

@@ -9,8 +9,11 @@ import {
   entitiesField,
   entityField,
   fieldRow,
+  holdsDevice,
   iconField,
   headFields,
+  namesField,
+  onlyWhen,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -26,6 +29,7 @@ const s = strings('updates');
 /** A card of many updates has no entity of its own: its head's icon, tone and colour, and what its head answers. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -60,6 +64,8 @@ export function getConfigForm(): LovelaceConfigForm {
       ...colourFields(),
       boolField('show_up_to_date'),
       entitiesField('entities', ['update'], true),
+      // how the updates are named: an update's own name says little beside its device's
+      onlyWhen(holdsDevice('entities'), namesField()),
       fieldRow(
         entityField(['input_boolean', 'switch', 'automation'], 'toggle', false),
         textField('toggle_secondary'),

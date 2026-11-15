@@ -19,10 +19,12 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  holdsDevice,
   iconField,
   lightColourFields,
   nameIconFields,
   nameLinesField,
+  namesField,
   onlyWhen,
   selectField,
   showIconField,
@@ -44,6 +46,7 @@ type When = NonNullable<HaFormSchemaItem['when']>;
 
 export const base: readonly BaseKey[] = [
   'name',
+  'names',
   'icon',
   'tone',
   'color',
@@ -120,6 +123,8 @@ export const lists: readonly RowsListSpec[] = [
     key: 'lights',
     title: 'lights.editor_lights',
     domains: ['light'],
+    // how the lights that say no name are named stands over them
+    fields: ['names'],
     keys: ['entity', 'name', 'icon', 'color'],
     schema: [entityField(['light']), nameIconFields(), accentField('color', { item: 'bulb' })],
   },
@@ -147,6 +152,8 @@ export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
       areaField(),
+      // the lights' names, the list's or the area's: the room's own name is the card's
+      onlyWhen(holdsDevice('lights', 'entities', 'light'), namesField()),
       fieldRow(textField('name'), iconField()),
       showIconField(),
       fieldRow(selectField('variant', LIGHTS_VARIANTS), boolField('show_brightness')),

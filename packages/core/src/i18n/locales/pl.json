@@ -1305,7 +1305,12 @@
     "show_window": "Pokaż otwarte okno",
     "window_entity": "Okno",
     "show_low_battery": "Ostrzegaj o słabej baterii",
-    "found_helper": "Puste: szukane na urządzeniu"
+    "found_helper": "Puste: szukane na urządzeniu",
+    "names": "Nazwy",
+    "names_full": "Pełna nazwa",
+    "names_entity": "Nazwa encji",
+    "names_device": "Nazwa urządzenia",
+    "names_helper": "Tam, gdzie nie ustawiono własnej nazwy"
   },
   "energy": {
     "solar": "PV",

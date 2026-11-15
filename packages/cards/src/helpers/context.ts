@@ -1,5 +1,4 @@
 import {
-  entityName,
   stateText,
   type EntityName,
   type EntityView,
@@ -42,6 +41,8 @@ export interface HelperHost extends ControlHost {
   readonly texts: TemplateTexts;
   /** The rows have given their circles to their names: what ends one of them squeezed its name (`rowsKeepIcon`). */
   readonly bare: boolean;
+  /** The name an entity is shown by: a row's own, else the one the card asks of every row (`nameFor`). */
+  name(view: EntityView, name: EntityName | undefined): string;
   moreInfo(entityId: string): void;
   /** Value under the finger while a ruler drag is in flight. */
   preview(entityId: string): number | undefined;
@@ -54,12 +55,12 @@ export interface HelperHost extends ControlHost {
 export const isUnusable = (view: EntityView): boolean =>
   view.status === 'unavailable' || view.status === 'missing';
 
-/** A row's name: its own (`entityName`), else its entity's. */
+/** A row's name: its own, else the one its card asks of every row, else its entity's (`nameFor`). */
 export const nameOf = (
-  host: Pick<HelperHost, 'hass'>,
+  host: Pick<HelperHost, 'name'>,
   view: EntityView,
   row: HelperRowConfig,
-): string => entityName(host.hass, view, row.name);
+): string => host.name(view, row.name);
 
 /** The second line the owner wrote, a template rendered; undefined when the row says nothing of its own. */
 export const ownSecondary = (host: HelperHost, row: HelperRowConfig): string | undefined =>

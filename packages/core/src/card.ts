@@ -21,7 +21,7 @@ import {
 import { layoutHeightOf } from './layout-heights.js';
 import { idsOf, type EntityEntry } from './lists.js';
 import { AccentSheet } from './look/accent.js';
-import { entityName, type EntityName } from './names.js';
+import { entityName, listedName, type EntityName, type ItemNames } from './names.js';
 import { remember } from './remember.js';
 import { CHART_DEFAULTS, type ChartSettings, type SavedSeries } from './settings/charts.js';
 import {
@@ -51,6 +51,11 @@ export interface FluvyCardConfig extends LovelaceCardConfig {
   entities?: readonly EntityEntry[];
   /** Words, or Home Assistant's parts of a name (`entityName`): its entity's own name where none is given. */
   name?: EntityName;
+  /**
+   * How a card of a list names the items that say none of their own (1.22, #200): unset or `full`, as Home Assistant
+   * says them (`nameFor`).
+   */
+  names?: ItemNames;
   icon?: string;
   tone?: Tone;
   color?: string;
@@ -809,11 +814,14 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
   }
 
   /**
-   * The name an entity is shown by: the `name` configured for it (the card's for its own entity, an item's for its),
-   * else its own (`entityName`).
+   * The name an entity is shown by: the `name` configured for it (the card's for its own entity, an item's for its,
+   * `entityName`), else the one the card asks of what says none (`names`: the entity's own, its device's), else its
+   * own (`listedName`).
    */
   protected nameFor(view: EntityView, name: EntityName | undefined): string {
-    return entityName(this.hass, view, name);
+    return name == null
+      ? listedName(this.hass, view, this.config?.names)
+      : entityName(this.hass, view, name);
   }
 
   protected t(key: MessageKey, values?: Record<string, string | number>): string {

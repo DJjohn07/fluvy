@@ -12,11 +12,13 @@ import {
   formLabels,
   holdsActing,
   groupFields,
+  holdsDevice,
   holdsLight,
   holdsSwitch,
   lightColourFields,
   nameIconFields,
   nameLinesField,
+  namesField,
   onlyWhen,
   selectField,
   showActionField,
@@ -43,6 +45,7 @@ const COLUMNS = ['1', '2', '3', '4', 'auto'] as const;
 /** The group has no entity of its own: its tone and colour are its tiles' default. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'tone',
   'color',
   'card_color',
@@ -99,6 +102,8 @@ export const lists: readonly RowsListSpec[] = [
     title: 'editor.tiles',
     // a label among the tiles opens a group of them (#189)
     sections: 'labels',
+    // how the tiles that say no name are named stands over them
+    fields: ['names'],
     keys: [
       'entity',
       'name',
@@ -161,6 +166,7 @@ export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
       entitiesField('entities', undefined, true),
+      onlyWhen(holdsDevice('tiles', 'entities'), namesField()),
       fieldRow(selectField('size', SIZES), selectField('columns', COLUMNS)),
       ...groupFields('tiles', 'entities'),
       // a small tile's name may take two lines; a large one's switch may give way to its circle, where a tile has one

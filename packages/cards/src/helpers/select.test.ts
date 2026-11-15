@@ -119,6 +119,7 @@ function hostOf(calls: unknown[][]): HelperHost {
     contentWidth: 320,
     ruler,
     bare: false,
+    name: (view: EntityView) => view.name,
     texts: { resolve: (text: string) => text },
     state: (view: EntityView) => view.state,
     expect: () => undefined,

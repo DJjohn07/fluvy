@@ -4,6 +4,8 @@ import {
   entriesOf,
   idsOf,
   layoutHeightOf,
+  listedName,
+  resolveEntity,
   textName,
   type HomeAssistant,
   type LovelaceCardConfig,
@@ -74,11 +76,15 @@ const featuresOf = (hass: HomeAssistant, id: unknown): number =>
 const known = (hass: HomeAssistant, id: unknown): boolean =>
   typeof id === 'string' && hass.states?.[id] !== undefined;
 
-/** An entity's name as the house writes it. */
+/**
+ * An entity's name as the house writes it, or as its card asks of every item that says none (`names`: `listedName`).
+ */
 const namesIn =
-  (hass: HomeAssistant): NameOf =>
+  (hass: HomeAssistant, names?: unknown): NameOf =>
   (id) =>
-    attrOf(hass, id, 'friendly_name');
+    names !== undefined && typeof id === 'string' && known(hass, id)
+      ? listedName(hass, resolveEntity(hass, id), names)
+      : attrOf(hass, id, 'friendly_name');
 
 /* ---------- what each card's entity draws ---------- */
 
@@ -108,7 +114,7 @@ function lights(config: LightsCardConfig, hass: HomeAssistant): number {
   const ids = idsOf(entriesOf(config.lights ?? config.entities));
   return lightsHeight(config, {
     area,
-    nameOf: namesIn(hass),
+    nameOf: namesIn(hass, config.names),
     admin: Boolean(hass.user?.is_admin),
     colour: (ids.length ? ids : (area ?? [])).some(
       (id) =>
@@ -249,7 +255,7 @@ function updates(config: UpdatesCardConfig, hass: HomeAssistant): number {
 
 /** The tiles' names, which `auto` columns are laid out by. */
 const statTiles = (config: StatTilesCardConfig, hass: HomeAssistant): number =>
-  statTilesHeight(config, namesIn(hass));
+  statTilesHeight(config, namesIn(hass, config.names));
 
 /** The house a list is laid out in groups by: none where it has no states to read. */
 const read = (hass: HomeAssistant): HomeAssistant | undefined => (hass.states ? hass : undefined);
@@ -265,7 +271,7 @@ const tiles = (config: TilesCardConfig, hass: HomeAssistant): number =>
 const scenes = (config: ScenesCardConfig, hass: HomeAssistant): number =>
   scenesHeight(
     config,
-    namesIn(hass),
+    namesIn(hass, config.names),
     laidOut(read(hass), config, config.scenes ?? config.entities),
   );
 

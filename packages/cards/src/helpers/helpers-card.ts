@@ -229,6 +229,7 @@ export class FluvyHelpersCard extends Card<HelpersCardConfig> {
       ruler: this.ruler,
       texts: this.texts,
       bare: false,
+      name: (view, name) => this.nameFor(view, name),
       ...this.controlHost,
       moreInfo: (id) => this.tap(id, { action: 'more-info' }),
       preview: (id) => this.preview_[id],

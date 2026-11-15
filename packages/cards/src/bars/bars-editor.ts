@@ -12,9 +12,12 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  holdsDevice,
   iconField,
   idsOnly,
   nameIconFields,
+  namesField,
+  onlyWhen,
   rowWhenField,
   selectField,
   headFields,
@@ -37,6 +40,7 @@ const VARIANTS: readonly BarsVariant[] = ['full', 'compact'];
 
 /** A list of many sensors has no entity of its own: its head's icon, tone and colour, and its actions on the head. */
 export const base: readonly BaseKey[] = [
+  'names',
   'icon',
   'tone',
   'color',
@@ -68,8 +72,8 @@ export const lists: readonly RowsListSpec[] = [
     key: 'rows',
     title: 'editor.rows',
     sections: true,
-    // the condition every row keeps to stands over the rows
-    fields: ['show_rows_when'],
+    // the condition every row keeps to stands over the rows, and how those that say no name are named
+    fields: ['show_rows_when', 'names'],
     keys: [
       'entity',
       'name',
@@ -119,6 +123,7 @@ export function getConfigForm(): LovelaceConfigForm {
       ...colourFields(),
       entitiesField('rows', undefined, true),
       whenField('show_rows_when'),
+      onlyWhen(holdsDevice('rows'), namesField()),
       fieldRow(textField('badge_ok'), textField('badge_warn')),
       emptyFields(),
       actionFields({ icon: true, many: true }),

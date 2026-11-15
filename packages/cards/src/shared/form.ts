@@ -1,5 +1,6 @@
 import {
   addEnglish,
+  areaEntities,
   domainOf,
   idsOf,
   localize,
@@ -715,6 +716,38 @@ export const nameField = (): HaFormSchemaItem => ({
 
 /** A name and an icon, on one row (a card's, or an item's in a list): the entity's parts where one is beside them. */
 export const nameIconFields = (): HaFormSchemaItem => fieldRow(nameField(), iconField());
+
+/**
+ * How a card of a list names the items that say no name of their own (`names`, 1.22, #200): as Home Assistant says
+ * them (the default), each by its entity's own name, or by its device's — Home Assistant's parts of a name, written
+ * in YAML, are kept as they are.
+ */
+export const namesField = (): HaFormSchemaItem => ({
+  ...choiceField('names', [
+    ['full', 'editor.names_full'],
+    ['entity', 'editor.names_entity'],
+    ['device', 'editor.names_device'],
+  ]),
+  helper: 'editor.names_helper',
+});
+
+/**
+ * Whether a card's list names an entity of a device — or, while it lists none, its area holds one of `domain` (a
+ * room's lights, an area's cameras): what its `names` acts on, since an entity of no device has one name, its own. A
+ * house that is not there to say shows the field.
+ */
+export const holdsDevice =
+  (key: string, alias?: string, domain?: string) =>
+  (data: Readonly<Record<string, unknown>>, hass?: HomeAssistant): boolean => {
+    if (!hass?.entities) return true;
+    const ids = idsOf(listed(data, key, alias));
+    const area = data['area'];
+    const shown =
+      ids.length || !domain || typeof area !== 'string'
+        ? ids
+        : areaEntities(hass, area, { domains: [domain] });
+    return shown.some((id) => Boolean(hass.entities[id]?.device_id));
+  };
 
 /** Whether a card's head shows its circle: automatic (it gives way to a long name), always or never. */
 export const showIconField = (): HaFormSchemaItem =>

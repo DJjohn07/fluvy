@@ -1,5 +1,5 @@
 import { strings as words, type LovelaceConfigForm } from '@fluvy/core';
-import { HEAD_BASE } from '../shared/base.js';
+import { HEAD_BASE, type BaseKey } from '../shared/base.js';
 import {
   accentField,
   actionFields,
@@ -10,12 +10,15 @@ import {
   entitiesField,
   entityField,
   fieldRow,
+  holdsDevice,
   iconField,
   idsOnly,
   nameField,
   nameIconFields,
+  namesField,
   NUMBER_DEFAULTS,
   numberFields,
+  onlyWhen,
   selectField,
   headFields,
   textField,
@@ -35,7 +38,8 @@ const VARIANTS: readonly StatTilesVariant[] = ['full', 'compact'];
 
 const COLUMNS = ['auto', '2', '3'] as const;
 
-export const base = HEAD_BASE;
+/** A card with a headline value of its own: the base of a card of one entity, and how its tiles and rows are named. */
+export const base: readonly BaseKey[] = [...HEAD_BASE, 'names'];
 
 export const keys = configKeys<StatTilesCardConfig>()([
   'title',
@@ -118,6 +122,12 @@ export function getConfigForm(): LovelaceConfigForm {
       fieldRow(entityField(undefined, 'entity', false), nameField()),
       fieldRow({ name: 'badge_entity', selector: { entity: {} } }, textField('badge_label')),
       entitiesField('rows'),
+      // how the tiles and the rows that say no name are named
+      onlyWhen(
+        (data, hass) =>
+          holdsDevice('tiles', 'entities')(data, hass) || holdsDevice('rows')(data, hass),
+        namesField(),
+      ),
       emptyFields(),
       numberFields(),
       actionFields({ icon: true }),

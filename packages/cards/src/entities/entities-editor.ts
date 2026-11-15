@@ -8,9 +8,11 @@ import {
   entitiesField,
   fieldRow,
   formLabels,
+  holdsDevice,
   holdsLight,
   iconField,
   lightColourFields,
+  namesField,
   numberField,
   onlyWhen,
   rowItems,
@@ -30,6 +32,7 @@ import type { EntitiesCardConfig } from './entities-card.js';
 /** A card of rows has no entity of its own: its icon, tone and colour are the head's and the rows' default. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -64,8 +67,8 @@ export const lists: readonly RowsListSpec[] = [
     alias: 'entities',
     title: 'editor.rows',
     sections: true,
-    // the condition every row keeps to stands over the rows
-    fields: ['show_rows_when'],
+    // the condition every row keeps to stands over the rows, and how those that say no name are named
+    fields: ['show_rows_when', 'names'],
     ...rowItems(true, true),
   },
 ];
@@ -87,6 +90,7 @@ export function getConfigForm(): LovelaceConfigForm {
       ...colourFields(),
       entitiesField('entities', undefined, true),
       whenField('show_rows_when'),
+      onlyWhen(holdsDevice('rows', 'entities'), namesField()),
       boolField('show_count'),
       // a light's colours where the rows hold a light
       onlyWhen(holdsLight('rows', 'entities'), lightColourFields()),

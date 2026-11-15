@@ -420,9 +420,10 @@ describe('a light’s own colour in a list: none chosen by default, its bulb’s
       type: 'custom:fluvy-lights-card',
       lights: ['light.desk'],
     });
+    // the card's form, how its lights are named over them, then the light's own
     const item = editor.shadowRoot!.querySelectorAll<FormStub & { computeHelper: FormLabeler }>(
       'ha-form',
-    )[1]!;
+    )[2]!;
     const field = await colourOf(FluvyLightsCard);
     expect(item.computeHelper(field, (key: string) => key)).toBe(
       'Empty: the light’s bulb colour where the card shows bulbs’ colours, else the card’s',

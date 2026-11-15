@@ -622,7 +622,12 @@
     "show_window": "Mostra una finestra aperta",
     "window_entity": "Finestra",
     "show_low_battery": "Segnala la batteria scarica",
-    "found_helper": "Vuoto, cercato sul suo dispositivo"
+    "found_helper": "Vuoto, cercato sul suo dispositivo",
+    "names": "Nomi",
+    "names_full": "Nome completo",
+    "names_entity": "Nome dell’entità",
+    "names_device": "Nome del dispositivo",
+    "names_helper": "Dove non è impostato un nome proprio"
   },
   "strategy": {
     "home": "Casa",

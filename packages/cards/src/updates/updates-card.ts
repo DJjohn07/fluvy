@@ -181,9 +181,9 @@ export class FluvyUpdatesCard extends Card<UpdatesCardConfig> {
       .filter((view) => !this.installing(view))
       .map((view) =>
         this.installable(view)
-          ? { name: view.name, button: install }
+          ? { name: this.nameFor(view, undefined), button: install }
           : {
-              name: view.name,
+              name: this.nameFor(view, undefined),
               end:
                 view.state === 'on' ? 44 : this.head.ruler.width('fv-row__value', this.value(view)),
             },
@@ -192,6 +192,8 @@ export class FluvyUpdatesCard extends Card<UpdatesCardConfig> {
 
   /** `bare`: the rows have given their circles to their names (what ends one, never cut, squeezed it). */
   private row(view: EntityView, narrow: boolean, bare: boolean): TemplateResult {
+    // an update takes no name of its own: Home Assistant's, or the one the card asks of every one (`names`)
+    const name = this.nameFor(view, undefined);
     const unusable = view.status === 'unavailable' || view.status === 'missing';
     const ref = iconOf(view);
     const circle = (tone: Tone): TemplateResult | typeof nothing =>
@@ -212,12 +214,12 @@ export class FluvyUpdatesCard extends Card<UpdatesCardConfig> {
       return html`<div class="fv-row in-row--progress ${bare ? 'fv-row--bare' : ''}">
         ${circle('accent')}
         <span class="fv-row__text">
-          <span class="fv-row__title" data-name>${view.name}</span>
+          <span class="fv-row__title" data-name>${name}</span>
           <span class="fv-row__sub">${sub}</span>
           <span
             class="in-progress ${percent === null ? 'in-progress--busy' : ''}"
             role="progressbar"
-            aria-label=${view.name}
+            aria-label=${name}
             aria-valuemin="0"
             aria-valuemax="100"
             aria-valuenow=${percent ?? nothing}
@@ -233,22 +235,16 @@ export class FluvyUpdatesCard extends Card<UpdatesCardConfig> {
 
     if (this.installable(view)) {
       const word = s(this.hass, 'install');
-      const install = rowButton(
-        'link',
-        word,
-        s(this.hass, 'install_named', { name: view.name }),
-        () => {
-          this.expect(view.id, STARTING); // the row turns into its progress bar under the finger
-          this.call('update', 'install', {}, view.id);
-        },
-      );
+      const install = rowButton('link', word, s(this.hass, 'install_named', { name }), () => {
+        this.expect(view.id, STARTING); // the row turns into its progress bar under the finger
+        this.call('update', 'install', {}, view.id);
+      });
       // where even without its circle Install would leave the name under its room, it goes under the name
-      const stack =
-        bare && rowStacks(this.head.ruler, this.contentWidth, { name: view.name, button: word });
+      const stack = bare && rowStacks(this.head.ruler, this.contentWidth, { name, button: word });
       return html`<div class="fv-row ${bare ? 'fv-row--bare' : ''} ${stack ? 'fv-row--stack' : ''}">
         ${circle('neutral')}
         <span class="fv-row__text"
-          ><span class="fv-row__title" data-name>${view.name}</span
+          ><span class="fv-row__title" data-name>${name}</span
           ><span class="fv-row__sub">${this.versions(view)}</span></span
         >
         ${install}
@@ -259,7 +255,7 @@ export class FluvyUpdatesCard extends Card<UpdatesCardConfig> {
     return listRow({
       icon: bare ? null : ref,
       tone: unusable ? 'off' : 'neutral',
-      title: view.name,
+      title: name,
       name: true,
       sub: this.versions(view),
       trailing: view.state === 'on' ? 'chevron' : 'value',

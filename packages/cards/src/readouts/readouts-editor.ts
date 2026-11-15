@@ -10,10 +10,13 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  holdsDevice,
   nameField,
+  namesField,
   NUMBER_DEFAULTS,
   numberField,
   numberFields,
+  onlyWhen,
   selectField,
 } from '../shared/form.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
@@ -28,6 +31,7 @@ const DOMAINS: readonly string[] = ['sensor', 'number', 'input_number', 'counter
 /** A strip of readouts has no entity of its own; its colour is its figures' accent. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'color',
   'card_color',
   'card_opacity',
@@ -50,6 +54,8 @@ export const lists: readonly RowsListSpec[] = [
     alias: 'entities',
     title: 'editor.rows',
     domains: DOMAINS,
+    // how the readouts that say no name are named stands over them
+    fields: ['names'],
     keys: ['entity', 'name', 'unit', 'decimals', 'tap_action', 'hold_action', 'double_tap_action'],
     schema: [entityField(DOMAINS), nameField(), numberFields(), actionFields()],
   },
@@ -65,6 +71,7 @@ export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
       entitiesField('entities', DOMAINS, true),
+      onlyWhen(holdsDevice('rows', 'entities'), namesField()),
       fieldRow(numberField('hours', 1, 48), selectField('variant', ['grid', 'row'])),
       accentField(),
       accentField('card_color', { none: true }),

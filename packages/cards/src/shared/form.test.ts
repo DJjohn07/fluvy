@@ -10,6 +10,8 @@ import {
   editorLabels,
   fieldRow,
   formLabels,
+  holdsDevice,
+  namesField,
   onlyWhen,
   pickFields,
   selectField,
@@ -230,5 +232,50 @@ describe('fieldRow', () => {
   it('keeps side by side the fields whose boxes line up', () => {
     expect(fieldRow(text, text)).not.toHaveProperty('column_min_width');
     expect(fieldRow(entity, statistic)).not.toHaveProperty('column_min_width');
+  });
+});
+
+describe('the names of a list (#200)', () => {
+  const hass = {
+    language: 'en',
+    states: {
+      'camera.garden': { entity_id: 'camera.garden', state: 'idle', attributes: {} },
+    },
+    entities: {
+      'binary_sensor.hall_motion': { entity_id: 'binary_sensor.hall_motion', device_id: 'd1' },
+      'camera.garden': { entity_id: 'camera.garden', device_id: 'd2', area_id: 'garden' },
+      'input_boolean.guests': { entity_id: 'input_boolean.guests' },
+    },
+    devices: { d1: { id: 'd1' }, d2: { id: 'd2' } },
+    areas: { garden: { area_id: 'garden', name: 'Garden' } },
+  } as unknown as HomeAssistant;
+  const form = [onlyWhen(holdsDevice('rows', 'entities', 'camera'), namesField())];
+  const shown = (
+    data: Readonly<Record<string, unknown>>,
+    house: HomeAssistant | undefined = hass,
+  ) => visibleFields(form, data, house).map((item) => item.name);
+
+  it('offers how its items are named while one of them is a device’s, the list under either key', () => {
+    expect(
+      shown({ rows: ['input_boolean.guests', { entity: 'binary_sensor.hall_motion' }] }),
+    ).toEqual(['names']);
+    expect(shown({ entities: ['binary_sensor.hall_motion'] })).toEqual(['names']);
+    // the full name, an entity's own and its device's, in a dropdown
+    expect(namesField().selector).toMatchObject({
+      select: {
+        mode: 'dropdown',
+        options: [{ value: 'full' }, { value: 'entity' }, { value: 'device' }],
+      },
+    });
+  });
+
+  it('hides it where every item has one name, its own (a helper), and where the list is empty', () => {
+    expect(shown({ rows: ['input_boolean.guests'] })).toEqual([]);
+    expect(shown({})).toEqual([]);
+  });
+
+  it('reads an area’s entities of the card’s kind while the list names none, and shows it without a house', () => {
+    expect(shown({ area: 'garden' })).toEqual(['names']);
+    expect(shown({ rows: ['binary_sensor.hall_motion'] }, undefined)).toEqual(['names']);
   });
 });

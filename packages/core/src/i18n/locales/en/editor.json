@@ -220,6 +220,11 @@
     "show_window": "Show an open window",
     "window_entity": "Window",
     "show_low_battery": "Warn of a low battery",
-    "found_helper": "Empty: found on its device"
+    "found_helper": "Empty: found on its device",
+    "names": "Names",
+    "names_full": "Full name",
+    "names_entity": "Entity name",
+    "names_device": "Device name",
+    "names_helper": "Where no name of its own is set"
   }
 }

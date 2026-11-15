@@ -1186,7 +1186,8 @@ export function withoutLists(
  * What an editor shows where a card's config says nothing: the card's own defaults, and what every card that offers
  * them does — on a card with a head (`show_icon`), the circle that shows by itself (`auto`), and a name on one line
  * (`name_lines`, a small tile's too); on a card of a list
- * (`hide_empty`), a list that stays in sight while it is empty; on a card with a surface (`card_opacity`), the house's
+ * (`hide_empty`), a list that stays in sight while it is empty, its items by Home Assistant's names where it may name
+ * them otherwise (`names`); on a card with a surface (`card_opacity`), the house's
  * opacity and border for every card; on a card of entities (`unavailable`), how the house draws every card out of
  * reach; on a card with a slider (`slider_style`), the house's style and the words under it.
  */
@@ -1200,6 +1201,7 @@ export function editorDefaults(
     ...(shows('show_icon') ? { show_icon: 'auto' } : {}),
     ...(shows('name_lines') ? { name_lines: '1' } : {}),
     ...(shows('hide_empty') ? { hide_empty: false } : {}),
+    ...(shows('names') ? { names: 'full' } : {}),
   };
   // the house's opacity and border, its look out of reach and its sliders' words as they are when the editor asks (the
   // panel may change them meanwhile)

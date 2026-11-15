@@ -1366,7 +1366,12 @@
     "show_window": "Zobraziť otvorené okno",
     "window_entity": "Okno",
     "show_low_battery": "Upozorniť na slabú batériu",
-    "found_helper": "Prázdne: hľadá sa na zariadení"
+    "found_helper": "Prázdne: hľadá sa na zariadení",
+    "names": "Názvy",
+    "names_full": "Celý názov",
+    "names_entity": "Názov entity",
+    "names_device": "Názov zariadenia",
+    "names_helper": "Kde nie je nastavený vlastný názov"
   },
   "page": {
     "menu": "Otvoriť ponuku",

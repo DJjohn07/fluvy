@@ -8,10 +8,13 @@ import {
   entityField,
   fieldRow,
   formLabels,
+  holdsDevice,
   iconField,
   nameIconFields,
+  namesField,
   numberField,
   headFields,
+  onlyWhen,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -25,6 +28,7 @@ import { ACTION_DOMAINS, type ActionsCardConfig } from './actions-card.js';
 /** A card of many actions has no entity of its own: its head's icon, tone and colour, its tap ("…") and its hold. */
 export const base: readonly BaseKey[] = [
   'entities',
+  'names',
   'icon',
   'tone',
   'color',
@@ -52,6 +56,8 @@ export const lists: readonly RowsListSpec[] = [
     alias: 'entities',
     title: 'editor.rows',
     domains: ACTION_DOMAINS,
+    // how the rows that say no name are named stands over them
+    fields: ['names'],
     keys: ['entity', 'name', 'icon', 'secondary'],
     schema: [entityField(ACTION_DOMAINS), nameIconFields(), textField('secondary')],
   },
@@ -65,6 +71,7 @@ export function getConfigForm(): LovelaceConfigForm {
       headFields(),
       ...colourFields(),
       entitiesField('entities', ACTION_DOMAINS, true),
+      onlyWhen(holdsDevice('rows', 'entities'), namesField()),
       emptyFields(),
       actionFields({ icon: true, many: true }),
     ],
