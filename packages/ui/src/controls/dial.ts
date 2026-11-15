@@ -73,6 +73,10 @@ export class FluvyDial extends LitElement {
         font-size: 28px;
         letter-spacing: -0.02em;
       }
+      /* a gauge's reading past a threshold (1.22, #204): its figure in its band's colour (its card's data-ink) */
+      :host([data-ink]) .fv-dial__value > :first-child {
+        color: var(--fv-ink);
+      }
     `,
   ];
 

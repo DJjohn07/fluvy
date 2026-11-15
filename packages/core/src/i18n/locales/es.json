@@ -636,7 +636,14 @@
     "names_full": "Nombre completo",
     "names_entity": "Nombre de la entidad",
     "names_device": "Nombre del dispositivo",
-    "names_helper": "Donde no hay un nombre propio"
+    "names_helper": "Donde no hay un nombre propio",
+    "thresholds": "Umbrales",
+    "thresholds_helper": "Una lectura toma el color del umbral más cercano que ha superado",
+    "threshold_value": "Valor",
+    "threshold_helper": "Una cifra, una entidad o una plantilla",
+    "below": "Por debajo del valor",
+    "below_helper": "Apagado, desde el valor hacia arriba",
+    "past_threshold": "Al pasar un umbral"
   },
   "strategy": {
     "home": "Inicio",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "Área",
     "editor.span": "Periodo",
     "editor.span_helper": "24h, today, today+tomorrow, 7d, o cualquier 12h o 3d",
-    "editor.thresholds": "Umbrales",
-    "editor.threshold_value": "Desde",
-    "editor.threshold_helper": "La línea toma este color desde este valor hacia arriba, hasta el umbral siguiente",
     "editor.color_helper": "Vacío, el color de la tarjeta, o los colores de las series de la paleta si hay varias. Los colores de la paleta la siguen; un nombre de color o un #hex se queda como se escribió",
     "editor.highlight_hours": "Horas que destacar",
     "editor.show_legend": "Mostrar la leyenda",

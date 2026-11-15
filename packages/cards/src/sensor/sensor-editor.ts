@@ -5,6 +5,8 @@ import { chartEngine } from '../shared/chart-load.js';
 import {
   accentField,
   actionFields,
+  BAND_TINT,
+  bandTintFields,
   boolField,
   colourFields,
   editorLabels,
@@ -22,6 +24,7 @@ import {
   selectField,
   headFields,
   textField,
+  thresholdsList,
   unitChoicesOf,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
@@ -93,6 +96,9 @@ export const keys = configKeys<SensorCardConfig>()([
   'highlight',
   'animate',
   'points',
+  'thresholds',
+  'tint',
+  'tint_style',
 ]);
 
 export const lists: readonly RowsListSpec[] = [
@@ -109,6 +115,7 @@ export const lists: readonly RowsListSpec[] = [
     computeHelper: (schema) =>
       schema.name === 'name' ? editorWord('editor.extra_name_helper') : undefined,
   },
+  thresholdsList({ tint: true }),
 ];
 
 /** What the editor shows where the config says nothing: what the card does then. */
@@ -117,6 +124,7 @@ export const defaults: EditorDefaults = (config, hass) => ({
   hours: chartDefaults().settings.window,
   show_stats: true,
   ...NUMBER_DEFAULTS,
+  ...BAND_TINT,
   ...chartEngine()?.chartDefaultsFor(config, capsIn(config, hass)),
 });
 
@@ -137,6 +145,9 @@ export function getConfigForm(): LovelaceConfigForm {
       boolField('show_stats'),
       textField('label'),
       ...(chart ? [chart] : []),
+      // the colours its reading takes past a threshold, and the card's own in them (the rows editor draws the list)
+      { name: 'thresholds', selector: { object: {} } },
+      bandTintFields(),
       numberFields({ when: hasLadder }),
       actionFields({ icon: true }),
     ],

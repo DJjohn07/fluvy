@@ -21,6 +21,7 @@ import type { NameLines } from './heights.js';
 import type { EditorChoices, EditorDefaults, RowsListSpec } from './rows-editor.js';
 import { ownLine, type OwnLine } from './secondary.js';
 import { isTemplate, TemplateTexts } from './templates.js';
+import type { Band, Thresholds } from './thresholds.js';
 
 /**
  * What a card with a head honours of its circle: whether it shows (`HeadFit` reads it through `Card.showIcon`), and
@@ -109,6 +110,34 @@ export interface HeadActions extends Press, Partial<IconActions> {
 
 /** What a tap and a hold run where nothing else is said: the details. */
 export const MORE_INFO: ActionConfig = { action: 'more-info' };
+
+/**
+ * What reads a card's thresholds (`thresholds.ts`, 1.22, #204), once the first card that names one has fetched it; one
+ * that cannot be fetched leaves every reading in its card's own colours.
+ */
+let reader: typeof import('./thresholds.js') | undefined;
+let fetchingReader: Promise<void> | undefined;
+/** Whether the fetch is over, landed or failed: a first frame never waits on one that cannot land. */
+let readerSettled = false;
+function fetchReader(): Promise<void> {
+  fetchingReader ??= import('./thresholds.js')
+    .then(
+      (module) => {
+        reader = module;
+      },
+      () => undefined,
+    )
+    .finally(() => {
+      readerSettled = true;
+    });
+  return fetchingReader;
+}
+
+/** Whether a config or an item names thresholds. */
+const namesThresholds = (own: unknown): own is { readonly thresholds: readonly unknown[] } => {
+  const list = (own as { readonly thresholds?: unknown } | null | undefined)?.thresholds;
+  return Array.isArray(list) && list.length > 0;
+};
 
 /**
  * What a control drawn by a module of its own needs from the card that draws it: the state to draw (the expected one
@@ -229,6 +258,52 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
    * a change of one draws it again, as a watched one's.
    */
   private readonly ownNamed = new Set<string>();
+
+  /**
+   * A card whose config names thresholds, or an item of a list it holds, draws its first frame once their reader is
+   * here (`thresholds`), never in its own colours a moment before.
+   */
+  protected override wearing(): Promise<void> | undefined {
+    const config = this.config as Readonly<Record<string, unknown>> | undefined;
+    const asks =
+      namesThresholds(config) ||
+      Object.values(config ?? {}).some((list) => Array.isArray(list) && list.some(namesThresholds));
+    return super.wearing() ?? (asks && !readerSettled ? fetchReader() : undefined);
+  }
+
+  /**
+   * `own`'s thresholds (the card's config, an item's) as the card reads them now, for a reading in `unit` — a template
+   * among their values asked with `entityId` as `entity`, an entity watched while it is read: none where it names
+   * none, or while their reader is on its way (the card draws again as it lands).
+   */
+  protected thresholds(
+    own: object | undefined,
+    unit: string,
+    entityId?: string,
+  ): Thresholds | undefined {
+    if (!namesThresholds(own)) return undefined;
+    if (!reader) {
+      if (!readerSettled) void fetchReader().then(() => this.requestUpdate());
+      return undefined;
+    }
+    return reader.thresholdsOf(own.thresholds, unit, {
+      accents: this.accents,
+      entity: (id) => {
+        this.follows(id);
+        return this.entity(id);
+      },
+      template: (text) => (this.ownTexts ??= new TemplateTexts(this)).text(text, entityId),
+    });
+  }
+
+  /** The band `view`'s reading is in by `own`'s thresholds (`thresholds`), its template asked with the view's entity. */
+  protected band(
+    own: object | undefined,
+    view: EntityView,
+    reading = view.number,
+  ): Band | undefined {
+    return this.thresholds(own, view.unit, view.id)?.band(reading);
+  }
 
   protected override shouldUpdate(changed: PropertyValues): boolean {
     if (super.shouldUpdate(changed)) return true;

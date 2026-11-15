@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
-import { derivePalette, seedOf } from '@fluvy/tokens/runtime';
+import { accentFamily, derivePalette, seedOf, textInk } from '@fluvy/tokens/runtime';
 import { TONE_VARS, TONES } from '@fluvy/ui';
 import {
   accentCss,
@@ -226,6 +226,26 @@ describe('a card tinted by what it says (1.22, #196)', () => {
       `[data-edge="danger"] { --fv-edge: ${linen.light.semantic.danger.ink}; }`,
       `[data-edge="heat"] { --fv-edge: ${linen.light.state['climate-heat'].ink}; }`,
     ]);
+    accents.begin();
+    expect(sheetOf(accents)).toEqual([]);
+  });
+
+  it('writes each figure said in a tone, or a colour, as text on its data-ink (#204), forgotten as the edges are', () => {
+    const accents = new AccentSheet();
+    accents.wears('linen', 'light');
+    accents.begin();
+    expect(accents.ink('warning')).toBe('warning');
+    accents.ink('heat');
+    accents.ink('#ff8800');
+    accents.ink('heat');
+    const light = linen.light;
+    expect(sheetOf(accents)).toEqual([
+      `[data-ink="warning"] { --fv-ink: ${textInk(light.semantic.warning, light)}; }`,
+      `[data-ink="heat"] { --fv-ink: ${textInk(light.state['climate-heat'], light)}; }`,
+      `[data-ink="#ff8800"] { --fv-ink: ${textInk(accentFamily(seedOf('linen'), light, '#ff8800'), light)}; }`,
+    ]);
+    // a device colour held to 3 as a glyph is taken deeper for its words
+    expect(textInk(light.state['climate-heat'], light)).not.toBe(light.state['climate-heat'].ink);
     accents.begin();
     expect(sheetOf(accents)).toEqual([]);
   });

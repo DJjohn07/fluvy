@@ -8,7 +8,15 @@ import {
   type HomeAssistant,
   type LovelaceGridOptions,
 } from '@fluvy/core';
-import { activateKey, clickPress, glyph, preventMenu, sheetStyles, startPress } from '@fluvy/ui';
+import {
+  activateKey,
+  banded,
+  clickPress,
+  glyph,
+  preventMenu,
+  sheetStyles,
+  startPress,
+} from '@fluvy/ui';
 import {
   css,
   html,
@@ -23,11 +31,13 @@ import { FontsSettled } from '../shared/fonts.js';
 import { askedParts, type NumberKeys } from '../shared/units.js';
 import { ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
 import { EMPTY, entryCount, rowsOf } from '../shared/heights.js';
+import type { ThresholdsConfig } from '../shared/thresholds.js';
 import { emptyPanel, itemsOf, listOf, type EmptyList } from '../shared/lists.js';
 
 const s = strings('readouts');
 
-export interface ReadoutConfig extends NumberKeys {
+/** One readout: its sensor, its name, its figures, its actions, and the colours its reading takes past a threshold. */
+export interface ReadoutConfig extends NumberKeys, ThresholdsConfig {
   entity: string;
   name?: EntityName;
   /** What the readout answers: its entity's details where none is said; a double tap none (#179). */
@@ -307,17 +317,26 @@ export class FluvyReadoutsCard extends Card<ReadoutsCardConfig> {
         const label = this.nameFor(view, item.name);
         const parts = askedParts(this.hass, view, { ...this.config, ...item });
         const trend = view.status === 'ok' ? this.trend(item.entity, view.number) : null;
-        const said =
+        // a reading past a threshold (1.22, #204): its figure in the band's colour, its icon and words beside its name
+        const band = this.band(item, view);
+        const said = [
           view.status === 'ok'
             ? `${parts.value}${parts.unit ? ` ${parts.unit}` : ''}`
-            : stateText(this.hass, view);
+            : stateText(this.hass, view),
+          band?.label,
+          trend && s(this.hass, trend === 'up' ? 'rising' : 'falling'),
+        ]
+          .filter(Boolean)
+          .join(', ');
         const { onTap, onHold } = this.pressOf(item, item.entity);
         return html`<div
           class="fv-readout hm-stat ${view.status === 'ok' ? '' : 'is-off'} ${orphan === item ? 'is-orphan' : ''}"
           role="button"
           tabindex="0"
           data-target
-          aria-label=${`${label}: ${said}${trend ? `, ${s(this.hass, trend === 'up' ? 'rising' : 'falling')}` : ''}`}
+          data-ink=${band?.ink ?? nothing}
+          data-accent=${band?.accent ?? nothing}
+          aria-label=${`${label}: ${said}`}
           .fvTap=${onTap}
           .fvHold=${onHold}
           @pointerdown=${startPress}
@@ -325,7 +344,7 @@ export class FluvyReadoutsCard extends Card<ReadoutsCardConfig> {
           @contextmenu=${onHold ? preventMenu : nothing}
           @keydown=${activateKey(onTap, onHold)}
         >
-          <p class="fv-readout__label">${label}</p>
+          <p class="fv-readout__label">${banded(label, band)}</p>
           <p class="fv-readout__value">
             <span>${parts.value}</span
             >${parts.unit ? html`<span class="fv-unit">${parts.unit}</span>` : nothing}${

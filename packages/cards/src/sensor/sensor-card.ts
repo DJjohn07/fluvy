@@ -20,6 +20,7 @@ import {
 import {
   activateKey,
   axis,
+  banded,
   clickPress,
   firstFit,
   glyph,
@@ -47,7 +48,13 @@ import { HeadFit } from '../energy/head.js';
 import { Card, type CardEditor } from '../shared/base.js';
 import type { ChartCaps, ChartKeys } from '../shared/chart-config.js';
 import { ChartLoader, type ChartEngine } from '../shared/chart-load.js';
-import type { ChartSpec, ResolvedStyle, ScrubController, TimeLine } from '../chart/engine/index.js';
+import type {
+  ChartSpec,
+  ResolvedStyle,
+  ScrubController,
+  ThresholdBand,
+  TimeLine,
+} from '../chart/engine/index.js';
 
 import { toneOf } from '../shared/colour.js';
 import { TextRuler } from '../shared/fit.js';
@@ -56,6 +63,8 @@ import { FontsSettled } from '../shared/fonts.js';
 import { iconOf, stateWord } from '../shared/domain.js';
 import { Refresher } from '../shared/refresh.js';
 import { ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
+import { bandTint, type TintConfig } from '../shared/state-tint.js';
+import type { ThresholdsConfig } from '../shared/thresholds.js';
 import { askedParts, scaleNamed, type NumberKeys } from '../shared/units.js';
 import { axisHolds } from '../shared/axis.js';
 import { labelOf, normaliseExtras, seriesTones, type SensorItem } from './series.js';
@@ -68,7 +77,8 @@ export type SensorVariant = 'chart' | 'tile';
  * A sensor drawn beside the card's own (`entities`): its id, and the name, icon and colour it is shown with. The chart
  * keys (`chart` and the fine keys, `shared/chart-config.ts`) choose how its chart is drawn; none: the house's style.
  */
-export interface SensorCardConfig extends FluvyCardConfig, NumberKeys, Omit<ChartKeys, 'show_now'> {
+export interface SensorCardConfig
+  extends FluvyCardConfig, NumberKeys, ThresholdsConfig, TintConfig, Omit<ChartKeys, 'show_now'> {
   /** Context in the sub line, before the window ("Temperature · last 24 h"). Defaults to the device class, as Home Assistant names it. */
   subtitle?: string;
   /**
@@ -626,9 +636,10 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
 
   /**
    * "Temperature · last 24 h": the context (config — words, an entity's state or a template's answer, nothing while it
-   * has none — else the device class in Home Assistant's words) and the window.
+   * has none — else the device class in Home Assistant's words) and the window, led by the words of the band the
+   * reading is in where they are said (`lead`, 1.22, #204: "High · Voltage · last 24 h"), which never give way.
    */
-  private subLine(view: EntityView, title: string): string {
+  private subLine(view: EntityView, title: string, lead?: string): string {
     const days = this.hours > 24 && this.hours % 24 === 0;
     const count = days ? this.hours / 24 : this.hours;
     const window = plural(this.hass, days ? 'sensor.window_days' : 'sensor.window_hours', count, {
@@ -639,13 +650,20 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
       const named = this.measureWord(view);
       if (named && !title.toLocaleLowerCase().includes(named.toLocaleLowerCase())) context = named;
     }
-    if (!context) return capitalise(window);
-    // the head: 44 circle + 12, the titles, 12 + the 44 round; the window is what this card is about, the context the part that may go
-    return firstFit(
-      [`${context} · ${window}`, capitalise(window)],
-      this.contentWidth - 112 - 4,
-      `500 13px ${getComputedStyle(this).fontFamily}`,
-    );
+    const forms = lead
+      ? [...(context ? [`${lead} · ${context} · ${window}`] : []), `${lead} · ${window}`, lead]
+      : context
+        ? [`${context} · ${window}`, capitalise(window)]
+        : [capitalise(window)];
+    // the head: 44 circle + 12, the titles, 12 + the 44 round; the window is what this card is about, the context the
+    // part that may go
+    return forms.length > 1
+      ? firstFit(
+          forms,
+          this.contentWidth - 112 - 4,
+          `500 13px ${getComputedStyle(this).fontFamily}`,
+        )
+      : (forms[0] as string);
   }
 
   /**
@@ -677,7 +695,10 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
     // the tile is the card's button; its circle answers of its own where the card says so (#179)
     const { onTap, onHold, onIconTap, onIconHold, iconLabel } = this.headActions(view.id);
     const name = this.nameFor(view, this.config?.name);
-    const tone = this.toneOf(view);
+    // a reading past a threshold (1.22, #204): its figure, its circle and its spark in the band's colour
+    const band = this.band(this.config, view);
+    const tone = band?.tone ?? this.toneOf(view);
+    const tinted = bandTint(this.accents, this.config, band);
     const parts = this.parts(view, view.number);
     const numeric = charted(view);
     const series = this.live(view);
@@ -689,8 +710,11 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
     // unavailable keeps the tile's own anatomy (the 76 "off" tile cannot hold a name in a half column): dashed outline,
     // page fill, dashed ring, "—", and its spark, which is history
     return html`<article
-      class="fv-tile fv-tile--tap ${isUsable(view) ? '' : 'is-unavailable is-off'}"
+      class="fv-tile fv-tile--tap ${tinted.cls} ${isUsable(view) ? '' : 'is-unavailable is-off'}"
       data-card
+      data-accent=${band?.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
       role="button"
       tabindex="0"
       .fvTap=${onTap}
@@ -701,7 +725,7 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
       @keydown=${activateKey(onTap, onHold)}
     >
       <div class="fv-tile__head">
-        ${ico(iconOf(view, this.config?.icon), tone, {
+        ${ico(iconOf(view, band?.icon ?? this.config?.icon), tone, {
           onTap: onIconTap,
           onHold: onIconHold,
           label: iconLabel?.(name),
@@ -709,9 +733,10 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
         ${trend ? html`<span class="fv-trend ${trend === 'down' ? 'fv-trend--down' : ''} am-tile__trend">${glyph(trend === 'down' ? 'trendDown' : 'trendUp')}</span>` : nothing}
       </div>
       ${readout({
-        label: name,
+        label: banded(name, { label: band?.label }),
         value: parts.value,
         unit: parts.unit,
+        ink: band?.ink,
         size: numeric
           ? 'm'
           : sizeFor(parts.value, inner, [
@@ -734,7 +759,12 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
   }
 
   private renderChart(view: EntityView): TemplateResult {
-    const tone = this.toneOf(view);
+    // a reading past a threshold (1.22, #204): its circle in the band's colour, its words leading the line, and the
+    // curve in each band's where it runs through one (`runsOf`); the curve itself keeps the sensor's own
+    const own = this.toneOf(view);
+    const band = this.band(this.config, view);
+    const tone = band?.tone ?? own;
+    const tinted = bandTint(this.accents, this.config, band);
     const title = this.nameFor(view, this.config?.name);
     const usable = isUsable(view);
     // "Unavailable" is said once, here; a sensor that is a word has no window to speak of, and its line is the card's
@@ -750,11 +780,11 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
           }
         : view.number === null
           ? this.subtitle(view.areaName)
-          : { sub: this.subLine(view, title) }),
+          : { sub: this.subLine(view, title, band?.label) }),
       trailing: 44,
     });
     const header = head({
-      icon: fitted.icon ? iconOf(view, this.config?.icon) : null,
+      icon: fitted.icon ? iconOf(view, band?.icon ?? this.config?.icon) : null,
       small: fitted.small,
       tone,
       title,
@@ -841,10 +871,23 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
             time: this.momentAt(slotted ? read.index / bars.length : (cursor as number), hours),
           };
     const left = engine && spec ? engine.plotOf(spec).left : 0;
+    // the bubble in the band of the reading it says: now's, or the one under the finger
+    const said = at ? this.band(this.config, view, point) : band;
     // out of reach the curve is the window it had, in the off skin, its bubble at "now" saying "—"
-    return html`<article class="fv-card am-card ${usable ? '' : 'is-off'}" data-card>
+    return html`<article
+      class="fv-card am-card ${tinted.cls} ${usable ? '' : 'is-off'}"
+      data-card
+      data-accent=${band?.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
+    >
       ${header}
-      <div class="am-chart fv-tone--${tone}" style="width:${width}px" ${this.scrubs(engine)}>
+      <div
+        class="am-chart fv-tone--${own}"
+        style="width:${width}px"
+        data-ink=${said?.ink ?? nothing}
+        ${this.scrubs(engine)}
+      >
         ${
           engine && spec
             ? // at now (where the style labels it), or where it is read with when, on the line there
@@ -913,10 +956,25 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
           },
         ],
         zero: readings.zero,
+        thresholds: this.runsOf(view),
         id: 'fv',
       },
       line,
     };
+  }
+
+  /**
+   * The stretches of its scale the card's thresholds colour its curve in (1.22, #204), in the unit it is drawn in (the
+   * card's `unit`, where its readings are divided to read in it).
+   */
+  private runsOf(view: EntityView): ThresholdBand[] {
+    const divisor = this.divisor(view);
+    const at = (value: number | null): number | null => (value === null ? null : value / divisor);
+    return (this.thresholds(this.config, view.unit, view.id)?.bands() ?? []).map((band) => ({
+      ...band,
+      from: at(band.from),
+      to: at(band.to),
+    }));
   }
 
   /**
@@ -1142,10 +1200,12 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
     const time = fraction !== null ? this.momentAt(fraction, hours) : null;
     // the head is the set's (the room, a chart's glyph): each sensor's own glyph and tone are on its readout, and a
     // sensor out of reach says so there, in the off skin, its curve the window it had
+    // the card's own sensor past a threshold (1.22, #204): its figure in the band's colour, its words leading the line
+    const band = this.band(this.config, view);
     const fitted = this.headFit.fit({
       width: this.contentWidth,
       title,
-      sub: this.subLine(view, title),
+      sub: this.subLine(view, title, band?.label),
       trailing: 44,
     });
     return html`<article class="fv-card am-card" data-card>
@@ -1169,9 +1229,11 @@ export class FluvySensorCard extends Card<SensorCardConfig> {
         ${rows.map(({ item, sensor, tone, accent, series }, index) => {
           // a key only where there is a curve to key (a word or a sensor gone draws none); the name gives way, never it
           const key = !fit.circles && (series?.values.length ?? 0) > 1;
+          const own = index === 0 ? band : undefined;
           return html`<div class="am-pair__item fv-tone--${tone}" data-accent=${accent ?? nothing}>
-            ${fit.circles ? ico(iconOf(sensor, item.icon), tone) : nothing}
+            ${fit.circles ? ico(iconOf(sensor, own?.icon ?? item.icon), own?.tone ?? tone) : nothing}
             ${readout({
+              ink: own?.ink,
               label: html`<span class="am-name">${texts[index]?.label ?? sensor.name}</span>${
                   key ? html`<i class="am-key" data-measure="skip"></i>` : nothing
                 }`,

@@ -2,7 +2,7 @@ import { html, nothing, svg, type SVGTemplateResult, type TemplateResult } from 
 import { AXIS_GAP } from './axis.js';
 import { columns, type Column } from './bars.js';
 import { chartBubble, cursorLine, dot, knob, nowLine, point, shadowCopy } from './decor.js';
-import type { ChartSeries, Curve, Stretch, Threshold } from './model.js';
+import type { ChartSeries, Curve, Stretch, ThresholdBand } from './model.js';
 import { seriesPaint, type SeriesPaint } from './palette.js';
 import { areaPath, bandPath, linePath, splitAt, yAt, type Pt } from './path.js';
 import { isBars, type ResolvedStyle } from './presets.js';
@@ -81,10 +81,10 @@ export interface ChartSpec {
   /** Where the chart is read (a fraction of the plot's width); none: at the end of what has happened. */
   readonly cursor?: number | null | undefined;
   /**
-   * The scale's lines the readings are coloured from (each from its value up to the next): every line drawn again in
-   * each one's ink, clipped to its stretch of the scale — split where it crosses one — and every bar in its value's.
+   * The stretches of the scale the readings are coloured in (`ThresholdBand`): every line drawn again in each one's
+   * ink, clipped to its stretch — split where it crosses an end — and every bar in its value's.
    */
-  readonly thresholds?: readonly Threshold[];
+  readonly thresholds?: readonly ThresholdBand[];
   /** Stretches of the plot marked behind everything (a window of the cheapest hours), in their tone's fill. */
   readonly stretches?: readonly Stretch[];
   /** A tick label's words, where the style draws a scale. */
@@ -401,33 +401,42 @@ const painted = (
 const group = (spec: ChartSpec, index: number, content: unknown): SVGTemplateResult =>
   painted(paintOf(spec, index), content, spec.series[index]?.accent);
 
-/**
- * The thresholds that colour a series (those written in its unit), from the lowest up, each with the value the next
- * one starts at (none above the highest).
- */
-const thresholdsOf = (
-  spec: ChartSpec,
-  index: number,
-): Array<Threshold & { readonly next: number | null }> => {
+/** The stretches of the scale that colour a series: those written in its unit. */
+const thresholdsOf = (spec: ChartSpec, index: number): readonly ThresholdBand[] => {
   const unit = spec.series[index]?.unit;
-  const sorted = [...(spec.thresholds ?? [])]
-    .filter(
-      (t) =>
-        Number.isFinite(t.value) && (t.unit === undefined || unit === undefined || t.unit === unit),
-    )
-    .sort((a, b) => a.value - b.value);
-  return sorted.map((t, i) => ({ ...t, next: sorted[i + 1]?.value ?? null }));
+  return (spec.thresholds ?? []).filter(
+    (t) => t.unit === undefined || unit === undefined || t.unit === unit,
+  );
 };
 
-/** The threshold a series' value falls in (the highest it reaches), none under the lowest: a bar's colour. */
-const thresholdAt = (spec: ChartSpec, index: number, value: number): Threshold | undefined =>
-  thresholdsOf(spec, index)
-    .filter((t) => value >= t.value)
-    .pop();
+/** The stretch a series' value falls in (from its start, short of its end), none outside them: a bar's colour. */
+const thresholdAt = (spec: ChartSpec, index: number, value: number): ThresholdBand | undefined =>
+  thresholdsOf(spec, index).find(
+    (t) => (t.from === null || value >= t.from) && (t.to === null || value < t.to),
+  );
+
+/** The stretch a line's mark at `y` stands in (a higher value is higher on the plot): the colour its end is read in. */
+const thresholdAtY = (
+  spec: ChartSpec,
+  laid: Laid,
+  index: number,
+  y: number,
+): ThresholdBand | undefined => {
+  const scale = laid.scales[index] as Scale;
+  return thresholdsOf(spec, index).find(
+    (t) =>
+      (t.from === null || y <= yOf(t.from, scale, laid.box)) &&
+      (t.to === null || y > yOf(t.to, scale, laid.box)),
+  );
+};
+
+/** A stretch's paint: its colour's, or the person's colour on its `data-accent`. */
+const bandPaint = (t: ThresholdBand, content: unknown, clip?: string): SVGTemplateResult =>
+  painted(seriesPaint(t.colour), content, t.accent, clip);
 
 /**
- * A line again in each threshold's ink, clipped to its stretch of the scale (from its value up to the next one's):
- * where the readings cross a threshold the line changes colour, curve and all. The forecast keeps its dashes.
+ * A line again in each stretch's ink, clipped to it (`ThresholdBand`): where the readings cross an end the line
+ * changes colour, curve and all. The forecast keeps its dashes.
  */
 function thresholdRuns(
   spec: ChartSpec,
@@ -441,18 +450,20 @@ function thresholdRuns(
   const width = spec.style.line;
   return svg`${thresholds.map((t, k) => {
     const id = `${spec.id}-run-${index}-${k}`;
-    // a higher value is higher on the plot: the stretch runs from the next threshold's y down to this one's
-    const top = t.next === null ? 0 : Math.max(0, yOf(t.next, scale, laid.box));
-    const bottom = Math.min(spec.frame.height, yOf(t.value, scale, laid.box));
+    // a higher value is higher on the plot: the stretch runs from its end's y down to its start's
+    const top = t.to === null ? 0 : Math.max(0, yOf(t.to, scale, laid.box));
+    const bottom =
+      t.from === null
+        ? spec.frame.height
+        : Math.min(spec.frame.height, yOf(t.from, scale, laid.box));
     if (!(bottom > top)) return nothing;
-    return svg`<defs><clipPath id=${id}><rect x="0" y=${px(top)} width=${spec.frame.width} height=${px(bottom - top)} /></clipPath></defs>${painted(
-      seriesPaint(t.colour),
+    return svg`<defs><clipPath id=${id}><rect x="0" y=${px(top)} width=${spec.frame.width} height=${px(bottom - top)} /></clipPath></defs>${bandPaint(
+      t,
       svg`${paths.line ? svg`<path class="${paths.lineClass} fc-run" d=${paths.line} stroke-width=${width} pathLength="1" />` : nothing}${
         paths.forecast
           ? svg`<path class="fc-future fc-run" d=${paths.forecast} stroke-width=${width} />`
           : nothing
       }`,
-      undefined,
       id,
     )}`;
   })}`;
@@ -548,9 +559,9 @@ function barsBody(spec: ChartSpec, laid: Laid, drawn: readonly Column[]): SVGTem
     // the slot still running reads so far: paler than a whole one, never hollow (it has readings)
     const soFar = spec.series[c.series]?.soFar === true && c.slot === laid.count - 1;
     const bar = svg`<path class="fc-bar ${hollow ? 'fc-bar--hollow' : quiet ? 'fc-bar--quiet' : ''} ${soFar ? 'fc-bar--sofar' : ''} ${c.sign < 0 ? 'fc-bar--hanging' : ''}" d=${c.d} fill=${style.bars === 'gradient' && !hollow ? `url(#${gradient})` : nothing} style=${`animation-delay:${c.slot * 18}ms`} />`;
-    // a bar over a threshold wears its ink
+    // a bar in a threshold's stretch wears its ink
     const over = thresholdAt(spec, c.series, c.value);
-    return over ? painted(seriesPaint(over.colour), bar) : group(spec, c.series, bar);
+    return over ? bandPaint(over, bar) : group(spec, c.series, bar);
   })}`;
 }
 
@@ -748,9 +759,18 @@ export function drawChart(spec: ChartSpec): TemplateResult {
       }
     if (y === null || !(scrubbed || (style.points !== 'none' && !(knobAtNow && index === 0))))
       return dots;
+    // a line's end in a threshold's stretch wears its ink, as the line there does
+    const band = thresholdAtY(spec, laid, index, y);
     if (style.end === 'knob')
-      knobs.push(knob(at, y, paintOf(spec, index), spec.series[index]?.accent));
-    else dots.push(dot(at, y));
+      knobs.push(
+        knob(
+          at,
+          y,
+          band ? seriesPaint(band.colour) : paintOf(spec, index),
+          band ? band.accent : spec.series[index]?.accent,
+        ),
+      );
+    else dots.push(band ? bandPaint(band, dot(at, y)) : dot(at, y));
     return dots;
   };
   // a series is one group: its body clipped to the plot, then its marks; the cursor lies under them — inside a lone

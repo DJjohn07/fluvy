@@ -636,7 +636,14 @@
     "names_full": "Vollständiger Name",
     "names_entity": "Entitätsname",
     "names_device": "Gerätename",
-    "names_helper": "Wo kein eigener Name festgelegt ist"
+    "names_helper": "Wo kein eigener Name festgelegt ist",
+    "thresholds": "Schwellenwerte",
+    "thresholds_helper": "Ein Messwert nimmt die Farbe des nächsten Schwellenwerts an, den er überschreitet",
+    "threshold_value": "Wert",
+    "threshold_helper": "Eine Zahl, eine Entität oder ein Template",
+    "below": "Unter dem Wert",
+    "below_helper": "Aus: ab dem Wert aufwärts",
+    "past_threshold": "Jenseits eines Schwellenwerts"
   },
   "strategy": {
     "home": "Zuhause",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "Fläche",
     "editor.span": "Zeitraum",
     "editor.span_helper": "24h, today, today+tomorrow, 7d oder beliebig 12h oder 3d",
-    "editor.thresholds": "Schwellenwerte",
-    "editor.threshold_value": "Ab",
-    "editor.threshold_helper": "Die Linie nimmt diese Farbe ab diesem Wert an, bis zur nächsten Schwelle",
     "editor.color_helper": "Leer: die Farbe der Karte, bei mehreren die Reihenfarben der Palette. Palettenfarben passen sich an; ein Farbname oder #Hex-Wert bleibt wie eingegeben",
     "editor.highlight_hours": "Hervorgehobene Stunden",
     "editor.show_legend": "Legende anzeigen",

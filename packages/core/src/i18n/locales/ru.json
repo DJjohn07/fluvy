@@ -1675,9 +1675,6 @@
     "editor.kind_area": "Область",
     "editor.span": "Диапазон",
     "editor.span_helper": "24h, today, today+tomorrow, 7d или любое значение вида 12h или 3d",
-    "editor.thresholds": "Пороги",
-    "editor.threshold_value": "От",
-    "editor.threshold_helper": "Линия принимает этот цвет начиная с этого значения и до следующего порога",
     "editor.color_helper": "Пусто: цвет карточки, а для нескольких рядов — цвета рядов из палитры. Цвета палитры меняются вместе с ней; название цвета или #hex остаётся как введено",
     "editor.highlight_hours": "Длина выделения (ч)",
     "editor.show_legend": "Показывать легенду",
@@ -2059,7 +2056,14 @@
     "names_full": "Полное название",
     "names_entity": "Название объекта",
     "names_device": "Название устройства",
-    "names_helper": "Там, где своё название не задано"
+    "names_helper": "Там, где своё название не задано",
+    "thresholds": "Пороги",
+    "thresholds_helper": "Показание принимает цвет ближайшего пройденного порога",
+    "threshold_value": "Значение",
+    "threshold_helper": "Число, объект или шаблон",
+    "below": "Ниже значения",
+    "below_helper": "Выключено: от значения и выше",
+    "past_threshold": "За порогом"
   },
   "energy-period-card": {
     "name": "Период энергии",

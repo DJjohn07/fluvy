@@ -10,6 +10,8 @@ import { HEAD_BASE } from '../shared/base.js';
 import { chartEngine } from '../shared/chart-load.js';
 import {
   actionFields,
+  BAND_TINT,
+  bandTintFields,
   boolField,
   colourFields,
   editorLabels,
@@ -29,10 +31,11 @@ import {
   selectField,
   headFields,
   textField,
+  thresholdsList,
   unitChoicesOf,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
-import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
+import type { EditorChoices, EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { toBase } from '../shared/units.js';
 import { dialOf, GAUGE_STATS, GAUGE_VARIANTS, type GaugeCardConfig } from './gauge-card.js';
 
@@ -57,7 +60,13 @@ export const keys = configKeys<GaugeCardConfig>()([
   'decimals',
   'gauge',
   'animate',
+  'thresholds',
+  'tint',
+  'tint_style',
 ]);
+
+/** Its thresholds, item by item (1.22, #204). */
+export const lists: readonly RowsListSpec[] = [thresholdsList({ tint: true })];
 
 type Data = Readonly<Record<string, unknown>>;
 
@@ -90,6 +99,7 @@ export const defaults: EditorDefaults = (config, hass) => ({
   show_stats: true,
   stats: [...GAUGE_STATS],
   ...NUMBER_DEFAULTS,
+  ...BAND_TINT,
 });
 
 /** The units it offers are the sensor's class's; the ring's styles, its controls and the gauges that read it. */
@@ -132,6 +142,9 @@ export function getConfigForm(): LovelaceConfigForm {
           GAUGE_STATS.map((stat) => ({ value: stat, label: editorWord(`common.${stat}`) })),
         ),
       ),
+      // the colours its reading takes past a threshold, and the card's own in them (the rows editor draws the list)
+      { name: 'thresholds', selector: { object: {} } },
+      bandTintFields(),
       numberFields({ when: hasLadder }),
       actionFields({ icon: true }),
     ],

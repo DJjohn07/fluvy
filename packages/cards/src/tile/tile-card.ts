@@ -51,6 +51,7 @@ import { NAME_LINE, twoLines, type NameLines } from '../shared/heights.js';
 import { NAME_MIN } from '../shared/row-end.js';
 import { shorterForms } from '../shared/secondary.js';
 import { changedAt, sinceIds } from '../shared/since.js';
+import type { Band, ThresholdsConfig } from '../shared/thresholds.js';
 import { askedParts, type NumberKeys } from '../shared/units.js';
 import {
   NUMBERS,
@@ -91,8 +92,11 @@ export interface TileReadout extends NumberKeys {
   name?: EntityName;
 }
 
-/** One tile's own settings — the single card's config, or one item of a tiles group. */
-export interface TileItem {
+/**
+ * One tile's own settings — the single card's config, or one item of a tiles group. Past one of its `thresholds` (1.22,
+ * #204) it is lit in that band's colour, as a leak's tile is in the warning's.
+ */
+export interface TileItem extends ThresholdsConfig {
   entity: string;
   name?: EntityName;
   icon?: string;
@@ -205,6 +209,8 @@ export interface TileLook {
   readonly tone: Tone;
   /** Its line is the person's own words: what fits of it ends in an ellipsis as a name does, never left out. */
   readonly words?: boolean;
+  /** The band its reading is in (1.22, #204): it is lit in it (`on`, `tone`), its words leading its line. */
+  readonly band?: Band | undefined;
 }
 
 /** What a thermostat's tile says of what it is doing: its line, and what the line gives way to (`doingLine`). */
@@ -821,16 +827,21 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     );
   }
 
-  /** What the tile shows of its entity: its name, its icon, its skin; `lit`, whether the entity is on. */
+  /**
+   * What the tile shows of its entity: its name, its icon, its skin; `lit`, whether the entity is on. A reading past a
+   * threshold lights it in the band's colour, the band's icon in its circle.
+   */
   protected look(item: TileItem, view: EntityView, lit: boolean): TileLook {
     const name = this.nameFor(view, item.name);
+    const band = isUsable(view) ? this.band(item, view) : undefined;
     return {
       name,
       label: name,
-      glyph: iconOf(view, item.icon),
+      glyph: iconOf(view, band?.icon ?? item.icon),
       usable: isUsable(view),
-      on: lit,
-      tone: statusToneOf(item, toneFor(view)),
+      on: lit || band !== undefined,
+      tone: band?.tone ?? statusToneOf(item, toneFor(view)),
+      band,
     };
   }
 
@@ -898,6 +909,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       on,
       tone: kindTone,
       words,
+      band,
     } = this.look(item, view, lit);
     // a light wears what the rule every light follows says (`lightLook`: in a group, the card's colour and tone come
     // after its bulb's); anything else its own colour, else its look's tone (a warning stays one)
@@ -909,8 +921,10 @@ export class FluvyTileCard extends Card<TileCardConfig> {
             usable ? this.glow(view, on) : undefined,
           )
         : ([item.color, kindTone] as const);
-    // its colour sits on its article, where the card's own (written by the base) is not already it
-    const accent = this.accents.item(colour === this.config?.color ? undefined : colour);
+    // its colour sits on its article, where the card's own (written by the base) is not already it; a band's own colour
+    // is the band's
+    const accent =
+      band?.accent ?? this.accents.item(colour === this.config?.color ? undefined : colour);
     const canToggle = TOGGLE_DOMAINS.has(view.domain);
     const shows = switchOf(item, this.config);
     // asked for a wall rocker where it shows its switch (`switch_style`, #177), a tile switches and nothing more: no
@@ -927,8 +941,15 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     const figure = level && !words && this.keepsFigure(view) ? level.text : undefined;
     const told = this.doing(item, view);
     const sensorLike = view.domain === 'sensor' || view.domain === 'binary_sensor' || !canToggle;
-    const iconTone =
-      currentTone(view, on ? tone : 'accent') === 'neutral' ? 'accent' : on ? tone : 'accent';
+    const iconTone = band
+      ? tone
+      : currentTone(view, on ? tone : 'accent') === 'neutral'
+        ? 'accent'
+        : on
+          ? tone
+          : 'accent';
+    // the band's words lead its line ("High · 241 V"), giving way to the reading they lead where it is short
+    const banded = (line: string): string => (band?.label ? `${band.label} · ${line}` : line);
     // a tile keeps its colour at rest when the card asks (`tint: always`): one with a colour (its own, the card's)
     // that colour's rest wash and the fill's hairline, any other its tone's, as a light card's at rest — never a
     // status's: a shut door or a clear smoke alarm at rest is not a warning (`washesAtRest`)
@@ -978,8 +999,16 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         runs(item.tap_action ?? (usable && canToggle && !plated ? TOGGLE : MORE_INFO)),
         doubleNow,
       );
-      const own = told?.line ?? this.tileLine(item, view, lit, level, false, true);
-      const fit: LineFit = { dash: !usable, inside, words, figure, plated, forms: told?.forms };
+      const said = told?.line ?? this.tileLine(item, view, lit, level, false, true);
+      const own = banded(said);
+      const fit: LineFit = {
+        dash: !usable,
+        inside,
+        words,
+        figure: band?.label ? said : figure,
+        plated,
+        forms: told?.forms,
+      };
       const readings = this.readings(item, name);
       // a compact tile asked to stand its readouts at its row's end (`readouts_layout`) draws as many as hold there
       // as columns, and its line says the rest; any other small tile's line says the first, or every one where it is
@@ -1044,7 +1073,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     const switchApart =
       switches && shows === true && inner >= (rocker ? HEAD_LEAD + PLATE : HEAD_ROOM);
     const lead = circle(usable && switches && !switchApart);
-    const line = told?.line ?? this.tileLine(item, view, lit, level, valueInHead);
+    const line = banded(told?.line ?? this.tileLine(item, view, lit, level, valueInHead));
     // its level's figure in the switch's place (`show_switch: value`): the one its line ends in ("On · 70 %") goes up
     // to the head's end, as a sensor's reading stands there, and the line keeps the state alone — where the scale's
     // widest figure holds beside the circle, so a level never moves its figure from one to the other

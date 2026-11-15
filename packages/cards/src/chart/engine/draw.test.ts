@@ -278,8 +278,8 @@ describe('a chart of its series’ own (the Chart card’s)', () => {
 
   it('draws a line again in each threshold’s ink, clipped from its value up to the next one’s', () => {
     const thresholds = [
-      { value: 0.25, colour: 'danger' as const },
-      { value: 0.15, colour: 'warning' as const },
+      { from: 0.15, to: 0.25, colour: 'warning' as const },
+      { from: 0.25, to: null, colour: 'danger' as const },
     ];
     const drawing = host(drawChart(scaled('soft', { thresholds })));
     const line = drawing.querySelector('.fc-line:not(.fc-run)')?.getAttribute('d');
@@ -300,9 +300,51 @@ describe('a chart of its series’ own (the Chart card’s)', () => {
     for (const run of runs) expect(run.closest(`g[clip-path="url(#c-clip)"]`)).not.toBeNull();
   });
 
+  it('colours a stretch under a value, and one in a colour of the person’s own on its data-accent (#204)', () => {
+    const drawing = host(
+      drawChart(
+        scaled('soft', {
+          thresholds: [
+            { from: null, to: 0.15, colour: 'danger' },
+            { from: 0.25, to: null, colour: 'accent', accent: '#ff8800' },
+          ],
+        }),
+      ),
+    );
+    const runs = [...drawing.querySelectorAll('g[clip-path] > .fc-run')].map(
+      (run) => run.parentElement,
+    );
+    expect(runs.map((run) => run?.getAttribute('class'))).toEqual([
+      'fv-tone--danger',
+      'fv-tone--accent',
+    ]);
+    expect(runs[1]?.getAttribute('data-accent')).toBe('#ff8800');
+    const rect = drawing.querySelector('clipPath#c-run-0-0 rect') as Element;
+    const y = 44 + (1 - 0.15 / 0.4) * (120 - 44 - 8);
+    // under 0.15: from its line down to the foot of the frame
+    expect(Number(rect.getAttribute('y'))).toBeCloseTo(y, 2);
+    expect(Number(rect.getAttribute('height'))).toBeCloseTo(120 - y, 2);
+    // a line's end in a stretch wears its ink as the line there does; outside every stretch, its own
+    const end = (from: number) =>
+      host(drawChart(scaled('classic', { thresholds: [{ from, to: null, colour: 'danger' }] })))
+        .querySelector('.curve-dot')
+        ?.parentElement?.getAttribute('class');
+    expect(end(0.05)).toBe('fv-tone--danger');
+    expect(end(0.2)).not.toBe('fv-tone--danger');
+    // a bar under it wears its ink
+    const bars = host(
+      drawChart(scaled('bars', { thresholds: [{ from: null, to: 0.11, colour: 'danger' }] })),
+    );
+    expect(
+      [...bars.querySelectorAll('.fc-bar')].filter(
+        (bar) => bar.parentElement?.getAttribute('class') === 'fv-tone--danger',
+      ).length,
+    ).toBe(2);
+  });
+
   it('keeps a bar over a threshold in its ink, the rest in the series’', () => {
     const drawing = host(
-      drawChart(scaled('bars', { thresholds: [{ value: 0.25, colour: 'danger' }] })),
+      drawChart(scaled('bars', { thresholds: [{ from: 0.25, to: null, colour: 'danger' }] })),
     );
     const tones = [...drawing.querySelectorAll('.fc-bar')].map(
       (bar) => bar.parentElement?.getAttribute('class') ?? '',
@@ -373,7 +415,7 @@ describe('series in several units', () => {
   };
 
   it('one unit: the very drawing it was without one, in every style', () => {
-    const thresholds = [{ value: 20, colour: 'danger' as const }];
+    const thresholds = [{ from: 20, to: null, colour: 'danger' as const }];
     for (const preset of [
       'classic',
       'soft',
@@ -429,7 +471,10 @@ describe('series in several units', () => {
     ];
     const lines = host(
       drawChart(
-        spec('soft', { series, thresholds: [{ value: 0.25, colour: 'danger', unit: '€/kWh' }] }),
+        spec('soft', {
+          series,
+          thresholds: [{ from: 0.25, to: null, colour: 'danger', unit: '€/kWh' }],
+        }),
       ),
     );
     expect(lines.querySelector('#c-run-0-0')).not.toBeNull();

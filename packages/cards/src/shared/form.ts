@@ -1308,6 +1308,133 @@ export const readoutsField = (): HaFormSchemaItem => {
   };
 };
 
+/** A threshold's tone (1.22, #204): the palette's, or None — what it claims is then drawn as past none (a band ends). */
+const thresholdTone = (): HaFormSchemaItem => ({
+  name: 'tone',
+  selector: {
+    select: {
+      mode: 'dropdown',
+      options: [...optionChoices(['none']), ...toneSelector().select.options],
+    },
+  },
+});
+
+/**
+ * A threshold's own fields beside its tone: its value — a figure, an entity or a template, typed, the words under it
+ * saying so — and whether it colours under it rather than from it up; a colour of its own in its tone's place; what
+ * its band is called beside its icon, which say it where colour alone would not.
+ */
+const THRESHOLD_FIELDS: readonly HaFormSchemaItem[] = [
+  { name: 'value', required: true, selector: { text: {} } },
+  boolField('below'),
+  accentField('color', { item: 'own' }),
+  fieldRow(textField('label'), iconField()),
+];
+
+const THRESHOLD_LABELS = formLabels({ value: 'editor.threshold_value' });
+
+/**
+ * A card's thresholds, item by item (1.22, #204: every numeric card's, the Chart card's since 1.11): a tone picked adds
+ * one (a colour of its own keeps it too), its value and the rest in its row; over them, where the card wears its band's
+ * colour (`tint`), its tint (`bandTintFields`). Built as an editor is, in its language.
+ */
+export const thresholdsList = ({ tint = false } = {}): RowsListSpec => ({
+  key: 'thresholds',
+  title: 'editor.thresholds',
+  helper: 'editor.thresholds_helper',
+  idKey: 'tone',
+  also: ['color'],
+  ...(tint ? { fields: ['tint', 'tint_style'] } : {}),
+  picker: thresholdTone(),
+  keys: ['tone', 'value', 'below', 'color', 'label', 'icon'],
+  schema: [thresholdTone(), ...THRESHOLD_FIELDS],
+  computeLabel: THRESHOLD_LABELS.computeLabel,
+  computeHelper: (schema) =>
+    schema.name === 'value'
+      ? editorWord('editor.threshold_helper')
+      : schema.name === 'below'
+        ? editorWord('editor.below_helper')
+        : undefined,
+});
+
+/**
+ * A row's thresholds inside its item's form (1.22, #204: a readout's, a stat tile's, a tile's of a group): Home
+ * Assistant's list of objects, each a threshold's fields, added and edited in its dialog and dragged into order.
+ */
+export const thresholdsField = (): HaFormSchemaItem => ({
+  name: 'thresholds',
+  selector: {
+    object: {
+      multiple: true,
+      label_field: 'value',
+      description_field: 'label',
+      fields: Object.fromEntries(
+        [thresholdTone(), ...THRESHOLD_FIELDS]
+          .flatMap((field) => field.schema ?? [field])
+          .map((field) => [
+            field.name,
+            {
+              selector: field.selector,
+              required: field.required ?? false,
+              label: THRESHOLD_LABELS.computeLabel(field, (key) => key),
+            },
+          ]),
+      ),
+    },
+  },
+});
+
+/** Whether a card or an item names thresholds: what its tint acts on. */
+export const holdsThresholds = ({ thresholds }: Readonly<Record<string, unknown>>): boolean =>
+  Array.isArray(thresholds) && thresholds.length > 0;
+
+/** Whether an item of a card's lists (`keys`) names thresholds: what the card's tint acts on (a stat tile's fill). */
+export const listsHoldThresholds =
+  (...keys: readonly string[]) =>
+  (data: Readonly<Record<string, unknown>>): boolean =>
+    keys.some((key) =>
+      listed(data, key).some(
+        (item) =>
+          typeof item === 'object' &&
+          item !== null &&
+          holdsThresholds(item as Readonly<Record<string, unknown>>),
+      ),
+    );
+
+/**
+ * When a reading's card wears its band's colour (`tint`, 1.22, #204): never (the default), or while its reading is past
+ * a threshold — shown while the card names one (`when`).
+ */
+export const bandTintField = (when = holdsThresholds): HaFormSchemaItem =>
+  onlyWhen(
+    when,
+    choiceField('tint', [
+      ['off', 'option.never'],
+      ['on', 'editor.past_threshold'],
+    ]),
+  );
+
+/**
+ * A reading's card in its band's colour beyond its marks (1.22, #204: `tint`, one design with the device cards'
+ * `tintFields`): never (the default), or while its reading is past a threshold; and as what (`tint_style`: a wash of
+ * it, or its edge) — shown while the card names a threshold, the style while the tint shows, over its thresholds
+ * (`thresholdsList` draws them there).
+ */
+export const bandTintFields = (): HaFormSchemaItem =>
+  fieldRow(
+    bandTintField(),
+    onlyWhen(
+      (data) => holdsThresholds(data) && tints(data),
+      choiceField('tint_style', [
+        ['wash', 'option.wash'],
+        ['edge', 'option.edge'],
+      ]),
+    ),
+  );
+
+/** What a reading's card does where it names no tint (`bandTintFields`): none, whatever the house's devices do. */
+export const BAND_TINT = { tint: 'off', tint_style: 'wash' } as const;
+
 /** The unit of the card's entity as the editor's `when` and `choices` read it: none where the house does not hold it. */
 const unitOf = (
   data: Readonly<Record<string, unknown>>,

@@ -234,6 +234,13 @@
     "names_full": "Full name",
     "names_entity": "Entity name",
     "names_device": "Device name",
-    "names_helper": "Where no name of its own is set"
+    "names_helper": "Where no name of its own is set",
+    "thresholds": "Thresholds",
+    "thresholds_helper": "A reading takes the colour of the nearest threshold it is past",
+    "threshold_value": "Value",
+    "threshold_helper": "A figure, an entity or a template",
+    "below": "Under the value",
+    "below_helper": "Off: from the value up",
+    "past_threshold": "Past a threshold"
   }
 }

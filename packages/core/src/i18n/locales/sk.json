@@ -758,9 +758,6 @@
     "editor.kind_area": "Plocha",
     "editor.span": "Časové okno",
     "editor.span_helper": "24h, today, today+tomorrow, 7d alebo vlastné 12h či 3d",
-    "editor.thresholds": "Prahové hodnoty",
-    "editor.threshold_value": "Od",
-    "editor.threshold_helper": "Čiara získa túto farbu od tejto hodnoty až po ďalší prah",
     "editor.color_helper": "Prázdne: farba karty alebo pri viacerých radoch farby palety. Farby palety sa menia so zvolenou paletou; názov farby či #hex zostanú nezmenené",
     "editor.highlight_hours": "Zvýraznené hodiny",
     "editor.show_legend": "Zobraziť legendu",
@@ -1381,7 +1378,14 @@
     "names_full": "Celý názov",
     "names_entity": "Názov entity",
     "names_device": "Názov zariadenia",
-    "names_helper": "Kde nie je nastavený vlastný názov"
+    "names_helper": "Kde nie je nastavený vlastný názov",
+    "thresholds": "Prahové hodnoty",
+    "thresholds_helper": "Hodnota preberie farbu najbližšej prekročenej prahovej hodnoty",
+    "threshold_value": "Hodnota",
+    "threshold_helper": "Číslo, entita alebo šablóna",
+    "below": "Pod hodnotou",
+    "below_helper": "Vypnuté: od hodnoty nahor",
+    "past_threshold": "Po prekročení prahu"
   },
   "page": {
     "menu": "Otvoriť ponuku",

@@ -378,7 +378,11 @@ describe('the editors offer each where it acts (#197)', () => {
 
   it('the tile’s readouts item by item, and over them how they stand: the end on a compact tile, the line’s with two or more', async () => {
     const two = WASHER.slice(0, 2);
-    expect(listTitles(await tile({ size: 'compact', readouts: two }))).toEqual(['Readouts']);
+    // and its thresholds after them (1.22, #204)
+    expect(listTitles(await tile({ size: 'compact', readouts: two }))).toEqual([
+      'Readouts',
+      'Thresholds',
+    ]);
     expect(head(await tile({ size: 'compact', readouts: two }))).toEqual([
       'readouts_layout',
       'line_readouts',

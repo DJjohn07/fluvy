@@ -3,6 +3,7 @@ import { HEAD_BASE, type BaseKey } from '../shared/base.js';
 import {
   accentField,
   actionFields,
+  bandTintField,
   boolField,
   colourFields,
   editorLabels,
@@ -13,6 +14,7 @@ import {
   holdsDevice,
   iconField,
   idsOnly,
+  listsHoldThresholds,
   nameField,
   nameIconFields,
   namesField,
@@ -22,6 +24,7 @@ import {
   selectField,
   headFields,
   textField,
+  thresholdsField,
   titleFields,
   toneField,
 } from '../shared/form.js';
@@ -52,6 +55,7 @@ export const keys = configKeys<StatTilesCardConfig>()([
   'rows',
   'unit',
   'decimals',
+  'tint',
   ...EMPTY_KEYS,
 ]);
 
@@ -67,6 +71,7 @@ export const lists: readonly RowsListSpec[] = [
       'highlight',
       'unit',
       'decimals',
+      'thresholds',
       'tap_action',
       'hold_action',
       'double_tap_action',
@@ -76,6 +81,8 @@ export const lists: readonly RowsListSpec[] = [
       nameIconFields(),
       fieldRow(toneField(), boolField('highlight')),
       numberFields(),
+      // a tile's figure and glyph past a threshold take its colour (1.22, #204)
+      thresholdsField(),
       actionFields({ hold: 'none' }),
     ],
   },
@@ -89,6 +96,7 @@ export const lists: readonly RowsListSpec[] = [
       'secondary',
       'tone',
       'color',
+      'thresholds',
       'tap_action',
       'hold_action',
       'double_tap_action',
@@ -98,6 +106,7 @@ export const lists: readonly RowsListSpec[] = [
       nameIconFields(),
       textField('secondary'),
       fieldRow(toneField(), accentField('color', { item: 'own' })),
+      thresholdsField(),
       actionFields(),
     ],
   },
@@ -107,6 +116,7 @@ export const lists: readonly RowsListSpec[] = [
 export const defaults: EditorDefaults = (config) => ({
   variant: 'full',
   columns: config.variant === 'compact' ? 'auto' : '2',
+  tint: 'off',
   ...NUMBER_DEFAULTS,
 });
 
@@ -129,6 +139,8 @@ export function getConfigForm(): LovelaceConfigForm {
         namesField(),
       ),
       emptyFields(),
+      // a tile past a threshold fills in its colour, where a tile names one
+      bandTintField(listsHoldThresholds('tiles')),
       numberFields(),
       actionFields({ icon: true }),
     ],

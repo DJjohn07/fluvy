@@ -636,7 +636,14 @@
     "names_full": "Nome completo",
     "names_entity": "Nome da entidade",
     "names_device": "Nome do dispositivo",
-    "names_helper": "Onde não há um nome próprio definido"
+    "names_helper": "Onde não há um nome próprio definido",
+    "thresholds": "Limites",
+    "thresholds_helper": "Uma leitura assume a cor do limite mais próximo que ultrapassou",
+    "threshold_value": "Valor",
+    "threshold_helper": "Um número, uma entidade ou um modelo",
+    "below": "Abaixo do valor",
+    "below_helper": "Desligado, do valor para cima",
+    "past_threshold": "Ao passar de um limite"
   },
   "strategy": {
     "home": "Início",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "Área",
     "editor.span": "Período",
     "editor.span_helper": "24h, today, today+tomorrow, 7d, ou qualquer 12h ou 3d",
-    "editor.thresholds": "Limites",
-    "editor.threshold_value": "A partir de",
-    "editor.threshold_helper": "A linha ganha esta cor a partir deste valor, até o próximo limite",
     "editor.color_helper": "Vazio, a cor do cartão, ou as cores das séries da paleta quando há várias. As cores da paleta a acompanham; um nome de cor ou um #hex fica como foi digitado",
     "editor.highlight_hours": "Horas para destacar",
     "editor.show_legend": "Mostrar a legenda",

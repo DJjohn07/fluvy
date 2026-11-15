@@ -60,7 +60,7 @@ export type {
   Curve,
   SeriesColour,
   Stretch,
-  Threshold,
+  ThresholdBand,
   Window,
 } from './model.js';
 export { bucket, readingsOf, type BucketRule, type Readings } from './model.js';

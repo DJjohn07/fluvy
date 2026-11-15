@@ -328,14 +328,16 @@ const holdsId = (value: unknown): boolean =>
   (Array.isArray(value) && value.some((v) => typeof v === 'string' && v !== ''));
 
 /**
- * A config entry as an item: a bare id becomes `{ [idKey]: id }`; anything without an id — its `idKey`, or one of
- * the fields that identify it as well (`also`) — is dropped.
+ * A config entry as an item: a bare id becomes `{ [idKey]: id }`; anything without an id — its `idKey` (words, or a
+ * figure: a threshold's value), or one of the fields that identify it as well (`also`) — is dropped.
  */
 export const toItem = (raw: unknown, idKey: string, also: readonly string[] = []): Item | null => {
   if (typeof raw === 'string') return raw ? { [idKey]: raw } : null;
   if (typeof raw !== 'object' || raw === null) return null;
   const item = raw as Item;
-  if (typeof item[idKey] === 'string' || also.some((key) => holdsId(item[key]))) return item;
+  const id = item[idKey];
+  if (typeof id === 'string' || Number.isFinite(id) || also.some((key) => holdsId(item[key])))
+    return item;
   return null;
 };
 
@@ -360,23 +362,32 @@ export const compact = (item: Item, idKey: string): Entry => {
     : Object.fromEntries(keys.map((key) => [key, item[key]]));
 };
 
-/** A list inside an item's form: its field's name, and the selects of its entries' own fields (`selectsOf`). */
-type InnerList = readonly [string, ReadonlyMap<string, readonly unknown[]>];
+/**
+ * A list inside an item's form: its field's name, the selects of its entries' own fields (`selectsOf`), and the field
+ * that names an entry (its list's `label_field`: a readout's sensor, a threshold's value).
+ */
+type InnerList = readonly [string, ReadonlyMap<string, readonly unknown[]>, string];
 
 /**
- * The fields of an item's form that hold a list of their own (a tile's readouts), which Home Assistant's list of
- * objects edits entry by entry (`multiple`, with `fields`), through the form's rows.
+ * The fields of an item's form that hold a list of their own (a tile's readouts, a row's thresholds), which Home
+ * Assistant's list of objects edits entry by entry (`multiple`, with `fields`), through the form's rows.
  */
 const innerLists = (schema: readonly HaFormSchemaItem[]): InnerList[] =>
   schema.flatMap((item): InnerList[] => {
     if (item.schema) return innerLists(item.schema);
     const object = item.selector?.['object'] as
-      { multiple?: boolean; fields?: Readonly<Record<string, HaFormSchemaItem>> } | undefined;
+      | {
+          multiple?: boolean;
+          label_field?: string;
+          fields?: Readonly<Record<string, HaFormSchemaItem>>;
+        }
+      | undefined;
     return object?.multiple && object.fields
       ? [
           [
             item.name,
             selectsOf(Object.entries(object.fields).map(([name, field]) => ({ ...field, name }))),
+            object.label_field ?? 'entity',
           ],
         ]
       : [];
@@ -392,7 +403,11 @@ const inner = new WeakMap<RowsListSpec, readonly InnerList[]>();
 const withInner = (
   item: Item,
   list: RowsListSpec,
-  each: (entry: unknown, selects: ReadonlyMap<string, readonly unknown[]>) => unknown,
+  each: (
+    entry: unknown,
+    selects: ReadonlyMap<string, readonly unknown[]>,
+    idKey: string,
+  ) => unknown,
 ): Item => {
   let lists = inner.get(list);
   if (!lists) inner.set(list, (lists = innerLists(list.schema)));
@@ -401,10 +416,10 @@ const withInner = (
     ? {
         ...item,
         ...Object.fromEntries(
-          held.map(([name, selects]) => [
+          held.map(([name, selects, idKey]) => [
             name,
             (item[name] as unknown[])
-              .map((entry) => each(entry, selects))
+              .map((entry) => each(entry, selects, idKey))
               .filter((entry) => entry !== null),
           ]),
         ),
@@ -442,8 +457,8 @@ export const itemOf = (raw: unknown, list: RowsListSpec): Item | null => {
     : (toItem(raw, idKeyOf(list), list.also) ?? (list.sections ? sectionItem(raw) : null));
   return (
     item &&
-    withInner(item, list, (entry, selects) => {
-      const own = toItem(entry, 'entity');
+    withInner(item, list, (entry, selects, idKey) => {
+      const own = toItem(entry, idKey);
       return own && worded(own, selects);
     })
   );
@@ -464,8 +479,8 @@ export const entryOf = (item: Item, list: RowsListSpec): Entry | null =>
           ...(item['line'] === true ? { line: true } : {}),
         }
       : compact(
-          withInner(item, list, (entry) =>
-            typeof entry === 'object' && entry !== null ? compact(entry as Item, 'entity') : entry,
+          withInner(item, list, (entry, _selects, idKey) =>
+            typeof entry === 'object' && entry !== null ? compact(entry as Item, idKey) : entry,
           ),
           idKeyOf(list),
         );

@@ -36,13 +36,14 @@ import { withMembers } from '../shared/light.js';
 
 /**
  * The group's options are a tile's (its size, its tint, its lights' colours, how its tiles' readouts stand), but
- * where a tile's last change is read from (`since`) and its readouts are each tile's own: the group has none. Its
+ * where a tile's last change is read from (`since`), its readouts and its thresholds are each tile's own: the group
+ * has none. Its
  * tiles may stand in groups, each under a quiet label (`Grouped`, #189): its own sections, or the house's rooms or
  * floors.
  */
 export interface TilesCardConfig
   extends
-    Pick<TileCardConfig, Exclude<KnownKeys<TileCardConfig>, 'since' | 'readouts'>>,
+    Pick<TileCardConfig, Exclude<KnownKeys<TileCardConfig>, 'since' | 'readouts' | 'thresholds'>>,
     FluvyCardConfig,
     EmptyList,
     Grouped {

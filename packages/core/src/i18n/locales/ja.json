@@ -586,7 +586,14 @@
     "names_full": "完全な名前",
     "names_entity": "エンティティ名",
     "names_device": "デバイス名",
-    "names_helper": "個別の名前がない項目に使います"
+    "names_helper": "個別の名前がない項目に使います",
+    "thresholds": "しきい値",
+    "thresholds_helper": "測定値は、超えたしきい値のうち最も近いものの色になります",
+    "threshold_value": "値",
+    "threshold_helper": "数値、エンティティ、またはテンプレート",
+    "below": "値より下",
+    "below_helper": "オフのときは値から上",
+    "past_threshold": "しきい値を超えたとき"
   },
   "strategy": {
     "home": "ホーム",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "面",
     "editor.span": "期間",
     "editor.span_helper": "24h、today、today+tomorrow、7d、または12hや3dのような任意の期間",
-    "editor.thresholds": "しきい値",
-    "editor.threshold_value": "開始値",
-    "editor.threshold_helper": "この値から次のしきい値まで、線がこの色になります",
     "editor.color_helper": "空のときはカードの色、複数のときはパレットの系列の色。パレットの色はパレットに連動し、色名や#hexは入力したまま使われます",
     "editor.highlight_hours": "ハイライトする時間",
     "editor.show_legend": "凡例を表示",

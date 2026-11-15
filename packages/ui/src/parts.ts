@@ -267,6 +267,8 @@ export interface ReadoutOptions {
   readonly glyph?: string | null | undefined;
   /** The unit attaches to its figure whatever it is written in (a degree sign alone: "21.4°"). */
   readonly tight?: boolean | undefined;
+  /** Its figure's `data-ink`: said in the colour of the band its reading is in (1.22, #204), its unit as it is. */
+  readonly ink?: string | undefined;
 }
 
 /** A unit written in kana or kanji (時間, 分, 本): Japanese attaches a counter to its figure, where English keeps a space. */
@@ -278,6 +280,30 @@ export const attachedUnit = (unit: string): boolean => CJK_UNIT.test(unit);
 /** A readout's unit in its slot: 4 px from its figure, or attached (`tight`) as a kana or kanji word is. */
 export const unitSpan = (unit: string, tight = attachedUnit(unit)): TemplateResult =>
   html`<span class="fv-unit${tight ? ' fv-unit--tight' : ''}">${unit}</span>`;
+
+/** What a band says beside its colour (1.22, #204): its words, and its icon where no circle of the reading's takes it. */
+export interface BandWords {
+  readonly label?: string | undefined;
+  readonly icon?: string | undefined;
+}
+
+/**
+ * A name with what the band its reading is in says (1.22, #204: "Grid voltage · High"), so colour is never all that
+ * says it: its icon before the name, its words after it; the name gives way to them, ending in an ellipsis, and they
+ * stay whole.
+ */
+export const banded = (
+  name: string | TemplateResult,
+  band: BandWords | undefined,
+): string | TemplateResult =>
+  band?.label || band?.icon
+    ? html`<span class="fv-banded"
+        >${band.icon ? html`<span class="fv-banded__icon">${icon(band.icon)}</span>` : nothing}<span
+          class="fv-banded__name"
+          >${name}</span
+        >${band.label ? html`<span class="fv-banded__words">${`\u00a0· ${band.label}`}</span>` : nothing}</span
+      >`
+    : name;
 
 /** A label's words read out, not shown: where an icon stands for them, or nothing does. */
 const said = (label: string | TemplateResult): TemplateResult =>
@@ -292,7 +318,7 @@ export function readout(o: ReadoutOptions): TemplateResult {
         : html`<p class="fv-readout__label fv-readout__label--icon">
             ${icon(o.glyph)}${said(o.label)}
           </p>`;
-  return html`<div class="fv-readout fv-readout--${o.size ?? 'm'}">
+  return html`<div class="fv-readout fv-readout--${o.size ?? 'm'}" data-ink=${o.ink ?? nothing}>
     ${label}
     <p class="fv-readout__value">
       <span>${o.value}</span
@@ -406,6 +432,13 @@ export interface OptionItem {
   readonly onTap?: (() => void) | undefined;
   /** A figure's still press of 500 ms (or the keyboard's menu key); the click that follows is swallowed. */
   readonly onHold?: (() => void) | undefined;
+  /**
+   * A figure past a threshold (1.22, #204): its glyph and value in the band's colour (`data-ink`, as a readout's), a
+   * colour of the person's own on its `data-accent`, and the band's words after its label (`banded`).
+   */
+  readonly ink?: string | undefined;
+  readonly accent?: string | undefined;
+  readonly band?: string | undefined;
 }
 
 /** Up to three tiles share a row; four make a 2 × 2; more wrap in threes — a tile never gets too narrow for its value. */
@@ -456,23 +489,35 @@ export function options(
   >
     ${items.map((o, index) => {
       // a figure that can be read and has a tap or a hold of its own is pressed as a tile is: a button laid over it,
-      // read as what it says ("Output · 3.2 kW")
+      // read as what it says ("Output · 3.2 kW", "Phone · 12 % · Low")
       const cover =
         stat && !o.unavailable && (o.onTap ?? o.onHold)
-          ? pressCover(`${o.label} · ${o.value ?? ''}`, o.onTap, o.onHold)
+          ? pressCover(
+              [o.label, o.value ?? '', ...(o.band ? [o.band] : [])].join(' · '),
+              o.onTap,
+              o.onHold,
+            )
           : nothing;
       const cls = `fv-option ${stat ? 'fv-option--stat ' : ''}${cover === nothing ? '' : 'fv-tile--tap '}${compact ? 'fv-option--compact ' : ''}${o.unavailable ? 'is-unavailable ' : ''}${o.active ? `is-active fv-option--${o.tone ?? 'accent'}` : ''}`;
       const body = html`${compact ? nothing : html`<span class="fv-option__glyph">${icon(o.glyph)}</span>`}<span
           class="fv-option__label"
           data-name=${o.name ? '' : nothing}
-          >${o.label}</span
+          >${banded(o.label, { label: o.band })}</span
         ><span class="fv-option__value ${o.word ? 'fv-option__value--word' : ''}"
           >${o.value ?? ''}</span
         >`;
       // a minimum, not a height: a tile whose value takes two lines grows, and its row grows with it
       const style = `min-height:${height}px${grid.spans[index] === 1 ? '' : `;grid-column:span ${grid.spans[index]}`}`;
       return stat
-        ? html`<div class=${cls} data-card style=${style}>${body}${cover}</div>`
+        ? html`<div
+            class=${cls}
+            data-card
+            data-ink=${o.ink ?? nothing}
+            data-accent=${o.accent ?? nothing}
+            style=${style}
+          >
+            ${body}${cover}
+          </div>`
         : html`<button
             class=${cls}
             data-target
@@ -639,6 +684,8 @@ export interface ListRowOptions {
   /** The sub line in the warning ink: a fold that hides an alert says so in its tone. */
   readonly subTone?: 'warning' | '';
   readonly valueTone?: 'warning' | '';
+  /** The value's `data-ink`: said in the colour of the band its reading is in (1.22, #204). */
+  readonly valueInk?: string | undefined;
   readonly switchTone?: Tone;
   readonly unavailable?: boolean;
   /** Shown as it is but not changeable here (someone who may only look): full strength, a switch that does not move. */
@@ -703,6 +750,7 @@ export function listRow(o: ListRowOptions): TemplateResult {
           ? html`<span
               class="fv-row__value ${o.valueTone ? `fv-row__value--${o.valueTone}` : ''} ${o.quiet ? 'fv-row__value--quiet' : ''} ${o.valueGlyph ? 'fv-row__value--glyph' : ''} ${wordsClass(o.value)} ${o.valueWidth ? 'fv-row__value--wrap' : ''} ${o.valueSize ? `fv-row__value--${o.valueSize}` : ''}"
               style=${o.valueWidth ? `width:${o.valueWidth}px` : nothing}
+              data-ink=${o.valueInk ?? nothing}
               >${o.valueGlyph ? icon(o.valueGlyph) : nothing}${o.value ?? ''}</span
             >`
           : trailing === 'chevron'

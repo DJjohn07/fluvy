@@ -33,6 +33,7 @@ import {
   sliderFields,
   switches,
   switchStyleField,
+  thresholdsList,
   tintField,
   unitChoices,
 } from '../shared/form.js';
@@ -60,6 +61,7 @@ export const keys = configKeys<TileCardConfig>()([
   'line_readouts',
   'readouts_layout',
   'since',
+  'thresholds',
   'tint',
   'light_colors',
   'light_whites',
@@ -123,9 +125,13 @@ export const READOUTS: RowsListSpec = {
   },
 };
 
-/** The readouts where the tile draws them, how they stand over them: at a compact tile's end, on a small one's line. */
+/**
+ * The readouts where the tile draws them, how they stand over them: at a compact tile's end, on a small one's line;
+ * and its thresholds, the tile lit in a band's colour past one (1.22, #204).
+ */
 export const lists: readonly RowsListSpec[] = [
   { ...READOUTS, fields: ['readouts_layout', 'line_readouts'], when: drawsReadouts },
+  thresholdsList(),
 ];
 
 export function getConfigForm(): LovelaceConfigForm {

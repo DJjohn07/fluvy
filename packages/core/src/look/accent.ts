@@ -13,6 +13,7 @@ import {
   splitStatuses,
   surfaceInset,
   surfaceWash,
+  textInk,
   type AccentFamily,
   type Hex,
   type PaletteMode,
@@ -172,7 +173,7 @@ const FULL = 'full ';
 
 /**
  * What a lit surface is lit in on a palette × mode — a colour's family (`#rrggbb`, a white's: `WHITE`) or a tone of the
- * palette's own (`light`: its lit light; a status: `warning`, `danger`, `ok`) — and the names it is drawn by: a
+ * palette's own (`light`: its lit light; a status: `warning`, `danger`, `ok`, `notice`) — and the names it is drawn by: a
  * colour's, the accent's and the lit light's, as its family writes them.
  */
 function litRole(
@@ -189,7 +190,9 @@ function litRole(
       ? [colors.state[state], [`state-${state}`]]
       : status
         ? [colors.semantic[status], [status]]
-        : [colors.accent, ['accent']];
+        : source === 'notice'
+          ? [colors.notice, ['notice']]
+          : [colors.accent, ['accent']];
 }
 
 /**
@@ -212,6 +215,15 @@ export function litCss(
     kept,
     key,
     declarationsCss(full ? litFull(role, colors, level, names) : litSurface(role, colors, level)),
+  );
+}
+
+/** A figure's ink in what it is said in on a palette × mode (`AccentSheet.ink`: `textInk`), kept like the inks. */
+function textOf(paletteKey: string, mode: PaletteMode, source: string): string {
+  const key = `text|${paletteKey}|${mode}|${source}`;
+  return (
+    inks.get(key) ??
+    remember(inks, key, textInk(litRole(paletteKey, mode, source)[0], colorsOf(paletteKey, mode)))
   );
 }
 
@@ -256,6 +268,8 @@ export class AccentSheet {
   private surfaces = new Set<string>();
   /** Each surface that says a tone at its edge alone, by its `data-edge`: what the edge is drawn in. */
   private edges = new Set<string>();
+  /** Each figure said in a tone's words, by its `data-ink` (a reading in its band, 1.22, #204): what it is said in. */
+  private texts = new Set<string>();
   /** What writes a see-through card's sheet (1.15, `look/glass.ts`): none while it is solid. */
   private see: GlassWriter | undefined;
   private written = '';
@@ -290,11 +304,12 @@ export class AccentSheet {
     this.see = writer;
   }
 
-  /** Forgets the items' colours, the lit surfaces and the edges before a render asks for them again. */
+  /** Forgets the items' colours, the lit surfaces, the edges and the figures' inks before a render asks for them again. */
   begin(): void {
     this.items = new Set();
     this.surfaces = new Set();
     this.edges = new Set();
+    this.texts = new Set();
   }
 
   /**
@@ -339,9 +354,11 @@ export class AccentSheet {
         ? colors.state[state].ink
         : status
           ? colors.semantic[status].ink
-          : source === 'accent' || source === PALETTE_ACCENT
-            ? colors.accent.ink
-            : '';
+          : source === 'notice'
+            ? colors.notice.ink
+            : source === 'accent' || source === PALETTE_ACCENT
+              ? colors.accent.ink
+              : '';
     return remember(inks, key, ink) || undefined;
   }
 
@@ -365,6 +382,16 @@ export class AccentSheet {
   }
 
   /**
+   * A figure said in a tone (a reading in the band a threshold names, 1.22, #204): the value for its `data-ink` — a
+   * tone of the palette's or a colour (`litRole`), its ink as the words of a figure (`textInk`, 4.5 on the card, the
+   * page and the tone's own wash) in `--fv-ink`.
+   */
+  ink(source: string): string {
+    this.texts.add(source);
+    return source;
+  }
+
+  /**
    * A lit surface in its light's whole colour, following the lamp (`full_brightness`, 1.17), at `level` (the lamp's
    * share, in 5 % steps): the value for its `data-surface` — none at 100 %, the whole fill, a lit tile's as `full`'s —
    * and whether the card wears the fill's inks there (a lit tile's skin) or its own (a wash's): the same at a step every
@@ -381,8 +408,8 @@ export class AccentSheet {
 
   /**
    * Writes the sheet: the host's colour and surface on the card's children, each item's on its `data-accent`, then
-   * each lit surface on its `data-surface` (after the host's: a lit card's surface is over its `card_color`) and each
-   * edge's ink on its `data-edge`; a see-through card's through its writer.
+   * each lit surface on its `data-surface` (after the host's: a lit card's surface is over its `card_color`), each
+   * edge's ink on its `data-edge` and each figure's on its `data-ink`; a see-through card's through its writer.
    */
   commit(): void {
     const rules: string[] = [];
@@ -408,6 +435,8 @@ export class AccentSheet {
       const ink = this.inkOf(source);
       if (ink) rules.push(`[data-edge="${source}"]{--fv-edge:${ink}}`);
     }
+    for (const source of this.texts)
+      rules.push(`[data-ink="${source}"]{--fv-ink:${textOf(this.paletteKey, this.mode, source)}}`);
     const own = rules.join('');
     const css = this.see ? this.see(this.paletteKey, this.mode, own) : own;
     if (css === this.written) return;

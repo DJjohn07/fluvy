@@ -1675,9 +1675,6 @@
     "editor.kind_area": "Область",
     "editor.span": "Діапазон",
     "editor.span_helper": "24h, today, today+tomorrow, 7d або будь-яке значення на кшталт 12h чи 3d",
-    "editor.thresholds": "Пороги",
-    "editor.threshold_value": "Від",
-    "editor.threshold_helper": "Лінія має цей колір від цього значення до наступного порога",
     "editor.color_helper": "Порожньо: колір картки, а для кількох рядів — кольори рядів із палітри. Кольори палітри змінюються разом із нею; назва кольору чи #hex лишається, як введено",
     "editor.highlight_hours": "Годин для виділення",
     "editor.show_legend": "Показувати легенду",
@@ -2059,7 +2056,14 @@
     "names_full": "Повна назва",
     "names_entity": "Назва сутності",
     "names_device": "Назва пристрою",
-    "names_helper": "Там, де власну назву не задано"
+    "names_helper": "Там, де власну назву не задано",
+    "thresholds": "Пороги",
+    "thresholds_helper": "Показник набуває кольору найближчого пройденого порогу",
+    "threshold_value": "Значення",
+    "threshold_helper": "Число, сутність або шаблон",
+    "below": "Нижче значення",
+    "below_helper": "Вимкнено: від значення і вище",
+    "past_threshold": "За порогом"
   },
   "energy-period-card": {
     "name": "Період енергії",

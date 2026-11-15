@@ -636,7 +636,14 @@
     "names_full": "Nom complet",
     "names_entity": "Nom de l’entité",
     "names_device": "Nom de l’appareil",
-    "names_helper": "Là où aucun nom propre n’est défini"
+    "names_helper": "Là où aucun nom propre n’est défini",
+    "thresholds": "Seuils",
+    "thresholds_helper": "Une mesure prend la couleur du seuil le plus proche qu’elle a franchi",
+    "threshold_value": "Valeur",
+    "threshold_helper": "Un nombre, une entité ou un modèle",
+    "below": "Sous la valeur",
+    "below_helper": "Désactivé, à partir de la valeur et au-dessus",
+    "past_threshold": "Au-delà d’un seuil"
   },
   "strategy": {
     "home": "Accueil",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "Aire",
     "editor.span": "Période",
     "editor.span_helper": "24h, today, today+tomorrow, 7d, ou toute durée comme 12h ou 3d",
-    "editor.thresholds": "Seuils",
-    "editor.threshold_value": "À partir de",
-    "editor.threshold_helper": "La ligne prend cette couleur à partir de cette valeur, jusqu’au seuil suivant",
     "editor.color_helper": "Vide, la couleur de la carte, ou les couleurs des séries de la palette s’il y en a plusieurs. Les couleurs de la palette la suivent ; un nom de couleur ou un #hex reste tel qu’il est saisi",
     "editor.highlight_hours": "Heures à mettre en avant",
     "editor.show_legend": "Afficher la légende",

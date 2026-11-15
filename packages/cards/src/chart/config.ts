@@ -37,11 +37,12 @@ import {
   type Stat,
 } from './data/sources.js';
 import { dayStart, DAY, spanOf } from './data/span.js';
-import { CHART_PRESETS, resolveStyle, seriesColourField, type Threshold } from './engine/index.js';
+import { CHART_PRESETS, resolveStyle, seriesColourField } from './engine/index.js';
 
 /*
- * What a Chart card's config says, read without the card: its series and its thresholds as items, what it can draw,
- * the windows it marks, and its editor's lists — the series' rows by where each is read from, the thresholds' rows.
+ * What a Chart card's config says, read without the card: its series as items, what it can draw, the windows it marks,
+ * and its editor's list of series, their rows by where each is read from (its thresholds are every numeric card's:
+ * `shared/thresholds.ts`, their rows `thresholdsList`).
  * Pure, so the card, its tests and its editor share it.
  */
 
@@ -92,20 +93,6 @@ export function seriesOf(
     })
     .slice(0, MOST_SERIES);
 }
-
-/**
- * The thresholds a config draws: each with a value and a tone, in the engine's terms, written in `unit` (the first
- * series', whose figure the head says): they colour the series of that unit alone.
- */
-export const thresholdsOf = (
-  config: { readonly thresholds?: ReadonlyArray<{ tone?: Tone; value?: number }> } | undefined,
-  unit?: string,
-): Threshold[] =>
-  (config?.thresholds ?? []).flatMap((t): Threshold[] =>
-    typeof t?.value === 'number' && Number.isFinite(t.value) && t.tone
-      ? [{ value: t.value, colour: t.tone, ...(unit === undefined ? {} : { unit }) }]
-      : [],
-  );
 
 /** A unit a price is written in: money — a currency or its sign — or anything per watt hour. */
 const MONEY =
@@ -334,17 +321,4 @@ export const SERIES_LIST: RowsListSpec = {
     kind: 'editor.kind',
   }).computeLabel,
   computeHelper: seriesHelper,
-};
-
-/** The thresholds, item by item: a tone picked adds one, its value says from where it colours the line. */
-export const THRESHOLDS_LIST: RowsListSpec = {
-  key: 'thresholds',
-  title: 'chart-card.editor.thresholds',
-  idKey: 'tone',
-  picker: toneField(),
-  keys: ['tone', 'value'],
-  schema: [toneField(), { name: 'value', selector: { number: { mode: 'box', step: 'any' } } }],
-  computeLabel: editorLabels(s, { value: 'editor.threshold_value' }).computeLabel,
-  computeHelper: (schema) =>
-    schema.name === 'value' ? s(editorLanguage(), 'editor.threshold_helper') : undefined,
 };

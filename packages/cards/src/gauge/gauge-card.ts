@@ -47,6 +47,8 @@ import {
   type Figures,
   type NumberKeys,
 } from '../shared/units.js';
+import { bandTint, type TintConfig } from '../shared/state-tint.js';
+import type { ThresholdsConfig } from '../shared/thresholds.js';
 import type { Reading } from '../shared/value-row.js';
 import {
   fractionOf,
@@ -68,7 +70,7 @@ export const GAUGE_VARIANTS: readonly GaugeVariant[] = ['ring', 'bar', 'signed']
 export type GaugeStat = 'min' | 'max' | 'average';
 export const GAUGE_STATS: readonly GaugeStat[] = ['min', 'max', 'average'];
 
-export interface GaugeCardConfig extends FluvyCardConfig, NumberKeys {
+export interface GaugeCardConfig extends FluvyCardConfig, NumberKeys, ThresholdsConfig, TintConfig {
   subtitle?: string;
   /**
    * `ring` (default): the dial. `bar`: the reading over a level bar, for a half column. `signed`: a value that can
@@ -284,6 +286,12 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
       .so-cols .fv-readout__label {
         white-space: nowrap;
       } /* a label never drops onto its value */
+      /* a reading past a threshold says its figure in the band's colour (1.22, #204): a style's ring's, a moving
+         gauge's out of its water, the signed ring's */
+      .so-gauge [data-ink] :is(.fc-gauge__value, .fc-reading:not(.is-wet) .fc-reading__figure) > b,
+      .en-gauge__value[data-ink] {
+        color: var(--fv-ink);
+      }
     `,
   ];
 
@@ -440,12 +448,18 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
 
   /**
    * The head's badge: the state's word where the gauge cannot read (`word` null); else the person's own (`badge`: words,
-   * an entity's state, a template's answer), which steps down into the sub where it does not fit beside the name, or
-   * the card's `word`, which gives way. None where it says nothing: a template not answered yet, a signed temperature.
+   * an entity's state, a template's answer), else the words of the band its reading is in (`band`, 1.22, #204), either
+   * stepping down into the sub where it does not fit beside the name; else the card's `word`, which gives way. None
+   * where it says nothing: a template not answered yet, a signed temperature.
    */
-  private badgeOf(view: EntityView, word: string | null, tone: Tone): HeadFitOptions['badge'] {
+  private badgeOf(
+    view: EntityView,
+    word: string | null,
+    tone: Tone,
+    band?: string,
+  ): HeadFitOptions['badge'] {
     // asked whatever the gauge reads, so a template stays live while its sensor is away
-    const own = this.ownText(this.config?.badge, false)?.text;
+    const own = this.ownText(this.config?.badge, false)?.text ?? band;
     const text = word === null ? stateWord(this.hass, view) : (own ?? word);
     return text ? { text, tone, own: word !== null && own !== undefined } : null;
   }
@@ -512,8 +526,11 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
       dial === 'ticks'
         ? undefined
         : engine?.resolveGauge(dial, this.config ?? {}, undefined, reads);
-    const tone: Tone = toneOf(this.config, style?.tone ?? 'solar');
-    const headTone: Tone = unusable ? 'off' : active ? tone : 'neutral';
+    // a reading past a threshold (1.22, #204): the whole gauge in its band's colour, its badge the band's words
+    const band = unusable ? undefined : this.band(this.config, view);
+    const tone: Tone = band?.tone ?? toneOf(this.config, style?.tone ?? 'solar');
+    const lit = active || band !== undefined;
+    const headTone: Tone = unusable ? 'off' : lit ? tone : 'neutral';
     const badge = this.badgeOf(
       view,
       unusable || value === null
@@ -524,7 +541,9 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
             ? this.t('energy.producing')
             : strings(this.hass, 'active'),
       headTone,
+      band?.label,
     );
+    const tinted = bandTint(this.accents, this.config, band);
 
     const width = this.contentWidth;
     const radius = Math.min(RADIUS, Math.max(48, Math.floor((width / 2 - TICK - 12) / 4) * 4));
@@ -559,11 +578,14 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     });
 
     return html`<article
-      class="fv-card so-card ${unusable ? 'is-unavailable is-off' : ''}"
+      class="fv-card so-card ${tinted.cls} ${unusable ? 'is-unavailable is-off' : ''}"
       data-card
+      data-accent=${band?.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({
-        icon: fitted.icon ? iconOf(view, this.config?.icon) : null,
+        icon: fitted.icon ? iconOf(view, band?.icon ?? this.config?.icon) : null,
         tone: headTone,
         title: name,
         sub: fitted.sub,
@@ -575,12 +597,12 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
       ${
         this.bar
           ? html`<div class="so-top fv-value-row">
-                ${readout({ label: this.innerLabel(view), value: value === null ? '—' : shown(value), unit: value === null ? '' : scale.unit, size: 'l' })}
+                ${readout({ label: this.innerLabel(view), value: value === null ? '—' : shown(value), unit: value === null ? '' : scale.unit, size: 'l', ink: band?.ink })}
               </div>
               <div class="so-level">
                 <span class="fv-bar"
                   ><span
-                    class="fv-bar__fill fv-bar--${unusable || !active ? 'neutral' : tone}"
+                    class="fv-bar__fill fv-bar--${unusable || !lit ? 'neutral' : tone}"
                     data-measure="value"
                     style="width:${value === null || max === null ? 0 : Math.round(Math.min(1, Math.max(0, (value - min) / (max - min))) * 100)}%"
                   ></span
@@ -593,7 +615,10 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
           : style?.preset !== 'ticks' && dial !== 'ticks'
             ? // a style's ring in the dial's room (its box, the height down to its range): the engine's, once here
               html`<div class="so-gauge">
-                <div style="margin-left:${left}px;width:${room}px;height:${tall}px">
+                <div
+                  style="margin-left:${left}px;width:${room}px;height:${tall}px"
+                  data-ink=${band?.ink ?? nothing}
+                >
                   ${
                     style &&
                     engine?.drawGauge({
@@ -625,6 +650,7 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
                 <fluvy-dial
                   gauge
                   style="margin-left:${inset}px"
+                  data-ink=${band?.ink ?? nothing}
                   .radius=${radius}
                   .tick=${TICK}
                   .large=${true}
@@ -772,8 +798,10 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
 
     const fraction = value === null || !ends ? null : fractionOf(value, ends.min, ends.max);
     const active = fraction !== null && Math.abs(fraction) > IDLE;
-    const tone: Tone = toneOf(this.config, 'grid');
-    const headTone: Tone = unusable ? 'off' : active ? tone : 'neutral';
+    // a reading past a threshold: the ring, its figure and its circle in the band's colour, its badge its words
+    const band = unusable ? undefined : this.band(this.config, view);
+    const tone: Tone = band?.tone ?? toneOf(this.config, 'grid');
+    const headTone: Tone = unusable ? 'off' : active || band ? tone : 'neutral';
     // "Importing" / "Exporting" say a power's way; any other signed value (a temperature) has no state to name:
     // only a badge the card is given shows
     const badge = this.badgeOf(
@@ -788,7 +816,9 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
               ? this.t('energy.importing')
               : this.t('energy.exporting'),
       headTone,
+      band?.label,
     );
+    const tinted = bandTint(this.accents, this.config, band);
 
     const width = this.contentWidth;
     const r = this.head.ruler;
@@ -861,11 +891,14 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
     });
 
     return html`<article
-      class="fv-card so-card ${unusable ? 'is-unavailable is-off' : ''}"
+      class="fv-card so-card ${tinted.cls} ${unusable ? 'is-unavailable is-off' : ''}"
       data-card
+      data-accent=${band?.accent ?? nothing}
+      data-surface=${tinted.surface}
+      data-edge=${tinted.edge}
     >
       ${head({
-        icon: fitted.icon ? iconOf(view, this.config?.icon) : null,
+        icon: fitted.icon ? iconOf(view, band?.icon ?? this.config?.icon) : null,
         tone: headTone,
         title: name,
         sub: fitted.sub,
@@ -906,6 +939,7 @@ export class FluvyGaugeCard extends Card<GaugeCardConfig> {
         <span
           class="en-gauge__value ${size === 'm' ? 'en-gauge__value--m' : ''}"
           data-align="center"
+          data-ink=${band?.ink ?? nothing}
           style="top:${box.value}px"
           >${shown.value}${shown.unit ? html`<span class="en-gauge__unit">${shown.unit}</span>` : nothing}</span
         >

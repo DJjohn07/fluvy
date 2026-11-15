@@ -254,6 +254,15 @@ export const chartStyles = css`
   .fv-bubble--tone::after {
     background: var(--tone-ink, var(--fluvy-accent));
   }
+  /* the bubble of a reading past a threshold (1.22, #204): the band's ink as a figure's words (on core's data-ink), which
+     reads on the page as the page's words read on it */
+  [data-ink] .fv-bubble,
+  [data-ink] .fv-bubble::after {
+    background: var(--fv-ink);
+  }
+  [data-ink] .fv-bubble {
+    color: var(--fv-solid-page, var(--fluvy-page));
+  }
   .fc-pill {
     display: inline-flex;
     align-items: center;

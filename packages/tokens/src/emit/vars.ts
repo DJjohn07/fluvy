@@ -1,4 +1,4 @@
-import { LIMITS } from '../build/derive/limits.js';
+import { GATES, LIMITS } from '../build/derive/limits.js';
 import { SECONDARY_ON_FILL } from '../build/derive/profiles.js';
 import { meshOf, type Mesh } from '../build/mesh.js';
 import { composite, contrastRatio } from '../color/contrast.js';
@@ -246,13 +246,32 @@ export function litSurface(
   colors: PaletteModeColors,
   level: number,
 ): readonly CssDeclaration[] {
+  return washVars(role, colors, litStep(role, colors, level));
+}
+
+/** The share of the role's fill a lit surface takes over the card at `level`, in fiftieths (`litSurface`). */
+function litStep(role: RoleColors, colors: PaletteModeColors, level: number): number {
   const { card } = colors.surface;
   const reads = washReads(role, colors);
   const cap = washStep(role.fill, card, 50, reads);
-  return washVars(
-    role,
-    colors,
-    washStep(role.fill, card, Math.round(cap * litShare(level)), reads),
+  return washStep(role.fill, card, Math.round(cap * litShare(level)), reads);
+}
+
+/**
+ * A role's ink as the words of a figure (1.22, #204: a reading said in the colour of the band it is in): its ink taken
+ * deeper (lighter in dark) as far as it reads as text, 4.5, on the card, the page and the role's own wash as a card
+ * tinted by it wears it (`litSurface` at `LIT_FLOOR`). A status's ink reads so on the card and the page already; a
+ * device colour's, the accent's of an electric palette, are held to 3 there, a glyph's.
+ */
+export function textInk(role: RoleColors, colors: PaletteModeColors): Hex {
+  const { card, page } = colors.surface;
+  const wash = composite(role.fill, card, litStep(role, colors, LIT_FLOOR) / 50);
+  const away = colors.mode === 'light' ? 'darker' : 'lighter';
+  return toHex(
+    [page, card, wash].reduce(
+      (ink, ground) => ensureContrast(ink, ground, GATES.text, away),
+      fromHex(role.ink),
+    ),
   );
 }
 

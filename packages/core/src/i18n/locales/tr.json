@@ -636,7 +636,14 @@
     "names_full": "Tam ad",
     "names_entity": "Varlık adı",
     "names_device": "Cihaz adı",
-    "names_helper": "Kendi adı ayarlanmamış olanlarda"
+    "names_helper": "Kendi adı ayarlanmamış olanlarda",
+    "thresholds": "Eşikler",
+    "thresholds_helper": "Bir okuma, geçtiği en yakın eşiğin rengini alır",
+    "threshold_value": "Değer",
+    "threshold_helper": "Bir sayı, bir varlık veya bir şablon",
+    "below": "Değerin altında",
+    "below_helper": "Kapalıysa, değerden yukarısı",
+    "past_threshold": "Bir eşik geçildiğinde"
   },
   "strategy": {
     "home": "Ana sayfa",
@@ -3207,9 +3214,6 @@
     "editor.kind_area": "Alan",
     "editor.span": "Aralık",
     "editor.span_helper": "24h, today, today+tomorrow, 7d veya herhangi bir 12h ya da 3d",
-    "editor.thresholds": "Eşikler",
-    "editor.threshold_value": "Başlangıç",
-    "editor.threshold_helper": "Çizgi bu değerden itibaren bir sonraki eşiğe kadar bu rengi alır",
     "editor.color_helper": "Boşsa, kartın rengi; birden fazlaysa paletin seri renkleri. Paletin renkleri onu izler; bir renk adı ya da #hex yazıldığı gibi kalır",
     "editor.highlight_hours": "Vurgulanacak saatler",
     "editor.show_legend": "Göstergeyi göster",

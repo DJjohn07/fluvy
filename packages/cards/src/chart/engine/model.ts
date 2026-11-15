@@ -59,13 +59,17 @@ export interface ChartSeries {
 }
 
 /**
- * A line of a chart's scale its readings are coloured from, upwards (a price from 0.25 in the danger's ink): what
- * runs above `value`, up to the next one, wears `colour` — the line split where it crosses it, a bar by its value.
+ * A stretch of a chart's scale its thresholds colour the readings in (a price from 0.25 up in the danger's ink, a
+ * battery under 20 %, 1.22, #204: `shared/thresholds.ts` lays them out): what runs from `from` (none: from below the
+ * plot) up to `to` (none: above it) wears `colour` — the line split where it crosses an end, a bar by its value.
  */
-export interface Threshold {
-  readonly value: number;
+export interface ThresholdBand {
+  readonly from: number | null;
+  readonly to: number | null;
   readonly colour: SeriesColour;
-  /** The unit its value is written in: it colours the series of that unit alone. None: every series. */
+  /** A colour of the person's, as the card's accent sheet keys it (`data-accent`): it wins over `colour`. */
+  readonly accent?: string | undefined;
+  /** The unit its ends are written in: it colours the series of that unit alone. None: every series. */
   readonly unit?: string;
 }
 

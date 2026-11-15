@@ -341,6 +341,13 @@ const GLASS = /\/packages\/(core\/src\/look\/glass|ui\/src\/styles\/(generated\/
 const QUIET = /\/packages\/(core\/src\/look\/quiet|ui\/src\/styles\/(generated\/)?quiet)\.ts/;
 
 /**
+ * What reads a card's thresholds (1.22, #204: their values — a figure, an entity's reading, a template's answer — the
+ * band a reading is in, the stretches a chart colours): fetched by the first card that names one, its first frame
+ * waiting for it as a see-through card's does for its sheet; a dashboard whose cards name none never pays for it.
+ */
+const THRESHOLDS = /\/packages\/cards\/src\/shared\/thresholds\.ts/;
+
+/**
  * The slider styles (1.18, #144): the bar, the liquid and a tile's fill the ruler draws when asked, and their sheet —
  * fetched by the first ruler asked for one, or as the house asks for them; a house of rulers never pays for them.
  */
@@ -420,13 +427,19 @@ const FORMS =
 
 /**
  * Where each module goes, first match wins: a language's catalogue, the page controls, the Activity page, the History
- * page, our history in the details dialog, Customise, a dashboard's sidebar in the panel, the settings panel, the strategy and the heights it counts with the house, the wall, the forms of the cards
- * every page carries, the weather card, the calendar card, the media, the chart engine, the Chart card, the Energy period card, energy
- * (the history bars' readings on their own), devices (the cameras' sheet on its own), appliances (their pictures on
- * their own), automations and alerts families (each sheet on its own), the template card, the web page card, what each
- * card is, the Expander card (its editor on its own, before the forms, with the Swipe card's), the Swipe card, a dashboard's own sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours, a room's quick actions, the cards' editor, the
- * fields every editor is built of, the view icons, what a see-through card wears, what a quiet one wears, the slider
- * styles, the switch styles, the page's background, this device's sidebar beside the page, a list in groups, the icon set's other part, what only the chunks fetched later share, and everything else (Fluvy's packages and Lit) in `core`. The bundle's own entry stays in `fluvy.js`. Rolldown processes the groups in this order; the priorities only say so out loud.
+ * page, our history in the details dialog, Customise, a dashboard's sidebar in the panel, the settings panel, the
+ * strategy and the heights it counts with the house, the wall, the forms of the cards every page carries, the weather
+ * card, the calendar card, the media, the chart engine, the Chart card, the Energy period card, energy (the history
+ * bars' readings on their own), devices (the cameras' sheet on its own), appliances (their pictures on their own),
+ * automations and alerts families (each sheet on its own), the template card, the web page card, what each card is, the
+ * Expander card (its editor on its own, before the forms, with the Swipe card's), the Swipe card, a dashboard's own
+ * sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the
+ * remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours,
+ * a room's quick actions, the cards' editor, the fields every editor is built of, the view icons, what a see-through
+ * card wears, what a quiet one wears, what reads a card's thresholds, the slider styles, the switch styles, the page's
+ * background, this device's sidebar beside the page, a list in groups, the icon set's other part, what only the chunks
+ * fetched later share, and everything else (Fluvy's packages and Lit) in `core`. The bundle's own entry stays in
+ * `fluvy.js`. Rolldown processes the groups in this order; the priorities only say so out loud.
  * @type {readonly Group[]}
  */
 export const GROUPS = [
@@ -484,6 +497,7 @@ export const GROUPS = [
   { name: 'view-icons', test: VIEW_ICONS },
   { name: 'glass', test: GLASS },
   { name: 'quiet', test: QUIET },
+  { name: 'thresholds', test: THRESHOLDS },
   { name: 'slider-styles', test: SLIDER_STYLES },
   { name: 'switch-styles', test: SWITCH_STYLES },
   { name: 'background', test: BACKGROUND },

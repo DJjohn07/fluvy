@@ -114,3 +114,17 @@ export function tintOf(
     shown,
   };
 }
+
+/** What a card tinted by its reading does where it says nothing: no tint, a wash once asked — the devices' house default is theirs. */
+const READING_TINT: HouseTint = { tint: 'off', style: 'wash' };
+
+/**
+ * What a card's root wears of the band its reading is in (1.22, #204: `thresholds`), as its `tint` and `tint_style` ask:
+ * the band's colour while the reading is past a threshold (`always` says the same: past none there is no colour to
+ * show), as a wash or at its edge (a reading has no control to take it); none where the card says none.
+ */
+export const bandTint = (
+  accents: Accents,
+  config: (TintConfig & { readonly card_color?: unknown }) | undefined,
+  band: ToneLook | undefined,
+): Tinted => tintOf(accents, config, band ?? { tone: 'neutral' }, true, READING_TINT);

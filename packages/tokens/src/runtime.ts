@@ -99,6 +99,7 @@ export {
   litSurface,
   surfaceInset,
   surfaceWash,
+  textInk,
 } from './emit/vars.js';
 
 export function isShapeName(value: unknown): value is ShapeName {

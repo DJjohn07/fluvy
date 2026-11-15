@@ -586,7 +586,14 @@
     "names_full": "Teljes név",
     "names_entity": "Entitás neve",
     "names_device": "Eszköz neve",
-    "names_helper": "Ahol nincs megadva saját név"
+    "names_helper": "Ahol nincs megadva saját név",
+    "thresholds": "Küszöbértékek",
+    "thresholds_helper": "Az érték a legközelebbi átlépett küszöbérték színét veszi fel",
+    "threshold_value": "Érték",
+    "threshold_helper": "Szám, entitás vagy sablon",
+    "below": "Az érték alatt",
+    "below_helper": "Kikapcsolva: az értéktől felfelé",
+    "past_threshold": "Küszöbérték átlépésekor"
   },
   "strategy": {
     "home": "Otthon",
@@ -1896,9 +1903,6 @@
     "editor.kind_area": "Terület",
     "editor.span": "Időablak",
     "editor.span_helper": "24h, today, today+tomorrow, 7d, vagy bármilyen 12h vagy 3d",
-    "editor.thresholds": "Küszöbértékek",
-    "editor.threshold_value": "Ettől",
-    "editor.threshold_helper": "A vonal ettől az értéktől felfelé, a következő küszöbig ezt a színt veszi fel",
     "editor.color_helper": "Üresen: a kártya színe, vagy több adatsor esetén a paletta adatsor-színei. A paletta színei követik; a színnév vagy a #hex úgy marad, ahogy beírtad",
     "editor.highlight_hours": "Kiemelendő órák",
     "editor.show_legend": "Jelmagyarázat megjelenítése",

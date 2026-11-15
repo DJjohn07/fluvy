@@ -651,6 +651,88 @@ own opacity; a card held by the Expander, which draws no surface of its own, say
 words. The editor offers all three under the card's colours, the style while the colour shows, and a colour for each
 state in a folded group named with Home Assistant's words for them.
 
+## Thresholds
+
+The gauge, the sensor card, a readouts row, a stat tile, the tile, the tiles and a room's tiles can say a reading in a
+colour past a figure you give it (1.22, #204): a grid voltage over 230 V in the warning's
+colour and over 250 V in the danger's, a phone's battery under 20 % in the danger's. A card that names none draws as it
+always did. The chart card's `thresholds` (1.11) are the same list, read by the same rule.
+
+```yaml
+type: custom:fluvy-gauge-card
+entity: sensor.grid_voltage
+min: 200
+max: 260
+thresholds:
+  - value: 230 # from 230 V up
+    tone: warning
+    label: High # what the band is called: said beside the colour
+  - value: sensor.max_voltage # an entity: its reading now, followed as it changes
+    tone: danger
+    label: Too high
+    icon: mdi:flash-alert
+tint: on # the card itself in the band's colour too
+tint_style: wash # or edge
+```
+
+Each threshold of `thresholds`:
+
+- `value`: where it starts, in the reading's unit. A figure (`230`), an entity (`sensor.max_voltage`: its reading now; a
+  reading of another unit of its family converts, `kW` under a `W` sensor) or a template (`"{{ states('sensor.limit') |
+  float(0) }}"`, rendered live by Home Assistant with the card's or the row's entity as `entity`). An entity is the
+  better way where one holds the figure: it is read with the house's states, with no subscription of its own. A value
+  that cannot be read (a template not answered yet, one that fails or says no figure, an entity out of reach or of
+  another kind) is left out, so a card never shows a colour it has no ground for, and never breaks.
+- `below: true`: it colours under its value; without it, from its value up.
+- `tone`: one of the palette's (`ok`, `warning`, `danger`, `notice`, `accent`, `heat`, `water`, `solar` …), or `none`:
+  what it claims is drawn as past no threshold, which ends a band (`value: 260, tone: none` over a `danger` at 250
+  colours 250 to 260 alone).
+- `color`: a colour of your own in the tone's place (`purple`, `#8844ff`).
+- `label` and `icon`: what the band is called and its icon, said beside the colour so it is never the colour alone that
+  says it (on e-ink, to a colour-blind eye): the label in the gauge's badge (your own `badge` wins), leading the sensor
+  card's line ("High · Voltage · last 24 h") and the tile's ("High · 241 V"), after the name on a readout and a stat
+  tile ("PHONE · LOW"); the icon in the reading's circle, or before the name where it has none.
+
+A reading takes the threshold nearest to it that claims it: the highest it reaches upward, the lowest it is under
+downward; where one of each claims it, the nearer, the one above on an even split. What takes the colour:
+
+| Card | Its marks | `tint: on` |
+| --- | --- | --- |
+| Gauge (its ring, a moving gauge, the bar, the signed ring) | the dial or the bar and its ticks, the figure, the circle, the badge | a wash of the band or its edge |
+| Sensor card, chart | the curve where it runs through a band, the bubble, the circle, the line | a wash or its edge |
+| Sensor card, tile | the figure, the circle, the spark | a wash or its edge |
+| Readouts | the row's figure | none |
+| Stat tiles | a tile's figure and glyph, a row's figure and circle | a tile fills in the band, as `highlight` |
+| Tile, Tiles, a room's tiles | the tile lit in the band's colour, as a leak's tile is in the warning's | none (the tile's own `tint` is its own) |
+| Chart | the line and the bars, in each band's stretch of the scale | none |
+
+On a list a row says its own: `thresholds` on a readout of `rows`, a stat tile of `tiles` or one of `rows`, a tile of
+the tiles card's `tiles` or a room's.
+
+```yaml
+type: custom:fluvy-readouts-card
+rows:
+  - entity: sensor.phone_battery
+    thresholds:
+      - value: 20
+        below: true
+        tone: danger
+        label: Low
+  - sensor.living_room_temperature
+```
+
+`tint` is the device cards' (above), read for a reading: `off` (the default), or `on` while the reading is past a
+threshold (`always` says the same), as a wash (`tint_style: wash`, the default) or the card's edge (`edge`). The
+devices' default in the settings panel is theirs, never a reading's. A figure in a band's colour is always read as text
+(at least 4.5:1 on the card, the page and the band's wash, in every palette and mode): a device colour's ink, made for
+a glyph, is taken deeper for its words. The colour is a pure reading of the figure: it changes the moment the reading
+crosses, with no memory of where it was, so two screens never disagree; a reading that hovers on a threshold eases
+between the two. For an alert that must not flap, use an automation with a `for:` or a threshold helper with its
+hysteresis, and give the card the helper's state to read.
+
+The editor lists the thresholds one by one under the card's own fields, and over them the card's colour in its band
+while one is named; a row's are Home Assistant's list in its form. The automatic dashboards write none.
+
 ## Thermostat
 
 The thermostat card's badge says what the device is doing, not the mode it is in: **Heating**, **Idle**,
@@ -1646,7 +1728,10 @@ palette and the mode as the rest of the house does — `graph-1` … `graph-12` 
 `home` — the editor offers them by name; a Home Assistant colour's name or a `#rrggbb` stays as it is.
 
 `thresholds` colour the line from a value up to the next threshold, each in a tone — `ok` is the good, cheap one: the
-line changes colour where it crosses one, and a bar takes the tone of the threshold its value reaches. `highlight`
+line changes colour where it crosses one, and a bar takes the tone of the threshold its value reaches; since 1.22 they
+are every numeric card's ([Thresholds](#thresholds)), so one may colour under its value (`below`), end a band (`tone:
+none`), take a colour of your own, and read its value from an entity or a template. They are written in the first
+series' unit and colour the series of that unit. `highlight`
 marks the cheapest and the dearest window of what is to come (`min`, `max` or `both`; a price's in the ok and the
 danger tones, any other series' in its own) as a stretch of the plot behind the line and a pill that names it —
 "Cheapest 13:00–15:00 · 0.078 EUR/kWh", shorter where the row is narrow — over `highlight_hours` (one by default);

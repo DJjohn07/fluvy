@@ -73,6 +73,7 @@ import {
   pickFields,
   selectField,
   headFields,
+  thresholdsList,
   titleFields,
 } from '../shared/form.js';
 import type {
@@ -81,6 +82,7 @@ import type {
   FormHelper,
   RowsListSpec,
 } from '../shared/rows-editor.js';
+import type { ThresholdsConfig } from '../shared/thresholds.js';
 import { decimalsOf, figure, precisionOf, scaleNamed, type Scale } from '../shared/units.js';
 import { attributeSeries, timedAttributes, type Day, type Reading } from './data/attribute.js';
 import {
@@ -127,8 +129,6 @@ import {
   SERIES_LIST,
   seriesOf,
   spanField,
-  THRESHOLDS_LIST,
-  thresholdsOf,
   windowAt,
   type ChartSeriesConfig,
   type SeriesKind,
@@ -184,13 +184,8 @@ const ownInk = (colour: SeriesColour): boolean =>
 export type ChartVariant = 'full' | 'compact' | 'tile';
 export type { ChartSeriesConfig, SeriesKind, Windows } from './config.js';
 
-/** A threshold: from `value` up, to the next one, the line wears `tone`. */
-export interface ThresholdConfig {
-  tone?: Tone;
-  value?: number;
-}
-
-export interface ChartCardConfig extends FluvyCardConfig, HeadConfig, Omit<ChartKeys, 'highlight'> {
+export interface ChartCardConfig
+  extends FluvyCardConfig, HeadConfig, ThresholdsConfig, Omit<ChartKeys, 'highlight'> {
   title?: string;
   subtitle?: string;
   /** The series, six at most: an entity id, or the series with what it says of itself. */
@@ -202,7 +197,6 @@ export interface ChartCardConfig extends FluvyCardConfig, HeadConfig, Omit<Chart
    * set aside, and the range it compares with as a ghost while it compares.
    */
   collection_key?: string;
-  thresholds?: readonly ThresholdConfig[];
   /** The windows marked, of what is to come: the cheapest (lowest), the dearest (highest), or both. */
   highlight?: Windows;
   /** How long a marked window is: one hour by default. */
@@ -678,7 +672,7 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
     'animate',
     'points',
   ]);
-  static override lists: readonly RowsListSpec[] = [SERIES_LIST, THRESHOLDS_LIST];
+  static override lists: readonly RowsListSpec[] = [SERIES_LIST, thresholdsList()];
   /** What the editor shows where the config says nothing: what the card does then. */
   static override defaults: EditorDefaults = (config, hass) => {
     // the Chart section's, the engine's — but the highlight, which marks this card's windows
@@ -750,7 +744,6 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
         {
           series: 'editor.series',
           span: 'editor.span',
-          thresholds: 'editor.thresholds',
           highlight_hours: 'editor.highlight_hours',
           show_legend: 'editor.show_legend',
           show_head: 'editor.show_head',
@@ -1710,7 +1703,7 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
     const common = {
       frame,
       now: nowFraction(window),
-      thresholds: thresholdsOf(this.config, lead.scale.unit),
+      thresholds: this.thresholds(this.config, lead.scale.unit)?.bands() ?? [],
       stretches,
       tick: (value: number, decimals: number) => tickText(this.hass, value, decimals),
       measure: (text: string) => this.headFit.ruler.width('fc-tick', text),
@@ -2166,7 +2159,7 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
                   style: resolveStyle(minimal ? 'minimal' : 'classic', fine, {}),
                   now: nowFraction(window),
                   ...(series.length > 1 ? { scale: 'air' as const } : {}),
-                  thresholds: thresholdsOf(this.config, lead.scale.unit),
+                  thresholds: this.thresholds(this.config, lead.scale.unit)?.bands() ?? [],
                   id: 'ch-spark',
                 })
               : nothing

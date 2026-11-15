@@ -1,6 +1,7 @@
 import {
   isUsable,
   stateText,
+  type LightTint,
   strings as words,
   type ActionConfig,
   type EntityName,
@@ -54,6 +55,7 @@ import {
 } from '../shared/heights.js';
 import { emptyPanel, itemsOf, listOf, type EmptyList } from '../shared/lists.js';
 import { TemplateTexts } from '../shared/templates.js';
+import type { ThresholdsConfig } from '../shared/thresholds.js';
 
 const strings = words('stat-tiles');
 
@@ -68,7 +70,7 @@ function statColumns(raw: unknown, fallback: StatColumns): StatColumns {
   return n === 2 || n === 3 ? n : fallback;
 }
 
-export interface StatTileConfig extends NumberKeys {
+export interface StatTileConfig extends NumberKeys, ThresholdsConfig {
   entity: string;
   name?: EntityName;
   icon?: string;
@@ -82,7 +84,7 @@ export interface StatTileConfig extends NumberKeys {
   double_tap_action?: ActionConfig;
 }
 
-export interface StatRowConfig {
+export interface StatRowConfig extends ThresholdsConfig {
   entity: string;
   name?: EntityName;
   icon?: string;
@@ -110,6 +112,11 @@ export interface StatTilesCardConfig extends FluvyCardConfig, EmptyList, NumberK
   variant?: StatTilesVariant;
   /** Tiles a row: `2` (the full default), `3`, or `auto` (the compact default: three while every label and value fits). */
   columns?: StatColumns;
+  /**
+   * A tile past a threshold fills in its band's colour, as a highlighted one in its tone (`on`, 1.22, #204; `always` says
+   * the same); else its figure and glyph alone take it (`off`, the default).
+   */
+  tint?: LightTint;
 }
 
 const MAX_TILES = 6;
@@ -333,16 +340,22 @@ export class FluvyStatTilesCard extends Card<StatTilesCardConfig> {
       : '';
 
     const scales = this.scales(views);
+    // a tile past a threshold (1.22, #204): its figure, its glyph and its words in the band's, filled where the card asks
+    const fills = this.config?.tint === 'on' || this.config?.tint === 'always';
     const items = tiles.map((tile, index): OptionItem => {
       const view = views[index] as EntityView;
+      const band = gone(view) ? undefined : this.band(tile, view);
       return {
         key: tile.entity,
         label: this.nameFor(view, tile.name),
         name: true,
         value: this.text(view, scales, tile),
-        glyph: iconOf(view, tile.icon),
-        tone: tile.tone ?? tone,
-        active: !gone(view) && (tile.highlight ?? false),
+        glyph: iconOf(view, band?.icon ?? tile.icon),
+        tone: band?.tone ?? tile.tone ?? tone,
+        active: !gone(view) && ((tile.highlight ?? false) || (fills && band !== undefined)),
+        ink: band?.ink,
+        accent: band?.accent,
+        band: band?.label,
         unavailable: gone(view),
         // its own tap (its details by default), hold and double tap (none by default), each where it runs; a figure
         // that cannot be read has none of them (`options()`)
@@ -375,7 +388,7 @@ export class FluvyStatTilesCard extends Card<StatTilesCardConfig> {
         compact && view.status !== 'ok'
           ? this.head.rowWord(width, title, stateWord(this.hass, view), figure)
           : figure;
-      return { row, view, title, value };
+      return { row, view, title, value, band: this.band(row, view) };
     });
     const keepIcon = this.head.rowsKeepIcon(width, rows, compact);
     const panel = emptyPanel(this, !items.length && !rows.length, 'grid', 'common.no_readings');
@@ -413,27 +426,30 @@ export class FluvyStatTilesCard extends Card<StatTilesCardConfig> {
       ${
         rows.length
           ? html`<div class="so-rows">
-              ${rows.map(({ row, view, title, value }) => {
+              ${rows.map(({ row, view, title, value, band }) => {
                 const usable = isUsable(view);
-                // a compact row is the name and the value alone: its second line is not laid out
+                const line = !usable
+                  ? stateText(this.hass, view)
+                  : row.secondary === undefined
+                    ? view.areaName
+                    : this.texts.resolve(row.secondary, row.entity);
+                // a compact row is the name and the value alone: its second line is not laid out; past a threshold its
+                // circle and its value are in the band's colour, its words leading its line
                 return listRow({
-                  icon: keepIcon ? iconOf(view, row.icon) : null,
-                  tone: usable ? toneOf(row, 'neutral') : 'off',
-                  accent: this.accents.item(row.color),
+                  icon: keepIcon ? iconOf(view, band?.icon ?? row.icon) : null,
+                  tone: usable ? (band?.tone ?? toneOf(row, 'neutral')) : 'off',
+                  accent: band?.accent ?? this.accents.item(row.color),
                   title,
                   name: true,
                   sub: compact
                     ? ''
                     : this.head.fitRowSub(
-                        !usable
-                          ? stateText(this.hass, view)
-                          : row.secondary === undefined
-                            ? view.areaName
-                            : this.texts.resolve(row.secondary, row.entity),
+                        band?.label ? [band.label, line].filter(Boolean).join(' · ') : line,
                         this.head.rowRoom(width, value, { icon: keepIcon }),
                       ),
                   trailing: 'value',
                   value,
+                  valueInk: band?.ink,
                   compact,
                   unavailable: !usable,
                   ...this.pressOf(row, view.id),

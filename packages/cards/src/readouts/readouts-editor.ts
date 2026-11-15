@@ -18,6 +18,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
+  thresholdsField,
 } from '../shared/form.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { configKeys } from '../shared/config.js';
@@ -56,8 +57,18 @@ export const lists: readonly RowsListSpec[] = [
     domains: DOMAINS,
     // how the readouts that say no name are named stands over them
     fields: ['names'],
-    keys: ['entity', 'name', 'unit', 'decimals', 'tap_action', 'hold_action', 'double_tap_action'],
-    schema: [entityField(DOMAINS), nameField(), numberFields(), actionFields()],
+    keys: [
+      'entity',
+      'name',
+      'unit',
+      'decimals',
+      'thresholds',
+      'tap_action',
+      'hold_action',
+      'double_tap_action',
+    ],
+    // a readout's figure past a threshold takes its colour (1.22, #204)
+    schema: [entityField(DOMAINS), nameField(), numberFields(), thresholdsField(), actionFields()],
   },
 ];
 

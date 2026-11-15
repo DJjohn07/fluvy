@@ -716,9 +716,10 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
 
   /**
    * What the card's first frame waits for: what a see-through or a quiet card wears, until its fetch is over (one that
-   * failed leaves the card solid or dashed, never waiting).
+   * failed leaves the card solid or dashed, never waiting); a card that reads more before it draws (its thresholds)
+   * waits for that too.
    */
-  private wearing(): Promise<void> | undefined {
+  protected wearing(): Promise<void> | undefined {
     if (this.surface && cardOpacity(this.config) < 100 && !glassSettled) return fetchGlass();
     if (this.asksQuiet() && !quietSettled) return fetchQuiet();
     return undefined;

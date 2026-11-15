@@ -559,6 +559,50 @@ Nothing by itself: `tint` is off where the card and the house say nothing, and a
   A card of another kind hands its own house default; a tone that is not a state's (a reading past a threshold) is
   said the same way.
 
+## A reading past a threshold (1.22, #204)
+
+A reading may say it is out of the ordinary in a colour: the Gauge, the Sensor card, a Readouts row, a stat tile and a
+tile, past a figure the person gives (`thresholds`), the Chart card's list of 1.11 read by the same rule. A card that
+names none draws as it did, and never fetches what reads them.
+
+- **The rule** is a pure function of the reading: each threshold colours from its value up (`>=`) or under it (`<`,
+  `below`); the reading takes the nearest that claims it, the highest it reaches upward and the lowest it is under
+  downward, the nearer of one of each, the one above on an even split; `tone: none` ends a band. Upward alone it is
+  the Chart's rule, so its configs mean what they did. No memory, no hysteresis: one reading is one colour on every
+  screen and after every view change; a reading that hovers eases between two (the tint's 320 ms), and an alert that
+  must not flap belongs to an automation.
+- **A value** is a figure, an entity's reading (live, read with the house's states, a unit of its family converted) or
+  a template's answer (the card's template feed, the row's entity as `entity`). Pending, failed, empty or words, it is
+  left out: never a colour without ground, never a broken card.
+- **What takes the colour** is the reading's own marks, and only they: the gauge's dial or bar and ticks, figure and
+  circle, its badge saying the band's `label` (the person's own `badge` wins); the sensor chart's curve where it runs
+  through a band (the engine's runs, clipped to each band's stretch of the scale, over the sensor's own line), its
+  bubble in the band of the value it says (now's, or the finger's), its circle, the label leading its line; the sensor
+  tile's figure, circle and spark; a readout's figure; a stat tile's figure and glyph, a stat row's figure and circle;
+  a tile lit whole in the band's tone, its fill and on-fill inks a leak's tile's. The rest of a card (its statistics, its
+  name, the other readings) keeps its own.
+- **A figure in a band is text**: its ink is the band's taken as far deeper (lighter in dark) as it reads at 4.5 on the
+  card, the page and the band's own wash (`textInk`, written by the card's sheet on `data-ink`, `--fv-ink`), at the 13
+  to 16 px of a stat tile or a readout as at a dial's 48; a status's ink reads so already, a device colour's (held to 3,
+  a glyph's) goes deeper in light, never another hue. Its unit stays the secondary ink. The bubble is the classic one
+  in that ink, its words the page's, as the plain bubble is the text's with the page's words.
+- **Never the colour alone**: a band's `label` and `icon` say it where colour cannot (E-ink, a colour-blind eye). The
+  icon stands in the reading's circle (the head's, the tile's, a stat tile's glyph), or 16 in a readout's label line
+  before the name; the label leads a line ("High · Voltage · last 24 h", "High · 241 V") or follows a name in its
+  label line ("PHONE · LOW", `banded`): the name gives way to it with an ellipsis, the band's words never.
+- **The card itself** (`tint`, `tint_style`) is the device cards' design (§ A device's state in colour, the same
+  `tintOf` through `bandTint`): `on` while the reading is past a threshold, `always` the same (past none there is no
+  colour), as a wash or the card's edge; `control` has nothing to take it. The house's device default is theirs, never
+  a reading's. A stat tile fills in the band as a highlighted one does; a Readouts row has no surface of its own and a
+  tile is lit already, so neither takes one.
+- **The editor** lists a card's thresholds one by one (the rows editor; a row's, Home Assistant's list of objects in its
+  form): a tone picked adds one, then its value (a figure, an entity or a template, said under it), under it or from it
+  up, a colour of its own, its label and icon. "Show its colour" (Never · Past a threshold) and "Shown as" (Wash · Edge)
+  stand over the list while it holds one. The automatic dashboards write none.
+- **The reader is lazy** (`cards/shared/thresholds.ts`, its own chunk): fetched by the first card that names a
+  threshold, its first frame waiting for it as a see-through card's does for its sheet, so a card is never drawn in its
+  own colours a moment before its band's.
+
 ## Clocks and calendar
 
 - Analog face = the ruler's ticks bent into a circle: majors R/10 in ink, minors R/20 in border-strong (majors only at R 56); hour hand 0.52 R inside the numerals, minute 0.85 R and second 0.88 R over the numerals to the tick ring, widths 6/4/2 (R ≥ 96) · 5/3/2 (72) · 4/3/2 (56), round caps; only the second hand carries a counterweight (cap radius + 8); the cap is the Fluvy knob without halo or lift, 28 / 20 / 16. Numerals 14/600 secondary at 0.75 R (12/600 at R 56). Plain clocks are accent; a weather clock takes the sky's tone (accent at night, solar by day). Digital time 64/72 at −0.03 em, tabular, ink pulled onto the column (−0.06 em, declared `data-align="optical"`); seconds or AM/PM as a 24 unit on the baseline; date 14/500 secondary — the full date in a 320 column, "Thu 17 Sep" in narrow columns and tiles.

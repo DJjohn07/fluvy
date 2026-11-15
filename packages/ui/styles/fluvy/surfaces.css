@@ -411,6 +411,52 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* a reading past a threshold says its figure in its band's colour (1.22, #204): core writes the band's ink as a
+   figure's words on its `data-ink` (`--fv-ink`: 4.5 on the card, the page and the band's own wash), its unit staying
+   the secondary ink; a stat tile's glyph takes it too, and the band's words after a name (`banded`), where a tile
+   filled in the band (`is-active`) keeps its fill's inks */
+.fv-readout[data-ink] > .fv-readout__value > :first-child,
+.fv-row__value[data-ink],
+.fv-option[data-ink]:not(.is-active) :is(.fv-option__glyph, .fv-option__value),
+[data-ink]:not(.is-active) :is(.fv-banded__icon, .fv-banded__words) {
+  color: var(--fv-ink);
+}
+
+/* a name with what its band says (`banded`): its icon, 16 in the line, before it and its words after it, the name
+   giving way to them with an ellipsis */
+.fv-banded {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.fv-banded__icon {
+  display: inline-flex;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-inline-end: 4px;
+}
+
+.fv-banded__icon > *,
+.fv-banded__icon > .fv-haicon {
+  --mdc-icon-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.fv-banded__name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fv-banded__words {
+  flex: none;
+  white-space: nowrap;
+}
+
 /* a readout asked for without its label: the figure alone, on the readout's own top */
 .fv-readout > .fv-sr + .fv-readout__value {
   margin-top: 0;
