@@ -75,6 +75,7 @@ import { ITEM_ALIASES, type AliasSpec, type Move } from '../shared/config.js';
 import { writesZero, type NumberKeys } from '../shared/units.js';
 import {
   arcs,
+  BLOCK_MAX,
   crossLayout,
   drawn,
   headPath,
@@ -857,44 +858,62 @@ export class FluvyEnergyFlowCard extends Card<EnergyFlowCardConfig> {
     return this.head.ruler.width('en-words__label', text);
   }
 
-  /** A node's name on two lines (`brokenName`), broken for its label with a full charge; null where it has no break. */
-  private brokenOf(n: Node): readonly [string, string] | null {
-    return brokenName(n.name, chargeOf(n.level === null ? null : 100), (text) =>
-      this.labelWidth(text),
+  /**
+   * A node's name on `lines` lines (`brokenName`), broken for its label with a full charge; null where it has no such
+   * breaks.
+   */
+  private brokenOf(n: Node, lines: 2 | 3): readonly string[] | null {
+    return brokenName(
+      n.name,
+      chargeOf(n.level === null ? null : 100),
+      (text) => this.labelWidth(text),
+      lines,
     );
   }
 
+  /** A node's label as it stands on `lines` lines, its charge ending the last. */
+  private labelLines(n: Node, lines: 1 | 2 | 3): readonly string[] {
+    const broken = lines === 1 ? null : this.brokenOf(n, lines);
+    return broken
+      ? broken.map((line, k) => (k === broken.length - 1 ? line + chargeOf(n.level) : line))
+      : [n.label];
+  }
+
   /**
-   * A node's words in each of its ways (#170), its label on one line, then on two (#183): as they can read, its label
-   * with a full charge, and as they read now. The rows take the first that leaves a lane.
+   * A node's words in each of its ways (#170), its label on one line, then on two (#183), and on three where its block
+   * stays within `BLOCK_MAX` (#202): as they can read, its label with a full charge, and as they read now. The rows
+   * take the first that leaves a lane, three lines only where none on one or two does.
    */
   private widths(n: Node, words: Words, period: boolean): WordsWidth[] {
     const full = chargeOf(n.level === null ? null : 100);
-    const broken = this.brokenOf(n);
+    const label = (lines: 2 | 3, broken: readonly string[]) => {
+      const head = broken.slice(0, -1).map((line) => this.labelWidth(line));
+      const last = broken[broken.length - 1] ?? '';
+      return {
+        lines,
+        steady: Math.max(...head, this.labelWidth(last + full)),
+        now: Math.max(...head, this.labelWidth(last + chargeOf(n.level))),
+      };
+    };
     const labels = [
       { lines: 1 as const, steady: this.labelWidth(n.name + full), now: this.labelWidth(n.label) },
-      ...(broken
-        ? [
-            {
-              lines: 2 as const,
-              steady: Math.max(this.labelWidth(broken[0]), this.labelWidth(broken[1] + full)),
-              now: Math.max(
-                this.labelWidth(broken[0]),
-                this.labelWidth(broken[1] + chargeOf(n.level)),
-              ),
-            },
-          ]
-        : []),
+      ...([2, 3] as const).flatMap((lines) => {
+        const broken = this.brokenOf(n, lines);
+        return broken ? [label(lines, broken)] : [];
+      }),
     ];
     return this.waysFor(n, words).flatMap((way) => {
       const steady = this.steadyLines(n, period, way);
       const now = this.linesWidth(words, way);
-      return labels.map((label) => ({
-        way,
-        lines: label.lines,
-        steady: Math.max(label.steady, steady),
-        now: Math.max(label.now, now),
-      }));
+      // a label's second line and third take 16 each, the block within its row's
+      return labels
+        .filter((l) => wordsH(words, n.pair, way) + 16 * (l.lines - 1) <= BLOCK_MAX)
+        .map((l) => ({
+          way,
+          lines: l.lines,
+          steady: Math.max(l.steady, steady),
+          now: Math.max(l.now, now),
+        }));
     });
   }
 
@@ -1167,17 +1186,15 @@ export class FluvyEnergyFlowCard extends Card<EnergyFlowCardConfig> {
         const c = rows.nodes[i] as Point;
         const words = scene.words[i] as Words;
         const as = rows.ways[i] ?? 'inline';
-        const broken = rows.lines[i] === 2 ? this.brokenOf(n) : null;
-        const label = broken ? [broken[0], broken[1] + chargeOf(n.level)] : [words.label];
+        const label = this.labelLines(n, rows.lines[i] ?? 1);
         // a node with a line under its figure (a pair's second, its way) stands as its three lines, whatever it says
-        // now; a label on two lines takes 8 more above them and 8 under, the block kept inside the stage (#183)
-        const h = wordsH(words, n.pair, as) + (broken ? 16 : 0);
+        // now; each more line of a label takes 8 more above them and 8 under, the block kept inside the stage (#183,
+        // #202)
+        const more = 16 * (label.length - 1);
+        const h = wordsH(words, n.pair, as) + more;
         const top = Math.max(
           0,
-          Math.min(
-            H - h,
-            c[1] - (n.pair || as === 'line' ? 28 : blockH(words) / 2) - (broken ? 8 : 0),
-          ),
+          Math.min(H - h, c[1] - (n.pair || as === 'line' ? 28 : blockH(words) / 2) - more / 2),
         );
         return html`${this.nodeIcon(n, c)}
           <div class="en-place" style="left:${TEXT}px;top:${top}px">
@@ -1607,33 +1624,46 @@ const chargeOf = (level: number | null): string =>
 const NO_START = /[ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ]/u;
 
 /**
- * A name on two lines (#183), broken where its two lines come out the most even: at a space, or between two Chinese
- * or Japanese characters (never before a small kana), never inside a word of another script. `tail` ends the second
- * line (a charge, " · 100 %"). Null where the name has no such break.
+ * A name on two lines (#183) or three (#202), broken where its widest line comes out the narrowest: at a space, or
+ * between two Chinese or Japanese characters (never before a small kana), never inside a word of another script.
+ * `tail` ends the last line (a charge, " · 100 %"). Null where the name has no such breaks.
  */
 export function brokenName(
   name: string,
   tail: string,
   width: (text: string) => number,
-): readonly [string, string] | null {
+  lines: 2 | 3 = 2,
+): readonly string[] | null {
   const chars = [...name];
-  let best: readonly [string, string] | null = null;
+  const breaks = chars.flatMap((after, i) => {
+    const before = chars[i - 1];
+    return before !== undefined &&
+      (after === ' ' || (UNSPACED.test(before) && UNSPACED.test(after) && !NO_START.test(after)))
+      ? [i]
+      : [];
+  });
+  /** The lines the name breaks into at `at`, a space it breaks at dropped; null where one would be empty. */
+  const linesAt = (at: readonly number[]): string[] | null => {
+    const parts = [0, ...at].map((from, k) => {
+      const text = chars
+        .slice(k && chars[from] === ' ' ? from + 1 : from, at[k] ?? chars.length)
+        .join('');
+      return k === 0 ? text.trimEnd() : k === at.length ? text.trimStart() : text.trim();
+    });
+    return parts.every(Boolean) ? parts : null;
+  };
+  let best: readonly string[] | null = null;
   let widest = Infinity;
-  for (let i = 1; i < chars.length; i++) {
-    const before = chars[i - 1] as string;
-    const after = chars[i] as string;
-    const space = after === ' ';
-    if (!space && !(UNSPACED.test(before) && UNSPACED.test(after) && !NO_START.test(after)))
-      continue;
-    const first = chars.slice(0, i).join('').trimEnd();
-    const second = chars
-      .slice(space ? i + 1 : i)
-      .join('')
-      .trimStart();
-    if (!first || !second) continue;
-    const wide = Math.max(width(first), width(second + tail));
-    if (wide < widest) [best, widest] = [[first, second], wide];
-  }
+  const consider = (at: readonly number[]): void => {
+    const parts = linesAt(at);
+    if (!parts) return;
+    const wide = Math.max(...parts.map((part, k) => width(k === at.length ? part + tail : part)));
+    if (wide < widest) [best, widest] = [parts, wide];
+  };
+  breaks.forEach((a, k) => {
+    if (lines === 2) consider([a]);
+    else for (const b of breaks.slice(k + 1)) consider([a, b]);
+  });
   return best;
 }
 
@@ -1668,8 +1698,8 @@ const wayGlyph = (l: Line): TemplateResult =>
 
 /**
  * A node's words, its way said `as`: beside its figure, on the line under it, or by a glyph; its label on the lines
- * given (two, a long name's, #183). A `pair` holds its second line, and a way said on its own line that line, while
- * they say nothing, so the words stand still.
+ * given (two or three, a long name's, #183, #202). A `pair` holds its second line, and a way said on its own line that
+ * line, while they say nothing, so the words stand still.
  */
 function renderWords(
   w: Words,

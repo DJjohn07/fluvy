@@ -23,8 +23,10 @@ import {
   railIn,
   RING,
   rowsLayout,
+  TEXT,
   upTo,
   paramAt,
+  type RowNode,
   type RowsLayout,
   type WayMode,
 } from './geometry.js';
@@ -156,6 +158,124 @@ describe('rows', () => {
     ]);
     // one line where it leaves a lane
     expect(rowsLayout({ width: 420, nodes: [long, node()], ...house }).lines).toEqual([1, 1]);
+  });
+
+  /** A long name: 190 wide on one line, `two` on two and `three` on three, its way beside its figure. */
+  const named = (two: number, three: number, pair = false) => ({
+    words: (
+      [
+        [1, 190],
+        [2, two],
+        [3, three],
+      ] as const
+    ).map(([lines, steady]) => ({ way: 'inline' as const, lines, steady, now: steady })),
+    pair,
+  });
+
+  it('where two lines leave no lane, a long name takes three and keeps the lanes 56 long (#202)', () => {
+    // "逆变器 E2 南 MPPT 累计发电量" at 312 (a 430 px phone at 125 %): 128 on two lines leaves 54, 76 on three 106
+    const r = rowsLayout({ width: 312, nodes: [named(128, 76), node(), node()], ...house });
+    expect(r.narrow).toBe(false);
+    expect(r.lines).toEqual([3, 1, 1]);
+    expect(r.house[0] - RING - r.tail).toBeGreaterThanOrEqual(56);
+    expect(r.height).toBe(flowStage(3));
+    // where two lines leave one, three are never taken
+    expect(rowsLayout({ width: 320, nodes: [named(128, 76), node()], ...house }).lines).toEqual([
+      2, 1,
+    ]);
+  });
+
+  it('three lines come last: a node that holds on one line or two in any of its ways keeps it (#202)', () => {
+    // its way on the line under its figure leaves a lane on one line: it says it so, as it did, never three lines
+    const battery = {
+      words: [
+        { way: 'inline' as const, lines: 1 as const, steady: 190, now: 190 },
+        { way: 'inline' as const, lines: 3 as const, steady: 76, now: 76 },
+        { way: 'line' as const, lines: 1 as const, steady: 120, now: 120 },
+      ],
+      pair: false,
+    };
+    const r = rowsLayout({ width: 312, nodes: [node(), battery], ...house });
+    expect([r.ways, r.lines]).toEqual([
+      ['inline', 'line'],
+      [1, 1],
+    ]);
+  });
+
+  it('a card that draws its lanes today draws them as it did, whatever three lines its names could take (#202)', () => {
+    const today = (n: RowNode): RowNode => ({
+      ...n,
+      words: n.words.filter((w) => w.lines < 3),
+    });
+    /** Whether a node's words leave a lane 56 long on one line or two at `width`, as every one had to before. */
+    const held = (width: number, n: RowNode): boolean =>
+      n.words.some(
+        (w) => w.lines < 3 && width - 28 - RING - Math.ceil((TEXT + w.steady + 12) / 4) * 4 >= 56,
+      );
+    let drawn = 0;
+    for (let width = 200; width <= 720; width += 2)
+      for (const nodes of [
+        [named(128, 76), node(), node()],
+        [named(104, 80), named(140, 92, true), node()],
+        [node(true), named(96, 64), named(150, 110), node()],
+      ] as RowNode[][]) {
+        if (!nodes.every((n) => held(width, n))) continue;
+        drawn++;
+        expect(rowsLayout({ width, nodes, ...house })).toEqual(
+          rowsLayout({ width, nodes: nodes.map(today), ...house }),
+        );
+      }
+    expect(drawn).toBeGreaterThan(300);
+  });
+
+  it('lanes 48 long are a long name’s last resort, where its three lines leave no lane 56 long (#202)', () => {
+    // at 280 (a 390 px phone at 125 %) its three lines (100) leave 50, the others' one line (80) 70
+    const short = () => ({ words: widths(80), pair: false });
+    const r = rowsLayout({ width: 280, nodes: [named(150, 100), short(), short()], ...house });
+    expect(r.narrow).toBe(false);
+    expect(r.lines).toEqual([3, 1, 1]);
+    const lane = r.house[0] - RING - r.tail;
+    expect(lane).toBeGreaterThanOrEqual(48);
+    expect(lane).toBeLessThan(56);
+    expect(r.height).toBe(flowStage(3));
+    // where not even 48 is left, the card lists
+    expect(
+      rowsLayout({ width: 256, nodes: [named(150, 100), short(), short()], ...house }).narrow,
+    ).toBe(true);
+  });
+
+  it('words that are no long name and leave no lane 56 long list as they did, whatever 48 would leave (#202)', () => {
+    // "Battery · 100 %" saying its way under its figure (108) leaves 50 on a 360 px phone at 100 % (288): the list
+    const battery = { words: widths(108), pair: false };
+    expect(rowsLayout({ width: 288, nodes: [node(), node(true), battery], ...house }).narrow).toBe(
+      true,
+    );
+    // beside a long name on three lines, too
+    expect(
+      rowsLayout({ width: 280, nodes: [named(150, 100), node(), node()], ...house }).narrow,
+    ).toBe(true);
+  });
+
+  it('three lines and short lanes are taken only where the stage the card declares holds them (#202)', () => {
+    // between two pairs, the house's words 90 wide would hang under the lanes past the stage: the card lists, where
+    // "4.1 kW" (40) lets it draw
+    const pairs = (houseWordsW: number) =>
+      rowsLayout({
+        width: 232,
+        nodes: [
+          named(150, 40),
+          { words: widths(40), pair: true },
+          { words: widths(40), pair: true },
+        ],
+        houseWordsH: 36,
+        houseWordsW,
+      });
+    expect(pairs(90).narrow).toBe(true);
+    expect([pairs(40).narrow, pairs(40).lines[0], pairs(40).height]).toEqual([
+      false,
+      3,
+      flowStage(3),
+    ]);
   });
 
   it('the stage is the height the card declares, whatever its words and its ways (#170)', () => {
@@ -570,6 +690,32 @@ describe('a long name on two lines (#183)', () => {
     expect(brokenName('Wechselrichter', '', width)).toBeNull();
     // a small kana never begins a line
     expect(brokenName('バッテリー', '', width)?.[1]).not.toMatch(/^[ッー]/);
+  });
+
+  it('on three lines (#202) where its widest comes out the narrowest, by the same breaks, its charge ending the last', () => {
+    expect(brokenName('逆变器 E2 南 MPPT 累计发电量', '', width, 3)).toEqual([
+      '逆变器',
+      'E2 南 MPPT',
+      '累计发电量',
+    ]);
+    expect(brokenName('南侧屋顶光伏逆变器功率', '', width, 3)).toEqual([
+      '南侧屋',
+      '顶光伏逆',
+      '变器功率',
+    ]);
+    // a charge counts on the last line
+    expect(brokenName('North garage roof array', '', width, 3)).toEqual([
+      'North',
+      'garage',
+      'roof array',
+    ]);
+    expect(brokenName('North garage roof array', ' · 100 %', width, 3)).toEqual([
+      'North',
+      'garage roof',
+      'array',
+    ]);
+    // a name with one break has no three lines
+    expect(brokenName('Wechselrichter Süddach', '', width, 3)).toBeNull();
   });
 });
 

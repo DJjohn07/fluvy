@@ -179,18 +179,22 @@ export const PITCH = FLOW_PITCH;
 export const TEXT = 56; // 44 circle + 12
 export const RING = 34; // the house's ring (28) + 6
 export const LANE_MIN = 56; // a lane shorter than this is no lane: the card becomes its list
+/** A long name's last resort: where its three lines leave no lane 56 long, the lanes may be 48 (#202). */
+export const LANE_LAST = 48;
+/** A words block stands at most this tall about its row, the pitch's 80 less 8: a long name's three lines need it. */
+export const BLOCK_MAX = 72;
 
 /** How a node says its way: beside its figure, on the line under it, or by a glyph in its lane's ink. */
 export type WayMode = 'inline' | 'line' | 'glyph';
 
 /**
- * A node's words with its way said in one of them and its label on one line or two: as wide as they can read, and as
- * they read now.
+ * A node's words with its way said in one of them and its label on one line, two or three: as wide as they can read,
+ * and as they read now.
  */
 export interface WordsWidth {
   readonly way: WayMode;
-  /** The label's lines: 1, or 2 where a long name breaks (#183). */
-  readonly lines: 1 | 2;
+  /** The label's lines: 1, 2 where a long name breaks (#183), or 3 where two leave no lane (#202). */
+  readonly lines: 1 | 2 | 3;
   readonly steady: number;
   readonly now: number;
 }
@@ -198,9 +202,10 @@ export interface WordsWidth {
 export interface RowNode {
   /**
    * Its words' widths, measured by the card, in the ways it may say its way, the one it prefers first (#170), each with
-   * its label on one line, then on two (#183). It takes the first whose words as they can read (its label at its
-   * widest, a figure as wide as a house's usually is, each of its ways) leave a lane; where none does the card lists,
-   * so at a width a card keeps its lanes or its list as its figures change.
+   * its label on one line, then on two (#183), and on three where its block stays within `BLOCK_MAX` (#202). It takes
+   * the first whose words as they can read (its label at its widest, a figure as wide as a house's usually is, each of
+   * its ways) leave a lane, a label on three lines only where none on one or two does (and a lane of `LANE_LAST` only
+   * then); where none does the card lists, so at a width a card keeps its lanes or its list as its figures change.
    */
   readonly words: readonly WordsWidth[];
   /** Two lanes: a source that can flow both ways at the same moment. */
@@ -237,7 +242,7 @@ export interface RowsLayout {
   readonly houseWords: number;
   /** How each node says its way, and on how many lines its label stands. */
   readonly ways: readonly WayMode[];
-  readonly lines: readonly (1 | 2)[];
+  readonly lines: readonly (1 | 2 | 3)[];
 }
 
 const toDeg = (px: number): number => (px / RING) * (180 / Math.PI);
@@ -266,22 +271,12 @@ export function rowsLayout(o: RowsOptions): RowsLayout {
   const wide = consumers.length > 0;
   const house: Point = [wide ? o.width / 2 : o.width - 28, Math.round((TOP + last) / 2 / 4) * 4];
   const stage = flowStage(Math.max(1, o.nodes.length));
-  // each node's words as the first of its ways that leaves a lane, the card's list where none does; the lanes leave
-  // after them, or after a figure wider than a house's usual as it reads now, as far as every lane stays one
-  const leaves = (w: WordsWidth): boolean =>
-    house[0] - RING - up4(TEXT + w.steady + 12) >= LANE_MIN;
-  const chosen = o.nodes.map((n) => n.words.find(leaves));
-  const narrow = chosen.some((w) => !w);
-  const tail = Math.min(
-    up4(TEXT + Math.max(0, ...chosen.map((w) => (w ? Math.max(w.steady, w.now) : 0))) + 12),
-    Math.floor((house[0] - RING - LANE_MIN) / 4) * 4,
-  );
   const cys = consumers.map((_, i, all) =>
     all.length === 1 ? house[1] : Math.round(TOP + ((last - TOP) / (all.length - 1)) * i),
   );
   // consumers: mirrored on the right, the house's lanes out to them
-  const out: Cubic[] = [];
-  if (wide && !narrow) {
+  const toConsumers: Cubic[] = [];
+  if (wide) {
     const m = consumers.length;
     const ctail = o.width - up4(TEXT + Math.max(0, ...consumers.map((c) => c.wordsW)) + 12);
     const rise = m === 1 ? 0 : Math.min(60, 16 * (m - 1));
@@ -289,7 +284,7 @@ export function rowsLayout(o: RowsOptions): RowsLayout {
     consumers.forEach((_, i) => {
       const a = m === 1 ? 0 : -rise + ((rise + fall) / (m - 1)) * i;
       const p = onCircle(house, RING, a);
-      out.push(lane(p, a, [ctail, cys[i] ?? house[1]], 0, (ctail - p[0]) * 0.45));
+      toConsumers.push(lane(p, a, [ctail, cys[i] ?? house[1]], 0, (ctail - p[0]) * 0.45));
     });
   }
   // the slots: a single lane needs 20 px of arc to its neighbour; a pair is two lanes 16 px apart
@@ -298,71 +293,103 @@ export function rowsLayout(o: RowsOptions): RowsLayout {
   const share = toDeg(need) > 138;
   if (share) need = 20 * Math.max(0, o.nodes.length - 1);
   const span = toDeg(need);
-  /** The lanes into the house, their fan's top `up` degrees above its left point. */
-  const fan = (up: number): RowLane[] => {
-    const lanes: RowLane[] = [];
-    let angle = 180 + up;
-    o.nodes.forEach((node, k) => {
-      if (k > 0) angle -= toDeg(share ? 20 : gap(o.nodes[k - 1] ?? node, node));
-      const row = ys[k] ?? TOP;
-      const centre = onCircle(house, RING, angle);
-      const tangent: Point = [Math.sin(rad(angle)), -Math.cos(rad(angle))];
-      const level = node.pair && Math.abs(row - house[1]) <= 12;
-      for (const index of node.pair ? ([0, 1] as const) : ([0] as const)) {
-        const side = node.pair ? (index === 0 ? -8 : 8) : 0;
-        const p: Point = level
-          ? [house[0] - Math.sqrt(RING * RING - side * side), house[1] + side]
-          : share || !node.pair
-            ? centre
-            : [centre[0] + tangent[0] * side, centre[1] + tangent[1] * side];
-        lanes.push({
-          node: k,
-          index,
-          path: lane([tail, row + side], 0, p, level ? 0 : angle - 180, (p[0] - tail) * 0.45),
-        });
-      }
-    });
-    return lanes;
-  };
-  // the house's words hang under its ring (centred under it beside consumers), as low as the lanes ask: a fan of four
-  // rows, or of pairs, reaches 48° under the house and comes in through words wider than its ring (#170)
   const half = o.houseWordsW / 2;
-  const under = (lanes: readonly RowLane[]): number =>
-    wordsUnder(
-      [...lanes.map((l) => l.path), ...out],
-      wide ? house[0] - half : o.width - o.houseWordsW,
-      wide ? house[0] + half : o.width,
-      house[1] + 36,
+  /** The rows with each node's words as `chosen` (one with none: the card lists), every lane at least `min` long. */
+  const laid = (chosen: readonly (WordsWidth | undefined)[], min: number): RowsLayout => {
+    const narrow = chosen.some((w) => !w);
+    // the lanes leave after the words, or after a figure wider than a house's usual as it reads now, as far as every
+    // lane stays one
+    const tail = Math.min(
+      up4(TEXT + Math.max(0, ...chosen.map((w) => (w ? Math.max(w.steady, w.now) : 0))) + 12),
+      Math.floor((house[0] - RING - min) / 4) * 4,
     );
-  // the fan centred on the house's left point, at most 48° of it below (the words hang there), at most 90° above; where
-  // its words would hang past the stage the card declares, it leans up, 4° at a time, as far as 90° above
-  let up = Math.min(90, span - Math.min(48, span / 2));
-  let lanes = narrow ? [] : fan(up);
-  let houseWords = under(lanes);
-  while (!narrow && houseWords + o.houseWordsH > stage && up < 90) {
-    up = Math.min(90, up + 4);
-    const leaning = fan(up);
-    const lower = under(leaning);
-    if (lower < houseWords) [lanes, houseWords] = [leaning, lower];
-  }
-  const bottoms = [
-    stage,
-    houseWords + o.houseWordsH,
-    ...cys.map((y, i) => y + Math.max(22, (consumers[i]?.wordsH ?? 36) / 2)),
-  ];
-  return {
-    narrow,
-    height: up4(Math.max(...bottoms)),
-    house,
-    nodes: ys.map((y): Point => [22, y]),
-    consumers: cys.map((y): Point => [o.width - 22, y]),
-    tail,
-    lanes,
-    out,
-    houseWords,
-    ways: chosen.map((w) => w?.way ?? 'inline'),
-    lines: chosen.map((w) => w?.lines ?? 1),
+    const out = narrow ? [] : toConsumers;
+    /** The lanes into the house, their fan's top `up` degrees above its left point. */
+    const fan = (up: number): RowLane[] => {
+      const lanes: RowLane[] = [];
+      let angle = 180 + up;
+      o.nodes.forEach((node, k) => {
+        if (k > 0) angle -= toDeg(share ? 20 : gap(o.nodes[k - 1] ?? node, node));
+        const row = ys[k] ?? TOP;
+        const centre = onCircle(house, RING, angle);
+        const tangent: Point = [Math.sin(rad(angle)), -Math.cos(rad(angle))];
+        const level = node.pair && Math.abs(row - house[1]) <= 12;
+        for (const index of node.pair ? ([0, 1] as const) : ([0] as const)) {
+          const side = node.pair ? (index === 0 ? -8 : 8) : 0;
+          const p: Point = level
+            ? [house[0] - Math.sqrt(RING * RING - side * side), house[1] + side]
+            : share || !node.pair
+              ? centre
+              : [centre[0] + tangent[0] * side, centre[1] + tangent[1] * side];
+          lanes.push({
+            node: k,
+            index,
+            path: lane([tail, row + side], 0, p, level ? 0 : angle - 180, (p[0] - tail) * 0.45),
+          });
+        }
+      });
+      return lanes;
+    };
+    // the house's words hang under its ring (centred under it beside consumers), as low as the lanes ask: a fan of
+    // four rows, or of pairs, reaches 48° under the house and comes in through words wider than its ring (#170)
+    const under = (lanes: readonly RowLane[]): number =>
+      wordsUnder(
+        [...lanes.map((l) => l.path), ...out],
+        wide ? house[0] - half : o.width - o.houseWordsW,
+        wide ? house[0] + half : o.width,
+        house[1] + 36,
+      );
+    // the fan centred on the house's left point, at most 48° of it below (the words hang there), at most 90° above;
+    // where its words would hang past the stage the card declares, it leans up, 4° at a time, as far as 90° above
+    let up = Math.min(90, span - Math.min(48, span / 2));
+    let lanes = narrow ? [] : fan(up);
+    let houseWords = under(lanes);
+    while (!narrow && houseWords + o.houseWordsH > stage && up < 90) {
+      up = Math.min(90, up + 4);
+      const leaning = fan(up);
+      const lower = under(leaning);
+      if (lower < houseWords) [lanes, houseWords] = [leaning, lower];
+    }
+    const bottoms = [
+      stage,
+      houseWords + o.houseWordsH,
+      ...cys.map((y, i) => y + Math.max(22, (consumers[i]?.wordsH ?? 36) / 2)),
+    ];
+    return {
+      narrow,
+      height: up4(Math.max(...bottoms)),
+      house,
+      nodes: ys.map((y): Point => [22, y]),
+      consumers: cys.map((y): Point => [o.width - 22, y]),
+      tail,
+      lanes,
+      out,
+      houseWords,
+      ways: chosen.map((w) => w?.way ?? 'inline'),
+      lines: chosen.map((w) => w?.lines ?? 1),
+    };
   };
+  /** The first of a node's ways whose words, their label on `three` lines or on fewer, leave a lane `min` long. */
+  const first = (n: RowNode, min: number, three: boolean): WordsWidth | undefined =>
+    n.words.find(
+      (w) => (w.lines === 3) === three && house[0] - RING - up4(TEXT + w.steady + 12) >= min,
+    );
+  // each node's words as the first of its ways that leaves a lane, its label on one line or two (#183)
+  const rows = laid(
+    o.nodes.map((n) => first(n, LANE_MIN, false)),
+    LANE_MIN,
+  );
+  if (rows.narrow)
+    // where a long name's leave none, it takes three lines (#202), its lanes 56 long, or 48 as its last resort (words
+    // that are no long name keep the list they had); each only where the stage the card declares holds it
+    for (const min of [LANE_MIN, LANE_LAST]) {
+      const held = laid(
+        o.nodes.map((n) => first(n, LANE_MIN, false) ?? first(n, min, true)),
+        min,
+      );
+      if (!held.narrow && held.height <= stage) return held;
+    }
+  return rows;
 }
 
 /**

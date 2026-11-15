@@ -299,6 +299,9 @@ export const sheet: SheetSpec = {
     ['sensor.fl_long_grid', '-1.2', power('Grid power', 'kW')],
     ['sensor.fl_long_battery', '-2.1', power('Battery power', 'kW')],
     ['sensor.fl_long_level', '64', level('Battery')],
+    /* two arrays named in Chinese without a space, broken between two characters (#202) */
+    ['sensor.fl_unbroken_e1', '2.6', power('南侧车库屋顶光伏阵列逆变器累计发电量', 'kW')],
+    ['sensor.fl_unbroken_e2', '3.1', power('北侧主楼屋顶光伏阵列逆变器累计发电量', 'kW')],
 
     /* the Energy dashboard's meters and power sensors */
     ['sensor.fl_grid_in_energy', '4.1', energy('Grid import')],
@@ -999,6 +1002,36 @@ export const sheet: SheetSpec = {
             { type: 'solar', power: `sensor.fl_long_${house}_e2`, ...e2 },
             { type: 'grid', power: 'sensor.fl_long_grid' },
             { type: 'battery', power: 'sensor.fl_long_battery', level: 'sensor.fl_long_level' },
+          ],
+          _now: NOW,
+        },
+      ],
+    })),
+    // #202: a phone read larger gives the card less width (its width / the size − 32): a long name takes three lines
+    // where two leave no lane, the lanes still 56 long; at 280 they are 48, the last resort before the list (there a
+    // battery that says its charge, "电池 · 100 %", leaves 46 even on two lines: that house lists)
+    ...(
+      [
+        [312, '430 px at 125 %', 'long_zh', true],
+        [298, '412 px at 125 %', 'unbroken', true],
+        [295, '360 px at 110 %', 'long_zh', true],
+        [280, '390 px at 125 %', 'long_zh', false],
+      ] as const
+    ).map(([width, phone, house, charge]) => ({
+      title: `A long name on three lines · ${phone}`,
+      width,
+      cards: [
+        {
+          type: 'custom:fluvy-energy-flow-card',
+          sources: [
+            { type: 'solar', power: `sensor.fl_${house}_e1` },
+            { type: 'solar', power: `sensor.fl_${house}_e2` },
+            { type: 'grid', power: 'sensor.fl_long_grid' },
+            {
+              type: 'battery',
+              power: 'sensor.fl_long_battery',
+              ...(charge ? { level: 'sensor.fl_long_level' } : {}),
+            },
           ],
           _now: NOW,
         },
