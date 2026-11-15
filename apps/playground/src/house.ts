@@ -36,8 +36,15 @@ const merged = <T extends object>(
   pick: (sheet: SheetSpec) => T | undefined,
 ): T => Object.assign({}, ...sheets.map(pick)) as T;
 
+/** The sheets a page's house is made of: the ones it draws, and before them those they stand on (`SheetSpec.on`). */
+const withStoodOn = (drawn: readonly SheetSpec[]): readonly SheetSpec[] => [
+  ...new Set(drawn.flatMap((sheet) => sheet.on ?? []).filter((sheet) => !drawn.includes(sheet))),
+  ...drawn,
+];
+
 /** The house of these sheets, at the sheets' moment (Thursday 17 September 2026, 21:47). */
-export function createHouse(sheets: readonly SheetSpec[], options: HouseOptions): MockHouse {
+export function createHouse(drawn: readonly SheetSpec[], options: HouseOptions): MockHouse {
+  const sheets = withStoodOn(drawn);
   const states = new Map<string, StateSeed>();
   for (const sheet of sheets) for (const seed of sheet.states) states.set(seed[0], seed);
   const registry: NonNullable<MockOptions['registry']> = {
@@ -47,7 +54,7 @@ export function createHouse(sheets: readonly SheetSpec[], options: HouseOptions)
     floors: merged(sheets, (sheet) => sheet.registry?.floors),
   };
   const imperial =
-    options.units === 'imperial' || (sheets.length === 1 && sheets[0]?.units === 'imperial');
+    options.units === 'imperial' || (drawn.length === 1 && drawn[0]?.units === 'imperial');
   return createHass([...states.values()], {
     dark: options.dark,
     language: options.language,

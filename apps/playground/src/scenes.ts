@@ -67,6 +67,12 @@ export interface SheetSpec {
    * automatic dashboard asked for it is built from, and drawn on (`?dashboard=auto&house=<sheet>`).
    */
   readonly house?: (hass: HomeAssistant) => HomeAssistant;
+  /**
+   * The sheets whose houses this one stands on, where its cards are drawn on other sheets' entities (the gallery: a
+   * card of every kind): theirs come first, in this order, so a later one's seed of an id wins and the sheet's own
+   * over them all. On a page that draws those sheets too, they stand where they are and nothing is added.
+   */
+  readonly on?: readonly SheetSpec[];
   /** Registries the sheet's cards read (areas, floors, devices, entity entries); merged with every other sheet's. */
   readonly registry?: MockOptions['registry'];
   /** entity id → series returned for `history/history_during_period`. */
