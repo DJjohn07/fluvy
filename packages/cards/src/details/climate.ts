@@ -106,26 +106,34 @@ export class FluvyDetailsClimate extends DetailsSheet {
     for (const hold of this.chosen.values()) hold.clear();
   }
 
-  /** What the card that opened the sheet asks to be said of the thermostat (`askOf`); its own config's, docked. */
+  /** What its own config asks to be said of the thermostat (docked, the playground's). */
+  private own: ReadingsAsk = {};
+  /** What the card that opened the sheet asks (`askOf`); opened by none, or docked, what its own config asks. */
   private ask: ReadingsAsk = {};
 
   override setConfig(config: DetailsConfig & ReadingsAsk): void {
     super.setConfig(config);
-    this.ask = config;
+    this.own = this.ask = config;
   }
 
   override open(openedBy?: HTMLElement, source?: LiveHass, zoom?: number): void {
-    this.ask = askOf(source, this.config?.entity);
+    this.ask = source ? askOf(source, this.config?.entity) : this.own;
     super.open(openedBy, source, zoom);
   }
 
-  /** The thermostat read once for each view of it: a render asks for it from every part of the sheet. */
-  private read: { readonly view: EntityView; readonly model: ThermostatModel } | undefined;
+  /**
+   * The thermostat read once for each view of it and what is asked of it: a render asks for it from every part of the
+   * sheet.
+   */
+  private read:
+    | { readonly view: EntityView; readonly ask: ReadingsAsk; readonly model: ThermostatModel }
+    | undefined;
 
   private model(view: EntityView): ThermostatModel {
-    if (this.read?.view !== view)
+    if (this.read?.view !== view || this.read.ask !== this.ask)
       this.read = {
         view,
+        ask: this.ask,
         model: thermostatModel(
           {
             hass: this.hass,

@@ -555,6 +555,34 @@ describe('a thermostat’s sheet says what the card that opened it asked (#185)'
     await sheet.updateComplete;
     expect(status(sheet)).toBe('Window open · 46 % RH');
   });
+
+  it('opened by no card, says what its own config asks, whatever a card that opened it before asked', async () => {
+    const open = home({ ...WINDOW, state: 'on' });
+    const sheet = document.createElement('fluvy-details-climate') as Sheet;
+    sheet.setConfig({
+      type: 'custom:fluvy-details-climate',
+      entity: TRV.entity_id,
+      show_window: true,
+    });
+    sheet.hass = open;
+    document.body.append(sheet);
+    // a card that asks nothing has its sheet say nothing more
+    const from = Object.assign(document.createElement('div'), {
+      rawHass: open,
+      config: { type: 'custom:fluvy-thermostat-card', entity: TRV.entity_id },
+    });
+    sheet.open(undefined, from);
+    await sheet.updateComplete;
+    expect([status(sheet), readings(sheet)]).toEqual(['Idle · 46 % RH', []]);
+    sheet.close();
+    await wait(240);
+    sheet.open();
+    await sheet.updateComplete;
+    expect([status(sheet), readings(sheet)]).toEqual([
+      'Window open · 46 % RH',
+      [['Window', 'Open', 'warning']],
+    ]);
+  });
 });
 
 describe('a cover’s sheet', () => {
