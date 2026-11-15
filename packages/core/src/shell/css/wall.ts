@@ -5,7 +5,8 @@ import { SUBVIEW_ATTRIBUTE } from '../../look/view.js';
  * A wall panel (`<html fluvy-wall>`): the page does not bounce or select, the drawer is gone with its width (the
  * variable Home Assistant pads its content by — `--ha-sidebar-width` today, `--mdc-drawer-width` before — and the
  * padding itself), the
- * dashboard has no header and fills the tablet inside its safe area, and its view's background (Home Assistant's
+ * dashboard has no header and fills the tablet inside its safe area as Home Assistant says it (`--safe-area-inset-*`:
+ * the Companion app's bars, else the browser's insets; a wall has no frame), and its view's background (Home Assistant's
  * `hui-view-background`, under the view) is the view's own where it has one, else the wall's: the wall mesh, or Home
  * Assistant's own when the house keeps the page plain — never painted over, so what shows through a see-through card
  * is the view's. These sheets fill on the attribute alone, whatever the theme: a wall is a wall in every scope.
@@ -43,7 +44,7 @@ export const wallDashboardCss = `
 }
 #view {
   min-height: 100vh;
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
 }
 hui-view-background {
   background: var(--view-background, var(${WALL_BACKGROUND_VAR}, var(--lovelace-background, var(--primary-background-color))));
@@ -63,12 +64,12 @@ export const wallSubviewHeaderCss = `
   display: block;
 }
 :host([${SUBVIEW_ATTRIBUTE}]) #view {
-  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  padding-top: calc(var(--header-height) + var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
 }
 `;
 
 export const wallSubviewBackCss = `
 :host([${SUBVIEW_ATTRIBUTE}]) #view {
-  padding-top: calc(env(safe-area-inset-top, 0px) + 44px);
+  padding-top: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 44px);
 }
 `;

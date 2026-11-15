@@ -231,6 +231,15 @@ describe('shell lifecycle', () => {
         expect(rule).toMatch(/^:host\(\[fluvy-subview\]\)/);
   });
 
+  it('stands a wall’s view inside the screen’s insets as Home Assistant says them, never the browser’s alone', () => {
+    for (const spec of SHEETS.filter((s) => s.id.startsWith('wall:') && s.css.includes('#view'))) {
+      expect(spec.css, spec.id).toContain(
+        'var(--safe-area-inset-top, env(safe-area-inset-top, 0px))',
+      );
+      expect(spec.css, spec.id).not.toMatch(/(?<!var\(--safe-area-inset-top, )env\(/);
+    }
+  });
+
   it('fills the view tabs’ sheet whatever the theme: its rules hang on our marks alone', async () => {
     const { env, classes, theme } = page();
     classes.set('hui-root', { elementStyles: [] });

@@ -50,7 +50,8 @@ export class FluvyWallScreensaver extends LitElement {
         background: #000;
         color: rgb(255 255 255 / 0.6);
       }
-      /* zoomed, the column counts the screen's width and its insets in its own pixels: it fills the screen as it did */
+      /* zoomed, the column counts the screen's width and its insets (Home Assistant's: the Companion app's where it
+         hands them) in its own pixels: it fills the screen as it did */
       .column {
         display: flex;
         flex-direction: column;
@@ -58,8 +59,8 @@ export class FluvyWallScreensaver extends LitElement {
         width: min(480px, 100vw / var(--ws-zoom) - 32px);
         min-height: 100%;
         margin: 0 auto;
-        padding: calc(env(safe-area-inset-top, 0px) / var(--ws-zoom)) 0
-          calc(env(safe-area-inset-bottom, 0px) / var(--ws-zoom));
+        padding: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) / var(--ws-zoom)) 0
+          calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) / var(--ws-zoom));
         zoom: var(--ws-zoom);
         --fluvy-card: transparent;
         --fluvy-border: transparent;

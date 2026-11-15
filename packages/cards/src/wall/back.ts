@@ -15,8 +15,9 @@ export class FluvyWallBack extends LitElement {
   static override styles = css`
     :host {
       position: fixed;
-      top: env(safe-area-inset-top, 0px);
-      inset-inline-start: env(safe-area-inset-left, 0px);
+      /* inside the screen's insets as Home Assistant says them, as the corner is */
+      top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+      inset-inline-start: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
       z-index: 7;
       -webkit-tap-highlight-color: transparent;
       animation: arrive 200ms ease both;

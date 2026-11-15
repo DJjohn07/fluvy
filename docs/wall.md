@@ -18,8 +18,9 @@ Settings are never walls, so a tablet can always be administered from itself.
 
 ## On the wall
 
-- The sidebar and the dashboard header are gone, and the dashboard fills the screen inside the tablet's safe area.
-  The header's tabs go with it, so a wall moves between its views with what the dashboard itself holds (chips,
+- The sidebar and the dashboard header are gone, and the dashboard fills the screen inside the tablet's safe area:
+  the bars the Companion app says it draws over the page (as Home Assistant hands them on), else the browser's
+  insets. The exit corner, the way back, the screensaver and the wall's notices keep inside them too. The header's tabs go with it, so a wall moves between its views with what the dashboard itself holds (chips,
   headings, buttons that navigate), or with the menu of [the dashboard's own sidebar](sidebar.md), which a wall
   draws from the top of the screen. There is no swipe between views and no gesture of Fluvy's.
 - **Subviews**: Home Assistant shows its back arrow in the header, which a wall does not have. The house chooses the

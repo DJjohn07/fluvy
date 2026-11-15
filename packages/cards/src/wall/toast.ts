@@ -23,7 +23,9 @@ export class FluvyWallToast extends LitElement {
       :host {
         position: fixed;
         left: 50%;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+        /* 16 over the screen's foot as Home Assistant says it (the Companion app's bar, else the browser's), or
+           over the frame's once the wall is left, as Home Assistant's own notices stand */
+        bottom: calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px);
         z-index: 7;
         transform: translateX(-50%);
         animation: rise 240ms ease;
