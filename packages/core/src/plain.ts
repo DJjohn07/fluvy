@@ -1,9 +1,15 @@
 /**
  * The letters Unicode gives no decomposition, as the plain letters a name is read by: a Turkish ı is i, a Polish ł is
- * l, a German ß is ss. Taking a name's accents off leaves them as they are, so every plain reading folds them here.
+ * l, a German ß is ss, a Danish ø is o and æ ae (as Home Assistant writes "Køkken" and "Emhætte" into an id: `kokken`,
+ * `emhaette`). Taking a name's accents off leaves them as they are, so every plain reading folds them here.
  */
 export const plainLetters = (text: string): string =>
-  text.replace(/ı/g, 'i').replace(/[łŁ]/g, 'l').replace(/ß/g, 'ss');
+  text
+    .replace(/ı/g, 'i')
+    .replace(/[łŁ]/g, 'l')
+    .replace(/ß/g, 'ss')
+    .replace(/[øØ]/g, 'o')
+    .replace(/[æÆ]/g, 'ae');
 
 /**
  * A name as Fluvy's words read it (an appliance's kind, a dashboard's naming words, a view's icon, and the words' build

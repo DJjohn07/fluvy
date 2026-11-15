@@ -90,6 +90,9 @@ describe('an appliance’s entities', () => {
     expect(deviceSlug(['wasserkocher_status'], 'Wasserkocher')).toBe('wasserkocher');
     expect(slugify('Kühl-Gefrier-Kombination')).toBe('kuhl_gefrier_kombination');
     expect(slugify('Çamaşır makinesi')).toBe('camasir_makinesi');
+    // a Danish ø and æ as Home Assistant writes them into an id
+    expect(slugify('Køleskab i bryggers')).toBe('koleskab_i_bryggers');
+    expect(slugify('Emhætte')).toBe('emhaette');
     expect(withoutSlug('waschmaschine', 'waschmaschine')).toBe('');
     expect(withoutSlug('waschmaschine_run_state', 'waschmaschine')).toBe('run_state');
     expect(withoutSlug('other_state', 'waschmaschine')).toBe('other_state');
