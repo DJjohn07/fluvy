@@ -170,6 +170,13 @@ export const sheet: SheetSpec = {
       hass: solcast,
       cards: [card()],
     },
+    // #202: the badge says the hour read against its own forecast (12:00, 2.7 kWh against 2.6: +4 %), the hour in
+    // progress against its first twelve minutes' (+14 %), an hour to come the day's
+    {
+      title: 'Today · the badge follows the hour read',
+      hass: solcast,
+      cards: [card({ badge: 'hour' }), card({ badge: 'hour', variant: 'compact' })],
+    },
     {
       title: 'Tomorrow',
       hass: solcast,

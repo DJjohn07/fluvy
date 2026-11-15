@@ -1745,7 +1745,9 @@
     "hour": "h",
     "forecast_entity": "Vorhersage-Entität",
     "peak_entity": "Entität der Spitzenleistung",
-    "editor_arrays": "Modulfelder (jedes mit eigenem Leistungs- oder Energiesensor)"
+    "editor_arrays": "Modulfelder (jedes mit eigenem Leistungs- oder Energiesensor)",
+    "badge_day": "Der Tag bisher",
+    "badge_hour": "Die Stunde unter dem Zeiger, sonst der Tag"
   },
   "history-bars": {
     "title": "Verlaufsbalken",

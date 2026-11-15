@@ -2159,7 +2159,9 @@
     "hour": "ó",
     "forecast_entity": "Előrejelzés entitása",
     "peak_entity": "Csúcsteljesítmény entitása",
-    "editor_arrays": "Napelemtáblák (mindegyik saját teljesítmény- vagy energiaérzékelővel)"
+    "editor_arrays": "Napelemtáblák (mindegyik saját teljesítmény- vagy energiaérzékelővel)",
+    "badge_day": "Az eddigi nap",
+    "badge_hour": "A mutató alatti óra, különben a nap"
   },
   "history-bars": {
     "title": "Előzményoszlopok",

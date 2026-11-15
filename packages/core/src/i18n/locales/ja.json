@@ -2056,7 +2056,9 @@
     "hour": "時間",
     "forecast_entity": "予測エンティティ",
     "peak_entity": "ピーク電力エンティティ",
-    "editor_arrays": "パネル（それぞれに電力または電力量のセンサー）"
+    "editor_arrays": "パネル（それぞれに電力または電力量のセンサー）",
+    "badge_day": "その日の累計",
+    "badge_hour": "ポインターの下の時間帯（なければその日）"
   },
   "history-bars": {
     "title": "履歴バー",

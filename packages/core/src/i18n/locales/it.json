@@ -1745,7 +1745,9 @@
     "hour": "h",
     "forecast_entity": "Entità della previsione",
     "peak_entity": "Entità della potenza di picco",
-    "editor_arrays": "Stringhe di pannelli (ognuna col suo sensore di potenza o energia)"
+    "editor_arrays": "Stringhe di pannelli (ognuna col suo sensore di potenza o energia)",
+    "badge_day": "La giornata finora",
+    "badge_hour": "L’ora sotto il puntatore, altrimenti la giornata"
   },
   "history-bars": {
     "title": "Barre dello storico",

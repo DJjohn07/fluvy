@@ -1745,7 +1745,9 @@
     "hour": "sa",
     "forecast_entity": "Tahmin varlığı",
     "peak_entity": "Zirve güç varlığı",
-    "editor_arrays": "Panel dizileri (her biri kendi güç ya da enerji sensörüyle)"
+    "editor_arrays": "Panel dizileri (her biri kendi güç ya da enerji sensörüyle)",
+    "badge_day": "Şimdiye kadarki gün",
+    "badge_hour": "İşaretçinin altındaki saat, yoksa gün"
   },
   "history-bars": {
     "title": "Geçmiş çubukları",

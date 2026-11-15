@@ -1745,7 +1745,9 @@
     "hour": "u",
     "forecast_entity": "Verwachtingsentiteit",
     "peak_entity": "Entiteit van het piekvermogen",
-    "editor_arrays": "Panelenvelden (elk met een eigen vermogens- of energiesensor)"
+    "editor_arrays": "Panelenvelden (elk met een eigen vermogens- of energiesensor)",
+    "badge_day": "De dag tot nu toe",
+    "badge_hour": "Het uur onder de aanwijzer, anders de dag"
   },
   "history-bars": {
     "title": "Historiebalken",

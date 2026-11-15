@@ -1745,7 +1745,9 @@
     "hour": "h",
     "forecast_entity": "Entidad de previsión",
     "peak_entity": "Entidad de potencia pico",
-    "editor_arrays": "Campos solares (cada uno con su sensor de potencia o energía)"
+    "editor_arrays": "Campos solares (cada uno con su sensor de potencia o energía)",
+    "badge_day": "El día hasta ahora",
+    "badge_hour": "La hora bajo el puntero; si no, el día"
   },
   "history-bars": {
     "title": "Barras de historial",

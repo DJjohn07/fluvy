@@ -286,6 +286,18 @@ show_compare: true              # Compare: the period before beside the span, on
 
   `show_forecast: false` draws none. While an hour is read under the pointer, the forecast's figure is that hour's.
 
+  The badge says the day so far against the forecast up to this minute, whatever hour is read (`badge: day`, the
+  default). `badge: hour` (1.22, #202) makes it follow the hour read as well: an hour gone by that has a forecast says
+  its own share of it (2.3 kWh made against 2.6 forecast: "−12 %"), the hour in progress its share up to this minute,
+  as the day's is, and an hour to come, or one the forecast has nothing for, the day's. The head is laid out for the
+  widest the badge can say, so reading the bars never moves it.
+
+  ```yaml
+  type: custom:fluvy-production-card
+  entity: sensor.solar_energy_today
+  badge: hour
+  ```
+
   **`day`** makes the card a forecast day, the same anatomy with nothing made in it yet:
   - `day: tomorrow` — tomorrow's hours, the day's total with today's forecast beside it, its best hour, when, and its
     hours of sun.

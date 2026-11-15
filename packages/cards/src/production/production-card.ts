@@ -16,7 +16,7 @@ import {
   type LovelaceGridOptions,
 } from '@fluvy/core';
 
-import { axis, head, readout, sheetStyles, type Tone } from '@fluvy/ui';
+import { axis, badge, head, readout, sheetStyles, type Tone } from '@fluvy/ui';
 import {
   barGeometry,
   chartDefaultsFor,
@@ -52,7 +52,7 @@ import {
   collectionField,
   collectionHelper,
 } from '../energy/collection-field.js';
-import { HeadFit } from '../energy/head.js';
+import { BADGE_SIDES, HeadFit } from '../energy/head.js';
 import { legendColumns } from '../energy/legend-row.js';
 import { family, scaled, scaleOf } from '../energy/power.js';
 import { CollectionFollower, collectionKeyOf, followedMoment } from '../energy-model/collection.js';
@@ -154,6 +154,11 @@ export interface ProductionCardConfig
   day?: 'today' | 'tomorrow' | 'ahead';
   /** The most days `ahead` draws (2 to 14); without it, every day the forecast holds. */
   days?: number;
+  /**
+   * What the badge compares with the forecast: `day` (default), the day so far; `hour`, the hour a bar holds, where it
+   * has a forecast (the hour in progress up to this minute), else the day (#202).
+   */
+  badge?: 'day' | 'hour';
   /** Test hook, as in the clock cards: an ISO instant the card takes for "now". */
   _now?: string;
 }
@@ -198,6 +203,10 @@ const NONE_FRAME = 100;
 
 const sum = (values: readonly number[]): number =>
   values.reduce((total, value) => total + value, 0);
+
+/** What was made against what was forecast for it, as a share: −100 % to +999 %; null where none was forecast. */
+const against = (made: number, expected: number): number | null =>
+  expected > 0 ? Math.max(-1, Math.min(9.99, made / expected - 1)) : null;
 
 /** An array as the chart and the legend draw it: its name and its Wh an hour (null: it cannot be read). */
 interface Stack {
@@ -305,6 +314,12 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
       }
       .pr-chart {
         touch-action: pan-y;
+      }
+      /* with badge: hour, the badge's slot as wide as its widest words, the words at its end */
+      .pr-badge {
+        display: flex;
+        flex: none;
+        justify-content: flex-end;
       }
       .pr-legend {
         column-gap: 12px;
@@ -421,6 +436,7 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
     'collection_key',
     'day',
     'days',
+    'badge',
     'unit',
     'decimals',
     'chart',
@@ -446,6 +462,7 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
   static override defaults: EditorDefaults = (config) => ({
     variant: 'full',
     day: 'today',
+    badge: 'day',
     show_forecast: true,
     show_peak: true,
     collection_key: '',
@@ -480,6 +497,14 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
           }),
         ),
         fieldRow(onlyWhen(onDay('today'), boolField('show_forecast')), boolField('show_peak')),
+        // the badge compares the day, or a held hour, with today's forecast: nothing to choose without one
+        onlyWhen(
+          (data) => onDay('today')(data) && data['show_forecast'] !== false,
+          choiceField('badge', [
+            ['day', 'production.badge_day'],
+            ['hour', 'production.badge_hour'],
+          ]),
+        ),
         fieldRow(
           selectField('variant', ['full', 'compact']),
           onlyWhen(onDay('today'), collectionField()),
@@ -492,7 +517,12 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
       ...editorLabels(
         strings,
         { forecast_entity: 'forecast_entity', peak_entity: 'peak_entity' },
-        { ...COLLECTION_LABEL, day: 'energy-flow.editor_period', days: 'editor.days' },
+        {
+          ...COLLECTION_LABEL,
+          day: 'energy-flow.editor_period',
+          days: 'editor.days',
+          badge: 'energy-flow.editor_badge',
+        },
       ),
       computeHelper: collectionHelper,
     };
@@ -841,10 +871,18 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
     const expected = forecast
       ? sum(forecast.slice(0, hourNow)) + (forecast[hourNow] ?? 0) * (minutes / 60)
       : 0;
-    const delta =
-      known && !unusable && expected > 0
-        ? Math.max(-9.99, Math.min(9.99, total / expected - 1))
-        : null;
+    const delta = known && !unusable ? against(total, expected) : null;
+    // `badge: hour` (#202): a held hour that has a forecast says its own share, the hour in progress against its
+    // forecast up to this minute as the day is; an hour to come, or one with none, says the day's
+    const hourly = this.config?.badge === 'hour' && delta !== null;
+    const hourShare = (hour: number): number | null =>
+      hour > hourNow
+        ? null
+        : against(
+            produced[hour] ?? 0,
+            (forecast?.[hour] ?? 0) * (hour === hourNow ? minutes / 60 : 1),
+          );
+    const held = hourly && hovered !== null ? (hourShare(hovered) ?? delta) : delta;
 
     const scale = figuresOf(
       this.hass,
@@ -885,6 +923,26 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
 
     const narrow = this.contentWidth < NARROW;
     const forecastShown = !compact && forecastTotal !== null && forecastTotal > 0 && !narrow;
+    /** The badge's words for a share of the forecast: in the card's tone ahead of it, quiet behind. */
+    const said = (share: number): { text: string; tone: Tone } => ({
+      text: `${share >= 0 ? '+' : '−'}${formatNumber(this.hass, Math.abs(share) * 100, { digits: 0 })} %`,
+      tone: share >= 0 ? tone : 'neutral',
+    });
+    // the head is fitted on the widest words the badge can say (every hour that can be held, with `hour`), so holding
+    // one never moves it
+    const widestBadge =
+      delta === null
+        ? null
+        : (hourly ? Array.from({ length: hourNow + 1 }, (_u, hour) => hourShare(hour)) : [])
+            .flatMap((share) => (share === null ? [] : [said(share)]))
+            .reduce(
+              (wide, words) =>
+                this.head.ruler.pill('fv-badge', words.text, BADGE_SIDES) >
+                this.head.ruler.pill('fv-badge', wide.text, BADGE_SIDES)
+                  ? words
+                  : wide,
+              said(delta),
+            );
     const fit = (versus: boolean, compared = true) =>
       this.head.fit({
         width: this.contentWidth,
@@ -894,11 +952,8 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
           (versus ? `${this.dayWords()} · ${strings(this.hass, 'vs_forecast')}` : this.dayWords()),
         badge: unusable
           ? { text: stateWord(this.hass, view), tone: 'off' }
-          : delta !== null && compared
-            ? {
-                text: `${delta >= 0 ? '+' : '−'}${formatNumber(this.hass, Math.abs(delta) * 100, { digits: 0 })} %`,
-                tone: delta >= 0 ? tone : 'neutral',
-              }
+          : compared
+            ? widestBadge
             : null,
       });
     // "vs forecast" only while something is compared: the badge's delta or the forecast's own readout — and the
@@ -906,6 +961,8 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
     let fitted = fit(forecastTotal !== null);
     if (forecastTotal !== null && fitted.badge === nothing && !forecastShown)
       fitted = fit(false, false);
+    // with `hour`, the hour's words, or the day's, at the end of a slot that keeps the widest's room
+    const heldWords = hourly && held !== null && fitted.badge !== nothing ? said(held) : null;
 
     const style = styleOf(this.config, arrays.length ? ARRAYS_CAPS : DAY_CAPS);
     const classic = style.preset === 'classic';
@@ -943,7 +1000,14 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
         tone,
         title: name,
         sub: fitted.sub,
-        trailing: fitted.badge,
+        trailing:
+          heldWords && widestBadge
+            ? html`<span
+                class="pr-badge"
+                style="min-width:${this.head.ruler.pill('fv-badge', widestBadge.text, BADGE_SIDES)}px"
+                >${badge(heldWords.text, heldWords.tone)}</span
+              >`
+            : fitted.badge,
         cut: fitted.cut,
         ...this.headActions(view.id),
         name: true,

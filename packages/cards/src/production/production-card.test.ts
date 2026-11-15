@@ -7,6 +7,7 @@ import {
 } from '@fluvy/core';
 import { afterEach, describe, expect, it } from 'vitest';
 import { fitSet } from '../chart/engine/index.js';
+import type { HeadFit } from '../energy/head.js';
 import { familiesDefined } from '../index.js';
 import { FluvyProductionCard, type ProductionCardConfig } from './production-card.js';
 
@@ -388,6 +389,49 @@ describe('the production card reads Home Assistant’s solar forecast', () => {
     expect(text(root, '.so-top__side .fv-readout__value')).toEqual(['18.4kWh']);
   });
 
+  it('badges the day against its forecast up to this minute, whatever hour is read, unless asked otherwise', async () => {
+    // 13.4 kWh made by 14:30 against 13.5 forecast up to then
+    const card = await mountIn(forecastHouse({ solcast: forecastOf([1]) }), {});
+    const root = card.shadowRoot!;
+    expect(text(root, '.fv-badge')).toEqual(['−1 %']);
+    await readAt(card, 12);
+    expect(text(root, '.fv-badge')).toEqual(['−1 %']);
+  });
+
+  it('with `badge: hour`, badges a held hour against its own forecast, the hour in progress up to this minute (#202)', async () => {
+    const card = await mountIn(forecastHouse({ solcast: forecastOf([1]) }), { badge: 'hour' });
+    const root = card.shadowRoot!;
+    expect(text(root, '.fv-badge')).toEqual(['−1 %']);
+    // 12:00: 2.3 kWh made against 2.6 forecast
+    await readAt(card, 12);
+    expect(text(root, '.fv-badge')).toEqual(['−12 %']);
+    // 14:00 at 14:30: 2.4 kWh made against half of its 2.2, never the whole hour's
+    await readAt(card, 14);
+    expect(text(root, '.fv-badge')).toEqual(['+118 %']);
+    // an hour to come, and one the forecast has nothing for, say the day's; so does letting go
+    for (const hour of [16, 3, null]) {
+      await readAt(card, hour);
+      expect(text(root, '.fv-badge')).toEqual(['−1 %']);
+    }
+  });
+
+  it('fits the head once on the widest words the hour’s badge can say, so reading an hour never moves it (#202)', async () => {
+    const card = await mountIn(forecastHouse({ solcast: forecastOf([1]) }), { badge: 'hour' });
+    // a ruler that reads a pill by its letters, and the badges the head is fitted on
+    const head = (card as unknown as { head: HeadFit }).head;
+    head.ruler.pill = (_cls: string, text: string, pad: number) => text.length * 8 + pad;
+    const fit = head.fit.bind(head);
+    const fitted: (string | undefined)[] = [];
+    head.fit = (o) => (fitted.push(o.badge?.text), fit(o));
+    for (const hour of [null, 12, 14, 16]) await readAt(card, hour);
+    expect(new Set(fitted)).toEqual(new Set(['+118 %']));
+    // the words said are the hour's, or the day's, at the end of a slot as wide as the widest's pill
+    expect(text(card.shadowRoot!, '.fv-badge')).toEqual(['−1 %']);
+    expect(card.shadowRoot!.querySelector('.pr-badge')?.getAttribute('style')).toBe(
+      'min-width:76px',
+    );
+  });
+
   it('adds two entries, lets a named sensor win, and asks for nothing where the forecast is turned off', async () => {
     const planes = await mountIn(
       forecastHouse({ east: forecastOf([0.5]), west: forecastOf([0.25]) }),
@@ -552,6 +596,28 @@ describe('the production card’s editor, by the day it shows', () => {
     ).toEqual(['animate']);
     expect(FluvyProductionCard.defaults?.({ type: 'x' }, undefined)).toMatchObject({
       day: 'today',
+    });
+  });
+
+  it('offers the badge’s hour only where today’s forecast is compared, the day shown where nothing is written (#202)', () => {
+    const offered = (data: Record<string, unknown>): boolean =>
+      names(schema, data).includes('badge');
+    expect(offered({})).toBe(true);
+    expect(offered({ day: 'today', forecast_entity: 'sensor.expected' })).toBe(true);
+    expect(offered({ show_forecast: false })).toBe(false);
+    expect(offered({ day: 'tomorrow' })).toBe(false);
+    expect(offered({ day: 'ahead' })).toBe(false);
+    expect(schema.find((item) => item.name === 'badge')?.selector).toEqual({
+      select: {
+        mode: 'dropdown',
+        options: [
+          { value: 'day', label: 'The day so far' },
+          { value: 'hour', label: 'The hour under the pointer, else the day' },
+        ],
+      },
+    });
+    expect(FluvyProductionCard.defaults?.({ type: 'x' }, undefined)).toMatchObject({
+      badge: 'day',
     });
   });
 });

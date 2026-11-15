@@ -2136,7 +2136,9 @@
     "hour": "h",
     "forecast_entity": "Entita předpovědi",
     "peak_entity": "Entita špičkového výkonu",
-    "editor_arrays": "Pole panelů (každé se svým senzorem výkonu nebo energie)"
+    "editor_arrays": "Pole panelů (každé se svým senzorem výkonu nebo energie)",
+    "badge_day": "Den doposud",
+    "badge_hour": "Hodina pod ukazatelem, jinak den"
   },
   "history-bars": {
     "title": "Sloupce historie",

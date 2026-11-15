@@ -2136,7 +2136,9 @@
     "hour": "h",
     "forecast_entity": "Entita predpovede",
     "peak_entity": "Entita maximálneho výkonu",
-    "editor_arrays": "Polia panelov (každé s vlastným snímačom výkonu alebo energie)"
+    "editor_arrays": "Polia panelov (každé s vlastným snímačom výkonu alebo energie)",
+    "badge_day": "Deň doteraz",
+    "badge_hour": "Hodina pod ukazovateľom, inak deň"
   },
   "history-bars": {
     "title": "Historické stĺpce",

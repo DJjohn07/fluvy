@@ -94,7 +94,9 @@
     "hour": "h",
     "forecast_entity": "Forecast entity",
     "peak_entity": "Peak power entity",
-    "editor_arrays": "Arrays (each its own power or energy sensor)"
+    "editor_arrays": "Arrays (each its own power or energy sensor)",
+    "badge_day": "The day so far",
+    "badge_hour": "The hour under the pointer, else the day"
   },
   "history-bars": {
     "title": "History bars",

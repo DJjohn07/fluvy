@@ -2862,7 +2862,9 @@
     "hour": "h",
     "forecast_entity": "Encja prognozy",
     "peak_entity": "Encja mocy szczytowej",
-    "editor_arrays": "Pola PV (każde z własnym czujnikiem mocy lub energii)"
+    "editor_arrays": "Pola PV (każde z własnym czujnikiem mocy lub energii)",
+    "badge_day": "Dzień do teraz",
+    "badge_hour": "Godzina pod wskaźnikiem, inaczej dzień"
   },
   "readouts": {
     "rising": "rośnie",

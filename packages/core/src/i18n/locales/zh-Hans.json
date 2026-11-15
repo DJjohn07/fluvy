@@ -2091,7 +2091,9 @@
     "hour": "小时",
     "forecast_entity": "预报实体",
     "peak_entity": "峰值功率实体",
-    "editor_arrays": "阵列（每个各用一个功率或能量传感器）"
+    "editor_arrays": "阵列（每个各用一个功率或能量传感器）",
+    "badge_day": "当天至今",
+    "badge_hour": "指针所在的时段，否则为当天"
   },
   "history-bars": {
     "title": "历史柱状图",

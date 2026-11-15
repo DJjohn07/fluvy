@@ -4,7 +4,8 @@
  * on any failure.
  *   PLAYGROUND=http://127.0.0.1:5220/ node interactions-forecast.mjs
  * What it proves: today's card draws Home Assistant's own forecast behind its bars and, while an hour is read, says
- * that hour's forecast beside what it made; tomorrow is the forecast alone, read hour by hour beside today's; the
+ * that hour's forecast beside what it made; with `badge: hour` (1.22, #202) its badge says that hour against its own
+ * forecast, the head never moving; tomorrow is the forecast alone, read hour by hour beside today's; the
  * days ahead are a bar a day — the last day a forecast only begins left out — each read by its name, their names
  * centred under their bars, inside the column and thinned from the first in half a section; two planes add up; a
  * house with no forecast says so in a panel as tall as the card, and is never asked for one; every card of a house
@@ -63,6 +64,50 @@ const readAt = async (page, production, fraction) => {
       ]),
     JSON.stringify(await row(today)),
   );
+
+  /* ---------- `badge: hour` (#202): the badge follows the hour read, the head never moves ---------- */
+  for (const [n, variant] of [
+    [0, 'full'],
+    [1, 'compact'],
+  ]) {
+    const hourly = card(page, 'Today · the badge follows the hour read', n);
+    /** The badge's words, and where the head's title, sub and badge stand. */
+    const head = () =>
+      hourly.evaluate((el) => {
+        const root = el.shadowRoot;
+        const box = (selector) => {
+          const r = root.querySelector(selector)?.getBoundingClientRect();
+          return r ? [r.left, r.top, r.right].map(Math.round).join(',') : null;
+        };
+        return {
+          badge: root.querySelector('.fv-badge')?.textContent.trim() ?? null,
+          title: box('.fv-card__title'),
+          sub: box('.fv-card__sub'),
+          right: box('.fv-badge')?.split(',')[2] ?? null,
+        };
+      });
+    const rest = await head();
+    const said = [];
+    const moved = [];
+    // 12:00 gone by, 14:00 in progress, 16:00 to come, 03:00 with no forecast, and the pointer away
+    for (const hour of [12, 14, 16, 3, null]) {
+      await readAt(page, hourly, hour === null ? null : (hour + 0.5) / 24);
+      const now = await head();
+      said.push(now.badge);
+      if (now.title !== rest.title || now.sub !== rest.sub || now.right !== rest.right)
+        moved.push(`${hour}: ${JSON.stringify(now)}`);
+    }
+    check(
+      `badge: hour (${variant}): the day at rest, an hour gone by against its forecast, the hour in progress against its minutes', an hour to come or with no forecast the day's`,
+      rest.badge === '+6 %' && JSON.stringify(said) === '["+4 %","+14 %","+6 %","+6 %","+6 %"]',
+      JSON.stringify(said),
+    );
+    check(
+      `badge: hour (${variant}): reading the hours never moves the head's title, its line or the badge's end`,
+      moved.length === 0,
+      moved.join(' · ') || JSON.stringify(rest),
+    );
+  }
 
   /* ---------- tomorrow: the forecast alone ---------- */
   const tomorrow = card(page, 'Tomorrow');

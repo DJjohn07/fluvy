@@ -1745,7 +1745,9 @@
     "hour": "h",
     "forecast_entity": "Entité de prévision",
     "peak_entity": "Entité de puissance de pic",
-    "editor_arrays": "Champs de panneaux (chacun son capteur de puissance ou d’énergie)"
+    "editor_arrays": "Champs de panneaux (chacun son capteur de puissance ou d’énergie)",
+    "badge_day": "La journée jusqu’ici",
+    "badge_hour": "L’heure sous le pointeur, sinon la journée"
   },
   "history-bars": {
     "title": "Barres d’historique",
