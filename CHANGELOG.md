@@ -59,6 +59,13 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 
 ### Added
 
+- Swedish, written by us: every card, page, dialog and editor form, the settings panel's language list and the
+  integration's own texts, in Home Assistant's own Swedish where it names the same thing (På, Av, Öppen, Stängd,
+  Detekterad, Otillgänglig, Beteende vid tryck), with the naming words the automatic dashboards and the appliance cards
+  read a Swedish house by, compounds whole ("Taklampa kök", "Tvättmaskin", "Solceller", "Laddbox") and as an entity id
+  writes them, and a view's icon found by its name (Kök, Belysning, Översikt); it greets "God morgon" until 10:00, "God
+  dag" through the day and "God kväll" from 18:00. Native speakers are warmly invited to review it: corrections by pull
+  request.
 - Danish, written by us: every card, page, dialog and editor form, the settings panel's language list and the
   integration's own texts, in Home Assistant's own Danish where it names the same thing (Til, Fra, Registreret,
   Opvarmning, Handling ved tryk), with the naming words the automatic dashboards and the appliance cards read a Danish
@@ -87,6 +94,18 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - The live demo is a shop window for every card: a menu and a search, a page for each card with each of its layouts live
   on the simulated home, and View YAML with the exact YAML that draws it, ready to copy, beside a link to the card's
   docs (#199, asked by @sriramsv).
+- The Cover card can draw its tilt as its slats (`tilt_style: slats`): the window seen from the room with the blind
+  down, its slats thin when open and thick when shut over daylight that dims as they close, the figure and its state in
+  words beside it (Closed, Partly open, Open), and a ruler under it that the picture follows as you drag and that sends
+  the tilt as you let go (#203, asked by @Kaulhaaz, drawn by us).
+- The Cover card takes presets for its position and its tilt (`position_presets`, `tilt_presets`) as chips under the
+  commands, the ends said in words and the one in force lit; it can count the position as the blind comes down
+  (`direction: down`) and turn round a position or a tilt its cover reports the other way (`invert_position`,
+  `invert_tilt`), the state's word and both commands staying Home Assistant's; and its ruler's ends can take your own
+  words (`open_label`, `closed_label`) (#203, asked by @Kaulhaaz).
+- Cards whose head carries a badge of their own (the Lock, Cover, Alarm, Vacuum, Thermostat, Gauge, Timer, Vehicle, 3D
+  printer and energy cards among them) can hide it with `show_badge: false`; the thermostat's `show_state` is its older
+  name (#203, asked by @Kaulhaaz).
 - The Swipe card holds any cards, one a page, in a row that a finger, a trackpad, its page marks or the keys turn: the
   browser's own scroll snapped a page at a time, only the page in view and the next one on each side built, a drag that
   starts on a ruler, a slider, a map or a row of chips stays theirs, `loop` goes round from the last page, `start` sets
@@ -200,6 +219,8 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - The demo's History and Activity pages no longer say they open a page of Home Assistant as they open.
 - A name's Danish or Norwegian ø and æ are read as Home Assistant writes them into an entity id, o and ae: an appliance
   named "Køleskab" finds its entities by its device's id `koleskab`, where it looked for `k_leskab`.
+- The Cover card under about 200 px wide puts its tilt's stepper under the commands, where the tilt could not be set,
+  and shows the position under an up and down sign where the word Position ran past the card (#203).
 
 ### Development
 
@@ -226,6 +247,8 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - One lazy reader, `shared/thresholds.ts`, lays out every card's thresholds and the chart engine draws its bands, and
   the tokens give any tone an ink that reads as text on the card, the page and its wash (`textInk`); the Swipe card is a
   chunk of its own and its editor is built on the Expander's.
+- The Cover card is fetched as a family of its own, as the Thermostat card is: every page loads 2.2 KB less; the
+  measurer checks that a wrapped row of commands keeps its cells equal line by line.
 
 ## [1.21.0] — 2026-11-14
 
