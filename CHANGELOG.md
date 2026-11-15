@@ -5,6 +5,8 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.22.0] — 2026-11-15
+
 ### Visible on upgrade
 
 Nothing new shows by itself in this release: every new function is a key, an option or a setting that is off until it is
@@ -3359,7 +3361,8 @@ The first public release.
   registers the panel and the Lovelace resource, installs the theme, and says through Repairs what only you can do.
 - English and Spanish.
 
-[Unreleased]: https://github.com/acosta290/fluvy/compare/v1.21.0...HEAD
+[Unreleased]: https://github.com/acosta290/fluvy/compare/v1.22.0...HEAD
+[1.22.0]: https://github.com/acosta290/fluvy/compare/v1.21.0...v1.22.0
 [1.21.0]: https://github.com/acosta290/fluvy/compare/v1.20.0...v1.21.0
 [1.20.0]: https://github.com/acosta290/fluvy/compare/v1.19.1...v1.20.0
 [1.19.1]: https://github.com/acosta290/fluvy/compare/v1.19.0...v1.19.1
