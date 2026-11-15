@@ -19,6 +19,7 @@ import { sinceIds } from '../shared/since.js';
 import { EMPTY, NAME_LINE, rowsOf, twoLines } from '../shared/heights.js';
 import {
   asksGroups,
+  awaitingGroups,
   emptyPanel,
   groupsHeight,
   groupsModule,
@@ -142,8 +143,9 @@ export class FluvyTilesCard extends FluvyTileCard {
   }
 
   /**
-   * The tiles in the groups the config asks for (`Grouped`), laid out by their chunk: none while it is on its way,
-   * and one group of them all where the config asks for none, or the chunk cannot be fetched.
+   * The tiles in the groups the config asks for (`Grouped`), laid out by their chunk: none while it is on its way
+   * (the card a box as tall as it declares then: `awaitingGroups`), and one group of them all where the config asks
+   * for none, or the chunk cannot be fetched.
    */
   private groups(): readonly Group<TileItem>[] | undefined {
     const config = this.config as TilesCardConfig | undefined;
@@ -206,10 +208,12 @@ export class FluvyTilesCard extends FluvyTileCard {
     // a group with nothing in it is the panel where its tiles would be, on the page as they are
     const panel = emptyPanel(this, !items.length, 'grid', 'common.no_entities', true);
     if (panel) return panel;
+    const groups = this.groups();
+    if (!groups) return awaitingGroups(tilesHeight(this.config as TilesCardConfig));
     const size = this.size();
     // a group's label stands across the columns, its tiles in rows of their own under it
     return html`<div class="fv-tiles fv-tiles--${this.columns()} fv-tiles--${size}" data-card>
-      ${this.groups()?.map(
+      ${groups.map(
         ({ label, items }) =>
           html`${label ? html`<h3 class="fv-group" data-name>${label}</h3>` : nothing}
           ${items.map((item) => this.renderTile(item, size))}`,

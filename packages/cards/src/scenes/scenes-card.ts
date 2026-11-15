@@ -37,6 +37,7 @@ import { columnsOf, ITEM_ALIASES, type AliasSpec, type Columns } from '../shared
 import { chipRows, EMPTY, rowsOf, textWidth, type NameOf } from '../shared/heights.js';
 import {
   asksGroups,
+  awaitingGroups,
   emptyPanel,
   groupsHeight,
   groupsModule,
@@ -351,8 +352,8 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
 
   /**
    * The scenes in the groups the config asks for (`Grouped`), each with its short name, laid out by their chunk —
-   * which draws the chips too: none while it is on its way, and one group of them all where the config asks for
-   * neither, or the chunk cannot be fetched (the scenes are tiles then).
+   * which draws the chips too: a box as tall as the card declares while it is on its way (`awaitingGroups`), and one
+   * group of them all where the config asks for neither, or the chunk cannot be fetched (the scenes are tiles then).
    */
   protected renderCard(): TemplateResult {
     const items = this.items();
@@ -360,6 +361,8 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
     const panel = emptyPanel(this, !items.length, 'moon', 'common.no_scenes', true);
     const asked = this.config?.variant === 'chips' || asksGroups(this.config, this.list());
     const module = asked ? groupsModule(this) : null;
+    if (module === undefined && !panel)
+      return awaitingGroups(scenesHeight(this.config as ScenesCardConfig));
     const groups: readonly Group<SceneItemConfig>[] =
       (module
         ? module.laidOut<SceneItemConfig>(this.hass, this.config ?? {}, this.list())

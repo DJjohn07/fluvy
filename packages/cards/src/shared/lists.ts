@@ -8,7 +8,7 @@ import {
   type MessageKey,
 } from '@fluvy/core';
 import { emptyState, listSection } from '@fluvy/ui';
-import type { TemplateResult } from 'lit';
+import { html, type TemplateResult } from 'lit';
 import { onOff } from './config.js';
 
 /** A config's lists, read alike by every card (core's, where the base card's `watched()` reads them too). */
@@ -314,3 +314,10 @@ export function groupsModule(card: { requestUpdate(): void }): GroupsModule | nu
     )).then(() => card.requestUpdate());
   return grouping;
 }
+
+/**
+ * What a card of a list in groups draws while their chunk is on its way (`groupsModule`): an empty box as tall as the
+ * card declares, so what stands under it does not move as its groups land.
+ */
+export const awaitingGroups = (height: number): TemplateResult =>
+  html`<div data-card style="height:${height}px"></div>`;
