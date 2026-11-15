@@ -191,8 +191,9 @@ const BUDGETS = {
   calendar: 16_384,
   editor: 8192,
   // the fields every card's editor is built of: the schema's helpers, a list's row form, and the editors' English
-  // (1.15: they left core, 4.3 KB)
-  fields: 8192,
+  // (1.15: they left core, 4.3 KB). 9 KB since 2026-11-15 (1.22: a card's thresholds, #204, its state's colours, #196,
+  // and a list's names, #200: measured at 8.3 KB)
+  fields: 9216,
   // the editors of the cards every page carries: their forms, lists and defaults, fetched with the visual editor
   // (1.11: they left core, 6.3 KB). 14 KB since 1.18 (the TV remote's editor, #143, and the room's colour round, #137,
   // with the sliders' style on every editor that draws one): measured at 12.7 KB; 12 before. 15 KB since 2026-11-13

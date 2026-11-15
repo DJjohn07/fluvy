@@ -58,6 +58,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `name` | *Name*. The item’s own name, in place of the one the card would give it. | name |  |
 | `unit` | *Unit*. The unit the figure is written in. | choice or text | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figure has. | choice | `auto` (Automatic), `0`, `1`, `2`, `3` |
+| `thresholds` | *Thresholds*. | object |  |
 
 **Interactions**
 

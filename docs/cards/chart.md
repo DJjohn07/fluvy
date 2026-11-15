@@ -64,7 +64,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `highlight` | *Highlight*. Marks the windows to come: the cheapest, the dearest, or both. | choice | `none` | `none`, `min` (The lowest reading), `max` (The highest reading), `both` (Lowest and highest) |
 | `highlight_hours` | *Hours to highlight*. How many hours each marked window lasts. | number | `1` | 1 to 12 |
 | `series` | *Series*. The series the chart draws, an entity each. | list ([its items](#series)) |  |  |
-| `thresholds` | *Thresholds*. Values from which the line takes another tone. | list ([its items](#thresholds)) |  |  |
+| `thresholds` | *Thresholds*. Values from which the line takes another tone. A reading takes the colour of the nearest threshold it is past. | list ([its items](#thresholds)) |  |  |
 
 **Chart**
 
@@ -119,12 +119,16 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 ### `thresholds`
 
-*Thresholds*. Values from which the line takes another tone. An item is a map with `tone` and any of these keys.
+*Thresholds*. Values from which the line takes another tone. A reading takes the colour of the nearest threshold it is past. An item is a map with `tone` and any of these keys.
 
 | Key | What it does | Type | Values |
 | --- | --- | --- | --- |
-| `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
-| `value` | *From*. The value from which the line takes this colour. The line takes this colour from this value up, to the next threshold. | number |  |
+| `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `none`, `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
+| `value` | *Value*. The value from which the line takes this colour. A figure, an entity or a template. | text |  |
+| `below` | *Under the value*. Counts an entity whose state, or the attribute named, is below this number. Off: from the value up. | boolean |  |
+| `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the colour the card gives it. | colour |  |
+| `label` | *Label*. Counts only the entities with this label. | text |  |
+| `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
 
 ## Older names
 

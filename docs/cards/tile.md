@@ -53,6 +53,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `readouts_layout` | *Readouts layout*. Where a compact tile’s readouts stand: on its line, or as columns at its end. Columns: each under its label, as many as the tile holds; the rest on the line. | choice | `line` | `line` (On the line), `end` (Columns at the end) |
 | `line_readouts` | *Readouts on the line*. How many readouts the tile’s line says: the first, or every one that can be read. | choice | `first` | `first` (The first), `all` (All of them) |
 | `readouts` | *Readouts*. Sensors shown as readouts on the tile, in this order. | list ([its items](#readouts)) |  |  |
+| `thresholds` | *Thresholds*. A reading takes the colour of the nearest threshold it is past. | list ([its items](#thresholds)) |  |  |
 
 **Interactions**
 
@@ -77,6 +78,19 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `name` | *Name*. The item’s own name, in place of the one the card would give it. | name |  |
 | `unit` | *Unit*. The unit the figure is written in. | choice or text | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figure has. | choice | `auto` (Automatic), `0`, `1`, `2`, `3` |
+
+### `thresholds`
+
+*Thresholds*. A reading takes the colour of the nearest threshold it is past. An item is a map with `tone` and any of these keys.
+
+| Key | What it does | Type | Values |
+| --- | --- | --- | --- |
+| `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `none`, `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
+| `value` | *Value*. The value from which the line takes this colour. A figure, an entity or a template. | text |  |
+| `below` | *Under the value*. Counts an entity whose state, or the attribute named, is below this number. Off: from the value up. | boolean |  |
+| `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the colour the card gives it. | colour |  |
+| `label` | *Label*. Counts only the entities with this label. | text |  |
+| `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
 
 ## Older names
 

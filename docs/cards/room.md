@@ -97,6 +97,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the light’s bulb colour where the card shows bulbs’ colours, else the card’s. | colour |  |
 | `readouts` | *Readouts*. Sensors shown as readouts on the tile. | object |  |
+| `thresholds` | *Thresholds*. | object |  |
 | `since` | *Last change from*. Where the time of the last change is read from. A timestamp sensor, or attribute:name. | choice or text |  |
 | `switch_style` | *Switch style*. Draws the tile’s switch as a toggle, or as a wall rocker. Empty: the card’s. | choice | `toggle`, `rocker` (Wall rocker) |
 | `show_action` | *Show what it is doing*. Says what a climate is doing on the tile’s line. Empty: the card’s. | choice | `true` (On), `false` (Off) |

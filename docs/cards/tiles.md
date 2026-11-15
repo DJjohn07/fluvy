@@ -75,6 +75,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the light’s bulb colour where the card shows bulbs’ colours, else the card’s. | colour |  |
 | `readouts` | *Readouts*. Sensors shown as readouts on the tile. | object |  |
+| `thresholds` | *Thresholds*. | object |  |
 | `since` | *Last change from*. Where the time of the last change is read from. A timestamp sensor, or attribute:name. | choice or text |  |
 | `unavailable` | *When unavailable*. How the tile looks while its entity is unavailable. Empty: the card’s. | choice | `dashed`, `quiet` (As when off) |
 | `show_switch` | *Switch*. Shows the tile’s switch, hides it, or shows its level in its place. Empty: the card’s. | choice | `true` (Shown), `false` (Hidden), `value` (Its value instead) |

@@ -76,6 +76,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `names` | *Names*. How a row is named where it has no name of its own: the entity’s full name, its own, or its device’s. Where no name of its own is set. | choice | `full` | `full` (Full name), `entity` (Entity name), `device` (Device name) |
 | `empty_text` | *Text when empty*. What the card says while it has nothing to show. | text |  |  |
 | `hide_empty` | *Hide when empty*. Hides the whole card while it has nothing to show. | boolean | `false` |  |
+| `tint` | *Show its colour*. When the card shows its colour beyond its circle: never, while it is on or active, or at rest too. | choice | `off` | `off` (Never), `on` (Past a threshold) |
 | `unit` | *Unit*. The unit the figures are written in; automatic keeps the sensor’s. | choice or text | `auto` | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figures have; automatic decides by their size. | choice | `auto` | `auto` (Automatic), `0`, `1`, `2`, `3` |
 | `tiles` | *Tiles*. The figures as tiles, in this order. | list ([its items](#tiles)) |  |  |
@@ -107,6 +108,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `highlight` | *Highlight*. Fills the tile with its tone: the one figure that matters most. | boolean |  |
 | `unit` | *Unit*. The unit the figure is written in. | choice or text | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figure has. | choice | `auto` (Automatic), `0`, `1`, `2`, `3` |
+| `thresholds` | *Thresholds*. | object |  |
 
 **Interactions**
 
@@ -128,6 +130,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `secondary` | *Secondary text*. The line under the item’s name. Your own words, or a template such as {{ states('sensor.x') }}. | text |  |
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the colour the card gives it. | colour |  |
+| `thresholds` | *Thresholds*. | object |  |
 
 **Interactions**
 
