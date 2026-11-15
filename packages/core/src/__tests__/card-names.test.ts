@@ -31,12 +31,13 @@ announceCard('fluvy-energy-flow-card');
 const tile = entry('fluvy-tile-card');
 
 describe('the card picker’s list', () => {
-  it('names a card by its key in English', () => {
+  it('names a card by its key in English, the help link at its page of the docs', () => {
     expect(cardKey('fluvy-energy-flow-card')).toBe('energy-flow');
     expect(tile).toEqual({
       type: 'fluvy-tile-card',
       name: 'Fluvy · Tile',
       preview: true,
+      documentationURL: 'https://github.com/acosta290/fluvy/blob/main/docs/cards/tile.md',
     });
     expect(entry('fluvy-energy-flow-card')?.name).toBe('Fluvy · Energy flow');
   });

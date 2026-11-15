@@ -9,7 +9,10 @@ import {
 } from './i18n/index.js';
 import { declareHeight, type LayoutHeight } from './layout-heights.js';
 
-/** A card's key in the catalogue (`cards`, `cards-about`): its tag without `fluvy-` and `-card`. */
+/** Where each card's page of the docs is: what the help link of Home Assistant's card editor opens. */
+const DOCS = 'https://github.com/acosta290/fluvy/blob/main/docs/cards/';
+
+/** A card's key in the catalogue (`cards`, `cards-about`) and the docs: its tag without `fluvy-` and `-card`. */
 export const cardKey = (tag: string): string => tag.replace(/^fluvy-/, '').replace(/-card$/, '');
 
 /** Fluvy's own entries of the card picker's list, by their key: the objects Home Assistant's array holds. */
@@ -78,6 +81,7 @@ export function announceCard(tag: string, layoutHeight?: LayoutHeight): void {
     type: tag,
     name: nameIn(pageLanguage(), card),
     preview: true,
+    documentationURL: `${DOCS}${card}.md`,
   };
   entries.set(card, entry);
   cards.push(entry);

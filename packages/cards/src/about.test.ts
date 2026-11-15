@@ -29,7 +29,7 @@ describe('the cards’ names and what they are', () => {
     expect(Object.keys(about['cards-about']).sort()).toEqual([...keys].sort());
   });
 
-  it('are what the card picker lists, every card once', () => {
+  it('are what the card picker lists, every card once, with its page of the docs', () => {
     expect(ours().map((card) => card.type)).toEqual(tags);
     for (const card of ours()) {
       const key = cardKey(card.type) as keyof typeof english.cards;
@@ -38,6 +38,7 @@ describe('the cards’ names and what they are', () => {
         name: `Fluvy · ${english.cards[key]}`,
         description: about['cards-about'][key],
         preview: true,
+        documentationURL: `https://github.com/acosta290/fluvy/blob/main/docs/cards/${key}.md`,
       });
     }
   });
