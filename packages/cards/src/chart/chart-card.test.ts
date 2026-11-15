@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { CHART_DEFAULTS, setChartDefaults, type HassEntity, type HomeAssistant } from '@fluvy/core';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { chartHeight } from '../chart-family.js';
 import type { EnergyCollectionLike, EnergyDataLike } from '../energy-model/collection.js';
 import { rangeWords } from '../energy-model/range-words.js';
@@ -156,7 +156,10 @@ const root = (card: Inner): ShadowRoot => card.shadowRoot!;
 const texts = (card: Inner, selector: string): string[] =>
   [...root(card).querySelectorAll(selector)].map((el) => el.textContent?.trim() ?? '');
 
-afterEach(() => document.body.replaceChildren());
+afterEach(() => {
+  document.body.replaceChildren();
+  vi.unstubAllGlobals();
+});
 
 const NORDPOOL = {
   series: [{ entity: 'sensor.nordpool', tone: 'ok' as const }],
@@ -473,6 +476,56 @@ describe('a price list: Nordpool today and tomorrow', () => {
     expect(texts(card, '.ch-side .fc-pill')).toEqual([
       'Cheapest 13:00–15:00 · 0.020 EUR/kWh',
       'Priciest 19:00–21:00 · 0.340 EUR/kWh',
+    ]);
+  });
+
+  it('drawn hidden (a folded section, a closed tab), says its pills in the forms their room holds once shown', async () => {
+    // the browser measures nothing wide while the card has no box, and a 7 px glyph once it has one
+    let laid = false;
+    const ruler = {
+      width: (_cls: string, text: string, _unitCls?: string, unit = '') =>
+        laid ? (text.length + unit.length) * 7 + 1 : 0,
+      pill: (_cls: string, text: string, sides: number) =>
+        laid ? Math.ceil((text.length * 7 + sides) / 4) * 4 : 0,
+      clear() {},
+    };
+    const card = document.createElement('fluvy-chart-card') as Inner;
+    // the observers watching the card, told of its box as a browser tells them (happy-dom's never are)
+    const told: ResizeObserverCallback[] = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        private readonly callback: ResizeObserverCallback;
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+        }
+        observe(target: Element) {
+          if (target === card) told.push(this.callback);
+        }
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    Object.assign((card as unknown as { headFit: { ruler: object } }).headFit.ruler, ruler);
+    card.setConfig({ type: 'custom:fluvy-chart-card', _now: NOW, ...NORDPOOL });
+    card.hass = house();
+    document.body.append(card);
+    for (let i = 0; i < 3; i++) {
+      await card.updateComplete;
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+    expect(texts(card, '.ch-side .fc-pill')[0]).toBe('Cheapest Fri 13:00–15:00 · 0.020 EUR/kWh');
+    // shown in a 360 column, the width it kept: what the figure leaves them holds the windows' words alone
+    laid = true;
+    for (const callback of told)
+      callback(
+        [{ target: card, contentRect: { width: 360 } } as unknown as ResizeObserverEntry],
+        {} as ResizeObserver,
+      );
+    await card.updateComplete;
+    expect(texts(card, '.ch-side .fc-pill')).toEqual([
+      'Cheapest Fri 13:00–15:00',
+      'Priciest Fri 19:00–21:00',
     ]);
   });
 

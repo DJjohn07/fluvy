@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { html, type TemplateResult } from 'lit';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FluvyCard } from '../card.js';
 import type { HomeAssistant } from '../ha/types.js';
 
@@ -32,7 +32,30 @@ async function mounted(width?: string): Promise<WidthCard> {
 
 afterEach(() => {
   document.body.replaceChildren();
+  vi.unstubAllGlobals();
 });
+
+/** A ResizeObserver that reports a box when a test lays its card out (happy-dom's never reports). */
+class Boxes {
+  static made: Boxes[] = [];
+  readonly watched: Element[] = [];
+  constructor(readonly told: ResizeObserverCallback) {
+    Boxes.made.push(this);
+  }
+  observe(target: Element): void {
+    this.watched.push(target);
+  }
+  unobserve(): void {}
+  disconnect(): void {}
+  /** `card` laid out `width` wide (0: hidden), as its observer tells it. */
+  static lay(card: Element, width: number): void {
+    for (const one of Boxes.made.filter((made) => made.watched.includes(card)))
+      one.told(
+        [{ target: card, contentRect: { width } } as unknown as ResizeObserverEntry],
+        one as unknown as ResizeObserver,
+      );
+  }
+}
 
 describe('a card’s width (#104)', () => {
   it('is its own box’s from its first frame: a half column’s card is never drawn 360 wide', async () => {
@@ -43,5 +66,43 @@ describe('a card’s width (#104)', () => {
   it('keeps the 360 it starts at while it has no box, until its observer reports', async () => {
     const card = await mounted();
     expect(card.drawn).toEqual([360]);
+  });
+});
+
+/*
+ * A card drawn while it had no box (in a folded section, a closed tab, a hidden frame) measured every text as nothing
+ * wide: the Chart card's pills kept their longest words over its figure once it was shown at the width it kept.
+ */
+describe('a card drawn without a box', () => {
+  it('draws again once it is laid out, at the width it kept too', async () => {
+    vi.stubGlobal('ResizeObserver', Boxes);
+    const card = await mounted();
+    Boxes.lay(card, 360);
+    await card.updateComplete;
+    expect(card.drawn).toEqual([360, 360]);
+    // laid out again at its width (taller, say): nothing to draw anew
+    Boxes.lay(card, 360);
+    await card.updateComplete;
+    expect(card.drawn).toEqual([360, 360]);
+  });
+
+  it('hidden after it was drawn, and drawn meanwhile: draws again once it is shown', async () => {
+    vi.stubGlobal('ResizeObserver', Boxes);
+    const card = await mounted('320px');
+    Boxes.lay(card, 320);
+    Boxes.lay(card, 0);
+    card.requestUpdate();
+    await card.updateComplete;
+    Boxes.lay(card, 320);
+    await card.updateComplete;
+    expect(card.drawn).toEqual([320, 320, 320]);
+  });
+
+  it('drawn with its box, draws once', async () => {
+    vi.stubGlobal('ResizeObserver', Boxes);
+    const card = await mounted('320px');
+    Boxes.lay(card, 320);
+    await card.updateComplete;
+    expect(card.drawn).toEqual([320]);
   });
 });

@@ -479,6 +479,8 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
   declare connectedWhileHidden?: boolean;
 
   private resizeObserver: ResizeObserver | undefined;
+  /** It has had no box since it was last laid out (hidden, or not laid out yet): what it drew meanwhile measured nothing. */
+  private boxless = false;
   /** In the card picker, a card's first frame waits until it comes near the list's view: one observer for them all. */
   private static sightline: IntersectionObserver | undefined;
   private sighted: { readonly promise: Promise<void>; readonly resolve: () => void } | undefined;
@@ -592,10 +594,20 @@ export abstract class FluvyCard<C extends FluvyCardConfig = FluvyCardConfig>
     return super.scheduleUpdate();
   }
 
-  /** The card's width off its box, in whole pixels; a card without a box (hidden, not laid out) keeps the one it had. */
+  /**
+   * The card's width off its box, in whole pixels. A card without a box (hidden, not laid out) keeps the one it had,
+   * and draws again once it has one, at that width too: every text it measured meanwhile was nothing wide, so what it
+   * fitted then (a pill's longest words over its figure, a row's circle kept) was fitted to nothing.
+   */
   private takeWidth(width: number): void {
     const next = Math.round(width);
-    if (next > 0 && next !== this.width) this.width = next;
+    if (!(next > 0)) {
+      this.boxless = true;
+      return;
+    }
+    if (next !== this.width) this.width = next;
+    else if (this.boxless && this.hasUpdated) this.requestUpdate();
+    this.boxless = false;
   }
 
   override disconnectedCallback(): void {
