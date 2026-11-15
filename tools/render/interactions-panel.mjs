@@ -3,8 +3,8 @@
  * Interaction tests for the settings panel's dropdown (`<fluvy-select>`, the language field of the Preferences
  * tab) in a real Chromium against the playground. Exit code 1 on any failure.
  *   PLAYGROUND=http://127.0.0.1:5183/ node interactions-panel.mjs
- * What it proves: the field opens its menu in the top layer on a click and on ↓, on the chosen row; ↓ ↓ ↓ Enter
- * chooses and the apply bar names the change; Escape closes with nothing changed, the focus still on the field and
+ * What it proves: the field opens its menu in the top layer on a click and on ↓, on the chosen row; ↓ down to a
+ * language and Enter choose it and the apply bar names the change; Escape closes with nothing changed, the focus still on the field and
  * the key kept from the window (Home Assistant's dialogs); a tap outside and a scroll close it; at 360 the menu is
  * as wide as the field; in a short viewport it opens over the field, as tall as the room there; letters find a
  * name; Tab chooses and moves on to the next control; a language chosen that is not the page's marks the panel and its
@@ -111,16 +111,19 @@ const keysSeen = (page) => page.evaluate(() => window.__keys.splice(0));
   await page.close();
 }
 
-/* ---------- choosing: ↓ ↓ ↓ Enter, the apply bar ---------- */
+/* ---------- choosing: ↓ down to Español, Enter, the apply bar ---------- */
 {
   const page = await suite.page(PREFERENCES);
   const d = dropdown(page);
   await d.field.focus();
   await page.keyboard.press('ArrowDown');
   await settle(page, 200);
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
+  // as many rows down as the menu holds before Español: the languages lie by their own names, so a new one may come
+  // before it (Čeština, between English and Deutsch)
+  const names = (await d.rows.locator('.fv-menu__name').allTextContents()).map((name) =>
+    name.trim(),
+  );
+  for (let row = 0; row < names.indexOf('Español'); row++) await page.keyboard.press('ArrowDown');
   check('↓ moves the active row', (await d.active.textContent()).trim() === 'Español');
   await page.keyboard.press('Enter');
   await settle(page, 300);
