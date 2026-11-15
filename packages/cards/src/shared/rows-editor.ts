@@ -1,8 +1,10 @@
 import {
   cardDefaults,
   fireEvent,
+  guard,
   localize,
   sliderDefaults,
+  stepAside,
   type HaFormSchemaItem,
   type HomeAssistant,
   type LovelaceCardConfig,
@@ -254,16 +256,52 @@ export const itemHelpers: Labeler = (schema) =>
     ? editorWord(schema.selector?.['select'] ? 'editor.secondary_helper' : 'editor.template_helper')
     : undefined);
 
+/** Home Assistant's card helpers, as far as the editors ask them. */
+interface CardHelpers {
+  readonly createCardElement?: (config: LovelaceCardConfig) => HTMLElement;
+}
+
+/** Home Assistant's router (`partial-panel-resolver`), as far as its routes go: each panel's tag and its module. */
+interface Resolver extends Element {
+  readonly routerOptions?: {
+    readonly routes?: Readonly<
+      Record<string, { readonly tag?: string; readonly load?: () => Promise<unknown> }>
+    >;
+  };
+}
+
+/**
+ * Home Assistant's card helpers, which its dashboards' panel puts on the window as its module loads
+ * (`loadCardHelpers`). A page that opened on Fluvy's settings panel (a reload on `/fluvy/dashboard/…`) has not loaded
+ * that module yet: it is asked for here as Home Assistant's router asks for it as a dashboard opens (its route for
+ * `ha-panel-lovelace`). Where a step of that is not there, there are none, and what is moved by a drag keeps its
+ * buttons; a step that throws is stepped aside for the session, said once.
+ */
+async function cardHelpers(): Promise<CardHelpers | undefined> {
+  if (typeof window.loadCardHelpers !== 'function') {
+    const load = guard('card-helpers', () => {
+      const resolver = document
+        .querySelector('home-assistant')
+        ?.shadowRoot?.querySelector('home-assistant-main')
+        ?.shadowRoot?.querySelector<Resolver>('partial-panel-resolver');
+      return Object.values(resolver?.routerOptions?.routes ?? {}).find(
+        (route) => route.tag === 'ha-panel-lovelace',
+      )?.load;
+    });
+    await load?.().catch((error: unknown) => stepAside('card-helpers', error));
+  }
+  return (await window.loadCardHelpers?.()) as CardHelpers | undefined;
+}
+
 /**
  * `ha-form` and `ha-sortable` belong to Home Assistant's editors (its pickers with them); when a card's editor, or the
  * settings panel's Dashboards tab, opens before they are defined, the entities card's editor (which uses both) pulls
- * them in.
+ * them in — through the card helpers, loaded first where the page opened on Fluvy's panel (`cardHelpers`).
  */
 export async function ensureEditorElements(): Promise<void> {
   if (customElements.get('ha-form') && customElements.get('ha-sortable')) return;
   try {
-    const helpers = (await window.loadCardHelpers?.()) as
-      { createCardElement?: (config: LovelaceCardConfig) => HTMLElement } | undefined;
+    const helpers = await cardHelpers();
     const card = helpers?.createCardElement?.({ type: 'entities', entities: [] });
     await (
       card?.constructor as { getConfigElement?: () => Promise<unknown> } | undefined
