@@ -19,7 +19,7 @@ import { fitLine, TextRuler } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
 import { LaidWidth } from '../shared/laid.js';
 import { rowEndStyles } from '../shared/row-end.js';
-import { sheetInsets } from '../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../shared/sheet-insets.js';
 import { DayStrip, type DaySpec } from './history.js';
 import { detailsStyles } from './styles.js';
 
@@ -90,6 +90,7 @@ export abstract class DetailsSheet extends Card<DetailsConfig> {
     ...(Card.styles as CSSResultGroup[]),
     rowEndStyles,
     chartStyles,
+    sheetDialog,
     detailsStyles,
     sheetInsets,
   ];

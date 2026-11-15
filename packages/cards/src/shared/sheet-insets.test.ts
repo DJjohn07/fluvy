@@ -11,13 +11,13 @@ import { FluvyItemsSheet } from '../items/sheet/items-sheet.js';
 import { FluvyLightsColourSheet } from '../lights/sheet/lights-colour-sheet.js';
 import { customiseStyles } from '../panel/customise/styles.js';
 import { FluvyDriveSheet } from '../vacuum/drive/drive-sheet.js';
-import { sheetInsets } from './sheet-insets.js';
+import { sheetDialog, sheetInsets } from './sheet-insets.js';
 
 /*
  * Where a modal sheet stands on a phone (#190): one rule that every sheet of ours shares — its foot over the system's
  * bar (the inset Home Assistant hands on from the Companion app, else the browser's), its top short of the status bar
  * or by 24, both in the screen's pixels whatever size the sheet is drawn at — and no sheet with a rule of its own for
- * either.
+ * either; and the one dialog they all stand in, which no sheet draws again.
  */
 
 const SHEETS: ReadonlyArray<readonly [string, { readonly styles?: CSSResultGroup }]> = [
@@ -72,5 +72,23 @@ describe('where a modal sheet stands on a phone', () => {
     const own = /\.cz-sheet \{[^}]*\}/.exec(text)?.[0] ?? '';
     expect(own).toContain('position: fixed');
     expect(own).not.toMatch(/max-height|padding-bottom/);
+  });
+
+  it('stands every sheet in one dialog: a scrim a finger moves nothing under, a sheet it scrolls', () => {
+    const frame = line(sheetDialog.cssText);
+    expect(frame).toMatch(/^ ?dialog \{[^}]*touch-action: none;[^}]*overscroll-behavior: contain;/);
+    expect(frame).toMatch(/dialog \.fv-sheet \{[^}]*touch-action: pan-y;/);
+  });
+
+  it.each(SHEETS)('%s stands in it, with no dialog of its own', (_, sheet) => {
+    const styles = sheetsOf(sheet.styles);
+    expect(styles).toContain(sheetDialog);
+    const own = line(
+      styles
+        .filter((one) => one !== sheetDialog)
+        .map((one) => one.cssText)
+        .join('\n'),
+    );
+    expect(own).not.toMatch(/(?:^|\}) ?dialog(?:::backdrop|\[open\])? \{/);
   });
 });

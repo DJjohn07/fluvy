@@ -10,7 +10,7 @@ import {
   type TemplateResult,
 } from 'lit';
 import { HeadFit } from '../energy/head.js';
-import { sheetInsets } from '../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../shared/sheet-insets.js';
 
 const k = strings('keypad');
 
@@ -69,6 +69,7 @@ export class FluvyKeypad extends LitElement {
   static override styles: CSSResultGroup = [
     ...baseStyles,
     sheetStyles.devices,
+    sheetDialog,
     css`
       :host(:not([docked])) {
         display: contents;
@@ -78,64 +79,6 @@ export class FluvyKeypad extends LitElement {
       .fv-sheet__head {
         height: auto;
         min-height: 44px;
-      }
-      dialog {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        max-height: none;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: hidden;
-        background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-        color: inherit;
-        touch-action: none;
-        overscroll-behavior: contain;
-        animation: fv-fade 240ms var(--fv-ease) both;
-      }
-      dialog[open] {
-        display: flex;
-      }
-      dialog::backdrop {
-        background: none;
-      }
-      @keyframes kp-up {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: none;
-        }
-      }
-      @keyframes kp-down {
-        to {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes kp-out {
-        to {
-          opacity: 0;
-        }
-      }
-      dialog .fv-sheet {
-        max-width: 392px;
-        overflow-y: auto;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-        animation: kp-up 320ms var(--fv-ease-out) both;
-      }
-      dialog.is-leaving {
-        animation: kp-out 200ms var(--fv-ease) both;
-      }
-      dialog.is-leaving .fv-sheet {
-        animation: kp-down 200ms var(--fv-ease) both;
-      }
-      .fv-sheet {
-        position: relative;
-        width: 100%;
       }
       .dv-code__dot {
         transition:

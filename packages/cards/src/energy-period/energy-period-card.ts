@@ -54,7 +54,7 @@ import {
 } from '../shared/form.js';
 import { LaidWidth } from '../shared/laid.js';
 import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
-import { sheetInsets } from '../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../shared/sheet-insets.js';
 import {
   chosenDays,
   GRAIN_PRESET,
@@ -174,6 +174,7 @@ export class FluvyEnergyPeriodCard extends Card<EnergyPeriodCardConfig> {
 
   static override styles: CSSResultGroup = [
     ...(Card.styles as CSSResultGroup[]),
+    sheetDialog,
     css`
       .ep-card--compact {
         padding: 12px;
@@ -320,60 +321,8 @@ export class FluvyEnergyPeriodCard extends Card<EnergyPeriodCardConfig> {
         gap: ${GAP}px;
         margin-inline-start: auto;
       }
-      /* the sheet: a modal bottom sheet, as the cameras' */
-      dialog {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        max-height: none;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: hidden;
-        padding: 0;
-        border: 0;
-        background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-        color: inherit;
-        overscroll-behavior: contain;
-        animation: fv-fade 240ms var(--fv-ease) both;
-      }
-      dialog[open] {
-        display: flex;
-      }
-      dialog::backdrop {
-        background: none;
-      }
-      @keyframes ep-up {
-        from {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes ep-down {
-        to {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes ep-out {
-        to {
-          opacity: 0;
-        }
-      }
-      dialog .fv-sheet {
-        max-width: 392px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        animation: ep-up 320ms var(--fv-ease-out) both;
-      }
-      dialog.is-leaving {
-        animation: ep-out 200ms var(--fv-ease) both;
-      }
-      dialog.is-leaving .fv-sheet {
-        animation: ep-down 200ms var(--fv-ease) both;
-      }
+      /* the sheet: a modal bottom sheet, as every sheet of ours (sheetDialog) */
       .ep-sheet {
-        width: 100%;
         text-align: start;
       }
       /* the sheet's line wraps at its words, as its title does, and the head grows with it */

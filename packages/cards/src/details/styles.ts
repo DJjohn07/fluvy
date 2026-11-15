@@ -1,51 +1,14 @@
 import { css } from 'lit';
 
 /**
- * The details sheets' own rules (1.20, #162) on the language's sheet, card head, dial, action row, chips and rows: the
- * dialog that holds a sheet at the foot of a phone or in the middle of a wide screen, the head's picture and its two
- * rounds, the dial's place, the keys under it, and the day's line at the foot. Tokens only.
+ * The details sheets' own rules (1.20, #162) on the language's sheet, card head, dial, action row, chips and rows, and
+ * on the dialog every sheet of ours stands in at a phone's foot (`sheetDialog`): the size the sheet reads at, the
+ * dialog in the middle of a wide screen, the head's picture and its two rounds, the dial's place, the keys under it,
+ * and the day's line at the foot. Tokens only.
  */
 export const detailsStyles = css`
   :host(:not([docked])) {
     display: contents;
-  }
-  dialog {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-    color: inherit;
-    touch-action: none;
-    overscroll-behavior: contain;
-    animation: fv-fade 240ms var(--fv-ease) both;
-  }
-  dialog[open] {
-    display: flex;
-  }
-  dialog::backdrop {
-    background: none;
-  }
-  @keyframes dt-up {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: none;
-    }
-  }
-  @keyframes dt-down {
-    to {
-      transform: translateY(100%);
-    }
   }
   @keyframes dt-rise {
     from {
@@ -63,29 +26,9 @@ export const detailsStyles = css`
       transform: translateY(12px) scale(0.98);
     }
   }
-  @keyframes dt-out {
-    to {
-      opacity: 0;
-    }
-  }
   /* the sheet reads at the size of the card that opened it (--fv-zoom, said by openDetails), as that card does */
   dialog .fv-sheet {
-    max-width: 392px;
-    overflow-y: auto;
-    touch-action: pan-y;
-    overscroll-behavior: contain;
     zoom: var(--fv-zoom, 1);
-    animation: dt-up 320ms var(--fv-ease-out) both;
-  }
-  dialog.is-leaving {
-    animation: dt-out 200ms var(--fv-ease) both;
-  }
-  dialog.is-leaving .fv-sheet {
-    animation: dt-down 200ms var(--fv-ease) both;
-  }
-  .fv-sheet {
-    position: relative;
-    width: 100%;
   }
 
   /* a wide screen: a dialog in the middle of what the system's bars leave of it, every corner round, no grabber to

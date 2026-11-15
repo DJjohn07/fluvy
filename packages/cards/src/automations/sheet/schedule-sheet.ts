@@ -37,7 +37,7 @@ import { TextRuler } from '../../shared/fit.js';
 import { FontsSettled } from '../../shared/fonts.js';
 import { LaidWidth } from '../../shared/laid.js';
 import { optionCell, optionColumnsFor, optionsHold } from '../../shared/options.js';
-import { sheetInsets } from '../../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../../shared/sheet-insets.js';
 import { daysShort, daysText, lastText, spanText, suggestAlias } from '../format.js';
 import {
   checkSchedule,
@@ -304,70 +304,10 @@ export class FluvyScheduleSheet extends LitElement {
     ...baseStyles,
     sheetStyles.devices,
     sheetStyles.inputs,
+    sheetDialog,
     css`
       :host(:not([docked])) {
         display: contents;
-      }
-      dialog {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        max-height: none;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: hidden;
-        padding: 0;
-        border: 0;
-        background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-        color: inherit;
-        touch-action: none;
-        overscroll-behavior: contain;
-        animation: fv-fade 240ms var(--fv-ease) both;
-      }
-      dialog[open] {
-        display: flex;
-      }
-      dialog::backdrop {
-        background: none;
-      }
-      @keyframes ss-up {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: none;
-        }
-      }
-      @keyframes ss-down {
-        to {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes ss-out {
-        to {
-          opacity: 0;
-        }
-      }
-      /* the sheet scrolls inside the dialog, which is the viewport: the footer ends the content, nothing sticky */
-      dialog .fv-sheet {
-        max-width: 392px;
-        overflow-y: auto;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-        animation: ss-up 320ms var(--fv-ease-out) both;
-      }
-      dialog.is-leaving {
-        animation: ss-out 200ms var(--fv-ease) both;
-      }
-      dialog.is-leaving .fv-sheet {
-        animation: ss-down 200ms var(--fv-ease) both;
-      }
-      .fv-sheet {
-        position: relative;
-        width: 100%;
       }
       /* a title of words ("New schedule") takes a second line in a narrow sheet and the head grows; a title that is a
          name (an automation's) ends in an ellipsis, as names do */

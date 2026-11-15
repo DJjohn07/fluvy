@@ -31,7 +31,7 @@ import { chipRow } from '../../shared/chips.js';
 import { fitLine, TextRuler } from '../../shared/fit.js';
 import { FontsSettled } from '../../shared/fonts.js';
 import { LaidWidth } from '../../shared/laid.js';
-import { sheetInsets } from '../../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../../shared/sheet-insets.js';
 import { bindAction, offered } from '../actions.js';
 import type { AlertResult, AlertsState } from '../engine.js';
 import {
@@ -164,69 +164,10 @@ export class FluvyAlertsSheet extends LitElement {
   static override styles: CSSResultGroup = [
     ...baseStyles,
     sheetStyles.devices,
+    sheetDialog,
     css`
       :host(:not([docked])) {
         display: contents;
-      }
-      dialog {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        max-height: none;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: hidden;
-        padding: 0;
-        border: 0;
-        background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-        color: inherit;
-        touch-action: none;
-        overscroll-behavior: contain;
-        animation: fv-fade 240ms var(--fv-ease) both;
-      }
-      dialog[open] {
-        display: flex;
-      }
-      dialog::backdrop {
-        background: none;
-      }
-      @keyframes as-up {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: none;
-        }
-      }
-      @keyframes as-down {
-        to {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes as-out {
-        to {
-          opacity: 0;
-        }
-      }
-      dialog .fv-sheet {
-        max-width: 392px;
-        overflow-y: auto;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-        animation: as-up 320ms var(--fv-ease-out) both;
-      }
-      dialog.is-leaving {
-        animation: as-out 200ms var(--fv-ease) both;
-      }
-      dialog.is-leaving .fv-sheet {
-        animation: as-down 200ms var(--fv-ease) both;
-      }
-      .fv-sheet {
-        position: relative;
-        width: 100%;
       }
       .fv-sheet__head {
         height: auto;

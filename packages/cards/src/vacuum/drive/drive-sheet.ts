@@ -8,7 +8,7 @@ import {
   type PropertyValues,
   type TemplateResult,
 } from 'lit';
-import { sheetInsets } from '../../shared/sheet-insets.js';
+import { sheetDialog, sheetInsets } from '../../shared/sheet-insets.js';
 import type { DriveProfile } from '../drive.js';
 import { DRIVE_END, type DriveEndDetail } from './drive-pad.js';
 
@@ -47,69 +47,10 @@ const keepTouch = { handleEvent: (event: Event): void => event.stopPropagation()
 export class FluvyDriveSheet extends LitElement {
   static override styles: CSSResultGroup = [
     ...baseStyles,
+    sheetDialog,
     css`
       :host(:not([docked])) {
         display: contents;
-      }
-      dialog {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        max-width: none;
-        max-height: none;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        overflow: hidden;
-        padding: 0;
-        border: 0;
-        background: color-mix(in srgb, var(--fluvy-neutral-05) 48%, transparent);
-        color: inherit;
-        touch-action: none;
-        overscroll-behavior: contain;
-        animation: fv-fade 240ms var(--fv-ease) both;
-      }
-      dialog[open] {
-        display: flex;
-      }
-      dialog::backdrop {
-        background: none;
-      }
-      @keyframes ds-up {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: none;
-        }
-      }
-      @keyframes ds-down {
-        to {
-          transform: translateY(100%);
-        }
-      }
-      @keyframes ds-out {
-        to {
-          opacity: 0;
-        }
-      }
-      dialog .fv-sheet {
-        max-width: 392px;
-        overflow-y: auto;
-        touch-action: pan-y;
-        overscroll-behavior: contain;
-        animation: ds-up 320ms var(--fv-ease-out) both;
-      }
-      dialog.is-leaving {
-        animation: ds-out 200ms var(--fv-ease) both;
-      }
-      dialog.is-leaving .fv-sheet {
-        animation: ds-down 200ms var(--fv-ease) both;
-      }
-      .fv-sheet {
-        position: relative;
-        width: 100%;
       }
       .fv-sheet__title {
         min-width: 0;
