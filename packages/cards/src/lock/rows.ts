@@ -14,7 +14,7 @@ import {
   type FluvyCardConfig,
   type HomeAssistant,
 } from '@fluvy/core';
-import { listRow, type Tone } from '@fluvy/ui';
+import { listRow, wordsClass, type Tone } from '@fluvy/ui';
 import { html, nothing, type TemplateResult } from 'lit';
 import { HeadFit } from '../energy/head.js';
 import { Card } from '../shared/base.js';
@@ -29,7 +29,13 @@ import {
   type SelectRowConfig,
 } from '../shared/dropdown.js';
 import { ageShort } from '../shared/duration.js';
-import { buttonWidth, rowsKeepIcon, rowStacks } from '../shared/row-end.js';
+import {
+  buttonWidth,
+  fitValue,
+  rowsKeepIcon,
+  rowStacks,
+  type ValueFit,
+} from '../shared/row-end.js';
 import { secondaryText } from '../shared/secondary.js';
 import { changedAt, sinceIds } from '../shared/since.js';
 import { TemplateTexts } from '../shared/templates.js';
@@ -201,23 +207,50 @@ export abstract class RowsCard<C extends RowsCardConfig = RowsCardConfig> extend
         this.contentWidth,
         plans.flatMap((p) => (p.trailing === 'menu' ? [dropdownEnd(p.title, p.value)] : [])),
       );
+    // a value in words that would leave the name under its floor even without the circle goes under the name
+    // (`under`); the others stay beside it, as they always have
+    const placed = plans.map((p) => (!keep && p.trailing === 'value' ? this.under(p) : null));
+    const beside = plans.filter((_, i) => !placed[i]?.stack);
     // an age in its full words ("21 days ago") where every row's fits beside what ends it, else every age short
     // ("21 d"): one form a list, never cut
-    const short = plans.some(
+    const short = beside.some(
       (p) => p.age && this.headFit.ruler.width('fv-row__sub', p.words) > this.wordsRoom(p, keep),
     );
-    // the longest word of a value in words, so a name's floor leaves it its line (devices.css)
+    // the longest word of a value in words beside its name, so a name's floor leaves it its line (devices.css)
     const word = Math.max(
       0,
-      ...plans.flatMap((p) =>
+      ...beside.flatMap((p) =>
         /\S\s+\S/.test(p.value)
           ? p.value.split(/\s+/).map((w) => this.headFit.ruler.width('fv-row__value', w))
           : [],
       ),
     );
     return html`<div class="dv-rows" style=${word ? `--fv-word:${word}px` : nothing}>
-      ${plans.map((p) => this.renderRow(p, events, keep, short))}
+      ${plans.map((p, i) => this.renderRow(p, events, keep, short, placed[i] ?? null))}
     </div>`;
+  }
+
+  /**
+   * Where a row's value in words stands once the rows gave their circles away (`fitValue`), weighed at its narrowest as
+   * the row draws it: its longest word, where it breaks between its words (Dutch "Niet / gedetecteerd" stays beside
+   * its name), else the whole of it. Where even that would leave the name under its floor or the line's least form
+   * would not hold (Home Assistant's one-word "Nedetekováno" at 204), it goes under the name, in the line's place.
+   */
+  private under(p: RowPlan): ValueFit {
+    const { ruler } = this.headFit;
+    const cls = `fv-row__value ${wordsClass(p.value)}`.trim();
+    const narrowest = p.value
+      .split(/\s+/)
+      .reduce((wide, w) => (ruler.width(cls, w) > ruler.width(cls, wide) ? w : wide));
+    return fitValue(ruler, {
+      row: this.contentWidth,
+      base: this.headFit.rowRoom(this.contentWidth, '', { icon: false }),
+      name: p.title,
+      value: narrowest,
+      cls,
+      least: p.age ? ruler.width('fv-row__sub', this.shortAge(p)) : 0,
+      wraps: false,
+    });
   }
 
   /** What a row shows and how wide its end is, before the list decides its circles and its ages. */
@@ -297,17 +330,26 @@ export abstract class RowsCard<C extends RowsCardConfig = RowsCardConfig> extend
     return changed ? ageShort(this.hass, changed.date) : '';
   }
 
-  private renderRow(p: RowPlan, events: boolean, keep: boolean, short: boolean): TemplateResult {
+  private renderRow(
+    p: RowPlan,
+    events: boolean,
+    keep: boolean,
+    short: boolean,
+    fit: ValueFit | null,
+  ): TemplateResult {
     const { row, view, usable, trailing } = p;
     const state = this.stateOf(view);
     const on = state === view.state ? isActive(view) : state === 'on';
     const tone = statusToneOf(row, toneFor(view));
     const menu = trailing === 'menu';
+    // a value in words under the name takes the line's place, the row its 60, the line read in the row's label
+    const under = fit?.stack ?? false;
     // a dropdown that would not hold beside the words even without the circle goes under them, the line its whole row
     const stack =
-      menu &&
-      !keep &&
-      rowStacks(this.headFit.ruler, this.contentWidth, dropdownEnd(p.title, p.value, p.short));
+      under ||
+      (menu &&
+        !keep &&
+        rowStacks(this.headFit.ruler, this.contentWidth, dropdownEnd(p.title, p.value, p.short)));
     // a row that cannot be read says its state's word where it fits; where it would be cut, the dashed skin says it
     // alone and the word is the row's label (as a gone tile's)
     const fits = (text: string): boolean =>
@@ -315,7 +357,15 @@ export abstract class RowsCard<C extends RowsCardConfig = RowsCardConfig> extend
       (stack ? this.contentWidth : this.wordsRoom(p, keep));
     const word = view.status !== 'ok' && !fits(p.words) ? p.words : '';
     // a line the row cannot hold whole takes its shorter form ("32 d ago", "Not found"), read in full
-    const sub = p.age && short ? this.shortAge(p) : word ? '' : fits(p.words) ? p.words : p.short;
+    const sub = under
+      ? ''
+      : p.age && short
+        ? this.shortAge(p)
+        : word
+          ? ''
+          : fits(p.words)
+            ? p.words
+            : p.short;
     return listRow({
       icon: keep ? iconOf(view, row.icon) : null,
       tone: events
@@ -349,6 +399,7 @@ export abstract class RowsCard<C extends RowsCardConfig = RowsCardConfig> extend
       on,
       switchTone: tone === 'warning' ? 'accent' : tone,
       value: p.value,
+      valueSize: fit?.size,
       valueTone: view.domain === 'binary_sensor' && on && tone === 'warning' ? 'warning' : '',
       unavailable: !usable,
       accent: this.accents.item(row.color),

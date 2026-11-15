@@ -159,6 +159,104 @@ describe('a lock’s rows', () => {
   });
 });
 
+/*
+ * A state in words that would leave the name under its floor once the rows gave their circles away goes under the
+ * name, in the line's place: Home Assistant's Czech "Nedetekováno" is one word, 116 wide as Inter draws it, where its
+ * motion sensor's name needs 40 beside it. A state that breaks between its words (Dutch "Niet gedetecteerd") and a
+ * short one stay beside the name, as they always have.
+ */
+describe('a state in words too wide for its row', () => {
+  /** What the browser lays out, as the playground measures it (the ruler adds its pixel); 8 a glyph for the rest. */
+  const LAID: Record<string, number> = {
+    'Living room motion': 146,
+    Nedetekováno: 117,
+    Detekováno: 99,
+    'Niet gedetecteerd': 147,
+    Niet: 37,
+    gedetecteerd: 111,
+    Zavřeno: 68,
+  };
+  const motion = (word: string, off = word) => ({
+    ...hass,
+    states: {
+      ...hass.states,
+      'binary_sensor.living_room_motion': state('binary_sensor.living_room_motion', 'off', {
+        device_class: 'motion',
+        friendly_name: 'Living room motion',
+      }),
+    },
+    formatEntityState: (s: { entity_id: string; state: string }) =>
+      s.entity_id === 'binary_sensor.living_room_motion'
+        ? s.state === 'off'
+          ? off
+          : word
+        : s.entity_id === 'binary_sensor.front_door'
+          ? 'Zavřeno'
+          : s.state,
+  });
+  /** The lock's rows at a card width: the motion sensor's, then the door's. */
+  async function at(width: number, off = 'Nedetekováno') {
+    const card = document.createElement('fluvy-lock-card') as CardElement;
+    Object.assign(card.headFit, {
+      ruler: {
+        width: (_cls: string, text: string) => LAID[text] ?? text.length * 8,
+        pill: (_cls: string, text: string, sides: number) => text.length * 8 + sides,
+        clear() {},
+      },
+    });
+    card.setConfig({
+      type: 'custom:fluvy-lock-card',
+      entity: 'lock.front_door',
+      rows: ['binary_sensor.living_room_motion', 'binary_sensor.front_door'],
+    });
+    card.hass = motion('Detekováno', off) as unknown as HomeAssistant;
+    card.width = width;
+    document.body.append(card);
+    await card.updateComplete;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await card.updateComplete;
+    return [...card.shadowRoot!.querySelectorAll('.dv-rows .fv-row')].map((row) => ({
+      under: row.classList.contains('fv-row--stack'),
+      circle: row.querySelector('.fv-ico') !== null,
+      sub: row.querySelector('.fv-row__sub')?.textContent?.trim() ?? '',
+      value: row.querySelector('.fv-row__value')?.textContent?.trim() ?? '',
+      label: row.getAttribute('aria-label'),
+    }));
+  }
+
+  it('goes under the name at 204, in the line’s place, the line read in the row’s label', async () => {
+    const [moving, door] = await at(204);
+    expect(moving).toEqual({
+      under: true,
+      circle: false,
+      sub: '',
+      value: 'Nedetekováno',
+      label: 'Living room motion · 5 min ago',
+    });
+    // the door's state stays beside its name, and its age keeps its words: the row under its name no longer asks
+    // every age for its short form
+    expect(door).toMatchObject({ under: false, sub: '5 min ago', value: 'Zavřeno' });
+  });
+
+  it('stays beside the name at 211 and wider, as it always has', async () => {
+    for (const width of [211, 232, 256, 360]) {
+      const [moving] = await at(width);
+      expect(moving, String(width)).toMatchObject({ under: false, value: 'Nedetekováno' });
+      expect(moving?.sub, String(width)).not.toBe('');
+      document.body.replaceChildren();
+    }
+  });
+
+  it('leaves a short state and one that breaks between its words beside the name at 204', async () => {
+    expect((await at(204, 'Zavřeno'))[0]).toMatchObject({ under: false, value: 'Zavřeno' });
+    document.body.replaceChildren();
+    expect((await at(204, 'Niet gedetecteerd'))[0]).toMatchObject({
+      under: false,
+      value: 'Niet gedetecteerd',
+    });
+  });
+});
+
 /* #96: a select's row ends in its value, which opens Fluvy's dropdown, on a lock, an alarm and a camera alike. */
 describe('a select’s row on a device card', () => {
   const ends = (card: CardElement) =>

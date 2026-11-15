@@ -290,3 +290,26 @@
 .dv-rows .fv-row__value.fv-row__value--text {
   -webkit-line-clamp: 3;
 }
+
+/* …and where even its longest word would leave the name under its floor once the circle is given (Home Assistant's
+   one-word "Nedetekováno" at 204), the state goes under the name, in the line's place, at the words' start: the row
+   keeps its 60 (8, the name's 20, 4, the state's 20, 8), the line read in its label; only a state of several words
+   wider than the whole row breaks between them, and the row grows by that line */
+.dv-rows .fv-row--stack:has(> .fv-row__value) {
+  flex-wrap: wrap;
+  align-content: center;
+  row-gap: 4px;
+  height: auto;
+  min-height: 60px;
+  padding: 8px 0;
+}
+
+.dv-rows .fv-row--stack > .fv-row__text {
+  flex-basis: 100%;
+}
+
+.dv-rows .fv-row--stack > .fv-row__value.fv-row__value {
+  top: 0;
+  max-width: 100%;
+  text-align: start;
+}
