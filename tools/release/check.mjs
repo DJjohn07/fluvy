@@ -45,11 +45,12 @@ const BUDGETS = {
   // editor, the YAML of a dashboard kept in a file, its English), fetched the first time a dashboard's sidebar is
   // opened. Measured at 4.9 KB
   'sidebar-editor': 6144,
-  // the automatic dashboards. 29 KB since 2026-11-13 (1.20: every card stands in a part with an id of its own and a
-  // person's `edit` is laid over them, #170, 2.1 KB; the range's usage, tomorrow's production, several arrays and
-  // what is shown together told apart, 1.4 KB: measured at 27.7 KB); 25 KB since 2026-11-12 (1.19.1: scenes on Home
-  // and room pages, labels told apart, forecasts): 24 before
-  strategy: 29_696,
+  // the automatic dashboards. 30 KB since 2026-11-15 (1.22: the naming words of a seventeenth language, Czech, took it
+  // 48 B past 29: measured at 29.0 KB); 29 KB since 2026-11-13 (1.20: every card stands in a part with an id of its own
+  // and a person's `edit` is laid over them, #170, 2.1 KB; the range's usage, tomorrow's production, several arrays and
+  // what is shown together told apart, 1.4 KB: measured at 27.7 KB); 25 KB since 2026-11-12 (1.19.1: scenes on Home and
+  // room pages, labels told apart, forecasts): 24 before
+  strategy: 30_720,
   // the heights the strategy counts with the house: what an entity's capabilities draw, what a room holds
   'house-heights': 4096,
   wall: 16_384,
