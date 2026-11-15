@@ -1,0 +1,332 @@
+{
+  "tile": {
+    "example": "325a104efd5f",
+    "width": 408,
+    "height": 400
+  },
+  "tiles": {
+    "example": "f51454c63c36",
+    "width": 784,
+    "height": 216
+  },
+  "template": {
+    "example": "0292c51293c0",
+    "width": 408,
+    "height": 216
+  },
+  "light": {
+    "example": "571b080950eb",
+    "width": 784,
+    "height": 920
+  },
+  "slider": {
+    "example": "a20ca8d6c37a",
+    "width": 784,
+    "height": 600
+  },
+  "lights": {
+    "example": "2fcb411e720c",
+    "width": 784,
+    "height": 232
+  },
+  "thermostat": {
+    "example": "62b36e77c2d8",
+    "width": 784,
+    "height": 776
+  },
+  "entities": {
+    "example": "5ea67b5f5984",
+    "width": 784,
+    "height": 1088
+  },
+  "items": {
+    "example": "71f2a74dec0f",
+    "width": 784,
+    "height": 864
+  },
+  "media": {
+    "example": "e291745324a6",
+    "width": 784,
+    "height": 768
+  },
+  "now-playing": {
+    "example": "049fb20a48f4",
+    "width": 784,
+    "height": 488
+  },
+  "remote": {
+    "example": "69bcef032cca",
+    "width": 784,
+    "height": 920
+  },
+  "cover": {
+    "example": "ae5dd6149e7a",
+    "width": 784,
+    "height": 896
+  },
+  "fan": {
+    "example": "ef3bd1ccf2c9",
+    "width": 784,
+    "height": 792
+  },
+  "vacuum": {
+    "example": "457485d10086",
+    "width": 784,
+    "height": 960
+  },
+  "lock": {
+    "example": "60f0d913cff8",
+    "width": 784,
+    "height": 744
+  },
+  "alarm": {
+    "example": "a1a06d692c06",
+    "width": 784,
+    "height": 760
+  },
+  "camera": {
+    "example": "9331ee82442f",
+    "width": 784,
+    "height": 896
+  },
+  "cameras": {
+    "example": "ae3065b4dba5",
+    "width": 784,
+    "height": 872
+  },
+  "printer": {
+    "example": "d54c3b377b96",
+    "width": 784,
+    "height": 1472
+  },
+  "appliance": {
+    "example": "126aaaa1a692",
+    "width": 784,
+    "height": 816
+  },
+  "appliances": {
+    "example": "fd9cfa62fc93",
+    "width": 784,
+    "height": 848
+  },
+  "vehicle": {
+    "example": "24e70cca2a87",
+    "width": 784,
+    "height": 984
+  },
+  "weather": {
+    "example": "8823374dd329",
+    "width": 784,
+    "height": 912
+  },
+  "sensor": {
+    "example": "4a0c6a7254f7",
+    "width": 784,
+    "height": 672
+  },
+  "readouts": {
+    "example": "dad09f967672",
+    "width": 784,
+    "height": 240
+  },
+  "people": {
+    "example": "86219282237c",
+    "width": 784,
+    "height": 440
+  },
+  "openings": {
+    "example": "6a30d119569f",
+    "width": 784,
+    "height": 744
+  },
+  "alerts": {
+    "example": "f6e4acc1a40f",
+    "width": 784,
+    "height": 552
+  },
+  "room": {
+    "example": "e892436ad0cb",
+    "width": 784,
+    "height": 1064
+  },
+  "map": {
+    "example": "2792a9bb7afc",
+    "width": 784,
+    "height": 520
+  },
+  "hello": {
+    "example": "021953a8538a",
+    "width": 784,
+    "height": 184
+  },
+  "chips": {
+    "example": "312d13f8bb88",
+    "width": 784,
+    "height": 152
+  },
+  "heading": {
+    "example": "00646f9e93e8",
+    "width": 784,
+    "height": 112
+  },
+  "expander": {
+    "example": "60ce4db501c1",
+    "width": 784,
+    "height": 1344
+  },
+  "web": {
+    "example": "5224146c0ee7",
+    "width": 784,
+    "height": 624
+  },
+  "scene": {
+    "example": "d746cc2c81b9",
+    "width": 408,
+    "height": 216
+  },
+  "scenes": {
+    "example": "f52e9d694774",
+    "width": 784,
+    "height": 400
+  },
+  "actions": {
+    "example": "9530c3e4f20b",
+    "width": 784,
+    "height": 792
+  },
+  "helpers": {
+    "example": "51928c7925aa",
+    "width": 784,
+    "height": 992
+  },
+  "todo": {
+    "example": "611832b7be6d",
+    "width": 784,
+    "height": 864
+  },
+  "timer": {
+    "example": "7520f1bb006c",
+    "width": 784,
+    "height": 568
+  },
+  "updates": {
+    "example": "a1c7aac9c7ce",
+    "width": 784,
+    "height": 808
+  },
+  "automations": {
+    "example": "5acfeaa3a7d4",
+    "width": 784,
+    "height": 1104
+  },
+  "energy-period": {
+    "example": "2187772588f9",
+    "width": 784,
+    "height": 232
+  },
+  "energy-usage": {
+    "example": "5de68b68c582",
+    "width": 784,
+    "height": 1008
+  },
+  "energy": {
+    "example": "03e8efba467b",
+    "width": 784,
+    "height": 824
+  },
+  "energy-flow": {
+    "example": "0b3f86ecef05",
+    "width": 784,
+    "height": 848
+  },
+  "energy-balance": {
+    "example": "9b320a5f2262",
+    "width": 784,
+    "height": 1040
+  },
+  "grid": {
+    "example": "07c63c5d9f5a",
+    "width": 784,
+    "height": 968
+  },
+  "batteries": {
+    "example": "35501b3ba407",
+    "width": 784,
+    "height": 880
+  },
+  "ev-charger": {
+    "example": "873d69d1b67e",
+    "width": 784,
+    "height": 920
+  },
+  "energy-sankey": {
+    "example": "cfe7e1cb9e43",
+    "width": 784,
+    "height": 1216
+  },
+  "energy-score": {
+    "example": "95746a8eb11b",
+    "width": 784,
+    "height": 736
+  },
+  "energy-devices": {
+    "example": "a29b3d5ffcce",
+    "width": 784,
+    "height": 872
+  },
+  "meters": {
+    "example": "1982d77c1c1d",
+    "width": 784,
+    "height": 760
+  },
+  "gauge": {
+    "example": "af500b381b31",
+    "width": 784,
+    "height": 832
+  },
+  "stat-tiles": {
+    "example": "b61a3392e733",
+    "width": 784,
+    "height": 768
+  },
+  "production": {
+    "example": "2f16929f4e8d",
+    "width": 784,
+    "height": 752
+  },
+  "history-bars": {
+    "example": "3d83cd5b9076",
+    "width": 784,
+    "height": 1032
+  },
+  "chart": {
+    "example": "1b4bf99041c5",
+    "width": 784,
+    "height": 704
+  },
+  "bars": {
+    "example": "7d8a08beecdc",
+    "width": 784,
+    "height": 840
+  },
+  "distribution": {
+    "example": "b2c646525dfc",
+    "width": 784,
+    "height": 600
+  },
+  "humidity": {
+    "example": "18193b0f06ba",
+    "width": 784,
+    "height": 808
+  },
+  "clock": {
+    "example": "e9574b478ea1",
+    "width": 784,
+    "height": 744
+  },
+  "calendar": {
+    "example": "f27af355fe51",
+    "width": 784,
+    "height": 896
+  }
+}

@@ -44,7 +44,8 @@
     "ha:install": "node tools/dev/install.mjs",
     "measure": "node tools/render/measure-all.mjs",
     "measure:narrow": "node tools/render/measure-all.mjs --cards 152,172,211,266 --lang all",
-    "docs:cards": "pnpm --filter @fluvy/docs build"
+    "docs:cards": "pnpm --filter @fluvy/docs build",
+    "docs:images": "node tools/render/cards.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
