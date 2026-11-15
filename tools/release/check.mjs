@@ -187,8 +187,9 @@ const BUDGETS = {
   // (1.11: they left core, 6.3 KB). 14 KB since 1.18 (the TV remote's editor, #143, and the room's colour round, #137,
   // with the sliders' style on every editor that draws one): measured at 12.7 KB; 12 before. 15 KB since 2026-11-13
   // (1.20: every editor's Interactions section, #179, the vacuum's drive pad, #178, the rocker's style, #177): measured
-  // at 14.1 KB
-  forms: 15_360,
+  // at 14.1 KB. 16 KB since 2026-11-15 (1.22: two lines for a head's name, #191, a tile's readouts each with its name,
+  // unit and decimals, #197, a list's names, #200): measured at 15.0 KB
+  forms: 16_384,
   // 6 KB since 2026-11-13 (1.20: Ukrainian's words for a view's icon, #176, about 400 B; measured at 5.0 KB); 5 since
   // 2026-11-11 (1.19: Russian's, #167, about 800 B); 4 before
   'view-icons': 6144,

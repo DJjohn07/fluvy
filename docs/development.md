@@ -126,7 +126,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `calendar` | 16 KB | the calendar card: its views, what reads its events, its sheet |
 | `editor` | 8 KB | the cards' visual editor |
 | `fields` | 8 KB | the fields every card's editor is built of: the schema's helpers, a list's row form, the editors' English |
-| `forms` | 15 KB | the editors of the cards every page carries and of the template, Slider, Vacuum, Thermostat and remote cards: their forms, lists and defaults |
+| `forms` | 16 KB | the editors of the cards every page carries and of the template, Slider, Vacuum, Thermostat and remote cards: their forms, lists and defaults |
 | `view-icons` | 6 KB | a view's icon from its name |
 | `glass` | 4 KB | what a see-through card wears: its sheet's writer (every fill at its opacity) and its rules (its solid overlays, its blur) |
 | `quiet` | 4 KB | what a card quiet out of reach wears: the rules that give the unavailable skin's paint back, one sheet every such card adopts |
