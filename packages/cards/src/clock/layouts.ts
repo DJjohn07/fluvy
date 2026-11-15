@@ -147,8 +147,9 @@ function forecastRow(m: ClockModel): Part {
 
 /**
  * The weather as caption segments. `lead`: it opens the line. `detail`: nothing else tells the air (A5's line). The
- * sky takes its shorter word where the line is short of room ("klare Nacht" → "klar", "Entity not found" → "Offline"),
- * and after a date it is the first to leave, whole, where not even that holds — never cut.
+ * sky takes its shorter word where the line is short of room ("klare Nacht" → "klar", "Entity not found" →
+ * "Unavailable"), and after a date it is the first to leave, whole, where not even that holds — never cut (a line it
+ * leads: `skyLine`).
  */
 function skySegments(m: ClockModel, lead: boolean, detail: boolean): Segment[] {
   const { sky } = m;
@@ -172,6 +173,15 @@ function skySegments(m: ClockModel, lead: boolean, detail: boolean): Segment[] {
   return segments;
 }
 
+/**
+ * A line the sky leads, fitted to `available`: where not even the sky's shorter word holds (de's "Nicht verfügbar"
+ * beside a face in a 211 column), the dash, the sign for what cannot be read — never a word cut.
+ */
+function skyLine(segments: Segment[], available: number, width: (text: string) => number): string {
+  const line = fitLine(segments, available, width);
+  return width(line) > available ? '—' : line;
+}
+
 /** Title · date · week · weather, as far as the column goes; the date without its weekday where even that is short. */
 function caption(m: ClockModel, available: number, withSky: boolean): string {
   const width = (text: string): number => m.ruler.width('ck-caption', text);
@@ -184,8 +194,11 @@ function caption(m: ClockModel, available: number, withSky: boolean): string {
         text: localize(m.hass, segments.length ? 'calendar.week' : 'clock.week', { week: m.week }),
         optional: true,
       });
-    if (withSky) segments.push(...skySegments(m, segments.length === 0, !m.date));
-    return fitLine(segments, available, width);
+    const lead = segments.length === 0;
+    if (withSky) segments.push(...skySegments(m, lead, !m.date));
+    return withSky && lead
+      ? skyLine(segments, available, width)
+      : fitLine(segments, available, width);
   };
   const fitted = line(m.date?.short);
   return width(fitted) > available ? line(m.date?.tiny) : fitted;
@@ -312,7 +325,7 @@ export function side(m: ClockModel): TemplateResult {
         ])
       : '',
     m.sky
-      ? sub(skySegments(m, true, false))
+      ? skyLine(skySegments(m, true, false), available, width)
       : next && form !== undefined
         ? sunForms(m, next.kind, next.at.time, next.at.period)[form]
         : '',

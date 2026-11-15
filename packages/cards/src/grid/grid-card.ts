@@ -635,8 +635,18 @@ export class FluvyGridCard extends Card<GridCardConfig> {
     const value = known ? `${parts.value}${parts.unit ? ` ${parts.unit}` : ''}` : '—';
     const title = g(this.hass, 'price_now');
     const titleW = this.head.ruler.width('fv-row__title', title);
-    // a column too narrow for the words beside the figure gives the circle to the words, as every list does
-    const keep = this.head.rowsKeepIcon(w, [{ title, value }]);
+    const down = view.status === 'unavailable' || view.status === 'missing';
+    // a price that cannot be read says so where its sensor's name stood: the state's word where the row holds it, its
+    // circle given up for it if need be, else the dash, the sign for what cannot be read (never a word cut)
+    const word = this.t('state.unavailable');
+    const said = !down
+      ? ''
+      : this.head.rowRoom(w, value, { icon: false }) >= this.head.ruler.width('fv-row__sub', word)
+        ? word
+        : '—';
+    // a column too narrow for the words beside the figure, or for that state's word, gives the circle to the words, as
+    // every list does
+    const keep = this.head.rowsKeepIcon(w, [{ title, value, sub: said }]);
     const layout = { icon: keep };
     // below the row's own minimum (its words, and its circle where it keeps it): the price as a readout
     if (this.head.rowRoom(w, '', layout) < titleW)
@@ -651,14 +661,12 @@ export class FluvyGridCard extends Card<GridCardConfig> {
       </div>`;
     // too narrow for the words beside the figure even so: the figure takes the second line
     const narrow = this.head.rowRoom(w, value, layout) < titleW && known;
-    const down = view.status === 'unavailable' || view.status === 'missing';
     return html`<div class="ef-rows">
       ${listRow({
         icon: keep ? 'clock' : null,
         tone: down ? 'off' : 'neutral',
         title,
-        // a price that cannot be read says so where its sensor's name stood
-        sub: narrow ? value : down ? this.t('state.unavailable') : view.name,
+        sub: narrow ? value : down ? said : view.name,
         trailing: narrow ? 'none' : 'value',
         value,
         onTap: () => this.tap(id, { action: 'more-info' }),

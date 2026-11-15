@@ -64,7 +64,8 @@ export function readSky(hass: HomeAssistant | undefined, view: EntityView, quiet
     return {
       ok: false,
       text,
-      // "Entity not found" is the longest thing a weather can say: a narrow line says the house's word ("Offline")
+      // "Entity not found" is the longest thing a weather can say: a narrow line says the house's word ("Unavailable"),
+      // a line too narrow even for that the dash (`skyLine`, a tile's state)
       short: localize(hass, 'state.unavailable'),
       inline: lowerFirst(text),
       // the ban glyph, or quiet out of reach (`unavailable`) the sky's own at rest

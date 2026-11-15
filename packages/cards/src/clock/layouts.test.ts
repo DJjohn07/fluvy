@@ -3,7 +3,7 @@ import { preloadLanguages, type HomeAssistant } from '@fluvy/core';
 import { html, render } from 'lit';
 import { describe, expect, it } from 'vitest';
 import type { TextRuler } from '../shared/fit.js';
-import { heroDigital, side, tile, type ClockModel } from './layouts.js';
+import { heroAnalog, heroDigital, side, tile, type ClockModel } from './layouts.js';
 
 /*
  * The time steps down a size before a digit is cut: the hero's 64 to 48, the side clock's 40 to 32 (the face following
@@ -143,18 +143,45 @@ describe('the lines under a time, never cut', () => {
     // "Do., 17. Sept. · klar" (165) holds 171; at 150 the sky leaves, never "klare N…"
     expect(at(171)).toEqual(['Do., 17. Sept. · klar']);
     expect(at(150)).toEqual(['Do., 17. Sept.']);
-    // a weather gone says so, then the house's short word, then nothing after the date: "· offline" (188) does not
-    // hold 171
+    // a weather gone says so, then the house's short word, then nothing after the date: "· nicht verfügbar" (251)
+    // does not hold 200
     const gone = {
       ...night,
       ok: false,
       text: 'Entität nicht gefunden',
-      short: 'Offline',
+      short: 'Nicht verfügbar',
       inline: 'entität nicht gefunden',
     };
     expect(at(400, gone)).toEqual(['Donnerstag, 17. September · entität nicht gefunden']);
-    expect(at(200, gone)).toEqual(['Do., 17. Sept. · offline']);
-    expect(at(171, gone)).toEqual(['Do., 17. Sept.']);
+    expect(at(260, gone)).toEqual(['Do., 17. Sept. · nicht verfügbar']);
+    expect(at(200, gone)).toEqual(['Do., 17. Sept.']);
+  });
+
+  it('says a weather out of reach that opens its line in the house’s word where it holds, else the dash, in its place', () => {
+    const gone = {
+      ok: false,
+      text: 'Entität nicht gefunden',
+      short: 'Nicht verfügbar',
+      inline: 'entität nicht gefunden',
+      glyph: 'ban' as const,
+      night: false,
+      temperature: null,
+      unit: '',
+      feels: null,
+      wind: '',
+    };
+    // the side clock's line under its time, beside a 72 face: 236 (400) holds the text (173), 136 (300) only "Nicht
+    // verfügbar" (118); beside a tile's 24 face (171) 103 holds neither: the dash, never "Nicht verfüg…", while
+    // English's "Unavailable" (88) holds
+    expect(lines(drawn(side({ ...model(400), sky: gone })))).toEqual(['Entität nicht gefunden']);
+    expect(lines(drawn(side({ ...model(300), sky: gone })))).toEqual(['Nicht verfügbar']);
+    expect(lines(drawn(side({ ...model(171), sky: gone })))).toEqual(['—']);
+    expect(lines(drawn(side({ ...model(171), sky: { ...gone, short: 'Unavailable' } })))).toEqual([
+      'Unavailable',
+    ]);
+    // a caption the sky opens, with no date before it: the word in 171, the dash in 100
+    expect(lines(drawn(heroAnalog({ ...model(171), sky: gone })))).toEqual(['Nicht verfügbar']);
+    expect(lines(drawn(heroAnalog({ ...model(100), sky: gone })))).toEqual(['—']);
   });
 });
 
