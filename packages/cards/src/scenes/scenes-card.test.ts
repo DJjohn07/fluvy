@@ -276,15 +276,16 @@ describe('the scenes card in groups', () => {
       expect(houseHeightOf({ type, ...config }, -1, hass) % 4).toBe(0);
   });
 
-  it('keeps a word whole under a label: a name too wide for half a tile takes a row, where a plain list reads as 1.20 did', () => {
+  it('keeps a word whole: a name too wide for half a tile takes a row, in a plain list as under a label', () => {
     const scenes = [
       { entity: 'scene.kitchen_cooking', name: 'Concentrate' },
       { entity: 'scene.kitchen_dinner', name: 'Read' },
     ];
-    // a plain list: two a row, as before
-    expect(height({ scenes })).toBe(76);
-    // in a group its names are short and often one word: one a row rather than a word broken in two
+    // one a row rather than a word broken in two (what it draws: the playground's `scenes` sheet, "A word kept whole")
+    expect(height({ scenes })).toBe(2 * 76 + 16);
     expect(height({ scenes: [{ section: 'Dining room' }, ...scenes] })).toBe(28 + 2 * 76 + 16);
+    // two a row where it is asked: the person's say
+    expect(height({ scenes, columns: 2 })).toBe(76);
     // words that hold half a tile stay two a row
     expect(
       height({

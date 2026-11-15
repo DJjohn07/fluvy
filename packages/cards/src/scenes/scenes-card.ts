@@ -117,21 +117,14 @@ const TILE_CHROME = 88;
 const RUNS_TOGETHER = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
 
 /**
- * Whether a name reads in a tile's two lines at `room`. In groups (`whole`), where names are short and often one
- * word, each word must hold a line too: one wider than it would end a line inside itself ("Concentrat-e"), and the
- * card draws one tile a row instead. A list without groups reads as 1.20 did.
+ * Whether a name reads in a tile's two lines at `room`, each of its words whole: a word wider than the line would end
+ * it inside itself ("Concentrat-e"), and the card draws one tile a row instead.
  */
-const reads = (
-  name: string,
-  room: number,
-  measure: (text: string) => number,
-  whole: boolean,
-): boolean =>
+const reads = (name: string, room: number, measure: (text: string) => number): boolean =>
   linesNeeded(name, room, measure) <= 2 &&
-  (!whole ||
-    (name.match(/[^\s-]*-(?=\S)|\S+/g) ?? []).every(
-      (word) => RUNS_TOGETHER.test(word) || measure(word) <= room,
-    ));
+  (name.match(/[^\s-]*-(?=\S)|\S+/g) ?? []).every(
+    (word) => RUNS_TOGETHER.test(word) || measure(word) <= room,
+  );
 
 /**
  * The card's height at a 360 column from its config: its scenes in the groups its own sections make of them, or in
@@ -166,14 +159,13 @@ export function scenesHeight(
   // two a row, unless asked one, or a name the config gives would not read in its two lines on a half tile at 360
   // (the card's own rule, `columns`, estimated: a title is 15/600)
   const half = (360 - GRID_GAP) / 2 - TILE_CHROME;
-  const whole = groups.some(({ label }) => label);
   const long =
     asked === 'auto' &&
     groups.some(({ items }) =>
       items.some(
         ({ name }) =>
           typeof name === 'string' &&
-          !reads(name, half, (text) => textWidth(text, 'title') * (15 / 16), whole),
+          !reads(name, half, (text) => textWidth(text, 'title') * (15 / 16)),
       ),
     );
   const perRow = asked === 1 || long ? 1 : 2;
@@ -257,17 +249,17 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
   }
 
   /**
-   * Two tiles a row (164 wide at the least) while every name reads in its two lines there (`reads`: in groups,
-   * `whole`, its words whole too); one a row when a name would not ("Encender Luz Porche & Patio" in a 352 column),
-   * rather than cutting it.
+   * Two tiles a row (164 wide at the least) while every name reads in its two lines there, its words whole (`reads`);
+   * one a row when a name would not ("Encender Luz Porche & Patio" in a 352 column, "Concentrate" at 360), rather
+   * than cutting it.
    */
-  private columns(names: readonly string[], whole: boolean): 1 | 2 {
+  private columns(names: readonly string[]): 1 | 2 {
     const asked = columnsOf(this.config?.columns, 'auto');
     if (asked === 1 || this.width < 344) return 1;
     if (asked !== 'auto') return 2;
     const room = (this.width - GRID_GAP) / 2 - TILE_CHROME; // a half tile, less its padding, circle and gap
     const fits = names.every((name) =>
-      reads(name, room, (text) => this.ruler.width('fv-row__title', text), whole),
+      reads(name, room, (text) => this.ruler.width('fv-row__title', text)),
     );
     return fits ? 2 : 1;
   }
@@ -400,10 +392,7 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
 
     const columns = panel
       ? 1
-      : this.columns(
-          drawn.map((item) => this.nameFor(viewOf(item), item.name)),
-          groups.some(({ label }) => label),
-        );
+      : this.columns(drawn.map((item) => this.nameFor(viewOf(item), item.name)));
     const frozen = this.config?._now ? new Date(this.config._now) : null;
     const now = frozen && !Number.isNaN(frozen.getTime()) ? frozen : new Date();
     // the line under a name only while it fits the tile's words column: a state is dropped, never cut

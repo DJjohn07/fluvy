@@ -241,6 +241,23 @@ export const sheet: SheetSpec = {
         },
       ],
     }),
+    // a plain list whose one-word name is wider than half a tile: one a row and the word whole, as under a label
+    // ("Concentrate", never "Concentrat-e")
+    frame({
+      title: 'Scenes · a word kept whole',
+      cards: [
+        {
+          type: SCENES,
+          title: 'Dining room',
+          scenes: [
+            { entity: 'scene.br_dining_concentrate', name: 'Concentrate' },
+            { entity: 'scene.br_dining_read', name: 'Read' },
+            { entity: 'scene.br_dining_rest', name: 'Rest' },
+          ],
+          _now,
+        },
+      ],
+    }),
     // the house's lights on one card, by room: large tiles two a row, an odd one out on a row of its own
     frame({
       title: 'Tiles · by room',
