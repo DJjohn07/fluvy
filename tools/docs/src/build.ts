@@ -2,8 +2,9 @@
  * The cards' docs, written from the code or held to it (#199): a page a card in `docs/cards/`, the index between
  * `<!-- generated:cards -->` and `<!-- /generated:cards -->` in `docs/cards.md` (the prose around it is written by
  * hand and kept), and the same for an assistant in `docs/cards.json` and `docs/llms.txt`. With `--check` nothing is
- * written: it fails where a file is not what the code says. The pictures are `pnpm docs:images`'s, taken in a
- * browser; this reads only their manifest.
+ * written: it fails where a file is not what the code says, and where the gallery, the pictures, the defaults or the
+ * sentences fall short (`checks.ts`). The pictures are `pnpm docs:images`'s, taken in a browser; this reads only
+ * their manifest.
  *
  *   pnpm docs:cards                     writes the pages, the index and the data
  *   pnpm --filter @fluvy/docs check     what `pnpm check` runs
@@ -11,6 +12,13 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { readCards, SECTIONS } from './cards.js';
+import {
+  checkDefaults,
+  checkGallery,
+  checkGuides,
+  checkMeanings,
+  checkPictures,
+} from './checks.js';
 import { ROOT } from './facts.js';
 import { cardPage, cardsData, indexBlock, llmsText } from './pages.js';
 import { FOLDER, MANIFEST, type Manifest } from './pictures.js';
@@ -25,6 +33,7 @@ const CLOSE = '<!-- /generated:cards -->';
 const cards = await readCards();
 const sections = SECTIONS.map(([title]) => title);
 const pictures = join(ROOT, FOLDER);
+const files = await readdir(pictures).catch(() => [] as string[]);
 const manifest = JSON.parse(
   await readFile(join(pictures, MANIFEST), 'utf8').catch(() => '{}'),
 ) as Manifest;
@@ -48,7 +57,13 @@ const strays = (await readdir(PAGES).catch(() => [] as string[])).filter(
 );
 
 if (check) {
-  const found: string[] = [];
+  const found = [
+    ...checkGallery(cards),
+    ...checkPictures(cards, files, manifest),
+    ...checkDefaults(cards),
+    ...checkMeanings(cards),
+    ...checkGuides(cards, index),
+  ];
   for (const [path, text] of written)
     if ((await readFile(join(ROOT, path), 'utf8').catch(() => undefined)) !== text)
       found.push(`${path} is not what the code says: run pnpm docs:cards`);
@@ -59,7 +74,7 @@ if (check) {
     process.exit(1);
   }
   console.log(
-    `✓ the cards' docs: ${cards.length} cards, their pages, the index and the data as the code says`,
+    `✓ the cards' docs: ${cards.length} cards, their pages, pictures, sentences and data as the code says`,
   );
 } else {
   await mkdir(PAGES, { recursive: true });
