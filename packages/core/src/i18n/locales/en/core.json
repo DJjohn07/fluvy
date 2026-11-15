@@ -414,7 +414,9 @@
     "badge_warn": "Badge with warnings, e.g. \"{count} low\""
   },
   "chips": {
-    "rooms": "Rooms"
+    "rooms": "Rooms",
+    "home": "Home",
+    "energy": "Energy"
   },
   "distribution": {
     "distribution": "Distribution",
@@ -440,7 +442,9 @@
     "badge": "Badge text",
     "stats": "Figures shown"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Living room"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profile",
@@ -761,7 +765,11 @@
     "left": "Wall mode off",
     "return": "Back to the wall",
     "back": "Back",
-    "back_to": "Back from {view}"
+    "back_to": "Back from {view}",
+    "screensaver": "Screensaver"
+  },
+  "entities": {
+    "devices": "Devices"
   },
   "cards": {
     "tile": "Tile",

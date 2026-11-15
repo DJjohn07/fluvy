@@ -445,7 +445,9 @@
     "badge_warn": "Значок, коли є попередження, напр. «Низький заряд: {count}»"
   },
   "chips": {
-    "rooms": "Кімнати"
+    "rooms": "Кімнати",
+    "home": "Дім",
+    "energy": "Енергія"
   },
   "distribution": {
     "distribution": "Розподіл",
@@ -471,7 +473,9 @@
     "badge": "Текст значка",
     "stats": "Значення для показу"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Вітальня"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Профіль",
@@ -815,7 +819,11 @@
     "left": "Режим настінної панелі вимкнено",
     "return": "Назад до настінної панелі",
     "back": "Назад",
-    "back_to": "Назад із «{view}»"
+    "back_to": "Назад із «{view}»",
+    "screensaver": "Заставка"
+  },
+  "entities": {
+    "devices": "Пристрої"
   },
   "cards": {
     "tile": "Плитка",

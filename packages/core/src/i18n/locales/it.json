@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Mostra il pulsante a schermo intero"
   },
   "chips": {
-    "rooms": "Stanze"
+    "rooms": "Stanze",
+    "home": "Casa",
+    "energy": "Energia"
   },
   "distribution": {
     "distribution": "Distribuzione",
@@ -1006,7 +1008,9 @@
     "badge": "Testo del badge",
     "stats": "Valori mostrati"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Soggiorno"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profilo",
@@ -2396,7 +2400,11 @@
     "left": "Modalità parete disattivata",
     "return": "Torna alla parete",
     "back": "Indietro",
-    "back_to": "Indietro da {view}"
+    "back_to": "Indietro da {view}",
+    "screensaver": "Salvaschermo"
+  },
+  "entities": {
+    "devices": "Apparecchi"
   },
   "cards": {
     "tile": "Riquadro",

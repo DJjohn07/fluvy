@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Mostrar el botón de pantalla completa"
   },
   "chips": {
-    "rooms": "Estancias"
+    "rooms": "Estancias",
+    "home": "Inicio",
+    "energy": "Energía"
   },
   "distribution": {
     "distribution": "Distribución",
@@ -1006,7 +1008,9 @@
     "badge": "Texto de la insignia",
     "stats": "Valores mostrados"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Salón"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Perfil",
@@ -2396,7 +2400,11 @@
     "left": "Modo pared desactivado",
     "return": "Volver a la pared",
     "back": "Atrás",
-    "back_to": "Volver de {view}"
+    "back_to": "Volver de {view}",
+    "screensaver": "Salvapantallas"
+  },
+  "entities": {
+    "devices": "Aparatos"
   },
   "cards": {
     "tile": "Mosaico",

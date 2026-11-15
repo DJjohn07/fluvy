@@ -954,7 +954,9 @@
     "editor.show_head": "Pokaż bieżącą wartość"
   },
   "chips": {
-    "rooms": "Pomieszczenia"
+    "rooms": "Pomieszczenia",
+    "home": "Dom",
+    "energy": "Energia"
   },
   "climate": {
     "mode": "Tryb",
@@ -1616,7 +1618,9 @@
     "editor_price": "Cena teraz (czujnik)",
     "editor_readouts": "Sumy pod spodem (do 3; brak: dzisiejsze)"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Salon"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profil",
@@ -3230,7 +3234,11 @@
     "left": "Tryb ściany wyłączony",
     "return": "Wróć do trybu ściany",
     "back": "Wstecz",
-    "back_to": "Powrót z {view}"
+    "back_to": "Powrót z {view}",
+    "screensaver": "Wygaszacz ekranu"
+  },
+  "entities": {
+    "devices": "Urządzenia"
   },
   "cards": {
     "tile": "Kafelek",

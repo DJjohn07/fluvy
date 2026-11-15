@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Afficher le bouton plein écran"
   },
   "chips": {
-    "rooms": "Pièces"
+    "rooms": "Pièces",
+    "home": "Accueil",
+    "energy": "Énergie"
   },
   "distribution": {
     "distribution": "Répartition",
@@ -1006,7 +1008,9 @@
     "badge": "Texte du badge",
     "stats": "Valeurs affichées"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Salon"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profil",
@@ -2396,7 +2400,11 @@
     "left": "Mode mur désactivé",
     "return": "Revenir au mur",
     "back": "Retour",
-    "back_to": "Retour depuis {view}"
+    "back_to": "Retour depuis {view}",
+    "screensaver": "Écran de veille"
+  },
+  "entities": {
+    "devices": "Appareils"
   },
   "cards": {
     "tile": "Tuile",

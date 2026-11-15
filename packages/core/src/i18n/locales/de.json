@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Vollbild-Taste anzeigen"
   },
   "chips": {
-    "rooms": "Räume"
+    "rooms": "Räume",
+    "home": "Zuhause",
+    "energy": "Energie"
   },
   "distribution": {
     "distribution": "Verteilung",
@@ -1006,7 +1008,9 @@
     "badge": "Badge-Text",
     "stats": "Angezeigte Werte"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Wohnzimmer"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profil",
@@ -2396,7 +2400,11 @@
     "left": "Wandmodus aus",
     "return": "Zurück zum Wandmodus",
     "back": "Zurück",
-    "back_to": "Zurück aus {view}"
+    "back_to": "Zurück aus {view}",
+    "screensaver": "Bildschirmschoner"
+  },
+  "entities": {
+    "devices": "Geräte"
   },
   "cards": {
     "tile": "Kachel",

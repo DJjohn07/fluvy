@@ -1,4 +1,4 @@
-import type { HomeAssistant, LovelaceCard } from '@fluvy/core';
+import { localize, type HomeAssistant, type LovelaceCard } from '@fluvy/core';
 import { baseStyles } from '@fluvy/ui';
 import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
 
@@ -154,7 +154,7 @@ export class FluvyWallScreensaver extends LitElement {
   protected override render() {
     return html`<dialog
       class="${this.shown ? 'is-on' : ''} ${this.dim ? 'is-dim' : 'fv-bg--wall'}"
-      aria-label="Screensaver"
+      aria-label=${localize(this.hass, 'wall.screensaver')}
       data-idle
       @pointerdown=${this.wake}
       @keydown=${this.wake}

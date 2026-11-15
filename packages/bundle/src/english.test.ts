@@ -243,6 +243,7 @@ describe('a family’s English', () => {
     expect(sayers('wall').sort()).toEqual([
       'packages/cards/src/wall/back.ts',
       'packages/cards/src/wall/corner.ts',
+      'packages/cards/src/wall/screensaver.ts',
       'packages/cards/src/wall/toast.ts',
     ]);
   });

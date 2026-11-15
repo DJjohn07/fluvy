@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Knop volledig scherm tonen"
   },
   "chips": {
-    "rooms": "Kamers"
+    "rooms": "Kamers",
+    "home": "Thuis",
+    "energy": "Energie"
   },
   "distribution": {
     "distribution": "Verdeling",
@@ -1006,7 +1008,9 @@
     "badge": "Badgetekst",
     "stats": "Getoonde waarden"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Woonkamer"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profiel",
@@ -2396,7 +2400,11 @@
     "left": "Wandmodus uit",
     "return": "Terug naar de wand",
     "back": "Terug",
-    "back_to": "Terug uit {view}"
+    "back_to": "Terug uit {view}",
+    "screensaver": "Schermbeveiliging"
+  },
+  "entities": {
+    "devices": "Apparaten"
   },
   "cards": {
     "tile": "Tegel",

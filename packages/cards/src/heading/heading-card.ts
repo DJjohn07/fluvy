@@ -1,4 +1,10 @@
-import type { ActionConfig, FluvyCardConfig, LovelaceGridOptions } from '@fluvy/core';
+import {
+  localize,
+  type ActionConfig,
+  type FluvyCardConfig,
+  type HomeAssistant,
+  type LovelaceGridOptions,
+} from '@fluvy/core';
 import { glyph, icon, sheetStyles } from '@fluvy/ui';
 import {
   css,
@@ -181,10 +187,13 @@ export class FluvyHeadingCard extends Card<HeadingCardConfig> {
   }
   static override aliases: AliasSpec = { keys: [{ from: 'meta', to: 'subtitle' }] };
 
-  static getStubConfig(_hass: unknown, entities: readonly string[]): HeadingCardConfig {
+  static getStubConfig(
+    hass: HomeAssistant | undefined,
+    entities: readonly string[],
+  ): HeadingCardConfig {
     return {
       type: 'custom:fluvy-heading-card',
-      title: 'Living room',
+      title: localize(hass, 'heading.living_room'),
       entities: entities.filter((id) => /^(light|switch|fan|cover)\./.test(id)).slice(0, 4),
     };
   }

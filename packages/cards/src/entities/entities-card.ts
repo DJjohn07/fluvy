@@ -2,6 +2,7 @@ import {
   isActive,
   isUsable,
   lightDefaults,
+  localize,
   navigate,
   stateText,
   TOGGLE_DOMAINS,
@@ -9,6 +10,7 @@ import {
   valueParts,
   type EntityView,
   type FluvyCardConfig,
+  type HomeAssistant,
   type LovelaceGridOptions,
 } from '@fluvy/core';
 
@@ -174,8 +176,15 @@ export class FluvyEntitiesCard extends Card<EntitiesCardConfig> {
   /** Fits the head to its column (measured in the card's own classes, again when a font lands). */
   private readonly head = new HeadFit(this);
 
-  static getStubConfig(_hass: unknown, entities: readonly string[]): EntitiesCardConfig {
-    return { type: 'custom:fluvy-entities-card', title: 'Devices', entities: entities.slice(0, 4) };
+  static getStubConfig(
+    hass: HomeAssistant | undefined,
+    entities: readonly string[],
+  ): EntitiesCardConfig {
+    return {
+      type: 'custom:fluvy-entities-card',
+      title: localize(hass, 'entities.devices'),
+      entities: entities.slice(0, 4),
+    };
   }
 
   private rows(): EntityRowConfig[] {

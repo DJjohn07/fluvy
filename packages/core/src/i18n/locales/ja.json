@@ -685,7 +685,9 @@
     "badge_warn": "警告時のバッジ（例：「{count}個が低下」）"
   },
   "chips": {
-    "rooms": "部屋"
+    "rooms": "部屋",
+    "home": "ホーム",
+    "energy": "エネルギー"
   },
   "distribution": {
     "distribution": "内訳",
@@ -711,7 +713,9 @@
     "badge": "バッジのテキスト",
     "stats": "表示する値"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "リビング"
+  },
   "hello": {
     "greeting": "{greeting}、{name}さん",
     "profile": "プロファイル",
@@ -1052,7 +1056,11 @@
     "left": "壁掛けモード終了",
     "return": "壁掛けモードに戻る",
     "back": "戻る",
-    "back_to": "{view}から戻る"
+    "back_to": "{view}から戻る",
+    "screensaver": "スクリーンセーバー"
+  },
+  "entities": {
+    "devices": "デバイス"
   },
   "cards": {
     "tile": "タイル",

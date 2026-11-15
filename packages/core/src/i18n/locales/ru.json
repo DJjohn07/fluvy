@@ -445,7 +445,9 @@
     "badge_warn": "Значок при предупреждениях, напр. «Низкий заряд: {count}»"
   },
   "chips": {
-    "rooms": "Комнаты"
+    "rooms": "Комнаты",
+    "home": "Дом",
+    "energy": "Энергия"
   },
   "distribution": {
     "distribution": "Распределение",
@@ -471,7 +473,9 @@
     "badge": "Текст значка",
     "stats": "Показываемые значения"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Гостиная"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Профиль",
@@ -815,7 +819,11 @@
     "left": "Режим настенной панели выключен",
     "return": "Вернуться к настенной панели",
     "back": "Назад",
-    "back_to": "Назад из «{view}»"
+    "back_to": "Назад из «{view}»",
+    "screensaver": "Заставка"
+  },
+  "entities": {
+    "devices": "Устройства"
   },
   "cards": {
     "tile": "Плитка",

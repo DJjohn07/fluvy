@@ -4,6 +4,7 @@ import {
   textName,
   type ActionConfig,
   type FluvyCardConfig,
+  type HomeAssistant,
   type LovelaceGridOptions,
 } from '@fluvy/core';
 import {
@@ -219,12 +220,12 @@ export class FluvyChipsCard extends Card<ChipsCardConfig> {
     items: { chips: [...ITEM_ALIASES, { from: 'action', to: 'tap_action' }] },
   };
 
-  static getStubConfig(): ChipsCardConfig {
+  static getStubConfig(hass: HomeAssistant | undefined): ChipsCardConfig {
     return {
       type: 'custom:fluvy-chips-card',
       chips: [
-        { name: 'Home', path: viewOf(location.pathname) },
-        { name: 'Energy', path: '/energy' },
+        { name: s(hass, 'home'), path: viewOf(location.pathname) },
+        { name: s(hass, 'energy'), path: '/energy' },
       ],
     };
   }

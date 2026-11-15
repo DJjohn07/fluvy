@@ -6,6 +6,7 @@ import {
   type EntityName,
   type EntityView,
   type FluvyCardConfig,
+  type HomeAssistant,
   type LovelaceGridOptions,
   entriesOf,
 } from '@fluvy/core';
@@ -235,10 +236,13 @@ export class FluvyStatTilesCard extends Card<StatTilesCardConfig> {
     items: { rows: ITEM_ALIASES, tiles: ITEM_ALIASES },
   };
 
-  static getStubConfig(_hass: unknown, entities: readonly string[]): StatTilesCardConfig {
+  static getStubConfig(
+    hass: HomeAssistant | undefined,
+    entities: readonly string[],
+  ): StatTilesCardConfig {
     return {
       type: 'custom:fluvy-stat-tiles-card',
-      title: strings(undefined, 'stats'),
+      title: strings(hass, 'stats'),
       tiles: entities.filter((id) => id.startsWith('sensor.')).slice(0, 4),
     };
   }

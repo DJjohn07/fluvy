@@ -7,6 +7,7 @@ import {
   type EntityName,
   type EntityView,
   type FluvyCardConfig,
+  type HomeAssistant,
   type LovelaceGridOptions,
 } from '@fluvy/core';
 
@@ -177,7 +178,7 @@ export class FluvyBarsCard extends Card<BarsCardConfig> {
   };
 
   static getStubConfig(
-    hass: { states?: Record<string, { attributes: { device_class?: string } }> } | undefined,
+    hass: HomeAssistant | undefined,
     entities: readonly string[],
   ): BarsCardConfig {
     const sensors = entities.filter((id) => id.startsWith('sensor.'));
@@ -186,7 +187,7 @@ export class FluvyBarsCard extends Card<BarsCardConfig> {
     );
     return {
       type: 'custom:fluvy-bars-card',
-      title: strings(undefined, 'levels'),
+      title: strings(hass, 'levels'),
       rows: (levels.length ? levels : sensors).slice(0, 4),
     };
   }

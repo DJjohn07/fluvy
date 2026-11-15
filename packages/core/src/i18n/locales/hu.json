@@ -685,7 +685,9 @@
     "badge_warn": "Jelvény figyelmeztetésekkel, pl. „{count} gyenge”"
   },
   "chips": {
-    "rooms": "Szobák"
+    "rooms": "Szobák",
+    "home": "Otthon",
+    "energy": "Energia"
   },
   "distribution": {
     "distribution": "Eloszlás",
@@ -711,7 +713,9 @@
     "badge": "Jelvény szövege",
     "stats": "Megjelenített adatok"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Nappali"
+  },
   "hello": {
     "greeting": "{greeting}, {name}!",
     "profile": "Profil",
@@ -1052,7 +1056,11 @@
     "left": "Falmód kikapcsolva",
     "return": "Vissza a falhoz",
     "back": "Vissza",
-    "back_to": "Vissza ebből: {view}"
+    "back_to": "Vissza ebből: {view}",
+    "screensaver": "Képernyővédő"
+  },
+  "entities": {
+    "devices": "Eszközök"
   },
   "cards": {
     "tile": "Csempe",

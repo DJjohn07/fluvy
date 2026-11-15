@@ -3,6 +3,7 @@ import {
   haptic,
   idsOf,
   isActive,
+  localize,
   selfHide,
   strings,
   VISIBILITY_EVENT,
@@ -478,11 +479,14 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
     return withCards(element);
   }
 
-  static getStubConfig(_hass: unknown, entities: readonly string[]): ExpanderCardConfig {
+  static getStubConfig(
+    hass: HomeAssistant | undefined,
+    entities: readonly string[],
+  ): ExpanderCardConfig {
     const picked = entities.filter((id) => /^(light|switch|fan|cover)\./.test(id)).slice(0, 4);
     return {
       type: 'custom:fluvy-expander-card',
-      title: 'More',
+      title: localize(hass, 'common.more'),
       entities: picked,
       cards: picked.length
         ? [{ type: 'custom:fluvy-tiles-card', entities: picked, size: 'compact' }]

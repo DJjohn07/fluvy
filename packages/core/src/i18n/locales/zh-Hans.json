@@ -1177,7 +1177,9 @@
     "badge_warn": "有警告时的徽章，例如“{count} 个电量低”"
   },
   "chips": {
-    "rooms": "房间"
+    "rooms": "房间",
+    "home": "首页",
+    "energy": "能源"
   },
   "distribution": {
     "distribution": "分布",
@@ -1203,7 +1205,9 @@
     "badge": "徽章文本",
     "stats": "显示的数值"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "客厅"
+  },
   "hello": {
     "greeting": "{greeting}，{name}",
     "profile": "个人资料",
@@ -1524,7 +1528,11 @@
     "left": "壁挂模式已关闭",
     "return": "回到壁挂模式",
     "back": "返回",
-    "back_to": "从 {view} 返回"
+    "back_to": "从 {view} 返回",
+    "screensaver": "屏保"
+  },
+  "entities": {
+    "devices": "设备"
   },
   "cards": {
     "tile": "磁贴",

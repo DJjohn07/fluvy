@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Tam ekran düğmesini göster"
   },
   "chips": {
-    "rooms": "Odalar"
+    "rooms": "Odalar",
+    "home": "Ana sayfa",
+    "energy": "Enerji"
   },
   "distribution": {
     "distribution": "Dağılım",
@@ -1006,7 +1008,9 @@
     "badge": "Rozet metni",
     "stats": "Gösterilen değerler"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Oturma odası"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Profil",
@@ -2396,7 +2400,11 @@
     "left": "Duvar modu kapalı",
     "return": "Duvara dön",
     "back": "Geri",
-    "back_to": "{view} görünümünden geri"
+    "back_to": "{view} görünümünden geri",
+    "screensaver": "Ekran koruyucu"
+  },
+  "entities": {
+    "devices": "Cihazlar"
   },
   "cards": {
     "tile": "Kutu",

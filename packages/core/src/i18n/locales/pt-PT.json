@@ -903,7 +903,9 @@
     "editor_show_fullscreen": "Mostrar o botão de ecrã inteiro"
   },
   "chips": {
-    "rooms": "Divisões"
+    "rooms": "Divisões",
+    "home": "Início",
+    "energy": "Energia"
   },
   "distribution": {
     "distribution": "Distribuição",
@@ -1006,7 +1008,9 @@
     "badge": "Texto do selo",
     "stats": "Valores apresentados"
   },
-  "heading": {},
+  "heading": {
+    "living_room": "Sala"
+  },
   "hello": {
     "greeting": "{greeting}, {name}",
     "profile": "Perfil",
@@ -2396,7 +2400,11 @@
     "left": "Modo de parede desativado",
     "return": "Voltar à parede",
     "back": "Voltar",
-    "back_to": "Voltar de {view}"
+    "back_to": "Voltar de {view}",
+    "screensaver": "Proteção de ecrã"
+  },
+  "entities": {
+    "devices": "Dispositivos"
   },
   "cards": {
     "tile": "Bloco",
