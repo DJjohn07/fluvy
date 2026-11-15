@@ -438,7 +438,11 @@ export function createStage(root: HTMLElement, look: MemoryLook, options: StageO
     const house = houseOf(Object.values(SHEETS), state);
     const { automaticFrames, automaticViews } = await import('@fluvy/playground/automatic');
     const hass = house.house.hass();
-    const [views, frames] = await Promise.all([automaticViews(hass, { type: 'custom:fluvy-home' }), automaticFrames(hass, path)]);
+    const home = { type: 'custom:fluvy-home' } as const;
+    const [views, frames] = await Promise.all([
+      automaticViews(hass, home),
+      automaticFrames(hass, path, home),
+    ]);
     if (mine !== ticket) return;
     autoViews = views;
     const current = views.find((view) => view.path === path) ?? views[0];
