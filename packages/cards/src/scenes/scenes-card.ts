@@ -305,8 +305,11 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
     return at > 0 ? agoShort(this.hass, new Date(at), now) : s(this.hass, 'never');
   }
 
-  /** What a scene answers: a tap runs it, or is its own; a still press and two taps its own, else the card's (#179). */
-  private press(item: SceneItemConfig, view: EntityView): Press {
+  /**
+   * What a scene answers: a tap runs it, or is its own; a still press and two taps its own, else the card's (#179). Two
+   * copies of one scene are two surfaces, told apart by their `place` in the card: a tap on each is two taps.
+   */
+  private press(item: SceneItemConfig, view: EntityView, place: number): Press {
     return this.pressOf(
       {
         hold_action: this.config?.hold_action,
@@ -315,6 +318,9 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
       },
       view.id,
       () => this.run(view),
+      MORE_INFO,
+      '',
+      `#${place}`,
     );
   }
 
@@ -323,12 +329,12 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
    * accent's fill while it is the last run (`active`), in its own colour where it has one; out of reach, the dashed
    * ring, which takes no tap (a still press opens its details).
    */
-  private chip(item: SceneItemConfig, view: EntityView, active: boolean): SceneChip {
+  private chip(item: SceneItemConfig, view: EntityView, active: boolean, place: number): SceneChip {
     const gone = view.status === 'missing' || view.status === 'unavailable';
     const accent = this.accents.item(item.color);
     const { onTap, onHold }: Press = gone
       ? { onHold: () => this.tap(view.id, MORE_INFO) }
-      : this.press(item, view);
+      : this.press(item, view, place);
     return {
       key: item.entity,
       label: this.nameFor(view, item.name),
@@ -383,7 +389,9 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
         ${module.sceneChips(
           groups.map((group) => ({
             label: group.label,
-            items: group.items.map((item) => this.chip(item, viewOf(item), active(item))),
+            items: group.items.map((item) =>
+              this.chip(item, viewOf(item), active(item), drawn.indexOf(item)),
+            ),
           })),
           // the card's 20 on each side
           { ruler: this.ruler, width: this.width - 40 },
@@ -430,7 +438,7 @@ export class FluvyScenesCard extends Card<ScenesCardConfig> {
               const meta = fitted(this.meta(item, view, firedOf(item), now));
               // a coloured scene keeps its colour at rest when the card asks (the last run is on: its full fill)
               const tinted = this.config?.tint === 'always' && Boolean(item.color) && !on;
-              const { onTap, onHold } = this.press(item, view);
+              const { onTap, onHold } = this.press(item, view, drawn.indexOf(item));
               return html`<button
                 class="fv-tile am-scene fv-tile--tap ${on ? 'is-on fv-tile--accent' : ''} ${
                   tinted ? 'is-tinted' : ''

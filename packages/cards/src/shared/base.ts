@@ -300,8 +300,9 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
    * What a surface answers from `own`'s actions (the card's config, an item's), run for `entityId`: its tap and its
    * hold — where it names none, `tap` and `hold`: its details by default, `null` nothing, a tap what the card does of
    * its own (a scene runs) — and its double tap (none), the tap waiting for a second where that is set (`tapper`, by
-   * that double, the part and the entity it runs for); each where it can run, so a surface is never a button that does
-   * nothing. `part` reads a part's own instead (`icon_`: its circle's).
+   * that double, the part, the entity it runs for and its `place`: where a list's copies of one entity take the card's
+   * double, which of them it is); each where it can run, so a surface is never a button that does nothing. `part`
+   * reads a part's own instead (`icon_`: its circle's).
    */
   protected pressOf(
     own: object | undefined,
@@ -309,6 +310,7 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
     tap: ActionConfig | (() => void) | null = MORE_INFO,
     hold: ActionConfig | null = MORE_INFO,
     part = '',
+    place = '',
   ): Press {
     const action = (kind: string): ActionConfig | undefined =>
       (own as Readonly<Record<string, ActionConfig | undefined>> | undefined)?.[
@@ -319,7 +321,7 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
     return {
       onTap: this.tapper(
         double,
-        part + (entityId ?? ''),
+        part + (entityId ?? '') + place,
         typeof first === 'function' ? first : this.runner(first, entityId),
         this.runner(double, entityId),
       ),

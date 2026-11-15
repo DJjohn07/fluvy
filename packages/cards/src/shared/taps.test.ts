@@ -34,6 +34,7 @@ const STATES = {
     unit_of_measurement: '°C',
     device_class: 'temperature',
   }),
+  'scene.evening': state('scene.evening', STAMP, { friendly_name: 'Evening' }),
 };
 
 /** The house, with the calls and the details it is asked for kept. */
@@ -242,6 +243,33 @@ describe('a double tap (#179)', () => {
     tap(other!);
     vi.advanceTimersByTime(300);
     expect(heard).toEqual(['switch.turn_on', 'switch.turn_on']);
+  });
+
+  it('keeps two copies of one scene that take the card’s double tap to their own', async () => {
+    for (const variant of ['tiles', 'chips']) {
+      const { root, heard } = await drawn({
+        type: 'custom:fluvy-scenes-card',
+        variant,
+        double_tap_action: FIRE,
+        scenes: [
+          { section: 'Living room' },
+          'scene.evening',
+          { section: 'Kitchen' },
+          'scene.evening',
+        ],
+      });
+      await vi.dynamicImportSettled();
+      await vi.advanceTimersByTimeAsync(0);
+      const [one, other] = root.querySelectorAll('.am-scene, .fv-chip__pill');
+      tap(one!);
+      tap(other!);
+      vi.advanceTimersByTime(300);
+      expect(heard, variant).toEqual(['scene.turn_on', 'scene.turn_on']);
+      tap(other!);
+      tap(other!);
+      expect(heard.at(-1), variant).toBe('dom event');
+      document.body.replaceChildren();
+    }
   });
 
   it('runs a large tile’s tap as its double and its hold: a toggle flips its switch at once, in every style', async () => {
