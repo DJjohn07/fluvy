@@ -1085,7 +1085,9 @@ had always had it: it stands in Home Assistant's view row, under the header, and
   *Drawer*: a 44 round floats at the side's foot, 16 from the window's edges above the safe area, on the card's fill
   at 88 % with the hairline and the knob's drop (the wall corner's disc), the sidebar's glyph in the secondary ink.
   The drawer is the sidebar on the card's fill, 320 wide (never nearer than 56 to the far edge), as tall as the
-  window, its inner corners 24, over a scrim (`neutral-05` at 48 %); it comes from its side in 320 ms and leaves in
+  window, its column inside the status bar, the system bar and the screen's edge at its side (the insets the
+  Companion app hands Home Assistant, else the browser's, in the screen's pixels at any size, as a sheet takes them),
+  its inner corners 24, over a scrim (`neutral-05` at 48 %); it comes from its side in 320 ms and leaves in
   200, at once where motion is reduced. Its close round stands exactly where the round that opened it was. It is a
   dialog in the top layer: the focus stays inside it, and Escape, a tap beside it or a page chosen close it. It is
   always solid, as a sheet is.

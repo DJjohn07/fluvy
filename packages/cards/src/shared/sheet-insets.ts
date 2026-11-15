@@ -1,4 +1,12 @@
-import { css } from 'lit';
+import { css, unsafeCSS, type CSSResult } from 'lit';
+
+/**
+ * The screen's inset on one side, as a term of a `calc()`, `max()` or `min()`: the one the Companion app hands Home
+ * Assistant (`--safe-area-inset-*`), else the browser's, in the pixels of what is drawn at the size the variable `zoom`
+ * names (a view's or a card's: the inset is the screen's, whatever the size).
+ */
+export const screenInset = (side: 'top' | 'right' | 'bottom' | 'left', zoom: string): CSSResult =>
+  unsafeCSS(`var(--safe-area-inset-${side}, env(safe-area-inset-${side}, 0px)) / var(${zoom}, 1)`);
 
 /**
  * Where a modal bottom sheet stands on a phone (#190), the one rule every sheet of ours shares (a light's details,
@@ -11,15 +19,7 @@ import { css } from 'lit';
  */
 export const sheetInsets = css`
   dialog .fv-sheet {
-    max-height: calc(
-      100% - max(
-          24px,
-          var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) / var(--fv-zoom, 1)
-        )
-    );
-    padding-bottom: max(
-      16px,
-      var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) / var(--fv-zoom, 1)
-    );
+    max-height: calc(100% - max(24px, ${screenInset('top', '--fv-zoom')}));
+    padding-bottom: max(16px, ${screenInset('bottom', '--fv-zoom')});
   }
 `;

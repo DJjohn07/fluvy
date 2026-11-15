@@ -1,4 +1,5 @@
-import { css } from 'lit';
+import { css, type CSSResult } from 'lit';
+import { screenInset } from '../shared/sheet-insets.js';
 
 /** On `hui-root`: its dashboard draws a sidebar of its own, and how (`start` or `end`; `beside`, `top` or `drawer`; `no-tabs`). */
 export const SIDE_ATTRIBUTE = 'fluvy-side';
@@ -28,12 +29,17 @@ ${has('drawer')} ${SIDE} { flex: none; width: 0; height: 0; }
 ${has('no-tabs')} .toolbar > ha-tab-group { display: none; }
 ${has('no-tabs')} .toolbar > .action-items { margin-inline-start: auto; }`;
 
+/** The screen's inset on a side, in the sidebar's own pixels (it is drawn at the device's size, as `rootCss` says). */
+const inset = (side: Parameters<typeof screenInset>[0]): CSSResult =>
+  screenInset(side, '--fluvy-zoom');
+
 /**
  * The sidebar's own rules, on the language's card, circle and round. Its surface is the card's (`panel`: from edge to
  * edge, square, a hairline at its inner edge alone; `card`: one card, the view's gaps round it; `plain`: none), its
  * head and its foot stay while they leave its middle a row and the middle scrolls between them, else the whole column
  * scrolls. On a surface the cards it holds wear none and stand in its column, 40 apart with a hairline between, as the
- * Expander's do; with none they keep their own, a section's 16 apart. Tokens only.
+ * Expander's do; with none they keep their own, a section's 16 apart. Tokens only; the screen's insets as a sheet
+ * takes them (`screenInset`), in its own pixels (it is drawn at the device's size).
  */
 export const sidebarStyles = css`
   :host {
@@ -369,8 +375,8 @@ export const sidebarStyles = css`
   .sb-open {
     position: fixed;
     z-index: 6;
-    inset-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
-    inset-inline-start: calc(16px + env(safe-area-inset-left, 0px));
+    inset-block-end: calc(16px + ${inset('bottom')});
+    inset-inline-start: calc(16px + ${inset('left')});
     background: color-mix(in srgb, var(--fluvy-card) 88%, transparent);
     /* it floats over whatever the dashboard has at its foot: the knob's drop says so, as the wall's corner */
     box-shadow:
@@ -379,7 +385,7 @@ export const sidebarStyles = css`
     color: var(--fluvy-text-secondary);
   }
   :host([side='end']) .sb-open {
-    inset-inline: auto calc(16px + env(safe-area-inset-right, 0px));
+    inset-inline: auto calc(16px + ${inset('right')});
   }
   dialog {
     position: fixed;
@@ -420,6 +426,7 @@ export const sidebarStyles = css`
   :host([side='end']:dir(rtl)) .sb--drawer {
     --sb-from: -100%;
   }
+  /* as tall as the window: its column clears the status bar, the system's bar and the screen's edge at its side */
   .sb--drawer > .sb-surface {
     border-radius: 0;
     border-start-end-radius: var(--fluvy-radius-xl);
@@ -427,14 +434,14 @@ export const sidebarStyles = css`
     box-shadow:
       0 0 0 1px var(--fluvy-edge, var(--fluvy-border)),
       var(--fluvy-shadow-lift);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-inline-start: env(safe-area-inset-left, 0px);
+    padding-block: calc(${inset('top')}) calc(${inset('bottom')});
+    padding-inline-start: calc(${inset('left')});
   }
   :host([side='end']) .sb--drawer > .sb-surface {
     border-radius: 0;
     border-start-start-radius: var(--fluvy-radius-xl);
     border-end-start-radius: var(--fluvy-radius-xl);
-    padding-inline: 0 env(safe-area-inset-right, 0px);
+    padding-inline: 0 calc(${inset('right')});
   }
   /* its close round stands where the round that opened it was (16 from the window's edges, the column being 20):
      the same finger closes it */

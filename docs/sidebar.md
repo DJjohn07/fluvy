@@ -146,8 +146,11 @@ one `/`) or one of this dashboard's views by its path; anything else is left out
   finger, down to the foot's last card, and the page under it never moves. The middle fades where it goes on as soon
   as a card in it grows, an Expander opened by a tap among them.
 - **The edit mode** hides it: a dashboard is edited at its whole width.
-- **A wall** (see [Wall mode](wall.md)) draws it from the top of the screen, as it has no header. A kiosk that hides
-  the header by another means is followed too: the sidebar starts where the view does.
+- **A wall** (see [Wall mode](wall.md)) draws it from the top of the screen, as it has no header, also when the wall
+  comes on after the dashboard has opened. A kiosk that hides the header by another means is followed too: the
+  sidebar starts where the view does.
+- **A phone in the Companion app**: the drawer and the round that opens it keep clear of the status bar and the
+  system bar the app tells Home Assistant about, at any of this device's sizes.
 - **The floating frame**, Home Assistant's own sidebar docked, folded or hidden, and this device's *Sidebar beside the
   page*: it stands inside the dashboard's own area, after Home Assistant's sidebar, and moves with the view.
 - **This device's size** (*Preferences › This device*): it grows with the view.

@@ -8,7 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sync } from './index.js';
 import type { FluvySidebar } from './sidebar.js';
-import { SIDE_ATTRIBUTE } from './styles.js';
+import { SIDE_ATTRIBUTE, sidebarStyles } from './styles.js';
 
 /** Home Assistant's card wrapper, as the sidebar's holder speaks to it: what it was handed. */
 class Wrapper extends HTMLElement {
@@ -532,6 +532,58 @@ describe('a dashboard’s own sidebar in Home Assistant’s page', () => {
     await settle();
     expect(column!.classList.contains('is-over')).toBe(true);
     expect(body!.classList.contains('is-over')).toBe(false);
+  });
+
+  it('reads the view row’s top again as either of its boxes changes: a wall’s header gone over a view taller than the window', () => {
+    vi.stubGlobal('ResizeObserver', Sizes);
+    const { root, view, side } = mount({ menu: 'views' });
+    view.style.paddingTop = '56px';
+    sync(root);
+    expect(side()?.style.getPropertyValue('--fluvy-side-top')).toBe('56px');
+    const boxes = Sizes.made.filter((one) => one.watched.has(view));
+    expect(boxes.map((one) => one.watched.get(view))).toEqual(['content-box', 'border-box']);
+    // the wall's sheet takes the header's room: the row's content box keeps its height, its border box does not
+    view.style.paddingTop = '0px';
+    boxes.find((one) => one.watched.get(view) === 'border-box')!.told();
+    expect(side()?.style.getPropertyValue('--fluvy-side-top')).toBe('0px');
+    // gone from the page: nothing watches the row any more
+    root.lovelace = { editMode: true, config: root.lovelace?.config ?? {} };
+    sync(root);
+    expect(boxes.every((one) => one.watched.size === 0)).toBe(true);
+  });
+
+  it('listens for the window crossing a device’s width while a dashboard asks for a sidebar, and no longer once none does', () => {
+    // a page that keeps none: whatever an earlier dashboard listened for is let go
+    sync(mount(undefined).root);
+    const heard: (AbortSignal | undefined)[] = [];
+    vi.stubGlobal('matchMedia', () => ({
+      addEventListener: (_: string, __: unknown, options?: AddEventListenerOptions) =>
+        heard.push(options?.signal),
+    }));
+    const live = (): number => heard.filter((signal) => !signal?.aborted).length;
+    const { root } = mount({ menu: 'views' });
+    sync(root);
+    sync(root);
+    // a phone's width and a desktop's, once
+    expect(live()).toBe(2);
+    root.lovelace = { editMode: false, config: { views: VIEWS } };
+    sync(root);
+    expect([heard.length, live()]).toEqual([2, 0]);
+  });
+
+  it('takes the screen’s insets as Home Assistant hands them on (the Companion app’s), in its own pixels, for its drawer and the round that opens it', () => {
+    const text = sidebarStyles.cssText.replace(/\s+/g, ' ');
+    // the browser's inset alone misses the Companion app's
+    expect(text).not.toMatch(
+      /(?<!var\(--safe-area-inset-(top|right|bottom|left), )env\(safe-area-inset/,
+    );
+    expect(text).toContain(
+      'inset-block-end: calc(16px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) / var(--fluvy-zoom, 1))',
+    );
+    // the drawer, as tall as the window, clears the status bar as well as the system's bar
+    expect(text).toContain(
+      'padding-block: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) / var(--fluvy-zoom, 1)) calc(var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) / var(--fluvy-zoom, 1))',
+    );
   });
 
   it('takes every sidebar off the page when it throws, and hands the throw on', async () => {

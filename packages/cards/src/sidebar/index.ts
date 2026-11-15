@@ -41,7 +41,8 @@ type View = NonNullable<
 interface Kept {
   readonly side: FluvySidebar;
   view: Element | undefined;
-  watch: ResizeObserver | undefined;
+  /** What reads the row's paddings again: one watch of its content box, one of its border box (`draw`). */
+  watch: readonly ResizeObserver[];
   /** What the view row's paddings were last read for: the view shown, the edit mode. */
   laid: string;
   /** The configuration as last read, and what it asks for. */
@@ -74,8 +75,8 @@ function mark(root: RootElement, words: string | null): void {
 
 /** The sidebar out of the page, its root unmarked: the view has its whole width. */
 function leave(root: RootElement, state: Kept): void {
-  state.watch?.disconnect();
-  state.watch = undefined;
+  for (const watch of state.watch) watch.disconnect();
+  state.watch = [];
   state.view = undefined;
   state.laid = '';
   state.side.remove();
@@ -207,14 +208,24 @@ function again(): void {
   for (const root of [...kept.keys()]) guard(SIDEBAR_PATCH, () => sync(root), root.ownerDocument);
 }
 
-let listening = false;
+/** What ends the listening below. */
+let listening: AbortController | undefined;
 
-/** The window crossing a phone's or a tablet's width draws every sidebar again; listened to once a page. */
+/**
+ * The window crossing a phone's or a tablet's width draws every sidebar again: listened to while a dashboard that
+ * asks for one is kept, and no longer once none is.
+ */
 function listen(): void {
-  if (listening || typeof matchMedia !== 'function') return;
-  listening = true;
-  for (const from of [TABLET_FROM, DESKTOP_FROM])
-    matchMedia(`(min-width: ${from}px)`).addEventListener('change', again);
+  if (!kept.size) {
+    listening?.abort();
+    listening = undefined;
+  } else if (!listening && typeof matchMedia === 'function') {
+    listening = new AbortController();
+    for (const from of [TABLET_FROM, DESKTOP_FROM])
+      matchMedia(`(min-width: ${from}px)`).addEventListener('change', again, {
+        signal: listening.signal,
+      });
+  }
 }
 
 function draw(root: RootElement): void {
@@ -238,14 +249,13 @@ function draw(root: RootElement): void {
     state = {
       side: document.createElement(TAG) as FluvySidebar,
       view: undefined,
-      watch: undefined,
+      watch: [],
       laid: '',
       raw: undefined,
       json: '',
       spec: undefined,
     };
     kept.set(root, state);
-    listen();
   }
   Object.assign(state, read);
   const view = root.shadowRoot?.querySelector('#view') ?? undefined;
@@ -264,11 +274,18 @@ function draw(root: RootElement): void {
   // first in the row: Home Assistant swaps the last child alone, and one it emptied gets it back
   if (view.firstElementChild !== side) view.prepend(side);
   if (state.view !== view) {
-    state.watch?.disconnect();
+    for (const watch of state.watch) watch.disconnect();
     state.view = view;
+    // a padding that changes (a wall's header gone, a kiosk's) moves the row's content box while the row is held at
+    // the window's height, and its border box once its view is taller: each box is watched
     state.watch =
-      typeof ResizeObserver === 'function' ? new ResizeObserver(() => measure(state)) : undefined;
-    state.watch?.observe(view);
+      typeof ResizeObserver === 'function'
+        ? (['content-box', 'border-box'] as const).map((box) => {
+            const watch = new ResizeObserver(() => measure(state));
+            watch.observe(view, { box });
+            return watch;
+          })
+        : [];
     measure(state);
   }
   // the row's paddings move with the view shown (a wall's subview takes a header): read again before the next frame
@@ -292,5 +309,7 @@ export function sync(root: RootElement): void {
     for (const [other, state] of kept) leave(other, state);
     kept.clear();
     throw error;
+  } finally {
+    listen();
   }
 }

@@ -16,7 +16,8 @@
  * nothing. Taller than its surface (#195), with a wheel and a finger: a head or a foot that leave the middle no row
  * (an Expander open in them, a pinned menu on a short tablet, a phone's drawer) scroll with the whole column inside
  * its surface, the page and the sidebar never moving and the foot always reached; the middle fades once a card it
- * holds opens.
+ * holds opens; a wall that comes after the sidebar drew takes the header's room with it; the drawer and its round
+ * keep clear of the insets the Companion app hands Home Assistant.
  */
 import { ENGINE, settle, startSuite, tapHead } from './lib/suite.mjs';
 
@@ -817,6 +818,53 @@ if (ENGINE === 'chromium') {
     'on a wall (no header): from the top of the window to its foot',
     s.mark === 'start beside' && s.side.y === 0 && near(s.side.h, 768),
     JSON.stringify(s.side),
+  );
+  await page.close();
+}
+{
+  // the wall comes once the sidebar is drawn (its controller starts after the dashboard): over a view taller than the
+  // window, the header's room going moves the row's border box alone
+  const page = await open('side=menu', { width: 1024, height: 600 });
+  const marked = async (on) => {
+    await page.evaluate((wall) => document.documentElement.toggleAttribute('fluvy-wall', wall), on);
+    await settle(page, 400);
+    return (await read(page)).side;
+  };
+  const before = (await read(page)).side;
+  const walled = await marked(true);
+  const after = await marked(false);
+  check(
+    'a wall that comes once the sidebar is drawn takes the header’s room with it, and gives it back as it goes',
+    before.y === HEADER &&
+      walled.y === 0 &&
+      near(walled.bottom, 600) &&
+      after.y === HEADER &&
+      near(after.bottom, 600),
+    JSON.stringify({ before, walled, after }),
+  );
+  await page.close();
+}
+for (const zoom of [100, 125]) {
+  // the Companion app's insets, as Home Assistant hands them on: a status bar of 44, a system bar of 34
+  const page = await open(
+    `side=drawer&insets=44,34&zoom=${zoom}`,
+    { width: 390, height: 844 },
+    { touch: true },
+  );
+  const sb = page.locator('fluvy-sidebar');
+  const opener = await sb.locator('.sb-open').boundingBox();
+  await page.touchscreen.tap(opener.x + 22, opener.y + 22);
+  await settle(page, 600);
+  const head = await sb.locator('.sb-head').boundingBox();
+  const close = await sb.locator('.sb-fold button').boundingBox();
+  const k = zoom / 100;
+  check(
+    `the drawer at ${zoom} %: its round stands 16 over the system bar, its head under the status bar, its close round where the round was`,
+    near(opener.y + opener.height, 844 - 34 - 16 * k, 1) &&
+      near(head.y, 44, 1) &&
+      near(close.y, opener.y, 1) &&
+      near(close.x, opener.x, 1),
+    JSON.stringify({ opener, head, close }),
   );
   await page.close();
 }
