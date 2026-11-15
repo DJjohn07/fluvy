@@ -39,6 +39,17 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
   Companion app says it draws over the page, where they sat under an edge-to-edge tablet's status and system bars.
 - A large tile's readout labelled by its sensor's name ends in an ellipsis where the name is wider than its cell, where
   it ran past it.
+- The Chart card's line ends in the colour of the threshold band it ends in, where its end dot wore the series' own
+  colour over a line drawn in the band's (#204).
+- The Appliances card says a row's state once, at its end, where the line under the name of an appliance at rest, paused
+  or busy without a timer said it again and cut it in German and Russian at 211 ("Ausg…").
+- A card drawn while it had no box (in a folded Expander, a closed tab, a conditional card) is drawn again once it
+  shows, so the Chart card's price pills no longer keep their longest words over the big figure.
+- The Vehicle card's line says each of its warnings whole at half a section on the narrowest phone, in every language,
+  with a shorter word that says the same and the part alone where none holds, where eighteen of them were cut; its
+  description in the card picker says it draws petrol, diesel and plug-in hybrid cars too (#207).
+- An Expander's `remember: off` written unquoted in a YAML dashboard keeps nothing, as the editor's Off does, where YAML
+  read it as false and the card remembered how it was left.
 - German reads as German and in Home Assistant's own words, thanks to @sebfrie: an unavailable entity says "Nicht
   verfügbar", a lock's buttons "Verriegeln" and "Entriegeln" and its states "Verriegelt" and "Entriegelt", every action
   field as Home Assistant's editors say it ("Verhalten bei Antippen", "… Festhalten", "… Doppeltippen", "… des
@@ -48,6 +59,12 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 
 ### Added
 
+- Danish, written by us: every card, page, dialog and editor form, the settings panel's language list and the
+  integration's own texts, in Home Assistant's own Danish where it names the same thing (Til, Fra, Registreret,
+  Opvarmning, Handling ved tryk), with the naming words the automatic dashboards and the appliance cards read a Danish
+  house by, compound words and all ("Køkkenlys", "Stuelampe", "Opvaskemaskine", "Tørretumbler"), as written or as an
+  entity id writes them; it greets "Godmorgen" until 10:00, "Goddag" through the day and "Godaften" from 18:00. Native
+  speakers are warmly invited to review it: corrections by pull request.
 - Czech, thanks to @DJjohn07: every card, page, dialog and editor form, the settings panel's language list and the
   integration's own texts, with the naming words the automatic dashboards and the appliance cards read a Czech house by,
   as written or as an entity id writes them (a name's ř is read as r). It says Home Assistant's own words where Home
@@ -70,6 +87,17 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - The live demo is a shop window for every card: a menu and a search, a page for each card with each of its layouts live
   on the simulated home, and View YAML with the exact YAML that draws it, ready to copy, beside a link to the card's
   docs (#199, asked by @sriramsv).
+- The Swipe card holds any cards, one a page, in a row that a finger, a trackpad, its page marks or the keys turn: the
+  browser's own scroll snapped a page at a time, only the page in view and the next one on each side built, a drag that
+  starts on a ruler, a slider, a map or a row of chips stays theirs, `loop` goes round from the last page, `start` sets
+  the page it opens on, `columns` lays up to four side by side across a desktop, `autoplay` turns it by itself on a
+  wall, and the page you leave it on is kept in the tab, never written into the config (#206, asked by @SentinelXS).
+- The Gauge, Sensor, Readouts, Stat tiles, Tile, Tiles and Room cards can colour a reading past a threshold, off until a
+  card names one: `thresholds` from a figure up, or under it with `below`, each in a tone, a colour of your own or
+  `none`, with a `label` and an `icon` that say the band beside the colour, the value a figure, an entity read live or a
+  template (one that fails is left out), and the card itself in the band where asked (`tint: on`, as a wash or its
+  edge); the Chart card's thresholds follow the same rule, so they can colour under a value, end a band, take a colour
+  of your own and read their value from an entity or a template (#204, asked by @SentinelXS).
 - The Lock, Cover, Alarm, Vacuum, Fan and Thermostat cards can show their state's colour beyond the circle, off until
   asked: `tint` (never, when active, always) as a quiet wash, the card's edge or the control alone (`tint_style`: the
   lock's knob, as the reporter drew it), a colour of your own for any state (`state_colors`), and a house default in
@@ -170,6 +198,8 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - The Tiles card's editor no longer offers a Readouts field for the whole group, which no tile ever read; each tile
   keeps its own readouts in its form.
 - The demo's History and Activity pages no longer say they open a page of Home Assistant as they open.
+- A name's Danish or Norwegian ø and æ are read as Home Assistant writes them into an entity id, o and ae: an appliance
+  named "Køleskab" finds its entities by its device's id `koleskab`, where it looked for `k_leskab`.
 
 ### Development
 
@@ -190,9 +220,12 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
   a real finger.
 - Development dependencies: prettier 3.10.0, typescript-eslint 8.72.2, vite 8.3.8 and sortablejs 1.15.7.
 - Budgets: a language's catalogue 48 KB (every card's name and description), the automatic dashboards' chunk 32 KB, the
-  energy family 88 KB, the appliances 70 KB, the Vehicle card 26 KB and the cards' editors 16 KB.
+  energy family 88 KB, the appliances 70 KB, the Vehicle card 26 KB, the cards' editors 16 KB and their fields 9 KB.
 - The settings panel's tests wait for what they wait on (a section's own file landing, a save's writes done, the apply
   bar gone) where they waited a fixed time: on a loaded runner one or another of them failed now and then.
+- One lazy reader, `shared/thresholds.ts`, lays out every card's thresholds and the chart engine draws its bands, and
+  the tokens give any tone an ink that reads as text on the card, the page and its wash (`textInk`); the Swipe card is a
+  chunk of its own and its editor is built on the Expander's.
 
 ## [1.21.0] — 2026-11-14
 
