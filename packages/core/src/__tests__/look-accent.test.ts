@@ -238,6 +238,8 @@ describe('a card tinted by what it says (1.22, #196)', () => {
     accents.ink('heat');
     accents.ink('#ff8800');
     accents.ink('heat');
+    // a source that is neither a tone's name nor a colour never reaches the sheet's selectors
+    accents.ink('x"]{background:red}[a="');
     const light = linen.light;
     expect(sheetOf(accents)).toEqual([
       `[data-ink="warning"] { --fv-ink: ${textInk(light.semantic.warning, light)}; }`,

@@ -85,6 +85,9 @@ describe('a reading’s band (1.22, #204)', () => {
     expect(band).toMatchObject({ tone: 'accent', accent: '#8844ff', ink: 'ink:#8844ff' });
     // a colour no one can read keeps the tone
     expect(read([{ value: 230, color: 'nope', tone: 'warning' }]).band(240)?.tone).toBe('warning');
+    // ...and beside a tone that is none of the palette's says nothing: a word of the config's never reaches the sheet
+    const odd = 'x"]{background:red}[a="';
+    expect(read([{ value: 230, color: 'nope', tone: odd as never }]).band(240)).toBeUndefined();
   });
 
   it('says its words and its icon where they are given, and its figure’s ink but in the neutral', () => {

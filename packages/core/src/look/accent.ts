@@ -219,6 +219,9 @@ export function litCss(
 }
 
 /** A figure's ink in what it is said in on a palette × mode (`AccentSheet.ink`: `textInk`), kept like the inks. */
+/** What a sheet's selector may name: a tone of the palette's (`heat`, `accent`) or a colour (`#rrggbb`). */
+const SOURCE = /^(?:#[0-9a-f]{3,8}|[a-z][a-z0-9-]*)$/i;
+
 function textOf(paletteKey: string, mode: PaletteMode, source: string): string {
   const key = `text|${paletteKey}|${mode}|${source}`;
   return (
@@ -435,8 +438,12 @@ export class AccentSheet {
       const ink = this.inkOf(source);
       if (ink) rules.push(`[data-edge="${source}"]{--fv-edge:${ink}}`);
     }
+    // a source is a tone's name or a colour the card picked (`#rrggbb`): anything else never reaches the sheet
     for (const source of this.texts)
-      rules.push(`[data-ink="${source}"]{--fv-ink:${textOf(this.paletteKey, this.mode, source)}}`);
+      if (SOURCE.test(source))
+        rules.push(
+          `[data-ink="${source}"]{--fv-ink:${textOf(this.paletteKey, this.mode, source)}}`,
+        );
     const own = rules.join('');
     const css = this.see ? this.see(this.paletteKey, this.mode, own) : own;
     if (css === this.written) return;

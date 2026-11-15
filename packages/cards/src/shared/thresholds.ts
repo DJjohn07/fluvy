@@ -106,10 +106,13 @@ function valueOf(raw: unknown, unit: string, host: ThresholdHost): number | unde
  * none, or a colour of its own.
  */
 const says = (item: ThresholdItem): boolean =>
-  typeof item.color === 'string' ||
-  item.tone === 'none' ||
-  item.tone === 'notice' ||
-  (TONES as readonly unknown[]).includes(item.tone);
+  typeof item.color === 'string' || item.tone === 'none' || toneOf(item) !== undefined;
+
+/** A threshold's tone where it is one of the palette's (the information's too), else none: never a word of its own. */
+const toneOf = (item: ThresholdItem): Tone | undefined =>
+  item.tone === 'notice' || (TONES as readonly unknown[]).includes(item.tone)
+    ? (item.tone as Tone)
+    : undefined;
 
 /**
  * The threshold that claims a reading: the highest upward one it reaches, the lowest downward one it is under, the
@@ -144,7 +147,9 @@ export function thresholdsOf(
   const look = ({ item }: Read): { tone: Tone; accent?: string | undefined } | undefined => {
     const accent = item.color ? host.accents.item(item.color) : undefined;
     if (accent) return { tone: 'accent', accent };
-    return item.tone && item.tone !== 'none' ? { tone: item.tone } : undefined;
+    // a colour that is none, beside a tone that is none of the palette's, says nothing: the band is left undrawn
+    const tone = toneOf(item);
+    return tone ? { tone } : undefined;
   };
   return {
     band: (reading) => {
