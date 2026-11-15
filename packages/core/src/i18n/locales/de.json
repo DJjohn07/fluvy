@@ -1753,7 +1753,13 @@
     "readout_style_help": "In einer Zeile ersetzt das Symbol eine Beschriftung, die nicht passt. In mehreren Zeilen bleibt der Text erhalten, und die Messwerte brechen um.",
     "readout_labels": "Beschriftung der Messwerte",
     "words": "Text",
-    "icons": "Symbole"
+    "icons": "Symbole",
+    "show_state": "Status anzeigen",
+    "show_quick_states": "Status der Schnellaktionen anzeigen",
+    "quick_states_help": "Unter oder neben jedem Symbol: ein Messwert mit Einheit, eine Tür offen oder geschlossen, die Helligkeit eines Lichts.",
+    "quick_state_position": "Position des Status",
+    "under": "Unter dem Symbol",
+    "beside": "Neben dem Symbol"
   },
   "production": {
     "production": "Erzeugung",

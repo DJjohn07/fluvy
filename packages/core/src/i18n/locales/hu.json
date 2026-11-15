@@ -819,7 +819,13 @@
     "readout_style_help": "Egy sorban a ki nem férő feliratot az ikonja váltja fel. Több sorban a szavak maradnak, a kijelzők pedig új sorba kerülnek.",
     "readout_labels": "A kijelzők feliratai",
     "words": "Szavak",
-    "icons": "Ikonok"
+    "icons": "Ikonok",
+    "show_state": "Az állapot megjelenítése",
+    "show_quick_states": "Az állapotuk megjelenítése",
+    "quick_states_help": "Minden ikon alatt vagy mellett: egy mért érték a mértékegységével, egy ajtó nyitva vagy zárva, egy lámpa fényereje.",
+    "quick_state_position": "Az állapot helye",
+    "under": "Az ikon alatt",
+    "beside": "Az ikon mellett"
   },
   "readouts": {
     "rising": "emelkedik",

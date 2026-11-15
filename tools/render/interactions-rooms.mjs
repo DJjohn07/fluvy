@@ -12,9 +12,12 @@
  * call, its blinds' closes them (a roof that only tilts by its slats, a screen that can do neither left out), asked
  * first in one question for the blinds and the roof alike, both moving at its yes, a hold on
  * a set of several opens the room and on an entity its details, one that cannot be read or act takes no tap, and half
- * a section holds as many as the name leaves room for; its picture's pill fits its glyph and its name whole as the card's
- * width moves, its glyph coming and going with the room; its name at the photo's top (#159) leaves the foot to the
- * rounds — four on the reporter's 328, two in half a section — each keeping its own tap, the name the room's; its
+ * a section holds as many as the name leaves room for; they say their state where asked (#205) — the reporter's row its
+ * humidity and its temperature, whole, under their glyphs (20 taller) or beside them, a tap on the words the round's, a
+ * light its level and Off at its tap, the pills' feet on the name pill's on a photo; its picture's pill fits its glyph
+ * and its name whole as the card's width moves, its glyph coming and going with the room; its name at the photo's top
+ * (#159) leaves the foot to the rounds — four on the reporter's 328, two in half a section — each keeping its own tap,
+ * the name the room's; its
  * readouts stand on one row there in Dutch, their icons over whole figures, 60 shorter than wrapped as before, two and
  * one in half a section and one row at 211 in every language, nothing past its column, a reading out of reach keeping
  * the row of the card that reads, and every row as tall as its config says whatever size its figures took (a readout
@@ -361,6 +364,92 @@ const navigations = (page) => page.evaluate(() => window.__navigations.splice(0)
       answered.join(' | ') ===
         'cover.close_cover cover.rm_sunroom_blinds | cover.close_cover_tilt cover.rm_sunroom_roof',
     JSON.stringify({ asked, before, answered }),
+  );
+  await page.close();
+}
+
+/* ---------- #205: a room's quick actions that say their state ---------- */
+{
+  const page = await suite.sheet('rooms');
+  await watchNavigation(page);
+  /** Each pill's words, its box and its words' box, in a card's quick actions. */
+  const pills = (card) =>
+    card.evaluate((element) =>
+      [...element.shadowRoot.querySelectorAll('.rm-quick .lt-bulb')].map((round) => {
+        const box = round.getBoundingClientRect();
+        const said = round.querySelector('.lt-said');
+        const words = said?.getBoundingClientRect();
+        return {
+          said: said?.textContent ?? '',
+          top: box.top,
+          bottom: box.bottom,
+          left: box.left,
+          right: box.right,
+          inside: !words || (words.left >= box.left && words.right <= box.right + 0.5),
+          whole: !said || said.scrollWidth <= said.clientWidth + 0.5,
+        };
+      }),
+    );
+  const reporter = frame(page, 'Room · the reporter’s home row, its readings (#205)').locator(
+    'fluvy-room-card',
+  );
+  const [under, beside] = await Promise.all([0, 1].map((n) => pills(reporter.nth(n))));
+  const tall = await Promise.all(
+    [0, 1].map((n) => reporter.nth(n).evaluate((card) => card.getBoundingClientRect().height)),
+  );
+  check(
+    'the reporter’s row says its humidity and its temperature, under their glyphs (20 taller) or beside them, each whole in its pill',
+    under.map((pill) => pill.said).join() === '48 %,21.5 °C' &&
+      beside.map((pill) => pill.said).join() === '48 %,21.5°' &&
+      [...under, ...beside].every((pill) => pill.inside && pill.whole) &&
+      tall.join() === '96,76',
+    JSON.stringify({ under, beside, tall }),
+  );
+  // a sensor's tap opens its details, never the room, wherever on its pill the finger lands (its words too)
+  const humidity = reporter.nth(0).locator('.rm-quick .lt-bulb').first();
+  await humidity.scrollIntoViewIfNeeded();
+  const box = await humidity.boundingBox();
+  await reset(page);
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height - 10);
+  await settle(page, 200);
+  check(
+    'a tap on the humidity’s words opens its details, never the room',
+    JSON.stringify(await moreInfo(page)) === '["sensor.rm_home_humidity"]' &&
+      (await navigations(page)).length === 0,
+    JSON.stringify(await moreInfo(page)),
+  );
+  // the hall's light says its level; its tap turns it off in one call, its pill saying Off under the finger
+  const states = frame(page, 'Room · quick actions that say their state (#205)').locator(
+    'fluvy-room-card',
+  );
+  const hall = states.nth(0).locator('.rm-quick .lt-bulb').first();
+  const before = await hall.locator('.lt-said').textContent();
+  await reset(page);
+  await hall.click();
+  await settle(page, 100);
+  const sent = await calls(page);
+  check(
+    'the hall’s light says its level, and Off at its tap, which turns it off in one call',
+    before === '65 %' &&
+      (await hall.locator('.lt-said').textContent()) === 'Off' &&
+      sent.length === 1 &&
+      sent[0].s === 'light.turn_off',
+    `${before} ${await hall.locator('.lt-said').textContent()} ${JSON.stringify(sent)}`,
+  );
+  // on the photo, the pills' feet stand on the name pill's, 16 from the foot
+  const photo = states.nth(1);
+  const feet = await photo.evaluate((card) => {
+    const hero = card.shadowRoot.querySelector('.rm-hero').getBoundingClientRect();
+    const badge = card.shadowRoot.querySelector('.am-area__badge').getBoundingClientRect();
+    return [...card.shadowRoot.querySelectorAll('.rm-quick .lt-bulb')].map((round) => [
+      Math.round(hero.bottom - round.getBoundingClientRect().bottom),
+      Math.round(hero.bottom - badge.bottom),
+    ]);
+  });
+  check(
+    'on the photo the pills’ feet stand on the name pill’s, 16 from the foot',
+    feet.length === 3 && feet.every(([pill, badge]) => pill === 16 && badge === 16),
+    JSON.stringify(feet),
   );
   await page.close();
 }

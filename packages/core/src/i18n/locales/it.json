@@ -1753,7 +1753,13 @@
     "readout_style_help": "Su una riga, l’etichetta che non ci sta lascia il posto alla sua icona. Su più righe, le parole restano e le letture vanno a capo.",
     "readout_labels": "Etichette delle letture",
     "words": "Parole",
-    "icons": "Icone"
+    "icons": "Icone",
+    "show_state": "Mostra il suo stato",
+    "show_quick_states": "Mostra i loro stati",
+    "quick_states_help": "Sotto o accanto a ogni icona: una lettura con la sua unità, una porta aperta o chiusa, la luminosità di una luce.",
+    "quick_state_position": "I loro stati",
+    "under": "Sotto l’icona",
+    "beside": "Accanto all’icona"
   },
   "production": {
     "production": "Produzione",

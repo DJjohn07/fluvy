@@ -3128,7 +3128,13 @@
     "readout_style_help": "V jednom riadku popis, ktorý sa nezmestí, ustúpi svojej ikone. Vo viacerých slová zostávajú a hodnoty sa zalomia.",
     "readout_labels": "Popisy hodnôt",
     "words": "Slová",
-    "icons": "Ikony"
+    "icons": "Ikony",
+    "show_state": "Zobraziť stav",
+    "show_quick_states": "Zobraziť ich stavy",
+    "quick_states_help": "Pod ikonou alebo vedľa nej: hodnota s jednotkou, otvorené alebo zatvorené dvere, jas svetla.",
+    "quick_state_position": "Umiestnenie stavov",
+    "under": "Pod ikonou",
+    "beside": "Vedľa ikony"
   },
   "slider": {
     "mute": "Stlmiť",

@@ -611,6 +611,41 @@ describe('the room card’s editor offers what acts in the room’s style (#58)'
     expect(roomEditor.keys).not.toContain('size');
     expect(roomEditor.keys).not.toContain('readouts');
   });
+
+  it('the quick actions’ states while it draws them, their place once one is asked for, and each round’s own (#205)', async () => {
+    expect(await shown({ variant: 'row' })).toContain('show_quick_states');
+    expect(await shown({ variant: 'row', show_quick_actions: false })).not.toContain(
+      'show_quick_states',
+    );
+    // their place where a state is asked for: by the card, or by a round of its own
+    expect(await shown({ variant: 'row' })).not.toContain('quick_state_position');
+    expect(await shown({ variant: 'row', show_quick_states: true })).toContain(
+      'quick_state_position',
+    );
+    expect(
+      await shown({
+        variant: 'photo',
+        quick_actions: ['lights', { entity: 'sensor.garten_t', show_state: true }],
+      }),
+    ).toContain('quick_state_position');
+    // what the editor shows where the config says nothing is what the card does: none, under their glyphs
+    expect(
+      roomEditor.defaults({ type: 'custom:fluvy-room-card', area: 'garten' }, house()),
+    ).toMatchObject({ show_quick_states: false, quick_state_position: 'under' });
+    // a round's own: empty (the card's), on or off, written as the toggle it says beside what it acts on
+    const list = roomEditor.lists.find(({ key }) => key === 'quick_actions')!;
+    expect(list.keys).toContain('show_state');
+    for (const group of ['lights', 'entity'])
+      expect(shownNames(list.schemaOf!({ group })), group).toContain('show_state');
+    expect(list.write!({ group: 'lights', show_state: true })).toEqual({
+      group: 'lights',
+      show_state: true,
+    });
+    expect(list.write!({ group: 'entity', entity: 'sensor.garten_t', show_state: false })).toEqual({
+      entity: 'sensor.garten_t',
+      show_state: false,
+    });
+  });
 });
 
 describe('a room’s quick actions (#113)', () => {
@@ -1206,6 +1241,215 @@ describe('a room’s quick actions (#113)', () => {
     // a row: 360 − 32 − 56 − 48 = 224; 172 − 32 − 56 − 48 = 36, none
     expect(await count('row', 360)).toBe(2);
     expect(await count('row', 172)).toBe(0);
+  });
+
+  /** #205: what the lounge reads besides its lights and blinds, a window, one out of reach, the daylight. */
+  const SAID: readonly Seed[] = [
+    [
+      'sensor.lounge_temperature',
+      '21.46',
+      { friendly_name: 'Temperature', device_class: 'temperature', unit_of_measurement: '°C' },
+    ],
+    [
+      'sensor.lounge_humidity',
+      '48',
+      { friendly_name: 'Humidity', device_class: 'humidity', unit_of_measurement: '%' },
+    ],
+    ['binary_sensor.lounge_window', 'on', { friendly_name: 'Window', device_class: 'window' }],
+    ['sensor.lounge_outside', 'unavailable', { friendly_name: 'Outside' }],
+    [
+      'sensor.lounge_daylight',
+      '12345',
+      { friendly_name: 'Daylight', device_class: 'illuminance', unit_of_measurement: 'lx' },
+    ],
+  ];
+  const OPENS: Readonly<Record<string, string>> = { on: 'Open', off: 'Closed' };
+  const SWITCHES: Readonly<Record<string, string>> = { on: 'On', off: 'Off' };
+  /** The lounge as Home Assistant words its states: a window's Open and Closed, the rest's On and Off. */
+  const reads = (): HomeAssistant => ({
+    ...lounge(SAID),
+    formatEntityState: (s: { entity_id: string; state: string }, state = s.state) =>
+      (s.entity_id.startsWith('binary_sensor.') ? OPENS : SWITCHES)[state] ?? state,
+  });
+  /** The states the rounds say, in their order. */
+  const states = (card: RoomElement): string[] =>
+    [...root(card).querySelectorAll('.rm-quick .lt-said')].map((said) => said.textContent ?? '');
+  // 8 px a glyph: "Lounge" (48)
+  const ruler = { width: (_cls: string, text: string) => text.length * 8 };
+  const TEMPERATURE = { entity: 'sensor.lounge_temperature', show_state: true };
+  const HUMIDITY = { entity: 'sensor.lounge_humidity', show_state: true };
+
+  it('says the state each round asks for, as Home Assistant says it: a reading and its unit, a word, the level its ring draws, a dash out of reach (#205)', async () => {
+    const card = await roomAt(
+      {
+        area: 'lounge',
+        variant: 'photo',
+        name_position: 'top',
+        show_quick_states: true,
+        quick_actions: [
+          'lights',
+          'covers',
+          'sensor.lounge_temperature',
+          'binary_sensor.lounge_window',
+          'sensor.lounge_outside',
+        ],
+      },
+      360,
+      ruler,
+      reads(),
+    );
+    // the lights' share of all they could give and where the blinds stand, as their rings drew them: no ring now
+    expect(states(card)).toEqual(['57 %', '40 %', '21.5 °C', 'Open', '—']);
+    expect(root(card).querySelector('.lt-ring')).toBeNull();
+    expect(names(card)).toEqual([
+      'Lights, 57 %',
+      'Blinds, 40 %',
+      'Temperature, 21.5 °C',
+      'Window, Open',
+      'Outside, —',
+    ]);
+    // under their glyphs by default, each pill as wide as its words and 6 a side, 44 the least
+    expect(root(card).querySelector('.rm-quick')?.classList.contains('rm-quick--under')).toBe(true);
+    const [, , temperature, , outside] = rounds(card);
+    expect(temperature?.style.width).toBe('68px');
+    expect(outside?.style.width).toBe('44px');
+    // one out of reach keeps its dashed ring and takes no tap
+    expect(outside?.classList.contains('fv-ico--off')).toBe(true);
+    // off, a set says Home Assistant's word; a large count its short words where its whole does not hold
+    const off = await roomAt(
+      {
+        area: 'lounge',
+        variant: 'tile',
+        show_quick_states: true,
+        quick_actions: ['fans', 'sensor.lounge_daylight'],
+      },
+      320,
+      ruler,
+      reads(),
+    );
+    expect(states(off)).toEqual(['Off', '12K lx']);
+  });
+
+  it('gives way where the line is short: the degree alone, then a state left out whole from the last, never a word cut (#205)', async () => {
+    const at = async (width: number, position: 'under' | 'beside'): Promise<string[]> =>
+      states(
+        await roomAt(
+          {
+            area: 'lounge',
+            variant: 'row',
+            quick_state_position: position,
+            quick_actions: [TEMPERATURE, HUMIDITY],
+          },
+          width,
+          ruler,
+          reads(),
+        ),
+      );
+    // beside their glyphs a row of 360 holds both (the name's 48, two rounds' 108, their words' 68 and 44)
+    expect(await at(360, 'beside')).toEqual(['21.5 °C', '48 %']);
+    expect(await at(320, 'beside')).toEqual(['21.5 °C']);
+    expect(await at(300, 'beside')).toEqual(['21.5°']);
+    expect(await at(280, 'beside')).toEqual([]);
+    // under them, a state takes its words' width alone: both where both rounds hold
+    expect(await at(280, 'under')).toEqual(['21.5 °C', '48 %']);
+    expect(await at(260, 'under')).toEqual(['21.5°', '48 %']);
+    // the rounds stay whatever their states do
+    const bare = await roomAt(
+      {
+        area: 'lounge',
+        variant: 'row',
+        quick_state_position: 'beside',
+        quick_actions: [TEMPERATURE, HUMIDITY],
+      },
+      280,
+      ruler,
+      reads(),
+    );
+    expect(rounds(bare)).toHaveLength(2);
+    expect(root(bare).querySelector('.rm-quick--under')).toBeNull();
+  });
+
+  it('draws nothing new where no state is asked for: a room from before keeps its rounds and its height (#205)', async () => {
+    for (const variant of ['photo', 'tile', 'row'] as const) {
+      const card = await room({ area: 'lounge', variant }, reads());
+      expect(rounds(card).length, variant).toBeGreaterThan(0);
+      expect(root(card).querySelector('.lt-bulb--said, .rm-quick--under, .rm-under'), variant).toBe(
+        null,
+      );
+      expect(root(card).querySelector('.lt-ring'), variant).not.toBeNull();
+    }
+    const config: RoomCardConfig = { type: 'custom:fluvy-room-card', area: 'lounge' };
+    expect(roomHeight({ ...config, variant: 'row' })).toBe(76);
+    expect(roomHeight({ ...config, variant: 'row', quick_state_position: 'under' })).toBe(76);
+  });
+
+  it('declares the row and the head 20 taller for states under their glyphs, from its config alone (#205)', async () => {
+    const config: RoomCardConfig = { type: 'custom:fluvy-room-card', area: 'lounge' };
+    const row = { ...config, variant: 'row' } as const;
+    const tile = { ...config, variant: 'tile', controls: 'none' } as const;
+    // asked by the card or by one round, under (the default): 20 more
+    expect(roomHeight({ ...row, show_quick_states: true })).toBe(96);
+    expect(roomHeight({ ...row, quick_actions: ['lights', HUMIDITY] })).toBe(96);
+    expect(roomHeight({ ...row, quick_actions: HUMIDITY as never })).toBe(96);
+    expect(roomHeight({ ...row, show_quick_states: true, name_lines: 2 })).toBe(108);
+    expect(roomHeight({ ...tile, show_quick_states: true }) - roomHeight(tile)).toBe(20);
+    // beside, hidden, every round saying none: as tall as ever; the photo's states stand on its picture
+    expect(roomHeight({ ...row, show_quick_states: true, quick_state_position: 'beside' })).toBe(
+      76,
+    );
+    expect(roomHeight({ ...row, show_quick_states: true, show_quick_actions: false })).toBe(76);
+    expect(
+      roomHeight({
+        ...row,
+        show_quick_states: true,
+        quick_actions: [{ group: 'lights', show_state: false }],
+      }),
+    ).toBe(76);
+    const photo = { ...config, variant: 'photo' } as const;
+    expect(roomHeight({ ...photo, show_quick_states: true })).toBe(roomHeight(photo));
+    // and draws what it declares: the row and the head wear it
+    expect(
+      root(await room({ ...row, show_quick_states: true }, reads())).querySelector(
+        '.rm-tile.rm-under',
+      ),
+    ).not.toBeNull();
+    expect(
+      root(await room({ ...tile, show_quick_states: true }, reads())).querySelector(
+        '.am-card.rm-under',
+      ),
+    ).not.toBeNull();
+  });
+
+  it('says a round’s own say over the card’s, wears a reading’s own tone, and says a tap’s state at once (#205)', async () => {
+    sent.length = 0;
+    const card = await room(
+      {
+        area: 'lounge',
+        variant: 'photo',
+        name_position: 'top',
+        show_quick_states: true,
+        quick_actions: [
+          { entity: 'sensor.lounge_temperature', tone: 'heat' },
+          { entity: 'sensor.lounge_humidity', show_state: false },
+          'switch.kettle',
+          'sensor.lounge_daylight',
+        ],
+      },
+      reads(),
+    );
+    expect(states(card)).toEqual(['21.5 °C', 'Off', '12,345 lx']);
+    const [temperature, humidity, kettle, daylight] = rounds(card);
+    // a reading that names its tone is drawn in it; one that names none rests neutral, as it always did
+    expect(temperature?.classList.contains('fv-ico--heat')).toBe(true);
+    expect(temperature?.classList.contains('is-on')).toBe(true);
+    expect(temperature?.getAttribute('role')).toBeNull();
+    expect(daylight?.classList.contains('fv-ico--neutral')).toBe(true);
+    expect(humidity?.classList.contains('lt-bulb--said')).toBe(false);
+    // the kettle's tap switches it and says On before Home Assistant does
+    kettle!.click();
+    await card.updateComplete;
+    expect(sent.map(({ service }) => service)).toEqual(['turn_on']);
+    expect(states(card)).toEqual(['21.5 °C', 'On', '12,345 lx']);
   });
 });
 

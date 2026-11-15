@@ -746,20 +746,21 @@ export const switchStyleField = ({ item = false } = {}): HaFormSchemaItem => ({
   helper: item ? 'editor.item_switch_style_helper' : 'editor.switch_style_helper',
 });
 
+/** An item's own say on what its card switches for all of them: empty until chosen (the card's then), on or off. */
+export const itemToggleField = (name: string): HaFormSchemaItem => ({
+  ...choiceField(name, [
+    ['true', 'common.on'],
+    ['false', 'common.off'],
+  ]),
+  helper: 'editor.item_show_switch_helper',
+});
+
 /**
  * Whether a thermostat's tile says what it is doing and what it is set to (`show_action`, 1.21, #185), where it said
  * its mode: off until asked. An item's (`item`: a tile of a group) is empty until chosen, its group's then.
  */
 export const showActionField = ({ item = false } = {}): HaFormSchemaItem =>
-  item
-    ? {
-        ...choiceField('show_action', [
-          ['true', 'common.on'],
-          ['false', 'common.off'],
-        ]),
-        helper: 'editor.item_show_switch_helper',
-      }
-    : boolField('show_action');
+  item ? itemToggleField('show_action') : boolField('show_action');
 
 /**
  * Which of a small tile's readouts its line says (`line_readouts`, 1.22, #197): the first (the default), or every

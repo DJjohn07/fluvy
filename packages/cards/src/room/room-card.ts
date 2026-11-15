@@ -140,7 +140,39 @@ export interface RoomCardConfig extends FluvyCardConfig, LightColours, RoomTunin
    * for each set), or an entity (default: its lights, then its blinds).
    */
   quick_actions?: readonly (string | QuickAction)[];
+  /**
+   * Every quick action's state in the pill its round grows into (#205): a reading with its unit, a door's Open, the
+   * level a ring draws; a quick action may say its own (`show_state`). Default: none.
+   */
+  show_quick_states?: boolean;
+  /**
+   * Where their states stand: `under` their glyphs (default: the row and the head 20 taller), or `beside` them (as
+   * tall as ever, the pills wider).
+   */
+  quick_state_position?: QuickStatePosition;
 }
+
+export type QuickStatePosition = 'under' | 'beside';
+
+/**
+ * Whether the quick actions' states stand under their glyphs (#205): where one of them says its state (its own
+ * `show_state`, else the card's `show_quick_states`) and `quick_state_position` does not ask for `beside`. The row and
+ * the head are then 20 taller whatever the width draws (what the card declares and what it draws read it alike).
+ */
+export function statesUnder(config: RoomCardConfig | undefined): boolean {
+  if (!config || config.show_quick_actions === false || config.quick_state_position === 'beside')
+    return false;
+  // no list asks for the room's own sets, each saying what the card says
+  const entries: unknown[] =
+    config.quick_actions === undefined ? [{}] : [config.quick_actions].flat();
+  return entries.some(
+    (entry) =>
+      (entry as Partial<QuickAction> | null)?.show_state ?? config.show_quick_states ?? false,
+  );
+}
+
+/** What a row or a head adds for the states under their glyphs: their 16 line and the 4 above it. */
+const UNDER = 20;
 
 /** The quick actions' module, a chunk of its own (`quick-actions`): fetched with the families as the bundle starts. */
 type QuickModule = typeof import('./quick-actions.js');
@@ -244,11 +276,12 @@ export interface RoomHolds {
  * asked for as words — in the language of who reads them), its picture (the photo card where the area has one, else
  * the tile); a room with nothing to show is the panel (an administrator reads why under it) where the rest would be.
  * Its quick actions stand beside its name, or at the photo's foot where its name stands at the top: they never make
- * it taller.
+ * it taller, but for their states under their glyphs, which take the row and the head 20 more (`statesUnder`).
  */
 export function roomHeight(config: RoomCardConfig, room?: RoomHolds): number {
   const lines = twoLines(config) ? NAME_LINE.compact : 0;
-  if (config.variant === 'row') return 76 + lines;
+  const under = statesUnder(config) ? UNDER : 0;
+  if (config.variant === 'row') return 76 + lines + under;
   const found = room?.found;
   const climate = config.show_climate === false ? {} : (found?.climate ?? {});
   const asked = askedTiles(config)?.length;
@@ -276,7 +309,7 @@ export function roomHeight(config: RoomCardConfig, room?: RoomHolds): number {
         ? 16 + rowsOf(tiles, 2) * (INNER + lines + 8) - 8
         : 16 + ROW * rows;
   const variant = config.variant ?? (config.picture || !found || room?.picture ? 'photo' : 'tile');
-  if (variant === 'tile') return 20 + 44 + controls + 20;
+  if (variant === 'tile') return 20 + 44 + under + controls + 20;
   // the readouts 20 under the hero: the climate the room reads, its count of devices on
   const kinds = [
     ...(['temperature', 'humidity'] as const).filter((kind) => climate[kind]),
@@ -554,6 +587,8 @@ export class FluvyRoomCard extends FluvyTileCard {
         tapper: (of, at, tap, double) => this.tapper(of, at, tap, double),
         accent: (colour) => this.accents.item(colour),
         destination: this.destination(),
+        ruler: this.headFit.ruler,
+        root: this.renderRoot,
       },
       room - (cls ? Math.min(ROW_NAME_MIN, this.headFit.ruler.width(cls, name)) : 0),
     );
@@ -877,7 +912,7 @@ export class FluvyRoomCard extends FluvyTileCard {
       const quick = this.rounds(words, 'fv-tile fv-tile--compact > fv-tile__name', name);
       const line = this.roomLine(words - quick.taken);
       return html`<article
-        class="fv-tile fv-tile--compact fv-tile--accent fv-tile--tap rm-tile ${twoLines(this.room) ? 'fv-tile--lines' : ''} ${on ? 'is-on' : ''}"
+        class="fv-tile fv-tile--compact fv-tile--accent fv-tile--tap rm-tile ${twoLines(this.room) ? 'fv-tile--lines' : ''} ${statesUnder(this.room) ? 'rm-under' : ''} ${on ? 'is-on' : ''}"
         data-card
       >
         ${this.renderIco(glyph, on > 0, name)}
@@ -907,7 +942,10 @@ export class FluvyRoomCard extends FluvyTileCard {
         title: name,
         trailing: end && end - 12,
       });
-      return html`<article class="fv-card am-card" data-card>
+      return html`<article
+        class="fv-card am-card ${statesUnder(this.room) ? 'rm-under' : ''}"
+        data-card
+      >
         ${head({
           icon: fitted.icon ? glyph : null,
           tone: on ? 'accent' : 'neutral',

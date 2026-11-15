@@ -819,7 +819,13 @@
     "readout_style_help": "1行では、収まらないラベルがアイコンに替わります。複数行では、言葉を残して表示値を折り返します。",
     "readout_labels": "表示値のラベル",
     "words": "文字",
-    "icons": "アイコン"
+    "icons": "アイコン",
+    "show_state": "状態を表示",
+    "show_quick_states": "クイックアクションの状態を表示",
+    "quick_states_help": "各アイコンの下または横に、単位付きの測定値、ドアの開閉、照明の明るさを表示します。",
+    "quick_state_position": "状態の位置",
+    "under": "アイコンの下",
+    "beside": "アイコンの横"
   },
   "readouts": {
     "rising": "上昇中",

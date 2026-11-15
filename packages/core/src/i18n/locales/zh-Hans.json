@@ -3071,7 +3071,13 @@
     "readout_style_help": "单行时，放不下的标签会换成图标。多行时，文字保留，读数换行。",
     "readout_labels": "读数标签",
     "words": "文字",
-    "icons": "图标"
+    "icons": "图标",
+    "show_state": "显示状态",
+    "show_quick_states": "显示快捷操作的状态",
+    "quick_states_help": "在每个图标下方或旁边：带单位的读数、门的开关、灯的亮度。",
+    "quick_state_position": "状态位置",
+    "under": "图标下方",
+    "beside": "图标旁边"
   },
   "slider": {
     "mute": "静音",

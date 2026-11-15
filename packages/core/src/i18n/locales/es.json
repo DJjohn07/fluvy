@@ -1753,7 +1753,13 @@
     "readout_style_help": "En una fila, la etiqueta que no cabe deja su sitio a su icono. En varias, las palabras se quedan y las lecturas pasan a otra fila.",
     "readout_labels": "Etiquetas de las lecturas",
     "words": "Palabras",
-    "icons": "Iconos"
+    "icons": "Iconos",
+    "show_state": "Mostrar su estado",
+    "show_quick_states": "Mostrar sus estados",
+    "quick_states_help": "Bajo o junto a cada icono: una lectura con su unidad, una puerta abierta o cerrada, el brillo de una luz.",
+    "quick_state_position": "Sus estados",
+    "under": "Bajo el icono",
+    "beside": "Junto al icono"
   },
   "production": {
     "production": "Producción",

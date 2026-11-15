@@ -28,24 +28,29 @@ export interface LevelRound {
   readonly onHold: (() => void) | undefined;
   /** Where it stands among rounds placed one by one (`left`, `top`). */
   readonly place?: string | undefined;
+  /** What it says of its state (a room's quick action, #205): the round grows into a pill as wide as `width` that
+   * holds its words, in the sheet of the module that asks (`quick-actions.ts`), and has no ring (the words say its
+   * level). */
+  readonly state?: { readonly text: string; readonly width: number } | undefined;
 }
 
 /**
  * A round (`lt-bulb`): its glyph; on, its colour's fill and a 2 px ring of its level 4 inside its edge, from the top;
- * off, the neutral circle; unreadable, the dashed ring. A tap is its own, a hold its details: a press on it never
- * reaches what lies under it (the room's button, a head's).
+ * off, the neutral circle; unreadable, the dashed ring; a pill with its words where it says its state. A tap is its
+ * own, a hold its details: a press on it never reaches what lies under it (the room's button, a head's).
  */
 export function levelRound(round: LevelRound): TemplateResult {
   const tone: Tone = !round.usable ? 'off' : round.on ? round.tone : 'neutral';
+  const said = round.state;
   return html`<button
-    class="lt-bulb fv-ico fv-ico--${tone} ${round.on ? 'is-on' : ''}"
-    style=${round.place ?? nothing}
+    class="lt-bulb fv-ico fv-ico--${tone} ${round.on ? 'is-on' : ''} ${said ? 'lt-bulb--said' : ''}"
+    style=${said ? `width:${said.width}px` : (round.place ?? nothing)}
     data-target
     data-accent=${round.on ? (round.accent ?? nothing) : nothing}
     role=${round.switches ? 'switch' : nothing}
     aria-checked=${round.switches ? String(round.on) : nothing}
     aria-disabled=${round.usable && round.onTap ? nothing : 'true'}
-    aria-label=${round.name}
+    aria-label=${said ? `${round.name}, ${said.text}` : round.name}
     title=${round.name}
     .fvTap=${round.usable ? round.onTap : undefined}
     .fvHold=${round.onHold}
@@ -55,9 +60,11 @@ export function levelRound(round: LevelRound): TemplateResult {
   >
     ${icon(round.glyph)}
     ${
-      round.on
-        ? svg`<svg class="lt-ring" viewBox="0 0 ${ROUND} ${ROUND}" aria-hidden="true"><circle cx=${ROUND / 2} cy=${ROUND / 2} r=${RING} stroke-dasharray="${((RING_LENGTH * round.level) / 100).toFixed(2)} ${RING_LENGTH.toFixed(2)}"></circle></svg>`
-        : nothing
+      said
+        ? html`<span class="lt-said">${said.text}</span>`
+        : round.on
+          ? svg`<svg class="lt-ring" viewBox="0 0 ${ROUND} ${ROUND}" aria-hidden="true"><circle cx=${ROUND / 2} cy=${ROUND / 2} r=${RING} stroke-dasharray="${((RING_LENGTH * round.level) / 100).toFixed(2)} ${RING_LENGTH.toFixed(2)}"></circle></svg>`
+          : nothing
     }
   </button>`;
 }

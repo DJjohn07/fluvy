@@ -3128,7 +3128,13 @@
     "readout_style_help": "V jednom řádku ustoupí popisek, který se nevejde, své ikoně. Ve více řádcích zůstanou slova a hodnoty se zalomí.",
     "readout_labels": "Popisky hodnot",
     "words": "Slovy",
-    "icons": "Ikonami"
+    "icons": "Ikonami",
+    "show_state": "Zobrazit stav",
+    "show_quick_states": "Zobrazit jejich stavy",
+    "quick_states_help": "Pod ikonou nebo vedle ní: hodnota s jednotkou, otevřené či zavřené dveře, jas světla.",
+    "quick_state_position": "Umístění stavů",
+    "under": "Pod ikonou",
+    "beside": "Vedle ikony"
   },
   "slider": {
     "mute": "Ztlumit",

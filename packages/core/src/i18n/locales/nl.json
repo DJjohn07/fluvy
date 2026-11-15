@@ -1753,7 +1753,13 @@
     "readout_style_help": "Op één rij maakt een label dat niet past plaats voor zijn icoon. Op meerdere rijen blijven de woorden staan en lopen de meetwaarden door op een nieuwe rij.",
     "readout_labels": "Labels van de meetwaarden",
     "words": "Woorden",
-    "icons": "Iconen"
+    "icons": "Iconen",
+    "show_state": "Status tonen",
+    "show_quick_states": "Hun status tonen",
+    "quick_states_help": "Onder of naast elk icoon: een meetwaarde met eenheid, een deur open of dicht, de helderheid van een lamp.",
+    "quick_state_position": "Hun status",
+    "under": "Onder het icoon",
+    "beside": "Naast het icoon"
   },
   "production": {
     "production": "Opwek",

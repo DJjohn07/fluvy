@@ -28,6 +28,7 @@ import {
   formLabels,
   iconField,
   joinsReadouts,
+  itemToggleField,
   lightColourFields,
   lineReadoutsField,
   listed,
@@ -88,6 +89,14 @@ const holdsThermostat = (form: Readonly<Record<string, unknown>>, hass?: HomeAss
 const drawsQuick = ({ show_quick_actions: shown }: Readonly<Record<string, unknown>>): boolean =>
   shown !== false;
 
+/** …their states (#205): every one's, or one's of its own. */
+const saysStates = (form: Readonly<Record<string, unknown>>): boolean =>
+  drawsQuick(form) &&
+  (form['show_quick_states'] === true ||
+    listed(form, 'quick_actions').some(
+      (item) => (item as { show_state?: unknown } | null)?.show_state === true,
+    ));
+
 /** The arrows stand on a tile's head and on the category rows: a card of neither has none to hide. */
 const drawsArrows = (form: Readonly<Record<string, unknown>>): boolean =>
   form['variant'] === 'tile' || drawsRows(form);
@@ -135,6 +144,8 @@ export const keys = configKeys<RoomCardConfig>()([
   'readout_style',
   'readout_labels',
   'show_quick_actions',
+  'show_quick_states',
+  'quick_state_position',
   'show_arrow',
   'show_action',
   'controls',
@@ -159,11 +170,12 @@ const groupField = choiceField('group', [
   ...QUICK_GROUPS.map((group) => [group, `room.${group}`] as const),
   ['entity', 'editor.entity'],
 ]);
-/** A set's round: its own name, icon, colour and actions; an entity's, the entity first. */
+/** A set's round: its own name, icon, colour, state (empty: the card's) and actions; an entity's, the entity first. */
 const GROUP_ITEM: readonly HaFormSchemaItem[] = [
   groupField,
   fieldRow(textField('name'), iconField()),
   fieldRow(toneField(), accentField('color', { item: 'bulb' })),
+  itemToggleField('show_state'),
   // a round turns on and off what switches, else opens
   actionFields({ tap: null }),
 ];
@@ -213,13 +225,18 @@ export const lists: readonly RowsListSpec[] = [
       'icon',
       'tone',
       'color',
+      'show_state',
       'tap_action',
       'hold_action',
       'double_tap_action',
     ],
     picker: groupField,
     computeLabel: (schema) =>
-      schema.name === 'group' ? editorWord('room-editor.group') : undefined,
+      schema.name === 'group'
+        ? editorWord('room-editor.group')
+        : schema.name === 'show_state'
+          ? editorWord('room-editor.show_state')
+          : undefined,
     read: (raw) => quickEntry(raw) as Record<string, unknown> | null,
     // a set alone is its word, an entity alone its id; an entity's kind is never written beside it
     write: ({ group, entity, ...own }) => {
@@ -298,6 +315,8 @@ export const defaults: EditorDefaults = (config, hass) => {
     readout_style: 'row',
     readout_labels: 'auto',
     show_quick_actions: true,
+    show_quick_states: false,
+    quick_state_position: 'under',
     show_arrow: true,
     show_action: false,
     quick_actions: defaultGroups({ hass, devices, lights }),
@@ -349,6 +368,18 @@ export function getConfigForm(): LovelaceConfigForm {
         ),
       ),
       fieldRow(boolField('show_quick_actions'), onlyWhen(drawsArrows, boolField('show_arrow'))),
+      // what the quick actions say of their state, and where (#205)
+      onlyWhen(drawsQuick, {
+        ...boolField('show_quick_states'),
+        helper: 'room-editor.quick_states_help',
+      }),
+      onlyWhen(
+        saysStates,
+        choiceField('quick_state_position', [
+          ['under', 'room-editor.under'],
+          ['beside', 'room-editor.beside'],
+        ]),
+      ),
       // its climate row and its thermostats' tiles say what they are doing, where they said their mode
       onlyWhen(holdsThermostat, showActionField()),
       // the list is edited item by item (the rows editor takes the field out of the form)
@@ -395,6 +426,8 @@ export function getConfigForm(): LovelaceConfigForm {
       temperature_entity: 'editor.temperature_entity',
       humidity_entity: 'editor.humidity_entity',
       show_quick_actions: 'room-editor.show_quick_actions',
+      show_quick_states: 'room-editor.show_quick_states',
+      quick_state_position: 'room-editor.quick_state_position',
       show_arrow: 'room-editor.show_arrow',
       name_position: 'room-editor.name_position',
       readout_style: 'room-editor.readout_style',

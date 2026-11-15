@@ -2940,7 +2940,13 @@
     "readout_style_help": "W jednym wierszu etykieta, która się nie mieści, ustępuje miejsca ikonie. W kilku słowa zostają, a odczyty przechodzą do nowego wiersza.",
     "readout_labels": "Etykiety odczytów",
     "words": "Słowa",
-    "icons": "Ikony"
+    "icons": "Ikony",
+    "show_state": "Pokaż stan",
+    "show_quick_states": "Pokaż ich stany",
+    "quick_states_help": "Pod ikoną lub obok niej: odczyt z jednostką, drzwi otwarte lub zamknięte, jasność światła.",
+    "quick_state_position": "Ich stany",
+    "under": "Pod ikoną",
+    "beside": "Obok ikony"
   },
   "scene": {
     "devices": "{count} urządzeń",

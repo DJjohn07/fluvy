@@ -441,6 +441,60 @@ const woonkamer = (config: Record<string, unknown> = {}) =>
 /** Four quick actions: the room's lights, blinds and television, and its plug. */
 const FOUR_ACTIONS = ['lights', 'covers', 'media', 'switch.rm_tv_plug'];
 
+/*
+ * #205's house, as the reporter's wall tablet shows it: its Home row with a humidity and a temperature round, and
+ * what else a round may say — the hall's light, the front door, the air. Its states and registry are its frames' own,
+ * so no other card of the sheet (nor the automatic dashboard) moves.
+ */
+const HOME_AREA = { area_id: 'rm_home', name: 'Home', icon: 'mdi:home' };
+const HOME: readonly StateSeed[] = [
+  [
+    'sensor.rm_home_humidity',
+    '48',
+    { friendly_name: 'Humidity', device_class: 'humidity', unit_of_measurement: '%' },
+  ],
+  [
+    'sensor.rm_home_temperature',
+    '21.5',
+    { friendly_name: 'Temperature', device_class: 'temperature', unit_of_measurement: '°C' },
+  ],
+  [
+    'sensor.rm_home_co2',
+    '640',
+    { friendly_name: 'Air', device_class: 'carbon_dioxide', unit_of_measurement: 'ppm' },
+  ],
+  ['binary_sensor.rm_home_door', 'on', { friendly_name: 'Front door', device_class: 'door' }],
+  [
+    'light.rm_home_hall',
+    'on',
+    { friendly_name: 'Hall', brightness: 166, supported_color_modes: ['brightness'] },
+  ],
+  ['sensor.rm_home_outside', 'unavailable', { friendly_name: 'Outside' }],
+];
+/** The sheet's house with #205's home in it. */
+const withHome = (hass: HomeAssistant): HomeAssistant => ({
+  ...hass,
+  states: {
+    ...hass.states,
+    ...Object.fromEntries(
+      HOME.map(([entity_id, state, attributes = {}]) => [
+        entity_id,
+        { entity_id, state, attributes, last_changed: '', last_updated: '' },
+      ]),
+    ),
+  },
+  entities: {
+    ...hass.entities,
+    ...Object.fromEntries(HOME.map(([entity_id]) => entry(entity_id, 'rm_home'))),
+  } as HomeAssistant['entities'],
+  areas: { ...hass.areas, rm_home: HOME_AREA } as HomeAssistant['areas'],
+});
+/** The reporter's two rounds, each saying its reading. */
+const HOME_READINGS = [
+  { entity: 'sensor.rm_home_humidity', show_state: true },
+  { entity: 'sensor.rm_home_temperature', show_state: true },
+];
+
 export const sheet: SheetSpec = {
   states: [
     [
@@ -1080,6 +1134,114 @@ export const sheet: SheetSpec = {
           variant: 'tile',
           quick_actions: ['lights', 'scene.rm_lounge_movie', 'scene.rm_lounge_goodnight'],
           path: '/fluvy-auto/room-rm_lounge',
+        }),
+      ],
+    },
+    // #205 as reported: the house's Home row with its humidity and its temperature, each round saying its reading
+    // under its glyph (the row 20 taller); under it, the same row with its readings beside their glyphs
+    {
+      title: 'Room · the reporter’s home row, its readings (#205)',
+      hass: withHome,
+      cards: [
+        room({ area: 'rm_home', variant: 'row', quick_actions: HOME_READINGS }),
+        room({
+          area: 'rm_home',
+          variant: 'row',
+          quick_actions: HOME_READINGS,
+          quick_state_position: 'beside',
+        }),
+      ],
+    },
+    // …in half a section: under their glyphs while the row holds both rounds, beside where it holds their pills; a
+    // reading that would not hold whole gives way to its degree, then leaves its round to say nothing
+    {
+      title: 'Room · the reporter’s home row in half a section (#205)',
+      hass: withHome,
+      heights: [152, 172, 211, 266],
+      cards: [
+        room({ area: 'rm_home', variant: 'row', quick_actions: HOME_READINGS, cols: 6 }),
+        room({
+          area: 'rm_home',
+          variant: 'row',
+          quick_actions: HOME_READINGS,
+          quick_state_position: 'beside',
+          cols: 6,
+        }),
+      ],
+    },
+    // every round saying its state (`show_quick_states`): the hall's light its level, the front door Home Assistant's
+    // word, the air its reading; on a head, and on the photo at its foot beside the name and, the name at the top,
+    // beside their glyphs
+    {
+      title: 'Room · quick actions that say their state (#205)',
+      hass: withHome,
+      cards: [
+        room({
+          area: 'rm_home',
+          variant: 'tile',
+          controls: 'none',
+          show_quick_states: true,
+          quick_actions: ['light.rm_home_hall', 'binary_sensor.rm_home_door', 'sensor.rm_home_co2'],
+          path: '/fluvy-auto/room-rm_home',
+        }),
+        room({
+          area: 'rm_home',
+          variant: 'photo',
+          picture: PHOTO,
+          controls: 'none',
+          show_climate: false,
+          show_quick_states: true,
+          quick_actions: [
+            'light.rm_home_hall',
+            'sensor.rm_home_temperature',
+            'sensor.rm_home_humidity',
+          ],
+        }),
+        room({
+          area: 'rm_home',
+          variant: 'photo',
+          picture: PHOTO,
+          controls: 'none',
+          show_climate: false,
+          name_position: 'top',
+          show_quick_states: true,
+          quick_state_position: 'beside',
+          quick_actions: [
+            'light.rm_home_hall',
+            'sensor.rm_home_temperature',
+            'binary_sensor.rm_home_door',
+          ],
+        }),
+      ],
+    },
+    // a reading in a tone of its own (the warmth's, the water's), one out of reach ("—"), and the room's own sets: the
+    // light it gives of all it could, where its blinds stand, its plug's word; its television asked to say nothing
+    {
+      title: 'Room · states in their tones, the room’s sets, one out of reach (#205)',
+      hass: withHome,
+      cards: [
+        room({
+          area: 'rm_home',
+          variant: 'tile',
+          controls: 'none',
+          quick_actions: [
+            { entity: 'sensor.rm_home_temperature', tone: 'heat', show_state: true },
+            { entity: 'sensor.rm_home_humidity', tone: 'water', show_state: true },
+            { entity: 'sensor.rm_home_outside', icon: 'mdi:tree', show_state: true },
+          ],
+        }),
+        room({
+          area: 'rm_living',
+          variant: 'photo',
+          controls: 'none',
+          name_position: 'top',
+          show_quick_states: true,
+          quick_actions: [
+            'lights',
+            'covers',
+            { group: 'media', show_state: false },
+            'switch.rm_tv_plug',
+          ],
         }),
       ],
     },

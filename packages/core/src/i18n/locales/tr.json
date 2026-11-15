@@ -1753,7 +1753,13 @@
     "readout_style_help": "Tek satırda sığmayan etiket yerini simgesine bırakır. Birkaç satırda sözcükler kalır, okumalar alt satıra geçer.",
     "readout_labels": "Okuma etiketleri",
     "words": "Sözcükler",
-    "icons": "Simgeler"
+    "icons": "Simgeler",
+    "show_state": "Durumunu göster",
+    "show_quick_states": "Durumlarını göster",
+    "quick_states_help": "Her simgenin altında veya yanında: birimiyle bir ölçüm, açık ya da kapalı bir kapı, bir ışığın parlaklığı.",
+    "quick_state_position": "Durumların yeri",
+    "under": "Simgenin altında",
+    "beside": "Simgenin yanında"
   },
   "production": {
     "production": "Üretim",

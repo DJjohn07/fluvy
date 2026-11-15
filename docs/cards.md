@@ -1815,6 +1815,42 @@ quick_actions:
     icon: mdi:book-open-variant
 ```
 
+A quick action may also say its **state** (#205): `show_state: true` on one of them, or `show_quick_states: true` for
+all of them (a round's own `show_state` comes first, so `false` keeps one quiet). Its round then grows into a pill
+that holds it: a sensor's reading with its unit, as Home Assistant writes it and in your decimals ("21.5 °C", "48 %",
+"640 ppm"), a door's or a window's "Open" and "Closed", a switch's "On"; where the round's ring draws a level (a light
+that dims, a blind that says where it stands, a fan's speed, a set of several lights or blinds) that level instead
+("70 %"), and a dash where it cannot be read. The state stands under the icon by default, the row and the head then
+20 px taller; `quick_state_position: beside` puts it beside the icon and keeps the card as tall as it was, the pills
+wider. Nothing is ever cut: where the line is short, a temperature gives way to its degree ("21.5°"), then the last
+states give way whole, their rounds staying. A reading that names a `tone` or a `color` wears it; its taps and holds
+are the round's as ever (a sensor's tap opens its details).
+
+```yaml
+type: custom:fluvy-room-card
+area: home
+variant: row
+quick_actions:
+  - entity: sensor.home_humidity
+    show_state: true
+  - entity: sensor.home_temperature
+    show_state: true
+    tone: heat
+```
+
+```yaml
+type: custom:fluvy-room-card
+area: hall
+variant: tile
+show_quick_states: true
+quick_state_position: beside
+quick_actions:
+  - lights
+  - binary_sensor.front_door
+  - entity: sensor.hall_co2
+    show_state: false
+```
+
 On the **photo**, `name_position: top` stands the room's name at the picture's top, so its foot is the quick actions'
 alone: five hold on a phone where two or three stood beside the name, and half a section holds two where it held none.
 The default, `bottom`, keeps the name at the foot beside them.
@@ -1951,7 +1987,7 @@ roles:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `name_position` (`bottom`, `top`), `show_climate`, `show_count`, `readout_style` (`row`, `wrap`), `readout_labels` (`auto`, `words`, `icons`, `none`), `show_quick_actions`, `show_arrow`, `show_action`, `picture`, `path`, `lights`, `temperature_entity`, `humidity_entity`, `include`, `exclude`, `tint` (`on`, `always`), `name_lines` (`1`, `2`), `switch_style` (`toggle`, `rocker`), `readouts_layout` (`line`, `end`), `line_readouts` (`first`, `all`), `light_colors`, `light_whites` (`palette`, `temperature`), `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`), `quick_actions` (a list: `group`, `entity`, `name`, `icon`, `tone`, `color`, `tap_action`, `hold_action`, `double_tap_action`) | — |
+| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `name_position` (`bottom`, `top`), `show_climate`, `show_count`, `readout_style` (`row`, `wrap`), `readout_labels` (`auto`, `words`, `icons`, `none`), `show_quick_actions`, `show_arrow`, `show_quick_states`, `quick_state_position` (`under`, `beside`), `show_action`, `picture`, `path`, `lights`, `temperature_entity`, `humidity_entity`, `include`, `exclude`, `tint` (`on`, `always`), `name_lines` (`1`, `2`), `switch_style` (`toggle`, `rocker`), `readouts_layout` (`line`, `end`), `line_readouts` (`first`, `all`), `light_colors`, `light_whites` (`palette`, `temperature`), `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`), `quick_actions` (a list: `group`, `entity`, `name`, `icon`, `tone`, `color`, `show_state`, `tap_action`, `hold_action`, `double_tap_action`) | — |
 | **Map** | `custom:fluvy-map-card` | Where everyone is: the house’s zones as columns of faces, a row a person, or Home Assistant’s map on a plate. | `title`, `variant` (`zones`, `map`, `rows`), `map_shape` (`wide`, `square`), `hours_to_show`, `default_zoom`, `fit_zones`, `show_empty`, `show_distance`, `map_path`, `empty_text`, `hide_empty`, `zones` (a list: `entity`, `name`, `icon`) | — |
 
 ## Structure and navigation

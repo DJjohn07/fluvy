@@ -515,8 +515,8 @@ export function createHass(seeds: readonly StateSeed[], options: MockOptions = {
       },
       // the integrations' words are here from the start: loading them answers the same `localize`
       loadBackendTranslation: async () => (key, values) => current.localize(key, values),
-      formatEntityState: (stateObj) => {
-        const raw = stateObj.state;
+      // of another state than the one reported where asked (a state a tap expects), as Home Assistant's does
+      formatEntityState: (stateObj, raw = stateObj.state) => {
         const unit = stateObj.attributes.unit_of_measurement;
         if (unit && Number.isFinite(Number(raw))) return `${raw} ${unit}`;
         // an opening and motion in Home Assistant's own words, in every language; a leak sensor in its English ones

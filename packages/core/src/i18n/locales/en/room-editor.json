@@ -17,6 +17,12 @@
     "readout_style_help": "On one row, a label that would not fit gives way to its icon. On several, the words stay and the readouts wrap.",
     "readout_labels": "Readout labels",
     "words": "Words",
-    "icons": "Icons"
+    "icons": "Icons",
+    "show_state": "Show its state",
+    "show_quick_states": "Show their states",
+    "quick_states_help": "Under or beside each icon: a reading with its unit, a door open or closed, a light’s brightness.",
+    "quick_state_position": "Their states",
+    "under": "Under the icon",
+    "beside": "Beside the icon"
   }
 }

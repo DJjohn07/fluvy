@@ -184,21 +184,28 @@ export function stateSaid(said: string | undefined, key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-/** Human state text. Home Assistant's own formatter first (translated, device-class aware). */
-export function stateText(hass: HomeAssistant | undefined, view: EntityView): string {
+/**
+ * Human state text. Home Assistant's own formatter first (translated, device-class aware); of `state` where it is drawn
+ * as another than the one it reports (the state a tap expects).
+ */
+export function stateText(
+  hass: HomeAssistant | undefined,
+  view: EntityView,
+  state = view.state,
+): string {
   if (view.status === 'missing') return localizeStatus(hass, 'missing');
   if (view.status === 'unavailable') return localizeStatus(hass, 'unavailable');
   if (view.status === 'unknown') return localizeStatus(hass, 'unknown');
   let said: string | undefined;
   if (hass?.formatEntityState && view.stateObj) {
     try {
-      const text = hass.formatEntityState(view.stateObj);
+      const text = hass.formatEntityState(view.stateObj, state);
       if (typeof text === 'string') said = text;
     } catch {
       /* the key's own words */
     }
   }
-  return stateSaid(said, view.state);
+  return stateSaid(said, state);
 }
 
 function localizeStatus(

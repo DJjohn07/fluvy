@@ -11,8 +11,9 @@
  *                   which no rule can trim)
  * words of their own   a chip's label alone in it (a row that fills may give it less than its sides, and the row
  *                   centres it all the same) or its name, a room's name, a dropdown's value, a row's value pill, a
- *                   month's day, the period's dates, a state on the Activity page, a sheet's Run that turns to Done:
- *                   their own box, the ellipsis a name may end in clipping no more of a letter than it did
+ *                   month's day, the period's dates, a state on the Activity page, a sheet's Run that turns to Done,
+ *                   a room's quick action's state: their own box, the ellipsis a name may end in clipping no more of a
+ *                   letter than it did
  * A chip's label beside its glyph stays the pill's own line, which the glyph leads (13 px words, a line both engines
  * already draw alike): the glyph stands where its pill's sides put it, measured as the start of that line. */
 
@@ -31,7 +32,8 @@
   .fv-day > span:only-of-type,
   .ep-date__words,
   .av-state__text,
-  .ss-swap {
+  .ss-swap,
+  .lt-said {
     padding-block: calc(0.5lh - 1cap + round(0.5cap, 1px)) calc(0.5lh - round(0.5cap, 1px));
     text-box: trim-both cap alphabetic;
   }

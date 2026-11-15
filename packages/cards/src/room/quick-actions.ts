@@ -1,30 +1,36 @@
 import {
   actionRuns,
   entityName,
+  formatNumber,
   isActiveState,
   isUsable,
   lightDefaults,
   localize,
   resolveEntity,
+  stateText,
   textName,
   TOGGLE_DOMAINS,
+  valueParts,
   type ActionConfig,
   type EntityName,
   type EntityView,
   type HomeAssistant,
 } from '@fluvy/core';
 import type { Tone } from '@fluvy/ui';
-import { html, nothing, type TemplateResult } from 'lit';
+import { css, html, nothing, type TemplateResult } from 'lit';
 import { statusToneOf } from '../shared/colour.js';
 import { GATEWAYS, iconOf, toneFor } from '../shared/domain.js';
+import type { TextRuler } from '../shared/fit.js';
 import { DIMMABLE, lampsOf, lightLook, litColour, meanHex } from '../shared/light.js';
+import { shorterForms } from '../shared/secondary.js';
 import { levelRound, ROUND, ROUND_GAP, type LevelRound } from '../shared/round.js';
 import type { RoomCardConfig } from './room-card.js';
 
 /*
  * A room's quick actions (#113): rounds at the end of its head, its row or its picture, each one of the room's sets —
- * its lights, its blinds, its fans, its players — or an entity of the person's choosing. Their own chunk, fetched with
- * the families as the bundle starts: the room card draws them from its first render in practice.
+ * its lights, its blinds, its fans, its players — or an entity of the person's choosing, each saying its state where
+ * asked (#205). Their own chunk, fetched with the families as the bundle starts: the room card draws them from its
+ * first render in practice.
  */
 
 /** The room's own sets a round may stand for, each by the domain its devices are of. */
@@ -62,6 +68,8 @@ export interface QuickAction {
   hold_action?: ActionConfig;
   /** Default: none; where set, a tap waits a moment to tell it from one (#179). */
   double_tap_action?: ActionConfig;
+  /** Its state beside or under its glyph (#205); default: the card's `show_quick_states`. */
+  show_state?: boolean;
 }
 
 /** A config's entry as a round: a set's word, an entity's id, or an entry; anything else none. */
@@ -100,6 +108,10 @@ export interface QuickHost {
   accent(colour: unknown): string | undefined;
   /** Where the room opens, where it opens anywhere. */
   readonly destination: string | undefined;
+  /** The card's ruler: the pill a state's words take, laid out in the card's own classes. */
+  readonly ruler: Pick<TextRuler, 'pill'>;
+  /** The card's root, which wears the pills' sheet once one is drawn. */
+  readonly root: Node | undefined;
 }
 
 /** The rounds drawn in the room the card gives them, and what they take of its line: their width and 12 before. */
@@ -146,10 +158,10 @@ function quickActions(host: QuickHost): QuickAction[] {
 }
 
 /**
- * Where an entity stands, 0–100, while on: a light's brightness (where it dims), a blind's position, a fan's speed, a
- * player's volume; 100 where it says none.
+ * Where an entity stands, 0–100, where it says: a light's brightness (where it dims), a blind's position, a fan's
+ * speed, a player's volume.
  */
-function levelOf(view: EntityView): number {
+function levelIn(view: EntityView): number | undefined {
   const raw =
     view.domain === 'light'
       ? (view.attr<string[]>('supported_color_modes') ?? []).some((mode) => DIMMABLE.has(mode))
@@ -162,7 +174,44 @@ function levelOf(view: EntityView): number {
           : view.domain === 'media_player'
             ? (view.attr<number>('volume_level') ?? NaN) * 100
             : NaN;
-  return typeof raw === 'number' && Number.isFinite(raw) ? Math.min(100, Math.max(0, raw)) : 100;
+  return typeof raw === 'number' && Number.isFinite(raw)
+    ? Math.min(100, Math.max(0, raw))
+    : undefined;
+}
+
+/** Where an entity stands while on: its level, 100 where it says none. */
+const levelOf = (view: EntityView): number => levelIn(view) ?? 100;
+
+/** The domains whose ring is a level a person reads as one: a light's brightness, a blind's position, a fan's speed. */
+const LEVELLED: ReadonlySet<string> = new Set(['light', 'cover', 'fan']);
+
+/**
+ * What a round says of its state (#205), its forms longest first: the level its ring draws (`level`, where that is
+ * one a person reads); else its state as Home Assistant says it, as it is drawn — a reading with its unit in the
+ * house's decimals, then a temperature with its degree alone ("21.5 °C", "21.5°") and a large count in short words, a
+ * moment as long ago as it was, a word ("Open", "Off") — of the first of a set that is on; "—" where none of it can
+ * be read.
+ */
+function saidOf(
+  host: QuickHost,
+  views: readonly EntityView[],
+  level: number | undefined,
+): readonly string[] {
+  const { hass } = host;
+  const read = views.filter((view) => view.status === 'ok');
+  const view = read.find((one) => isActiveState(one.domain, host.state(one))) ?? read[0];
+  if (!view) return ['—'];
+  if (level !== undefined) return [`${formatNumber(hass, level, { digits: 0 })} %`];
+  if (view.number === null) {
+    const words = stateText(hass, view, host.state(view));
+    return [words, ...shorterForms(hass, view, words)];
+  }
+  const { value, unit } = valueParts(hass, view);
+  const text = unit ? `${value} ${unit}` : value;
+  // a figure keeps its unit in every form: the degree alone, a count's short words with the unit it was written in
+  return unit.startsWith('°')
+    ? [text, `${value}°`]
+    : [text, ...shorterForms(hass, view, text).filter((form) => unit && form.endsWith(` ${unit}`))];
 }
 
 /** States a blind moves in: a tap then stops it. */
@@ -358,13 +407,17 @@ const FLIPS: ReadonlySet<string> = new Set([
 const MORE_INFO: ActionConfig = { action: 'more-info' };
 const TOGGLE: ActionConfig = { action: 'toggle' };
 
+/** A round as drawn, and its state's forms where it says it (longest first). */
+type QuickRound = LevelRound & { readonly said?: readonly string[] | undefined };
+
 /**
  * A round as drawn: its name and glyph (its set's, else its entity's), on while any of it is, its ring the level of
  * all of it (an off one at 0: the room's light as a share of all it could give, its blinds' mean position), its colour
  * (a set of lights in what is lit, as the room's lights' row; else its own, else its kind's), its tap (on and off; none
- * where none of it can, and then it is drawn as one that cannot) and its hold (its details).
+ * where none of it can, and then it is drawn as one that cannot), its hold (its details) and, where it says it (its
+ * own `show_state`, else the card's `show_quick_states`), its state.
  */
-function roundOf(host: QuickHost, item: QuickAction): LevelRound {
+function roundOf(host: QuickHost, item: QuickAction): QuickRound {
   const { hass, config } = host;
   const group = item.group === 'entity' ? undefined : item.group;
   const ids = group ? membersOf(host, group) : [item.entity ?? ''];
@@ -411,12 +464,28 @@ function roundOf(host: QuickHost, item: QuickAction): LevelRound {
   const name = group
     ? (textName(item.name) ?? localize(hass, LOOKS[group][0]))
     : entityName(hass, first, item.name);
+  const ring = on ? Math.max(1, Math.round(level)) : 0;
+  // its state where it says it: the level its ring draws where a person reads one (a set of several lights, blinds or
+  // fans; one that says its brightness, position or speed), else Home Assistant's words
+  const says = item.show_state ?? config?.show_quick_states ?? false;
+  const levelled =
+    on &&
+    (lamps.length > 1
+      ? group !== 'media'
+      : LEVELLED.has(first.domain) && levelIn(first) !== undefined);
+  // a reading (never on) that names its own tone or colour wears it, drawn as lit
+  const toned =
+    says &&
+    isUsable(first) &&
+    !isActiveState(first.domain, 'on') &&
+    Boolean(item.tone ?? item.color);
   return {
     name,
     glyph: item.icon ?? (group && !single ? LOOKS[group][1] : iconOf(first)),
     usable: views.some(isUsable),
-    on,
-    level: on ? Math.max(1, Math.round(level)) : 0,
+    on: on || toned,
+    level: ring,
+    said: says ? saidOf(host, views, levelled ? ring : undefined) : undefined,
     tone,
     accent: host.accent(colour),
     switches: flip !== undefined,
@@ -435,7 +504,103 @@ function roundOf(host: QuickHost, item: QuickAction): LevelRound {
   };
 }
 
-/** The rounds in `room` (44 each, 8 apart, 12 after what is before them): as many as it holds, in the card's order. */
+/**
+ * The pills a round grows into where it says its state (#205), the quick actions' own sheet: adopted by the card that
+ * draws one (`wear`), so a house of rounds never pays for it.
+ */
+const PILLS = css`
+  /* the round grown into a pill of its own fill as wide as the card sets it (on the 4 grid, its words never cut), its
+     glyph where the round has it and its words 8 after it */
+  .lt-bulb--said {
+    flex: none;
+    justify-content: flex-start;
+    gap: 8px;
+    padding-left: 12px;
+    border-radius: var(--fluvy-radius-pill, 9999px);
+  }
+  .lt-bulb--said::before {
+    border-radius: inherit;
+  }
+  /* its words set as a value (15/600, tabular figures): the text's ink at rest, the fill's lit, the secondary ink out
+     of reach */
+  .lt-said {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--fluvy-text);
+  }
+  .lt-bulb.is-on .lt-said {
+    color: inherit;
+  }
+  .fv-ico--off .lt-said {
+    color: var(--fluvy-text-secondary);
+  }
+  /* …or under its glyph: every round at the block's top, the glyphs on one line; a pill 64 tall and as wide as its
+     words with 6 a side (44 the least), its words 4 under the glyph in 12/600 on their 16 line; on the photo the
+     pills' feet stand on the name pill's, 16 from the foot */
+  .rm-quick--under {
+    align-items: flex-start;
+    height: 64px;
+  }
+  .rm-quick--under > .lt-bulb--said {
+    flex-direction: column;
+    gap: 4px;
+    height: 64px;
+    padding: 12px 0 0;
+  }
+  .rm-quick--under .lt-said {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .rm-hero > .rm-quick--under {
+    bottom: 16px;
+  }
+`;
+
+/** The pills' sheet on the card's root, after its own, once. */
+function wear(root: Node | undefined): void {
+  const sheet = PILLS.styleSheet;
+  if (root instanceof ShadowRoot && sheet && !root.adoptedStyleSheets.includes(sheet))
+    root.adoptedStyleSheets = [...root.adoptedStyleSheets, sheet];
+}
+
+/** A state's words beside its glyph, and under it, as the pills' sheet sets them. */
+const BESIDE = 'lt-said';
+const UNDER = 'rm-quick--under > lt-said';
+/** What a pill adds to its words: beside, the glyph's 12 and 20 and 8 after it, and 16 after them; under, 6 a side. */
+const BESIDE_SIDES = 56;
+const UNDER_SIDES = 12;
+
+/**
+ * The states that hold in `room` (what the rounds leave), each by what its pill adds to its round (`grows`): every
+ * one in the longest of its forms they all hold in (one with fewer forms in its shortest), the last ones left out
+ * where even their shortest do not hold.
+ */
+function statesIn(
+  rounds: readonly QuickRound[],
+  room: number,
+  grows: (text: string) => number,
+): (string | undefined)[] {
+  const asked = rounds.flatMap((round, index) => (round.said ? [index] : []));
+  const forms = Math.max(0, ...rounds.map((round) => round.said?.length ?? 0));
+  for (let kept = asked.length; kept > 0; kept--)
+    for (let form = 0; form < forms; form++) {
+      const states = rounds.map(({ said }, index) =>
+        said && asked.indexOf(index) < kept ? said[Math.min(form, said.length - 1)] : undefined,
+      );
+      if (states.reduce((sum, state) => sum + (state ? grows(state) : 0), 0) <= room) return states;
+    }
+  return [];
+}
+
+/**
+ * The rounds in `room` (44 each, 8 apart, 12 after what is before them): as many as it holds, in the card's order;
+ * then the states asked for in the room they leave (#205), each round that says one grown into the pill that holds
+ * it — beside its glyph, or under it (`quick_state_position: under`: as wide as its words, 44 the least) — in the
+ * longest forms that hold (`statesIn`): a state that does not is left out whole, its round a round again.
+ */
 export function quickRounds(host: QuickHost, room: number): QuickRounds {
   const fits = Math.floor((room - 12 + ROUND_GAP) / (ROUND + ROUND_GAP));
   const rounds =
@@ -444,10 +609,33 @@ export function quickRounds(host: QuickHost, room: number): QuickRounds {
           .slice(0, fits)
           .map((item) => roundOf(host, item))
       : [];
-  return rounds.length
-    ? {
-        taken: 12 + rounds.length * (ROUND + ROUND_GAP) - ROUND_GAP,
-        template: html`<div class="lt-bulbs rm-quick">${rounds.map(levelRound)}</div>`,
-      }
-    : { taken: 0, template: nothing };
+  if (!rounds.length) return { taken: 0, template: nothing };
+  // their words are measured in the pills' sheet, which the card wears from the first state asked for
+  if (rounds.some((round) => round.said)) wear(host.root);
+  const under = host.config?.quick_state_position !== 'beside';
+  // a pill's width, on the 4 grid: never under its round's
+  const pill = (text: string): number =>
+    Math.max(
+      ROUND,
+      under
+        ? host.ruler.pill(UNDER, text, UNDER_SIDES)
+        : host.ruler.pill(BESIDE, text, BESIDE_SIDES),
+    );
+  const grows = (text: string): number => pill(text) - ROUND;
+  const taken = 12 + rounds.length * (ROUND + ROUND_GAP) - ROUND_GAP;
+  const states = statesIn(rounds, room - taken, grows);
+  return {
+    taken: states.reduce((sum, state) => sum + (state ? grows(state) : 0), taken),
+    // with a state under its glyph, every round stands at the block's top (none drawn: centred, as ever); the block
+    // ends its line wherever it stands, its words placed from that end
+    template: html`<div
+      class="lt-bulbs rm-quick ${under && states.some(Boolean) ? 'rm-quick--under' : ''}"
+      data-align="end"
+    >
+      ${rounds.map((round, index) => {
+        const text = states[index];
+        return levelRound({ ...round, state: text ? { text, width: pill(text) } : undefined });
+      })}
+    </div>`,
+  };
 }

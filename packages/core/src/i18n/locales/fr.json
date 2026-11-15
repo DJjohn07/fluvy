@@ -1753,7 +1753,13 @@
     "readout_style_help": "Sur une ligne, une étiquette qui ne tient pas laisse la place à son icône. Sur plusieurs, les mots restent et les mesures passent à la ligne.",
     "readout_labels": "Étiquettes des mesures",
     "words": "Mots",
-    "icons": "Icônes"
+    "icons": "Icônes",
+    "show_state": "Afficher son état",
+    "show_quick_states": "Afficher leurs états",
+    "quick_states_help": "Sous ou à côté de chaque icône : une mesure avec son unité, une porte ouverte ou fermée, la luminosité d’une lumière.",
+    "quick_state_position": "Leurs états",
+    "under": "Sous l’icône",
+    "beside": "À côté de l’icône"
   },
   "production": {
     "production": "Production",

@@ -715,6 +715,23 @@ Nothing by itself: `tint` is off where the card and the house say nothing, and a
   phone's section (152, 172), and beside "Living room" at 360 two in the head (with its chevron), three on the picture.
   Never a line of their own: the card's height is its config's. A press on a round is the round's, never the room's (its picture's, its row's or its head's button);
   `show_quick_actions: false` hides them.
+- **Their states (1.22, #205).** Asked for (a round's `show_state`, else the card's `show_quick_states`; none by
+  default), a round grows into a **pill of its own fill** that holds its state, its words never cut: **under its glyph**
+  (the default: 64 tall, as wide as its words and 6 a side, 44 the least; the glyph 12 from its top, the words 4 under
+  it in 12/600 on their 16 line) or **beside it** (`quick_state_position: beside`: 44 tall, the glyph where the round
+  has it, the words 8 after it in 15/600 and 16 after them), on the 4 grid, tabular figures. A pill has no ring: its
+  words say the level the ring drew. What it says: that level where a person reads one ("57 %": a set of several
+  lights, blinds or fans, the share its ring draws; a light that dims, a blind that says its position, a fan its
+  speed), else Home Assistant's own state as it is drawn (a tap's at once) — a reading with its unit in the house's
+  decimals ("21.5 °C", "48 %"), a door's "Open", a light that only switches "On", a set off its first member's word;
+  "—" out of reach, in the dashed ring. Off it rests on the neutral fill in the text's ink, lit in its colour's fill and
+  ink, as a round; a reading (never on) that names its own `tone` or `color` wears it at rest. The rounds keep their
+  count and order; the states go in the room they leave, every one in the longest form they all hold in — whole, then a
+  temperature with its degree alone ("21.5°"), a large count in short words ("12K lx") — the last left out where even
+  that does not hold, its round a round again (beside a phone's row holds two; under, as many as the rounds). Under
+  their glyphs every round stands at the block's top, the glyphs on one line, and the row and the head are 20 taller
+  whatever the width draws (96, 64: the config's, as the photo's foot is, where the pills' feet stand on the name
+  pill's, 16 from the foot); beside, nothing moves.
 
 ## Map
 

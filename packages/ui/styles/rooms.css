@@ -73,6 +73,20 @@
   background: var(--fluvy-card);
 }
 
+/* the row and the head 20 taller for their quick actions' states under their glyphs (#205), whatever the width draws:
+   the height is the config's (the pills themselves are the quick actions' own sheet, `quick-actions.ts`) */
+.rm-tile.rm-under {
+  height: 96px;
+}
+
+.rm-tile.rm-under.fv-tile--lines {
+  height: 108px;
+}
+
+.rm-under > .fv-card__head {
+  height: 64px;
+}
+
 /* the tile variant: a compact tile's anatomy with the room's icon and its count */
 .rm-tile .fv-tile__state {
   white-space: nowrap;
