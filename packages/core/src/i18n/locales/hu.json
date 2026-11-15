@@ -3003,7 +3003,10 @@
     "charts.preview_sub": "A diagramjaid ezekkel a beállításokkal",
     "dashboard.thermostat_state": "Termosztátok állapota",
     "dashboard.brief": "Rövid",
-    "dashboard.detailed": "Részletes"
+    "dashboard.detailed": "Részletes",
+    "dashboard.name_lines": "Hosszú nevek",
+    "dashboard.one_line": "Egy sor",
+    "dashboard.two_lines": "Két sor"
   },
   "customise": {
     "title": "Testreszabás",

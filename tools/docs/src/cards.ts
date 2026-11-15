@@ -143,6 +143,18 @@ const SECTIONS: ReadonlyArray<readonly [title: string, tags: readonly string[]]>
 
 type Field = { name: string; selector?: Record<string, unknown> };
 
+/**
+ * The cards whose `name_lines` is their tiles' names (a tile, a set of them, the template card's, a room's and its
+ * lights'), not the head's the page's introduction names with `show_icon`: said in their rows, as their own.
+ */
+const TILE_NAMES = new Set([
+  'fluvy-tile-card',
+  'fluvy-tiles-card',
+  'fluvy-template-card',
+  'fluvy-lights-card',
+  'fluvy-room-card',
+]);
+
 /** Every field of a form, through its rows and its folded groups. */
 const flatten = (schema: Schema): Field[] =>
   schema.flatMap((item) => (item.schema ? flatten(item.schema) : [item]));
@@ -173,10 +185,12 @@ function row(
 ): string {
   const cardLists = editor.lists ?? [];
   // a list's own key is said once, as the list
+  const own = (key: string): boolean =>
+    editor.keys.includes(key) || (key === 'name_lines' && TILE_NAMES.has(tag));
   const fields = flatten(editor.getConfigForm().schema).filter(
-    (f) => editor.keys.includes(f.name) && !cardLists.some((list) => list.key === f.name),
+    (f) => own(f.name) && !cardLists.some((list) => list.key === f.name),
   );
-  const own = fields
+  const shown = fields
     .filter((field, index) => fields.findIndex((f) => f.name === field.name) === index)
     .map((field) => option(field, fields));
   const lists = cardLists.map((list) => {
@@ -187,7 +201,7 @@ function row(
       : `; between them \`type: section\`${list.sections === 'labels' ? '' : ', `type: divider`'}`;
     return `\`${list.key}\` (a list: ${keys.join(', ')}${between})`;
   });
-  const options = [...own, ...lists];
+  const options = [...shown, ...lists];
   const reads = [
     ...(card.aliases?.keys ?? []).map((m) => `\`${m.from}\` → \`${m.to}\``),
     ...cardLists.filter((list) => list.alias).map((list) => `\`${list.alias}\` → \`${list.key}\``),

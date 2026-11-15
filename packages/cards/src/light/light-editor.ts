@@ -19,7 +19,7 @@ import {
   nameIconFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   sliderFields,
   textField,
   tintField,
@@ -208,7 +208,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['light']),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       // the editor offers what the bulb does (#65): when the card shows its brightness while it dims (#124); then,
       // where it shows it, the dimmer's layout, stepper and live update, the temperature ruler's options with a white,
       // the colours' with a colour

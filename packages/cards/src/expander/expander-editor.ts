@@ -29,7 +29,7 @@ import {
   ownTextField,
   pickFields,
   selectField,
-  showIconField,
+  headFields,
   textField,
 } from '../shared/form.js';
 import {
@@ -62,6 +62,7 @@ const s = strings('expander');
 export const base: readonly BaseKey[] = [
   'icon',
   'show_icon',
+  'name_lines',
   'entities',
   'tone',
   'color',
@@ -182,7 +183,8 @@ export function getConfigForm(): LovelaceConfigForm {
         boolField('show_summary'),
       ),
       fieldRow(choices('style', STYLES, STYLE_WORDS), selectField('columns', ['1', '2', '3', '4'])),
-      fieldRow(numberField('gap', 0, 64, 4), onlyWhen(worded, showIconField())),
+      numberField('gap', 0, 64, 4),
+      onlyWhen(worded, headFields()),
       fieldRow(
         boolField('show_chevron'),
         onlyWhen(chevroned, choices('chevron_position', POSITIONS, POSITION_WORDS)),

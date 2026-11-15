@@ -205,6 +205,16 @@ key hold.
   one, a compact row's 40 with a 16 glyph; where not even that, none, as `auto` — a name never vanishes, never a stump:
   beside a switch the smaller circle shows from a 200 card, the full one from 204, so in half a phone's section, 152 or
   172, the name has the row), `never`.
+- **A long name in two lines (1.22, #191):** `name_lines: 2` on every head card (the tiles' key and words) takes the
+  name in two balanced lines where one would end it in an ellipsis, an ellipsis only past the second, and the head is
+  68 whatever the name says — the two lines and the line under them 4 from its edges, the circle 12 from them, on the
+  grid — so cards side by side stay level; the appliance's whole head is 88 (its 64 picture, its name's lines of 24).
+  The fitting order stands, measured with the room the name needs in two lines (`nameWidth`: the wider of its two
+  lines where it breaks best, between words or between any two Han or kana characters), so the badge and the circle
+  give way only where two lines would not hold the name. A layout with no head of its own (a tile, a row, a banner,
+  the weather's hero) has none to take, and the editor offers it only where it acts (`headLines`, the one rule of the
+  drawing, the declared height and the form); a room's and the room lights' `name_lines` is their tiles'. The automatic
+  dashboards' *Long names* (`name_lines: 2`) writes it on the cards they name after the house's entities.
 - **Custom heads follow the same rule:** a player's art and its words are one button (the head's), a mini row's art
   and words likewise; the now-playing strip's art and titles; a greeting with no avatar (hidden, or no person to be)
   takes the tap and the hold on its words; a room's photo and its row run the room's `tap_action` (its path, or the

@@ -20,7 +20,7 @@ import {
   numberFields,
   ownTextField,
   selectField,
-  showIconField,
+  headFields,
   textField,
   unitChoicesOf,
 } from '../shared/form.js';
@@ -70,6 +70,7 @@ export const base: readonly BaseKey[] = [
   'card_border',
   'unavailable',
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -129,7 +130,8 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['sensor', 'number', 'input_number', 'counter']),
       fieldRow(nameField(), ownTextField('subtitle')),
-      fieldRow(iconField(), showIconField()),
+      iconField(),
+      headFields(),
       ...colourFields(),
       fieldRow(selectField('variant', ['chart', 'tile']), numberField('hours', 1, 168)),
       boolField('show_stats'),

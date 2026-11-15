@@ -1,5 +1,6 @@
 import { badge, emptyState, type Tone } from '@fluvy/ui';
 import { nothing, type LitElement, type ReactiveController, type TemplateResult } from 'lit';
+import { UNSPACED } from '../energy-family.js';
 import { fitLine, lineCount, TextRuler, type Segment } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
 
@@ -75,9 +76,33 @@ export interface FittedHead {
   readonly cut: boolean;
 }
 
-/** A card that says how its head's circle shows (`Card.showIcon`, from its `show_icon`). */
+/**
+ * A card that says how its head's circle shows (`Card.showIcon`, from its `show_icon`), and the lines its name may take
+ * (`Card.nameLines`, from its `name_lines`).
+ */
 interface IconHost {
   readonly showIcon?: ShowIcon;
+  readonly nameLines?: 1 | 2;
+}
+
+/**
+ * The room a name needs in the lines it may take: its own width on one; in two (`name_lines: 2`, #191) the wider of
+ * its two lines where it breaks best — between its words, or between any two characters of Chinese or Japanese — so a
+ * name that holds a room in two lines needs no more than that room, and one word too long for any is its whole width.
+ */
+export function nameWidth(name: string, lines: 1 | 2, width: (text: string) => number): number {
+  let needed = width(name);
+  if (lines === 2)
+    for (let at = 1; at < name.length; at++) {
+      const before = name.charAt(at - 1);
+      const after = name.charAt(at);
+      if (after === ' ' || (before !== ' ' && (UNSPACED.test(before) || UNSPACED.test(after))))
+        needed = Math.min(
+          needed,
+          Math.max(width(name.slice(0, at).trimEnd()), width(name.slice(at).trimStart())),
+        );
+    }
+  return needed;
 }
 
 /** A switch at the head's end: its 56 × 44 hit (`.fv-hit`), not the 48 track — the room a head fit must keep for it. */
@@ -113,14 +138,19 @@ export class HeadFit implements ReactiveController {
   hostConnected(): void {}
 
   fit(o: HeadFitOptions): FittedHead {
-    const show = o.icon ?? (this.host as LitElement & IconHost).showIcon ?? 'auto';
+    const host = this.host as LitElement & IconHost;
+    const show = o.icon ?? host.showIcon ?? 'auto';
     const pill = o.badge ? this.ruler.pill('fv-badge', o.badge.text, BADGE_SIDES) : 0;
     let trailing = o.badge ? pill : (o.trailing ?? 0);
     let circle = show === 'never' ? 0 : ICON;
     const room = (): number => o.width - circle - (trailing > 0 ? trailing + GAP : 0);
     let keepBadge = Boolean(o.badge);
+    // the room the name needs: on its line, or in the two the card asks for (`name_lines: 2`)
+    const title = nameWidth(o.title, host.nameLines ?? 1, (text) =>
+      this.ruler.width('fv-card__title', text),
+    );
 
-    if (keepBadge && this.ruler.width('fv-card__title', o.title) > room()) {
+    if (keepBadge && title > room()) {
       keepBadge = false;
       trailing = 0;
     }
@@ -150,7 +180,6 @@ export class HeadFit implements ReactiveController {
     // gives way where its room makes one of them whole — or where the name would end before it had begun (under 96, or
     // under the name itself: a row's rule). A circle that would leave them cut anyway stays, the name taking its
     // ellipsis.
-    const title = this.ruler.width('fv-card__title', o.title);
     const first = o.sub ? this.ruler.width('fv-card__sub', o.sub.split(' · ')[0] ?? '') : 0;
     const whole = [title, first].some((w) => w > room() && w <= room() + ICON);
     const unbegun = room() < Math.min(ROW_NAME_MIN, title);

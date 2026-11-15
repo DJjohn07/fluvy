@@ -16,16 +16,20 @@ import type { ShowIcon } from '../energy/head.js';
 import { loadChartEngine } from './chart-load.js';
 import { COMMON_ALIASES, normaliseConfig, type AliasSpec, type KnownKeys } from './config.js';
 import { FontsSettled } from './fonts.js';
+import { headLines } from './head-lines.js';
+import type { NameLines } from './heights.js';
 import type { EditorChoices, EditorDefaults, RowsListSpec } from './rows-editor.js';
 import { ownLine, type OwnLine } from './secondary.js';
 import { isTemplate, TemplateTexts } from './templates.js';
 
 /**
  * What a card with a head honours of its circle: whether it shows (`HeadFit` reads it through `Card.showIcon`), and
- * what it answers (#179) — none of it until one is set, the circle then a button of its own.
+ * what it answers (#179) — none of it until one is set, the circle then a button of its own; and its name in two lines
+ * where one would cut it (`name_lines: 2`, #191; `Card.nameLines`), the head a line taller.
  */
 export interface HeadConfig {
   show_icon?: ShowIcon;
+  name_lines?: NameLines;
   icon_tap_action?: ActionConfig;
   icon_hold_action?: ActionConfig;
   icon_double_tap_action?: ActionConfig;
@@ -75,7 +79,12 @@ export const ENTITY_BASE: readonly BaseKey[] = [
 ];
 
 /** The same for a card of one entity with a head: whether its circle shows too, and what it answers. */
-export const HEAD_BASE: readonly BaseKey[] = [...ENTITY_BASE, 'show_icon', ...ICON_ACTIONS_BASE];
+export const HEAD_BASE: readonly BaseKey[] = [
+  ...ENTITY_BASE,
+  'show_icon',
+  'name_lines',
+  ...ICON_ACTIONS_BASE,
+];
 
 /** What a card with a slider honours of the base besides (1.18, #144): the style its sliders are drawn in, and the words under a bar or a liquid. */
 export const SLIDER_BASE: readonly BaseKey[] = ['slider_style', 'slider_words'];
@@ -230,6 +239,8 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
   protected override willUpdate(changed: PropertyValues): void {
     super.willUpdate(changed);
     this.ownNamed.clear(); // the render names them again
+    // a head's name in two lines: the head's sheet takes it from the host (fluvy/surfaces.css)
+    this.toggleAttribute('name-lines', this.nameLines === 2);
   }
 
   /**
@@ -267,6 +278,14 @@ export abstract class Card<C extends FluvyCardConfig = FluvyCardConfig> extends 
   /** Whether the head's circle shows (`show_icon`); a value it does not know is `auto`, as none is. */
   get showIcon(): ShowIcon {
     return (this.config as HeadConfig | undefined)?.show_icon ?? 'auto';
+  }
+
+  /**
+   * The lines the head's name may take (`name_lines`, #191): two where its config asks and the card has a head whose
+   * name they are (`headLines`: a room's and its lights' are their tiles'), else one.
+   */
+  get nameLines(): 1 | 2 {
+    return headLines(this.config) ? 2 : 1;
   }
 
   /** An action as a surface runs it for `entityId`, where it can (`actionRuns`): none where it is unset. */

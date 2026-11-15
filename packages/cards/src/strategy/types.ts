@@ -110,6 +110,11 @@ export interface FluvyStrategyConfig {
   flow_style?: FlowStyle;
   /** The rooms' cards (default: a photo where the area has one, else a tile). */
   room_variant?: RoomVariant;
+  /**
+   * The names of the cards it names after the house's entities: on one line (`1`, the default), each ending in an
+   * ellipsis where it must, or in two where one would cut them (`2`, #191), their heads a line taller.
+   */
+  name_lines?: 1 | 2;
   /** Where the rooms' photos carry their names (default: `bottom`, beside the quick actions). */
   room_name_position?: RoomLook['name_position'];
   /** The rooms' readouts on one row (`row`, the default) or wrapped where a word would not hold (`wrap`). */
@@ -297,6 +302,8 @@ export interface CardStyle {
   readonly room?: RoomVariant;
   /** What every room's photo is asked for (`room_name_position` …); a room's own comes over it. */
   readonly roomLook?: RoomLook;
+  /** The cards named after the house's entities take their names in two lines (`name_lines: 2`, #191). */
+  readonly twoLines?: boolean;
   readonly refresh?: CameraRefresh;
   readonly scenes?: ScenesMax;
 }

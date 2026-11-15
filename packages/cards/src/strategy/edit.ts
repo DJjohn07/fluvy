@@ -1,6 +1,16 @@
 import { domainOf } from '@fluvy/core';
+import { headLines } from '../shared/head-lines.js';
 import type { HomeRegistry } from './home-registry.js';
-import type { Card, CardEdit, DashboardEdit, ListEdit, MoreHost, Part, Section } from './types.js';
+import type {
+  Card,
+  CardEdit,
+  CardStyle,
+  DashboardEdit,
+  ListEdit,
+  MoreHost,
+  Part,
+  Section,
+} from './types.js';
 
 /*
  * What a person changed on an automatic dashboard (`edit`, #170), kept as differences and never as a copy of what the
@@ -12,8 +22,11 @@ import type { Card, CardEdit, DashboardEdit, ListEdit, MoreHost, Part, Section }
  * are put in the person's order once its columns are cut (`arranged`).
  */
 
-/** What a context must carry for its cards to stand in parts: the view being built (none: the cards as they are). */
-type Hosted = { readonly more?: MoreHost };
+/**
+ * What a context must carry for its cards to stand in parts: the view being built (none: the cards as they are), and
+ * the cards' style its options ask for.
+ */
+type Hosted = { readonly more?: MoreHost; readonly style?: CardStyle };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -77,6 +90,17 @@ export function withOptions(card: Card, options: unknown): Card {
 }
 
 /**
+ * A card the dashboard names after one of the house's entities (or devices), its name in two lines where the dashboard
+ * asks for them (`name_lines: 2`, #191) and its layout draws a head that names it (`headLines`); any other as it is.
+ */
+const lined = (style: CardStyle | undefined, card: Card): Card =>
+  style?.twoLines &&
+  (typeof card['entity'] === 'string' || typeof card['device'] === 'string') &&
+  headLines({ ...card, name_lines: 2 })
+    ? { ...card, name_lines: 2 }
+    : card;
+
+/**
  * One of a part's cards (`cards`: all of them) with the part's options over it, where it is one of the part's own:
  * a heading and a "N more" row that ride with them are of another type than the first card that is no heading, and
  * stay as they are.
@@ -90,8 +114,8 @@ export function tuned(cards: readonly Card[], card: Card, options: unknown): Car
  * The cards of one part of the view being built, under its id: none while the person hides it — or, for a part that
  * starts hidden (`off`), until they show it — else each with their options — the part's over its own cards (all but a
  * heading and a "N more" row that ride with them), then a card's own where it draws one entity, room or device of a
- * list (`home/lights:light.sofa`). Blocks and cards kept together stay as they were handed. A part that starts hidden
- * keeps the cards it would draw on the view's part (`off`), for Customise to offer.
+ * list (`home/lights:light.sofa`), over the dashboard's own (`lined`). Blocks and cards kept together stay as they were
+ * handed. A part that starts hidden keeps the cards it would draw on the view's part (`off`), for Customise to offer.
  */
 export function part<T extends Card | readonly Card[]>(
   ctx: Hosted,
@@ -99,8 +123,13 @@ export function part<T extends Card | readonly Card[]>(
   pieces: readonly T[],
   off = false,
 ): T[] {
+  /** Each card of the pieces as `dress` makes it, blocks and cards kept together as they were handed. */
+  const each = (dress: (card: Card) => Card): T[] =>
+    pieces.map((piece) =>
+      Array.isArray(piece) ? (piece as readonly Card[]).map(dress) : dress(piece as Card),
+    ) as T[];
   const host = ctx.more;
-  if (!host) return off ? [] : [...pieces];
+  if (!host) return off ? [] : each((card) => lined(ctx.style, card));
   const own = cardEdit(host, id);
   const hidden = hiddenBy(own, off);
   if (hidden && !off) {
@@ -111,15 +140,13 @@ export function part<T extends Card | readonly Card[]>(
   const dressed = (card: Card): Card => {
     const subject = card['entity'] ?? card['area'] ?? card['device'];
     const next = withOptions(
-      tuned(cards, card, own?.options),
+      tuned(cards, lined(ctx.style, card), own?.options),
       typeof subject === 'string' ? cardEdit(host, `${id}:${subject}`)?.options : undefined,
     );
     PARTS.set(next, id);
     return next;
   };
-  const built = pieces.map((piece) =>
-    Array.isArray(piece) ? (piece as readonly Card[]).map(dressed) : dressed(piece as Card),
-  ) as T[];
+  const built = each(dressed);
   const drawn = built.flat() as Card[];
   host.parts.push({ id, cards: hidden ? [] : drawn, ...(off ? { off: drawn } : {}) });
   return hidden ? [] : built;

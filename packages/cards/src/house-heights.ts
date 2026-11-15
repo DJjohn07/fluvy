@@ -36,6 +36,7 @@ import { isWord, sensorHeight, type SensorCardConfig } from './sensor/sensor-car
 import { normaliseExtras } from './sensor/series.js';
 import { laidOut } from './shared/groups.js';
 import { COLOURED, dims } from './shared/light.js';
+import { headLines } from './shared/head-lines.js';
 import type { NameOf } from './shared/heights.js';
 import { statTilesHeight, type StatTilesCardConfig } from './stat-tiles/stat-tiles-card.js';
 import type { ThermostatCardConfig } from './thermostat/thermostat-card.js';
@@ -381,7 +382,8 @@ const HOUSE: ReadonlyMap<string, HouseHeight> = new Map<string, HouseHeight>([
 
 /**
  * A card's height at a 360 column as the automatic dashboard plans it: counted with the house where the house changes
- * it, else as the card declares it from its config (`layoutHeightOf`), else `fallback` (a card of another maker).
+ * it, else as the card declares it from its config (`layoutHeightOf`), else `fallback` (a card of another maker); its
+ * head a line taller where its name takes two (`headLines`).
  */
 export function houseHeightOf(
   config: LovelaceCardConfig,
@@ -390,5 +392,8 @@ export function houseHeightOf(
 ): number {
   const tag = config.type.startsWith('custom:') ? config.type.slice('custom:'.length) : '';
   const house = HOUSE.get(tag);
-  return house && hass ? house(config as never, hass) : layoutHeightOf(config, fallback);
+  return (
+    (house && hass ? house(config as never, hass) : layoutHeightOf(config, fallback)) +
+    headLines(config)
+  );
 }

@@ -19,7 +19,7 @@ import {
   ownTextField,
   sectionField,
   selectField,
-  showIconField,
+  headFields,
   textField,
   whenOffField,
 } from '../shared/form.js';
@@ -164,7 +164,8 @@ export function getConfigForm(): LovelaceConfigForm {
       nameIconFields(),
       // the person's own picture in the circle's place: an address, or an entity whose picture it is
       textField('image'),
-      fieldRow(ownTextField('subtitle'), showIconField()),
+      ownTextField('subtitle'),
+      headFields(),
       fieldRow(selectField('variant', ['dial', 'compact', 'ruler']), boolField('show_stepper')),
       fieldRow(boolField('show_modes'), selectField('modes_style', ['tiles', 'chips', 'full'])),
       // a climate's seven until the entity is known: then its own (`choices`), dragged into the order they show in

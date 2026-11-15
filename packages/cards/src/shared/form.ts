@@ -19,6 +19,7 @@ import {
   UNAVAILABLE_LOOKS,
 } from '@fluvy/core';
 import { TONES } from '@fluvy/ui';
+import { headLines } from './head-lines.js';
 import type { EditorChoices, RowsListSpec, SelectOption } from './rows-editor.js';
 import { asksGroups, statesOf } from './lists.js';
 import { LADDERS, ladderOf, unitClass } from './units.js';
@@ -639,7 +640,10 @@ export const lightColourFields = (): HaFormSchemaItem =>
 /** What a device card shows while the device is off: everything (the default), or the essentials alone. */
 export const whenOffField = (): HaFormSchemaItem => selectField('when_off', ['all', 'essentials']);
 
-/** A small tile's name in one line (the default) or two where one would cut it (`name_lines`, #100). */
+/**
+ * A name, a small tile's (#100) or a head's (#191), in one line (the default) or two where one would cut it
+ * (`name_lines`).
+ */
 export const nameLinesField = (): HaFormSchemaItem => selectField('name_lines', ['1', '2']);
 
 /**
@@ -715,6 +719,17 @@ export const nameIconFields = (): HaFormSchemaItem => fieldRow(nameField(), icon
 /** Whether a card's head shows its circle: automatic (it gives way to a long name), always or never. */
 export const showIconField = (): HaFormSchemaItem =>
   selectField('show_icon', ['auto', 'always', 'never']);
+
+/** Whether a config's layout draws a head that names the card: where its name may take two lines (`headLines`). */
+const namesHead = (data: Readonly<Record<string, unknown>>): boolean =>
+  headLines({ ...data, type: String(data['type']), name_lines: 2 }) > 0;
+
+/**
+ * A card's head: whether it shows its circle, and — where its layout draws a head that names it — its name in one
+ * line (the default) or two where one would cut it (`name_lines`, #191: the head a line taller), on one row.
+ */
+export const headFields = (): HaFormSchemaItem =>
+  fieldRow(showIconField(), onlyWhen(namesHead, nameLinesField()));
 
 /** What a card of a list says while the list has nothing to show, and whether it hides then (`EmptyList`). */
 export const emptyFields = (): HaFormSchemaItem =>

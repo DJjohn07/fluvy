@@ -166,6 +166,7 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `areas` | a list of area ids | wall | the rooms the wall shows, in that order, an empty one kept (default: every room with something in it) |
 | `camera_refresh` | `5`, `10` (default), `30` | security | seconds between the cameras' stills |
 | `scenes_max` | `4`, `6` (default), `8` | wall | how many scenes the wall offers as chips |
+| `name_lines` | `1` (default), `2` | all | the names of the cards it names after the house's entities (a light, a thermostat, a lock, a camera, an energy reading) in two lines where one would cut them, their heads a line taller (each card's `name_lines`, [The cards](cards.md)); a tile's name stays on its line. Nothing is written until it is chosen |
 | `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were) |
 | `background` | `type`: `plain`, `gradient`, `color` or `image`, and that type's own keys: `colors` (one hex, or two from the top to the bottom), `image` (a path of Home Assistant's such as `/local/backgrounds/garden.jpg`, or a web address), `dim` (0 to 80 in steps of 5, default 40), `blur` (default `false`) | all | what lies behind this dashboard's cards in place of the house's (default: the house's, the panel's *Appearance › Background*; below); `type: plain` keeps this dashboard plain whatever the house chooses |
 | `caps` | a list's own number or `none` by its key (`caps: { lights: 12, humidity: none }`), or `none` for every list | all | how many of a long list a view shows (default: the house's caps, above, each with its "N more" row); the panel offers *Shortened* (the default) or *In full* |
@@ -174,6 +175,16 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `edit` | an object of `views`, `cards` and `entities` | all | what was changed on its views and cards, kept as differences: hidden, moved, given options, a list's entities left out, added or put in order ([Customise](#customise), which writes it) |
 | `weather` | a `weather.*` entity | all | the weather of the greeting and the clock (default: the first) |
 | `language` | `en`, `es`, `de`, `nl`, `fr`, `it`, `pt-BR`, `pt-PT`, `tr`, `ja`, `hu`, `sk`, `cs`, `pl`, `zh-Hans`, `ru`, `uk` | all | the dashboard's words in that language, whoever opens it |
+
+Two readings whose names differ only past where a card cuts them ("Inverter E1 North MPPT total power" and "Inverter
+E2 South MPPT total power", both "Inverter E…" beside their circles on a phone) read whole where the dashboard asks for
+two lines (1.22):
+
+```yaml
+strategy:
+  type: custom:fluvy-energy
+  name_lines: 2   # the names of the cards named after the house's entities in two lines where one would cut them
+```
 
 Without `language`, the dashboard's words follow the language of whoever opens it (Home Assistant's, or the one
 chosen in the panel's *Preferences*). A house is read in every language at once: a switch called *Küche* or

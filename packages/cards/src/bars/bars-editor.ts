@@ -17,7 +17,7 @@ import {
   nameIconFields,
   rowWhenField,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
   toneField,
@@ -46,6 +46,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -113,7 +114,8 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       fieldRow(iconField(), selectField('variant', VARIANTS)),
-      fieldRow(showIconField(), selectField('chart', ['classic', 'soft'])),
+      headFields(),
+      selectField('chart', ['classic', 'soft']),
       ...colourFields(),
       entitiesField('rows', undefined, true),
       whenField('show_rows_when'),

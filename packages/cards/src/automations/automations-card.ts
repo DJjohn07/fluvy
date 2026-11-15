@@ -49,7 +49,7 @@ import {
   numberField,
   orderedField,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import { idsOf } from '../shared/lists.js';
@@ -358,6 +358,7 @@ export class FluvyAutomationsCard extends Card<AutomationsCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<AutomationsCardConfig>()([
@@ -416,7 +417,7 @@ export class FluvyAutomationsCard extends Card<AutomationsCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('variant', AUTOMATIONS_VARIANTS)),
-        showIconField(),
+        headFields(),
         fieldRow(selectField('show', AUTOMATIONS_SHOW), selectField('sort', AUTOMATIONS_SORT)),
         fieldRow(boolField('show_add'), boolField('show_switch')),
         fieldRow(boolField('show_last'), boolField('show_next')),

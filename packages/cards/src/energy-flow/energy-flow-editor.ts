@@ -32,7 +32,7 @@ import {
   onlyWhen,
   pickFields,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -124,6 +124,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -207,7 +208,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       fieldRow(iconField(), entityField(['sensor'], 'home', false)),
-      showIconField(),
+      headFields(),
       fieldRow(selectField('variant', FLOW_VARIANTS), selectField('flow_style', FLOW_STYLES)),
       fieldRow(selectField('motion', MOTION_MODES), numberField('max_power', 100, 100000, 100)),
       fieldRow(

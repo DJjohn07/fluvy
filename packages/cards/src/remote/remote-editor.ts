@@ -28,7 +28,7 @@ import {
   onlyWhen,
   orderedField,
   selectField,
-  showIconField,
+  headFields,
   textField,
 } from '../shared/form.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
@@ -185,7 +185,7 @@ export function getConfigForm(): LovelaceConfigForm {
         entityField(['media_player'], 'volume_entity', false),
       ),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       fieldRow(
         choiceField('variant', [
           ['full', 'option.full'],

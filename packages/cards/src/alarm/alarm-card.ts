@@ -45,7 +45,7 @@ import {
   ownTextField,
   rowItems,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 
 import './keypad.js';
@@ -280,7 +280,7 @@ export class FluvyAlarmCard extends RowsCard<AlarmCardConfig> {
       schema: [
         entityField(['alarm_control_panel']),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         fieldRow(ownTextField('subtitle'), selectField('variant', ['tiles', 'compact'])),
         // every mode until the panel is known, then its own (`choices`), dragged into the order they show in
         orderedField(

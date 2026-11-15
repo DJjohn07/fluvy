@@ -5,6 +5,7 @@ import { catalogue } from '../index.js';
 
 const CATALOGUE = await catalogue();
 import { type AliasSpec, COMMON_ALIASES, normaliseConfig } from '../shared/config.js';
+import { headLines } from '../shared/head-lines.js';
 import { CAPS } from './caps.js';
 import { FluvyHomeStrategy } from './home-strategy.js';
 import { generate, generateWith } from './generate.js';
@@ -469,6 +470,32 @@ describe('the dashboard templates', () => {
       (await generate({ type: wall.type, scenes_max: 4 }, everything())).views,
     ).find((c) => c.type === 'custom:fluvy-chips-card') as unknown as { chips: unknown[] };
     expect(chips.chips.length).toBeLessThanOrEqual(4);
+  });
+
+  it('name the cards they name after the house’s entities in two lines where a dashboard asks, on every template, writing nothing by default (#191)', async () => {
+    let lines = 0;
+    for (const template of TEMPLATES) {
+      expect(strategyOptions({ name_lines: 2 }, template), template.id).toEqual({ name_lines: 2 });
+      expect(strategyOptions({ name_lines: 3 }, template), template.id).toEqual({});
+      const asIs = cardsOf((await generate({ type: template.type }, everything())).views);
+      expect(
+        asIs.filter((card) => 'name_lines' in card),
+        template.id,
+      ).toEqual([]);
+      const lined = cardsOf(
+        (await generate({ type: template.type, name_lines: 2 }, everything())).views,
+      );
+      // every card of one entity whose head names it, and no other: a tile's name stays on its line
+      const named = lined.filter(
+        (card) => typeof card['entity'] === 'string' && headLines({ ...card, name_lines: 2 }),
+      );
+      for (const card of named) expect(card['name_lines'], `${template.id} ${card.type}`).toBe(2);
+      for (const card of lined.filter((c) => 'name_lines' in c))
+        expect(headLines(card), `${template.id} ${card.type}`).toBe(24);
+      lines += named.length;
+    }
+    // the thermostats, the lights, the locks, the cameras, the energy's readings this house has
+    expect(lines).toBeGreaterThan(10);
   });
 
   it('offer what is a room’s photo’s alone on the dashboards of rooms, while their rooms may be photos (#159)', () => {

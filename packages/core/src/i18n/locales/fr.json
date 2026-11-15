@@ -1587,7 +1587,10 @@
     "charts.preview_sub": "Vos graphiques avec ces réglages",
     "dashboard.thermostat_state": "État des thermostats",
     "dashboard.brief": "Bref",
-    "dashboard.detailed": "Détaillé"
+    "dashboard.detailed": "Détaillé",
+    "dashboard.name_lines": "Noms longs",
+    "dashboard.one_line": "Une ligne",
+    "dashboard.two_lines": "Deux lignes"
   },
   "customise": {
     "title": "Personnaliser",

@@ -46,7 +46,7 @@ import {
   numberField,
   numberFields,
   onlyWhen,
-  showIconField,
+  headFields,
   titleFields,
   toneField,
 } from '../shared/form.js';
@@ -203,6 +203,7 @@ export class FluvyEnergyDevicesCard extends Card<EnergyDevicesCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyDevicesCardConfig>()([
@@ -268,7 +269,8 @@ export class FluvyEnergyDevicesCard extends Card<EnergyDevicesCardConfig> {
     return {
       schema: [
         titleFields(),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         ...colourFields(),
         entitiesField('entities', ['sensor']),
         // the Energy dashboard's devices (no rows of its own) can follow a date picker

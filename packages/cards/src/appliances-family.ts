@@ -1,4 +1,5 @@
 import type { LovelaceCardConfig } from '@fluvy/core';
+import { applianceVariant, type ApplianceVariant } from './appliance-variant.js';
 import type { FamilyEntry } from './energy-family.js';
 import { HEAD, ROW_BAR, ROW_COMPACT, rowsOf } from './shared/heights.js';
 
@@ -8,19 +9,11 @@ import { HEAD, ROW_BAR, ROW_COMPACT, rowsOf } from './shared/heights.js';
  * card is at a 360 column, without the cards themselves. Every page carries this file: it stays small.
  */
 
-export type ApplianceVariant = 'full' | 'compact' | 'ring' | 'row';
-export const APPLIANCE_VARIANTS: readonly ApplianceVariant[] = ['full', 'compact', 'ring', 'row'];
-
-/** The kinds a card draws as a row where it names no layout (what lives on a plug), and the hood's compact one. */
-const ROW_KINDS = ['microwave', 'kettle', 'toaster', 'blender', 'sandwich_maker', 'appliance'];
-
-/** The layout a config asks for: its own, else its kind's where it names one, else the whole card. */
-export function applianceVariant(config: LovelaceCardConfig | undefined): ApplianceVariant {
-  const v = config?.['variant'];
-  if ((APPLIANCE_VARIANTS as readonly unknown[]).includes(v)) return v as ApplianceVariant;
-  const kind = config?.['kind'];
-  return kind === 'hood' ? 'compact' : ROW_KINDS.includes(kind as string) ? 'row' : 'full';
-}
+export {
+  APPLIANCE_VARIANTS,
+  applianceVariant,
+  type ApplianceVariant,
+} from './appliance-variant.js';
 
 /** The hero each kind draws (`kinds.ts` KIND_DEFAULTS): a cycle by default, as a washer's. */
 const HEROES: Readonly<Record<string, string>> = {

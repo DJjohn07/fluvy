@@ -51,11 +51,11 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   'slider_style',
   'slider_words',
+  'name_lines',
 ];
 
 export const keys = configKeys<TilesCardConfig>()([
   'size',
-  'name_lines',
   'show_switch',
   'switch_style',
   'show_action',

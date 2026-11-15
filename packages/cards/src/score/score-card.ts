@@ -63,7 +63,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
@@ -181,6 +181,7 @@ export class FluvyEnergyScoreCard extends Card<EnergyScoreCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyScoreCardConfig>()([
@@ -208,7 +209,7 @@ export class FluvyEnergyScoreCard extends Card<EnergyScoreCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('period', PERIODS)),
-        showIconField(),
+        headFields(),
         // a date picker to follow; the chips while none is followed
         fieldRow(
           collectionField(),

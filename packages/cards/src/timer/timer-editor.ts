@@ -8,7 +8,7 @@ import {
   entityField,
   fieldRow,
   nameIconFields,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -30,7 +30,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['timer']),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       ...colourFields(),
       fieldRow(boolField('show_gauge'), boolField('show_actions')),
       actionFields({ icon: true }),

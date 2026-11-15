@@ -50,7 +50,7 @@ import {
   iconField,
   numberField,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import { EMPTY_KEYS, type EmptyList } from '../shared/lists.js';
@@ -308,6 +308,7 @@ export class FluvyAlertsCard extends Card<AlertsCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
   ];
   static override keys = configKeys<AlertsCardConfig>()([
     'title',
@@ -353,7 +354,8 @@ export class FluvyAlertsCard extends Card<AlertsCardConfig> {
           ]),
           selectField('columns', ['1', '2', '3', '4', 'auto']),
         ),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         fieldRow(boolField('show_count'), boolField('show_culprit')),
         fieldRow(boolField('show_duration'), boolField('compact')),
         fieldRow(

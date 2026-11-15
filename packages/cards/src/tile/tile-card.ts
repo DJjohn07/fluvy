@@ -44,7 +44,7 @@ import { DIMMABLE, lightLook, litColour, withMembers } from '../shared/light.js'
 import { fitLine, TextRuler, type Segment } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
 import { statusToneOf, washesAtRest, type LightColours, type Tint } from '../shared/colour.js';
-import { NAME_LINE, twoLines } from '../shared/heights.js';
+import { NAME_LINE, twoLines, type NameLines } from '../shared/heights.js';
 import { shorterForms } from '../shared/secondary.js';
 import { changedAt, sinceIds } from '../shared/since.js';
 import {
@@ -63,8 +63,7 @@ import {
 
 export type TileSize = 'large' | 'compact' | 'mini';
 export const TILE_SIZES: readonly TileSize[] = ['large', 'compact', 'mini'];
-/** The lines a small tile's name may take (`name_lines`): YAML's figure, or the editor's word for it. */
-export type NameLines = 1 | 2 | '1' | '2';
+export type { NameLines };
 /**
  * What ends a large tile's head where its entity switches (`show_switch`, #160): its switch (`true`, the default);
  * nothing (`false`), its circle being the switch, as on a tile too narrow for one beside it; or its level's figure

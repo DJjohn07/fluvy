@@ -46,7 +46,7 @@ import {
   nameIconFields,
   numberField,
   onlyWhen,
-  showIconField,
+  headFields,
   textField,
   titleFields,
   toneField,
@@ -392,6 +392,7 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<AppliancesCardConfig>()([
@@ -457,7 +458,8 @@ export class FluvyAppliancesCard extends Card<AppliancesCardConfig> {
     return {
       schema: [
         onlyWhen(headed, titleFields()),
-        onlyWhen(headed, fieldRow(iconField(), showIconField())),
+        onlyWhen(headed, iconField()),
+        onlyWhen(headed, headFields()),
         fieldRow(
           choiceField('variant', [
             option('rows'),

@@ -3057,7 +3057,10 @@
     "charts.preview_sub": "Ваші графіки з цими налаштуваннями",
     "dashboard.thermostat_state": "Стан термостатів",
     "dashboard.brief": "Стисло",
-    "dashboard.detailed": "Докладно"
+    "dashboard.detailed": "Докладно",
+    "dashboard.name_lines": "Довгі назви",
+    "dashboard.one_line": "Один рядок",
+    "dashboard.two_lines": "Два рядки"
   },
   "customise": {
     "title": "Налаштувати",

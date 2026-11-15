@@ -51,7 +51,7 @@ import {
   numberField,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import { HeadFit } from '../energy/head.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -311,6 +311,7 @@ export class FluvyWeatherCard extends Card<WeatherCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<WeatherCardConfig>()([
@@ -343,7 +344,8 @@ export class FluvyWeatherCard extends Card<WeatherCardConfig> {
       schema: [
         entityField(['weather']),
         fieldRow(onlyWhen(namesItself, nameField()), iconField()),
-        fieldRow(boolField('show_name'), showIconField()),
+        boolField('show_name'),
+        headFields(),
         fieldRow(
           selectField('variant', VARIANTS),
           selectField('forecast', ['daily', 'hourly', 'both']),

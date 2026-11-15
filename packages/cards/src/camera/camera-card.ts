@@ -31,7 +31,7 @@ import {
   ownTextField,
   rowItems,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import type { EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
 import { configKeys, ITEM_ALIASES, type AliasSpec } from '../shared/config.js';
@@ -134,7 +134,7 @@ export class FluvyCameraCard extends RowsCard<CameraCardConfig> {
       schema: [
         entityField(['camera']),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         ownTextField('subtitle'),
         fieldRow(
           selectField('camera_view', ['auto', 'live']),

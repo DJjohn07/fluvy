@@ -55,7 +55,7 @@ import {
   numberField,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -325,6 +325,7 @@ export class FluvyItemsCard extends Card<ItemsCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<ItemsCardConfig>()([
@@ -394,7 +395,8 @@ export class FluvyItemsCard extends Card<ItemsCardConfig> {
       schema: [
         entityField(['sensor']),
         titleFields(),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         fieldRow(
           selectField('attribute', ['auto'], { custom: true }),
           choiceField('preset', [

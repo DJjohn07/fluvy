@@ -62,7 +62,7 @@ import {
 import { automationEntity, AutomationStore } from '../automations/store.js';
 import { buildNotice, noticeId, type NoticeTrigger } from '../automations/notice.js';
 import { sharedGap } from '../cover/common.js';
-import { HeadFit } from '../energy/head.js';
+import { HeadFit, nameWidth } from '../energy/head.js';
 import { Card, HEAD_BASE, type HeadConfig } from '../shared/base.js';
 import { statusToneOf, toneOf } from '../shared/colour.js';
 import { configKeys } from '../shared/config.js';
@@ -90,7 +90,7 @@ import {
   onlyWhen,
   orderedField,
   selectField,
-  showIconField,
+  headFields,
   textField,
   toneField,
 } from '../shared/form.js';
@@ -1023,11 +1023,16 @@ export class FluvyApplianceCard extends Card<ApplianceCardConfig> {
       .fv-card__head--tap:has(.fv-card__tap:active) > .ap-pic {
         scale: 0.94;
       }
-      /* the head: the 64 picture, the name 20/24 over what it does 16/20, the 48 power round */
+      /* the head: the 64 picture, the name 20/24 over what it does 16/20, the 48 power round; a line of its name taller
+         where the name takes two (name_lines: 2, #191), whatever it says */
       .ap-head {
         height: auto;
         min-height: 64px;
         gap: 16px;
+      }
+      :host([name-lines]) .fv-card__head.ap-head {
+        height: auto;
+        min-height: 88px;
       }
       .ap-head__title {
         font-size: 20px;
@@ -1619,14 +1624,12 @@ export class FluvyApplianceCard extends Card<ApplianceCardConfig> {
         entityField(undefined, 'entity', false),
         fieldRow(kindField(), selectField('variant', APPLIANCE_VARIANTS)),
         nameIconFields(),
-        fieldRow(
-          showIconField(),
-          choiceField('unit', [
-            ['both', 'appliance.o_both_units'],
-            ['main', 'appliance.o_main_unit'],
-            ['sub', 'appliance.o_sub_unit'],
-          ]),
-        ),
+        headFields(),
+        choiceField('unit', [
+          ['both', 'appliance.o_both_units'],
+          ['main', 'appliance.o_main_unit'],
+          ['sub', 'appliance.o_sub_unit'],
+        ]),
         fieldRow(
           choiceField('picture', [
             ['art', 'appliance.o_picture'],
@@ -2296,10 +2299,13 @@ export class FluvyApplianceCard extends Card<ApplianceCardConfig> {
     const round = this.powerRound(view);
     // the head's parts are 16 apart (`.ap-head`)
     const trailing = round === nothing ? 0 : 48 + 16;
+    // the room the name needs, on its line or in the two the card asks for (`name_lines: 2`)
     const name = (small: boolean): number =>
-      this.head.ruler.width(
-        `fv-card__title ap-head__title${small ? ' ap-head__title--s' : ''}`,
-        view.title,
+      nameWidth(view.title, this.nameLines, (text) =>
+        this.head.ruler.width(
+          `fv-card__title ap-head__title${small ? ' ap-head__title--s' : ''}`,
+          text,
+        ),
       );
     const { size, small, under, room } = headFit(
       w,

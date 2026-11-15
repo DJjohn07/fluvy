@@ -13,7 +13,7 @@ import {
   onlyWhen,
   ownTextField,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -49,7 +49,8 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['sensor', 'number', 'input_number']),
       fieldRow(nameField(), ownTextField('subtitle')),
-      fieldRow(iconField(), showIconField()),
+      iconField(),
+      headFields(),
       ...colourFields(),
       fieldRow(numberField('low', 0, 100), numberField('high', 0, 100)),
       // the band's three looks: the ruler's ticks with the marker (the classic one), the ruler read lit with the knob,

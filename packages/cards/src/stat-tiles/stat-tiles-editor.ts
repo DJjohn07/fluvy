@@ -17,7 +17,7 @@ import {
   NUMBER_DEFAULTS,
   numberFields,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
   toneField,
@@ -110,7 +110,8 @@ export function getConfigForm(): LovelaceConfigForm {
   return {
     schema: [
       titleFields(),
-      fieldRow(iconField(), showIconField()),
+      iconField(),
+      headFields(),
       ...colourFields(),
       fieldRow(selectField('variant', VARIANTS), selectField('columns', COLUMNS)),
       entitiesField('tiles', undefined, true),

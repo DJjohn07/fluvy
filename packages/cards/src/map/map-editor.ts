@@ -14,7 +14,7 @@ import {
   nameIconFields,
   numberField,
   selectField,
-  showIconField,
+  headFields,
   textField,
 } from '../shared/form.js';
 import { EMPTY_KEYS } from '../shared/lists.js';
@@ -34,6 +34,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -76,7 +77,7 @@ export function getConfigForm(): LovelaceConfigForm {
       entitiesField('entities', ['person', 'device_tracker'], true),
       entitiesField('zones', ['zone']),
       fieldRow(textField('title'), iconField()),
-      showIconField(),
+      headFields(),
       fieldRow(
         selectField('variant', ['zones', 'map', 'rows']),
         selectField('map_shape', ['wide', 'square']),

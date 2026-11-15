@@ -152,6 +152,11 @@ const ROOMS: readonly TemplateOption[] = [
     photos,
   ),
 ];
+/** The names of the cards named after the house's entities: one line, or two where one would cut them (#191). */
+const NAME_LINES = choice('name_lines', 'dashboard.name_lines', [
+  { value: 1, label: 'dashboard.one_line' },
+  { value: 2, label: 'dashboard.two_lines' },
+]);
 /** The long lists: at the house's caps, each with its "N more" row, or whole. */
 const CAPS: TemplateOption = { key: 'caps', kind: 'caps', label: 'dashboard.caps' };
 /** What every view leaves out, as if the house had none of it. */
@@ -199,6 +204,7 @@ export const TEMPLATES: readonly Template[] = [
       SCENES,
       FLOW,
       ...ROOMS,
+      NAME_LINES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -223,6 +229,7 @@ export const TEMPLATES: readonly Template[] = [
       TILES,
       SWITCHES,
       SCENES,
+      NAME_LINES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -239,7 +246,7 @@ export const TEMPLATES: readonly Template[] = [
     columns: 3,
     header: 'hello',
     views: ENERGY_VIEWS,
-    options: [HIDE, FLOW, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
+    options: [HIDE, FLOW, NAME_LINES, GREETING_TABS, BACKGROUND, CAPS, EXCLUDE],
   },
   {
     id: 'security',
@@ -254,6 +261,7 @@ export const TEMPLATES: readonly Template[] = [
     options: [
       HIDE,
       choice('camera_refresh', 'dashboard.refresh', counts([5, 10, 30], 'dashboard.seconds')),
+      NAME_LINES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -280,6 +288,7 @@ export const TEMPLATES: readonly Template[] = [
       THERMOSTAT,
       THERMOSTAT_STATE,
       choice('scenes_max', 'dashboard.scenes', counts([4, 6, 8], 'dashboard.count')),
+      NAME_LINES,
       BACKGROUND,
       CAPS,
       EXCLUDE,

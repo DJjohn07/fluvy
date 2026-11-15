@@ -15,7 +15,7 @@ import {
   onlyWhen,
   rowItems,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
   whenField,
@@ -38,6 +38,7 @@ export const base: readonly BaseKey[] = [
   'card_border',
   'unavailable',
   'show_icon',
+  'name_lines',
   ...ACTIONS_BASE,
   ...ICON_ACTIONS_BASE,
 ];
@@ -82,7 +83,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       fieldRow(iconField(), selectField('variant', ['rows', 'compact'])),
-      showIconField(),
+      headFields(),
       ...colourFields(),
       entitiesField('entities', undefined, true),
       whenField('show_rows_when'),

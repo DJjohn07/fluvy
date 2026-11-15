@@ -82,7 +82,7 @@ import {
   NUMBER_DEFAULTS,
   numberFields,
   onlyWhen,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import { statsSize } from '../shared/readouts.js';
@@ -193,6 +193,7 @@ export class FluvyGridCard extends Card<GridCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<GridCardConfig>()([
@@ -240,7 +241,7 @@ export class FluvyGridCard extends Card<GridCardConfig> {
         ...measureFields(),
         entitiesField('voltages', ['sensor']),
         fieldRow(entityField(['sensor'], 'price', false), iconField()),
-        showIconField(),
+        headFields(),
         entitiesField('readouts', ['sensor']),
         // the Energy dashboard's totals (no readouts of its own) can follow a date picker
         onlyWhen((data) => !listed(data, 'readouts').length, collectionField()),

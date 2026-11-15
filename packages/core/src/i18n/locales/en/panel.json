@@ -475,6 +475,9 @@
     "charts.preview_sub": "Your charts with these settings",
     "dashboard.thermostat_state": "Thermostat state",
     "dashboard.brief": "Brief",
-    "dashboard.detailed": "Detailed"
+    "dashboard.detailed": "Detailed",
+    "dashboard.name_lines": "Long names",
+    "dashboard.one_line": "One line",
+    "dashboard.two_lines": "Two lines"
   }
 }

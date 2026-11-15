@@ -1587,7 +1587,10 @@
     "charts.preview_sub": "Deine Diagramme mit diesen Einstellungen",
     "dashboard.thermostat_state": "Zustand der Thermostate",
     "dashboard.brief": "Kurz",
-    "dashboard.detailed": "Ausführlich"
+    "dashboard.detailed": "Ausführlich",
+    "dashboard.name_lines": "Lange Namen",
+    "dashboard.one_line": "Eine Zeile",
+    "dashboard.two_lines": "Zwei Zeilen"
   },
   "customise": {
     "title": "Anpassen",

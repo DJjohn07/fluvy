@@ -44,7 +44,7 @@ import {
   NUMBER_DEFAULTS,
   numberField,
   numberFields,
-  showIconField,
+  headFields,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -129,6 +129,7 @@ export class FluvyBatteriesCard extends Card<BatteriesCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<BatteriesCardConfig>()([
@@ -178,7 +179,7 @@ export class FluvyBatteriesCard extends Card<BatteriesCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), numberField('reserve', 0, 100, 1)),
-        showIconField(),
+        headFields(),
         entityField(['select', 'input_select'], 'mode', false),
         ...colourFields(),
         numberFields({ units: LADDERS.power }),

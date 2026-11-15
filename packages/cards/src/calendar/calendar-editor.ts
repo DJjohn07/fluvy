@@ -13,7 +13,7 @@ import {
   onlyWhen,
   optionChoices,
   selectField,
-  showIconField,
+  headFields,
   textField,
   toneField,
 } from '../shared/form.js';
@@ -45,6 +45,7 @@ export const base: readonly BaseKey[] = [
   'card_border',
   'unavailable',
   'show_icon',
+  'name_lines',
 ];
 
 export const keys = configKeys<CalendarCardConfig>()([
@@ -105,7 +106,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entitiesField('entities', ['calendar'], true),
       fieldRow(selectField('variant', VIEWS), textField('title')),
-      showIconField(),
+      headFields(),
       // what each view reads, shown with it: the tile which of its two, the week and the month their first day — the
       // week's may be today's, a rolling week (#111) — the upcoming list its days, the timeline its hours
       onlyWhen(viewIs('tile'), selectField('tile', ['date', 'next'])),

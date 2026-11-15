@@ -68,7 +68,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import type { EditorChoices, EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
@@ -164,6 +164,7 @@ export class FluvyEnergySankeyCard extends Card<EnergySankeyCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergySankeyCardConfig>()([
@@ -203,7 +204,7 @@ export class FluvyEnergySankeyCard extends Card<EnergySankeyCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('period', PERIODS)),
-        showIconField(),
+        headFields(),
         // a date picker to follow; the chips while none is followed
         fieldRow(
           collectionField(),

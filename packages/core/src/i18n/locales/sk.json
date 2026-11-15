@@ -2992,7 +2992,10 @@
     "charts.preview_sub": "Vaše grafy s týmito nastaveniami",
     "dashboard.thermostat_state": "Stav termostatov",
     "dashboard.brief": "Stručne",
-    "dashboard.detailed": "Podrobne"
+    "dashboard.detailed": "Podrobne",
+    "dashboard.name_lines": "Dlhé názvy",
+    "dashboard.one_line": "Jeden riadok",
+    "dashboard.two_lines": "Dva riadky"
   },
   "customise": {
     "title": "Prispôsobenie",

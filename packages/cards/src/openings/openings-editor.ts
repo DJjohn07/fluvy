@@ -15,7 +15,7 @@ import {
   numberField,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   sinceChoices,
   sinceField,
   textField,
@@ -42,6 +42,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -138,7 +139,8 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entitiesField('entities', ['binary_sensor', 'cover', 'lock'], true),
       titleFields(),
-      fieldRow(iconField(), showIconField()),
+      iconField(),
+      headFields(),
       ...colourFields(),
       // as many rows as asked for, past twenty too (an automatic dashboard in full asks for every one)
       fieldRow(selectField('variant', OPENINGS_VARIANTS), numberField('max_rows', 1)),

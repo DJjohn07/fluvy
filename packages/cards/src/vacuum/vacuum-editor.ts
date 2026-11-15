@@ -22,7 +22,7 @@ import {
   ownTextField,
   sectionField,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import { configKeys } from '../shared/config.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -115,7 +115,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['vacuum', 'lawn_mower']),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       fieldRow(ownTextField('subtitle'), selectField('variant', ['full', 'compact'])),
       fieldRow(boolField('show_battery'), entityField(['sensor'], 'battery_entity', false)),
       fieldRow(

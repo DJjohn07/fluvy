@@ -21,7 +21,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   unitChoicesOf,
 } from '../shared/form.js';
@@ -137,7 +137,8 @@ export function getConfigForm(): LovelaceConfigForm {
       entityField(['sensor']),
       boolField('invert'),
       fieldRow(nameField(), textField('subtitle')),
-      fieldRow(iconField(), showIconField()),
+      iconField(),
+      headFields(),
       ...colourFields(),
       // a date picker's range stands in for the window; a stacked chart draws today
       fieldRow(

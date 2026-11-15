@@ -1587,7 +1587,10 @@
     "charts.preview_sub": "Os seus gráficos com estas definições",
     "dashboard.thermostat_state": "Estado dos termóstatos",
     "dashboard.brief": "Breve",
-    "dashboard.detailed": "Detalhado"
+    "dashboard.detailed": "Detalhado",
+    "dashboard.name_lines": "Nomes longos",
+    "dashboard.one_line": "Uma linha",
+    "dashboard.two_lines": "Duas linhas"
   },
   "customise": {
     "title": "Personalizar",

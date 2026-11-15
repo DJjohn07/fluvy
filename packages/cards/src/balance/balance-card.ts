@@ -93,7 +93,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -221,6 +221,7 @@ export class FluvyEnergyBalanceCard extends Card<EnergyBalanceCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyBalanceCardConfig>()([
@@ -269,7 +270,7 @@ export class FluvyEnergyBalanceCard extends Card<EnergyBalanceCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('period', BALANCE_PERIODS)),
-        showIconField(),
+        headFields(),
         // over a period, a date picker to follow; the chips while none is followed
         fieldRow(
           onlyWhen(periodic, collectionField()),

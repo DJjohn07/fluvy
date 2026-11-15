@@ -25,6 +25,9 @@ export const EMPTY = 120;
 /** A card's content column at a 360 column. */
 export const COLUMN = 320;
 
+/** The lines a name may take (`name_lines`): YAML's figure, or the editor's word for it. */
+export type NameLines = 1 | 2 | '1' | '2';
+
 /**
  * A small tile's name in two lines where one would end it in an ellipsis (`name_lines: 2`, #100; the editor writes
  * it as the word `'2'`): the tile is a line of its name taller whatever its name says — a compact tile 12 (76 → 88,

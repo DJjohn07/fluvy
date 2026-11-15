@@ -38,7 +38,7 @@ import {
   nameIconFields,
   NUMBER_DEFAULTS,
   numberFields,
-  showIconField,
+  headFields,
   textField,
   unitChoicesOf,
 } from '../shared/form.js';
@@ -127,7 +127,7 @@ export class FluvyEvChargerCard extends Card<EvChargerCardConfig> {
       schema: [
         entityField(['sensor']),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         boolField('invert'),
         fieldRow(entityField(['sensor'], 'level', false), textField('target')),
         fieldRow(textField('ready_by'), entityField(['sensor', 'binary_sensor'], 'status', false)),

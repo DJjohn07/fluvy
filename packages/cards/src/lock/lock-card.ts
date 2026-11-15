@@ -50,7 +50,7 @@ import {
   ownTextField,
   rowItems,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 
 import { changedLine, changedShort, RowsCard, type RowsCardConfig } from './rows.js';
@@ -215,7 +215,7 @@ export class FluvyLockCard extends RowsCard<LockCardConfig> {
       schema: [
         entityField(['lock']),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         fieldRow(ownTextField('subtitle'), selectField('variant', ['full', 'compact'])),
         onlyWhen(drawsRows, boolField('show_rows')),
         entitiesField('rows'),

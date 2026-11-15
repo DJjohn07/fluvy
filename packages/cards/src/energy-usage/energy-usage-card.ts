@@ -110,7 +110,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
   unitChoices,
@@ -544,6 +544,7 @@ export class FluvyEnergyUsageCard extends Card<EnergyUsageCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<EnergyUsageCardConfig>()([
@@ -655,7 +656,7 @@ export class FluvyEnergyUsageCard extends Card<EnergyUsageCardConfig> {
         kind,
         titleFields(),
         fieldRow(iconField(), selectField('variant', VARIANTS)),
-        showIconField(),
+        headFields(),
         // what the columns stand for (the electricity's), and the plot's height where the layout has a scale
         fieldRow(
           onlyWhen(electric, selectField('mode', MODES)),

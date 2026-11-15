@@ -88,7 +88,7 @@ import {
   numberFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   unitChoicesOf,
 } from '../shared/form.js';
@@ -462,7 +462,8 @@ export class FluvyProductionCard extends Card<ProductionCardConfig> {
       schema: [
         entityField(['sensor']),
         fieldRow(nameField(), textField('subtitle')),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         ...colourFields(),
         choiceField('day', [
           ['today', 'common.today'],

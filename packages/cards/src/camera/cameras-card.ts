@@ -57,7 +57,7 @@ import {
   numberField,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
   toneField,
 } from '../shared/form.js';
@@ -307,6 +307,7 @@ export class FluvyCamerasCard extends Card<CamerasCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<CamerasCardConfig>()([
@@ -386,7 +387,8 @@ export class FluvyCamerasCard extends Card<CamerasCardConfig> {
     return {
       schema: [
         titleFields(),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         { name: 'area', selector: { area: {} } },
         entitiesField('entities', ['camera']),
         fieldRow(

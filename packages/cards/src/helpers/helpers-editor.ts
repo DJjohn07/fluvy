@@ -14,7 +14,7 @@ import {
   selectField,
   selectRowChoices,
   selectRowFields,
-  showIconField,
+  headFields,
   sinceChoices,
   sinceField,
   sliderFields,
@@ -40,6 +40,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
   'slider_style',
   'slider_words',
@@ -99,7 +100,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       fieldRow(iconField(), selectField('options_style', ['full', 'chips'])),
-      showIconField(),
+      headFields(),
       // its numbers' rulers in a style
       ...sliderFields(),
       ...colourFields(),

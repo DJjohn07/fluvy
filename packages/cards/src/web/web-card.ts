@@ -34,7 +34,7 @@ import {
   onlyWhen,
   type OptionWord,
   selectField,
-  showIconField,
+  headFields,
   textField,
 } from '../shared/form.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -306,6 +306,7 @@ export class FluvyWebCard extends Card<WebCardConfig> {
   static override base: readonly BaseKey[] = [
     'icon',
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
     'tone',
     'color',
@@ -376,7 +377,7 @@ export class FluvyWebCard extends Card<WebCardConfig> {
         selectField('variant', VARIANTS),
         // the head is the plate variant's alone
         onlyWhen(isPlate, fieldRow(textField('title'), iconField())),
-        onlyWhen(isPlate, showIconField()),
+        onlyWhen(isPlate, headFields()),
         onlyWhen(isPlate, textField('subtitle')),
         // a height written decides the plate: the shape has no say then
         fieldRow(

@@ -115,6 +115,8 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  // its controls' names, not its head's (#100)
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -140,7 +142,6 @@ export const keys = configKeys<RoomCardConfig>()([
   'include',
   'exclude',
   'tint',
-  'name_lines',
   'switch_style',
   'light_colors',
   'light_whites',

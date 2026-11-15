@@ -12,7 +12,7 @@ import {
   onlyWhen,
   ownTextField,
   selectField,
-  showIconField,
+  headFields,
   sliderFields,
   textField,
 } from '../shared/form.js';
@@ -62,7 +62,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['cover', 'valve']),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       fieldRow(ownTextField('subtitle'), numberField('tilt_angle', 0, 360)),
       fieldRow(
         selectField('variant', ['full', 'compact']),

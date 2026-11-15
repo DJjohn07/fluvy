@@ -27,7 +27,7 @@ import {
   orderedField,
   ownTextField,
   selectField,
-  showIconField,
+  headFields,
   textField,
   unitChoicesOf,
 } from '../shared/form.js';
@@ -112,7 +112,7 @@ export function getConfigForm(): LovelaceConfigForm {
       ),
       // a moving gauge moves, or rests on its first frame
       onlyWhen(moving, boolField('animate')),
-      showIconField(),
+      headFields(),
       ...colourFields(),
       fieldRow(
         numberField('min', -1_000_000, 1_000_000, 0.1),

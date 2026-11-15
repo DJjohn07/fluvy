@@ -1,6 +1,6 @@
 import { strings, type LovelaceConfigForm } from '@fluvy/core';
 import { tintsAtRest } from '../tile/tile-card.js';
-import { ENTITY_BASE, ICON_ACTIONS_BASE } from '../shared/base.js';
+import { ENTITY_BASE, ICON_ACTIONS_BASE, type BaseKey } from '../shared/base.js';
 import { configKeys } from '../shared/config.js';
 import {
   actionFields,
@@ -40,7 +40,7 @@ const HELPERS: Readonly<Record<string, () => string>> = {
   color: () => s(editorLanguage(), 'editor.color_helper'),
 };
 
-export const base = [...ENTITY_BASE, ...ICON_ACTIONS_BASE];
+export const base: readonly BaseKey[] = [...ENTITY_BASE, 'name_lines', ...ICON_ACTIONS_BASE];
 
 export const keys = configKeys<TemplateCardConfig>()([
   'secondary',
@@ -48,7 +48,6 @@ export const keys = configKeys<TemplateCardConfig>()([
   'active',
   'tint',
   'variant',
-  'name_lines',
   'show_switch',
   'switch_style',
   'readouts',

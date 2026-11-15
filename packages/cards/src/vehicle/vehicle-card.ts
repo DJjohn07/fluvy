@@ -64,7 +64,7 @@ import {
   numberField,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   textField,
   unitChoices,
 } from '../shared/form.js';
@@ -804,6 +804,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<VehicleCardConfig>()([
@@ -937,7 +938,7 @@ export class FluvyVehicleCard extends Card<VehicleCardConfig> {
         entityField(undefined, 'entity', false),
         boolField('scan'),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         selectField('variant', VEHICLE_VARIANTS),
         onlyWhen(full, selectField('hero', ['ruler', 'ring'])),
         onlyWhen(notMini, textField('image')),

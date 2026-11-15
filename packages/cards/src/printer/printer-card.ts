@@ -51,7 +51,7 @@ import {
   nameIconFields,
   orderedField,
   selectField,
-  showIconField,
+  headFields,
 } from '../shared/form.js';
 import {
   clockSeconds,
@@ -574,6 +574,7 @@ export class FluvyPrinterCard extends Card<PrinterCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<PrinterCardConfig>()([
@@ -632,7 +633,7 @@ export class FluvyPrinterCard extends Card<PrinterCardConfig> {
         },
         entityField(undefined, 'entity', false),
         nameIconFields(),
-        showIconField(),
+        headFields(),
         selectField('variant', PRINTER_VARIANTS),
         orderedField(
           'readouts',

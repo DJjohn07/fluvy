@@ -53,6 +53,8 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  // its tiles' names, not its head's (#100)
+  'name_lines',
   ...ICON_ACTIONS_BASE,
   'slider_style',
   'slider_words',
@@ -62,7 +64,6 @@ export const keys = configKeys<LightsCardConfig>()([
   'area',
   'lights',
   'variant',
-  'name_lines',
   'switch_style',
   'show_count',
   'show_level',

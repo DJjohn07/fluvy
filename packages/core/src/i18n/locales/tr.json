@@ -1587,7 +1587,10 @@
     "charts.preview_sub": "Bu ayarlarla grafikleriniz",
     "dashboard.thermostat_state": "Termostatların durumu",
     "dashboard.brief": "Kısa",
-    "dashboard.detailed": "Ayrıntılı"
+    "dashboard.detailed": "Ayrıntılı",
+    "dashboard.name_lines": "Uzun adlar",
+    "dashboard.one_line": "Tek satır",
+    "dashboard.two_lines": "İki satır"
   },
   "customise": {
     "title": "Özelleştirme",

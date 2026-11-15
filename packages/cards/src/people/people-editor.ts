@@ -14,7 +14,7 @@ import {
   iconField,
   nameField,
   selectField,
-  showIconField,
+  headFields,
   sinceChoices,
   sinceField,
   textField,
@@ -38,6 +38,7 @@ export const base: readonly BaseKey[] = [
   'card_border',
   'unavailable',
   'show_icon',
+  'name_lines',
   ...ACTIONS_BASE,
   ...ICON_ACTIONS_BASE,
 ];
@@ -95,7 +96,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entitiesField('entities', ['person', 'device_tracker'], true),
       fieldRow(textField('title'), iconField()),
-      showIconField(),
+      headFields(),
       fieldRow(selectField('variant', ['grid', 'rows']), textField('map_path')),
       fieldRow(boolField('show_zone'), boolField('show_time')),
       boolField('show_battery'),

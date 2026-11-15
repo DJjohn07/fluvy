@@ -12,7 +12,7 @@ import {
   nameIconFields,
   onlyWhen,
   selectField,
-  showIconField,
+  headFields,
   sliderFields,
   textField,
   tintField,
@@ -68,7 +68,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(DOMAINS),
       nameIconFields(),
-      onlyWhen((data) => !tile(data), showIconField()),
+      onlyWhen((data) => !tile(data), headFields()),
       fieldRow(
         selectField('variant', VARIANTS),
         // the − and + are the full card's

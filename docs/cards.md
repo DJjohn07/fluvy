@@ -18,7 +18,18 @@ cards) also takes `slider_style` (the style its sliders are drawn in: `ruler`, `
 left out or `house`, the house's — see [the settings panel](settings-panel.md#sliders)) and `slider_words` (the
 figures under a bar or a liquid: `ends`, the ends and the middle, or `none`). A card with a head also takes `show_icon`: `auto` (the default: the circle gives way where
 a long name in a narrow column needs its room, and only then), `always` (the circle stays while the name keeps a
-few letters beside it: a smaller circle first, then none) or `never`. An `icon` left out — a card's, a row's or a
+few letters beside it: a smaller circle first, then none) or `never`; and `name_lines` (1.22): `1`, the default, or
+`2`, its name in two balanced lines where one would end it in an ellipsis, an ellipsis only past the second, the head
+a line taller whatever the name says, so cards side by side stay level (on the room lights and the room card,
+`name_lines` is their tiles', below; a layout with no head of its own, a tile, a row or a banner, has none to take):
+
+```yaml
+type: custom:fluvy-energy-card
+entity: sensor.inverter_e2_south_power
+name_lines: 2   # "Inverter E2 South / MPPT total power", where one line said "Inverter E2 So…"
+```
+
+An `icon` left out — a card's, a row's or a
 tile's — is the one you set for the entity in Home Assistant (in its settings, or a helper's, a scene's or a script's
 own), else Fluvy's glyph for its kind, drawn open or shut as it stands (a door, a gate, a garage, a window), else its
 integration's or Home Assistant's own: a sensor of a class Fluvy has no glyph for takes Home Assistant's, one of no

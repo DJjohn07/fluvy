@@ -56,7 +56,7 @@ import {
   numberField,
   numberFields,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import type { EditorChoices, EditorDefaults, RowsListSpec } from '../shared/rows-editor.js';
@@ -227,6 +227,7 @@ export class FluvyMetersCard extends Card<MetersCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<MetersCardConfig>()([
@@ -285,7 +286,8 @@ export class FluvyMetersCard extends Card<MetersCardConfig> {
       schema: [
         titleFields(),
         fieldRow(iconField(), selectField('variant', METERS_VARIANTS)),
-        fieldRow(showIconField(), collectionField()),
+        headFields(),
+        collectionField(),
         ...colourFields(),
         numberFields({ units: LADDERS.volume }),
         actionFields({ icon: true }),

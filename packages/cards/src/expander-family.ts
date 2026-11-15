@@ -1,5 +1,6 @@
 import { layoutHeightOf, type LovelaceCardConfig } from '@fluvy/core';
 import type { FamilyEntry } from './energy-family.js';
+import { headLines } from './shared/head-lines.js';
 
 /**
  * The Expander card, announced at start and defined when its chunk lands (`expander-cards.ts`), as the template card
@@ -47,10 +48,11 @@ export const expanderRound = (config: LovelaceCardConfig): number =>
 
 /**
  * The card folded, which is how the dashboard plans it. Its head alone: 84 on its surface (the head's 44 in the
- * card's 20 above and below), 44 with none (`style: plain`); or the cards that stand as its head (`head_cards`,
- * #186) by what each declares, row by row in the columns a 360 section holds beside its round — one of another
- * maker counted as the head it stands for. Under it the foot, where its chevron stands there (`chevron_position:
- * bottom`): its row, 8 under a head on the page. What it holds is the person's to open.
+ * card's 20 above and below), 44 with none (`style: plain`), a line taller where its name takes two (counted where its
+ * height is read: `headLines`); or the cards that stand as its head (`head_cards`, #186) by what each declares, its
+ * head's lines too, row by row in the columns a 360 section holds beside its round — one of another maker counted as
+ * the head it stands for. Under it the foot, where its chevron stands there (`chevron_position: bottom`): its row, 8
+ * under a head on the page. What it holds is the person's to open.
  */
 export function expanderHeight(config: LovelaceCardConfig): number {
   const bare = plain(config);
@@ -72,7 +74,7 @@ export function expanderHeight(config: LovelaceCardConfig): number {
         ...cards
           .slice(at, at + columns)
           .map((card: LovelaceCardConfig | null) =>
-            typeof card?.type === 'string' ? layoutHeightOf(card, head) : head,
+            typeof card?.type === 'string' ? layoutHeightOf(card, head) + headLines(card) : head,
           ),
       );
   return height;

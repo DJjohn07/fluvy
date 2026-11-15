@@ -72,7 +72,7 @@ import {
   onlyWhen,
   pickFields,
   selectField,
-  showIconField,
+  headFields,
   titleFields,
 } from '../shared/form.js';
 import type {
@@ -651,6 +651,7 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
     'unavailable',
     ...ACTIONS_BASE,
     'show_icon',
+    'name_lines',
     ...ICON_ACTIONS_BASE,
   ];
   static override keys = configKeys<ChartCardConfig>()([
@@ -719,7 +720,8 @@ export class FluvyChartCard extends Card<ChartCardConfig> {
     return {
       schema: [
         titleFields(),
-        fieldRow(iconField(), showIconField()),
+        iconField(),
+        headFields(),
         ...colourFields(),
         // the lists are edited item by item (the rows editor takes these fields out of the form)
         { name: 'series', selector: { object: {} } },

@@ -11,7 +11,7 @@ import {
   iconField,
   nameIconFields,
   numberField,
-  showIconField,
+  headFields,
   textField,
   titleFields,
 } from '../shared/form.js';
@@ -34,6 +34,7 @@ export const base: readonly BaseKey[] = [
   'unavailable',
   ...ACTIONS_BASE,
   'show_icon',
+  'name_lines',
   ...ICON_ACTIONS_BASE,
 ];
 
@@ -61,7 +62,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       titleFields(),
       fieldRow(iconField(), numberField('columns', 1, 3)),
-      showIconField(),
+      headFields(),
       ...colourFields(),
       entitiesField('entities', ACTION_DOMAINS, true),
       emptyFields(),

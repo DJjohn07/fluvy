@@ -10,7 +10,7 @@ import {
   nameIconFields,
   ownTextField,
   selectField,
-  showIconField,
+  headFields,
   sliderFields,
   whenOffField,
 } from '../shared/form.js';
@@ -49,7 +49,7 @@ export function getConfigForm(): LovelaceConfigForm {
     schema: [
       entityField(['fan']),
       nameIconFields(),
-      showIconField(),
+      headFields(),
       fieldRow(ownTextField('subtitle'), selectField('variant', ['full', 'compact'])),
       boolField('show_stepper'),
       fieldRow(boolField('show_presets'), selectField('preset_style', ['full', 'chips'])),

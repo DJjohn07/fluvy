@@ -1587,7 +1587,10 @@
     "charts.preview_sub": "I tuoi grafici con queste impostazioni",
     "dashboard.thermostat_state": "Stato dei termostati",
     "dashboard.brief": "Breve",
-    "dashboard.detailed": "Dettagliato"
+    "dashboard.detailed": "Dettagliato",
+    "dashboard.name_lines": "Nomi lunghi",
+    "dashboard.one_line": "Una riga",
+    "dashboard.two_lines": "Due righe"
   },
   "customise": {
     "title": "Personalizzazione",

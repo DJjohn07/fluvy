@@ -1,0 +1,35 @@
+import type { LovelaceCardConfig } from '@fluvy/core';
+import { applianceVariant } from '../appliance-variant.js';
+import { twoLines } from './heights.js';
+
+/*
+ * A card's head with its name in two lines where one would end it in an ellipsis (`name_lines: 2`, 1.22, #191): the
+ * head is a line taller whatever its name says (44 → 68: the two lines and the line under them, 4 from its edges), so
+ * a row of cards stays level. One rule for what the card draws (`Card.nameLines` marks its host) and what it declares
+ * (counted once wherever a card's height is read: `houseHeightOf`, a card the Expander holds).
+ */
+
+/** What a head adds where its name takes two lines. */
+export const HEAD_LINE = 24;
+
+/**
+ * Where a card's `name_lines` is no head's, by `<card>:<layout>` (a layout left out is the card's default): a card that
+ * draws no head of its own, or whose `name_lines` is its tiles' names, which its own height counts (a tile, a set of
+ * them, the template card, a room's controls and its lights); and a head card's layout that draws none — a tile, a row,
+ * a banner, a picture alone, the alerts' tiles and the weather's hero (the last two their cards' defaults).
+ */
+const NO_HEAD_LINES =
+  /^(tiles?|template|lights|room|scenes?|chips|clock|energy-period|heading|hello|media|now-playing|readouts):|^alerts:(|tiles|mini|chips|banner)$|^weather:(|full)$|^web:(frame|bare)$|^(slider|sensor|calendar|chart):tile$|^(printer|remote|appliance):row$|^vehicle:mini$|^appliances:cards$/;
+
+/**
+ * What a card's head adds to its height for its name's lines: `HEAD_LINE` where its config asks for two and its
+ * layout draws a head that names it (not one turned off, `show_head: false`, nor a weather without its name), else 0.
+ */
+export function headLines(config: LovelaceCardConfig | undefined): number {
+  const card = /^custom:fluvy-(.+)-card$/.exec(String(config?.type))?.[1];
+  if (!config || card === undefined || !twoLines(config)) return 0;
+  if (config['show_head'] === false || config['show_name'] === false) return 0;
+  // an appliance's layout is its kind's where it asks for none (a kettle's row)
+  const layout = card === 'appliance' ? applianceVariant(config) : String(config['variant'] ?? '');
+  return NO_HEAD_LINES.test(`${card}:${layout}`) ? 0 : HEAD_LINE;
+}

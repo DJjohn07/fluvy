@@ -28,18 +28,22 @@ import {
   switchStyleField,
   tintField,
 } from '../shared/form.js';
-import { ENTITY_BASE, ICON_ACTIONS_BASE, SLIDER_BASE } from '../shared/base.js';
+import { ENTITY_BASE, ICON_ACTIONS_BASE, SLIDER_BASE, type BaseKey } from '../shared/base.js';
 import { configKeys } from '../shared/config.js';
 import type { EditorChoices, EditorDefaults } from '../shared/rows-editor.js';
 import { ruled, TILE_SIZES, tintsAtRest, type TileCardConfig } from './tile-card.js';
 
 /** The tile card's editor: fetched by its `editor()` the first time the card is edited, never by a dashboard. */
 
-export const base = [...ENTITY_BASE, ...SLIDER_BASE, ...ICON_ACTIONS_BASE];
+export const base: readonly BaseKey[] = [
+  ...ENTITY_BASE,
+  'name_lines',
+  ...SLIDER_BASE,
+  ...ICON_ACTIONS_BASE,
+];
 
 export const keys = configKeys<TileCardConfig>()([
   'size',
-  'name_lines',
   'show_switch',
   'switch_style',
   'show_action',
