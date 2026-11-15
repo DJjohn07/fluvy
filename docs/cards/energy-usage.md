@@ -37,7 +37,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `variant` | *Style*. The card’s layout. | choice | `full` | `full`, `compact`, `mini` |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
-| `show_badge` | *Show the badge*. | boolean | `true` |  |
+| `show_badge` | *Show the badge*. Shows the badge at the end of the head, such as the card’s state or a count. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `mode` | *What the columns show*. Shows what the house used from each source, or every flow between them. Used by the house from each source. | choice | `usage` | `usage` (Used by the house), `flows` (Metered flows) |
 | `plot_height` | *Chart height (px)*. The chart’s height in pixels. | number | `160` | 48 to 480, in steps of 4 |

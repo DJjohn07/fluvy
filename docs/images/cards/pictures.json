@@ -60,9 +60,9 @@
     "height": 920
   },
   "cover": {
-    "example": "ae5dd6149e7a",
+    "example": "09b09fb39dfa",
     "width": 784,
-    "height": 896
+    "height": 928
   },
   "fan": {
     "example": "ef3bd1ccf2c9",
@@ -173,6 +173,11 @@
     "example": "60ce4db501c1",
     "width": 784,
     "height": 1344
+  },
+  "swipe": {
+    "example": "a9e2ff4d8ba7",
+    "width": 784,
+    "height": 1112
   },
   "web": {
     "example": "5224146c0ee7",

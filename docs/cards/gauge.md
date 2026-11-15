@@ -41,7 +41,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `gauge` | *Gauge*. The gauge’s style. | choice | `ticks` | `ticks`, `dial`, `ring`, `liquid`, `thermo` (Sky), `tank`, `battery`, `pulse`, `air`, `sun` |
 | `animate` | *Animate*. Lets the chart or the gauge move as it draws; off, it shows its resting frame at once. | boolean | `true` |  |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
-| `show_badge` | *Show the badge*. | boolean | `true` |  |
+| `show_badge` | *Show the badge*. Shows the badge at the end of the head, such as the card’s state or a count. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `tone` | *Tone*. The card’s colour from the palette’s tones; left out, the tone of what it shows. | choice | the card’s own | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
 | `color` | *Colour*. The card’s colour: its circle, its accents and its tints wear it. Left out, the colour of what it shows. | colour |  |  |
@@ -61,7 +61,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `tint_style` | *Shown as*. How the colour is shown: a wash over the card, the card’s edge, or the control alone. | choice | `wash` | `wash`, `edge` |
 | `unit` | *Unit*. The unit the figures are written in; automatic keeps the sensor’s. | choice or text | `auto` | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figures have; automatic decides by their size. | choice | `auto` | `auto` (Automatic), `0`, `1`, `2`, `3` |
-| `thresholds` | *Thresholds*. A reading takes the colour of the nearest threshold it is past. | list ([its items](#thresholds)) |  |  |
+| `thresholds` | *Thresholds*. Values past which the reading takes a colour, each with its tone, and a label and an icon of its own. A reading takes the colour of the nearest threshold it is past. | list ([its items](#thresholds)) |  |  |
 
 **Interactions**
 
@@ -78,15 +78,15 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 ### `thresholds`
 
-*Thresholds*. A reading takes the colour of the nearest threshold it is past. An item is a map with `tone` and any of these keys.
+*Thresholds*. Values past which the reading takes a colour, each with its tone, and a label and an icon of its own. A reading takes the colour of the nearest threshold it is past. An item is a map with `tone` and any of these keys.
 
 | Key | What it does | Type | Values |
 | --- | --- | --- | --- |
 | `tone` | *Tone*. The item’s colour from the palette’s tones. | choice | `none`, `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |
-| `value` | *Value*. The value from which the line takes this colour. A figure, an entity or a template. | text |  |
+| `value` | *Value*. Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit. A figure, an entity or a template. | text |  |
 | `below` | *Under the value*. Counts an entity whose state, or the attribute named, is below this number. Off: from the value up. | boolean |  |
 | `color` | *Colour*. The item’s colour, in place of the one the card gives it. Empty: the colour the card gives it. | colour |  |
-| `label` | *Label*. Counts only the entities with this label. | text |  |
+| `label` | *Label*. What the band is called, said beside the reading so that colour is never all that says it. | text |  |
 | `icon` | *Icon*. The item’s own icon, in place of the one the card would give it. | icon |  |
 
 ## Older names

@@ -35,7 +35,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `reserve` | *Reserve (%): where “empty in” stops*. The charge kept back, in percent: where "empty in" counts down to. | number |  | 0 to 100 |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
-| `show_badge` | *Show the badge*. | boolean | `true` |  |
+| `show_badge` | *Show the badge*. Shows the badge at the end of the head, such as the card’s state or a count. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `mode` | *Mode (a select entity)*. A select entity of the batteries’ mode, shown as tiles to choose from. | entity (select, input_select) |  |  |
 | `tone` | *Tone*. The card’s colour from the palette’s tones; left out, the tone of what it shows. | choice | the card’s own | `accent`, `light`, `heat`, `cool`, `dry`, `fan`, `water`, `solar`, `grid`, `media`, `presence`, `armed`, `battery`, `house`, `gas`, `vehicle` (Car), `neutral`, `ok` (Good), `warning`, `danger` |

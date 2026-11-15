@@ -169,6 +169,7 @@ export const CARD_GROUPS: readonly CardGroup[] = [
       'items',
       'web',
       'expander',
+      'swipe',
     ],
   },
   {

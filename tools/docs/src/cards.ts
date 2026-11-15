@@ -257,6 +257,8 @@ export const UNDECLARED: Readonly<Record<string, string>> = {
   include: 'nothing more',
   exclude: 'nothing',
   confirm: 'each appliance’s own',
+  position_presets: 'none',
+  tilt_presets: 'none',
 };
 
 /**

@@ -32,6 +32,7 @@ import { sheet as slider } from './slider.js';
 import { sheet as sliderCard } from './slider-card.js';
 import { sheet as solar } from './solar.js';
 import { sheet as storage } from './storage.js';
+import { sheet as swipe } from './swipe.js';
 import { sheet as template } from './template.js';
 import { sheet as usage } from './usage.js';
 import { sheet as vehicle } from './vehicle.js';
@@ -101,6 +102,8 @@ export const sheet: SheetSpec = {
     chart,
     clocks,
     calendar,
+    // last: its own answers to the Energy dashboard's questions are the balance sheet's, which must not come first
+    swipe,
   ],
   frames: Object.entries(GALLERY).flatMap(([tag, example]) =>
     drawn(tag, example).map(({ name, config, cols }) => ({

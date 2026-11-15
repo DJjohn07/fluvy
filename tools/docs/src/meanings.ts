@@ -31,12 +31,13 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   card_border: 'Draws the card’s hairline border, or leaves it out.',
   card_color: 'Paints the card’s surface in a colour of your own.',
   card_opacity: 'How see-through the card’s surface is, in percent.',
-  cards: 'The cards the Expander holds and shows while it is open: any card, Fluvy’s or not.',
   chart: 'The chart’s style; left out, the style set for the whole house.',
   chevron_position: 'Where the chevron that opens and folds it stands.',
   chevron_size: 'How large the chevron is.',
   close_after:
     'Folds the card again by itself this many minutes after it was opened; 0 never does.',
+  closed_label:
+    'The word at the closed end of the position ruler and of its presets; left out, "Closed".',
   co2: 'A sensor of the grid’s fossil share, in percent, for the low-carbon ring.',
   co2_factor: 'Kilograms of CO₂ a kWh of grid power costs, for the CO₂ and the trees.',
   collection_key: 'Makes the card follow an Energy date picker on the same dashboard.',
@@ -59,6 +60,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   decimals: 'How many decimals the figures have; automatic decides by their size.',
   default_zoom: 'How close the map is drawn while it fits nobody in particular.',
   device: 'The device the card reads: every entity it has is found on it.',
+  direction: 'What the position counts: how far the cover is open, or how far it has come down.',
   domains: 'The kinds of entity a new schedule can switch.',
   done_for: 'How many minutes a finished cycle keeps saying it is done.',
   door_alert: 'How many seconds a door may stand open before the card warns of it.',
@@ -129,6 +131,10 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   import: 'A sensor of the power coming in from the grid, positive.',
   include: 'Counts these entities, devices or domains as the room’s too.',
   include_today: 'Adds the period still in progress as the last bar.',
+  invert_position:
+    'Reads the position the other way round, for a cover that reports 100 % when it is closed.',
+  invert_tilt:
+    'Reads the tilt the other way round: its figure, its slats, its presets and what it sends.',
   item_icon: 'Where each item’s icon comes from.',
   item_image: 'Where each item’s picture comes from.',
   item_name: 'Where each item’s name comes from.',
@@ -149,6 +155,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
     'How many readouts the tile’s line says: the first, or every one that can be read.',
   live_update: 'Sends the value while the slider is dragged, not only when it is let go.',
   look: 'Shows the page as it is, inverted to dark, or following the card’s mode.',
+  loop: 'Goes round from the last page to the first, and back.',
   low: 'The bottom of the comfortable band, in percent.',
   low_days: 'Says a part is soon due within this many days.',
   low_level: 'The level, in percent, below which a tank or a filter reads low.',
@@ -178,6 +185,8 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   numerals: 'The numbers drawn round the dial.',
   off_keys: 'Keeps every key alive while the device is off, or only the power key.',
   ok_label: 'Writes "OK" on the middle key, or leaves it plain.',
+  open_label:
+    'The word at the open end of the position ruler and of its presets; left out, "Open".',
   open_when: 'A condition that opens the card by itself while it holds.',
   options_style: 'Draws a select’s options as chips that fill the row, or as content-sized chips.',
   order: 'Orders the alerts by severity, or as they are listed.',
@@ -189,6 +198,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   picture_min: 'The smallest the picture becomes before a long name is shortened.',
   plot_height: 'The chart’s height in pixels.',
   points: 'How far apart the line’s points are drawn.',
+  position_presets: 'Positions offered as chips under the ruler, each a tap away.',
   power: 'One signed sensor of the grid’s power: positive while it comes in.',
   power_action: 'What the power round does.',
   power_decimals: 'How many decimals the charging power has.',
@@ -226,6 +236,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   show_arrow: 'Shows the arrows that say the room opens.',
   show_avatar: 'Shows the person’s picture.',
   show_axis: 'Shows the scale’s labels beside the chart.',
+  show_badge: 'Shows the badge at the end of the head, such as the card’s state or a count.',
   show_brightness: 'Shows the brightness ruler.',
   show_chevron: 'Shows the chevron that opens and folds the card.',
   show_climate: 'Shows the room’s temperature and humidity.',
@@ -256,6 +267,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   show_hero: 'Shows the large figures: the time left, the temperature, the compartments.',
   show_house: 'Draws the house’s use as a line over the sources.',
   show_icon: 'Shows the icon, hides it, or lets the card decide.',
+  show_indicators: 'Shows the page marks under the cards, each a button to its page.',
   show_last: 'Says when each automation last ran.',
   show_legend: 'Shows the legend under the chart.',
   show_level: 'Shows the lights’ brightness: the average, and a ring round each round.',
@@ -288,7 +300,6 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   show_seconds: 'Shows the seconds: the second hand on a dial, the seconds after the digits.',
   show_soc: 'Draws the batteries’ state of charge as a dashed line.',
   show_source: 'Shows the player’s sources to choose from.',
-  show_state: 'Says in the head what it is doing.',
   show_stats: 'Shows the row of figures under the gauge.',
   show_stepper: 'Shows the − and + buttons.',
   show_subtitle: 'Shows the line under the name.',
@@ -324,6 +335,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   stack: 'Stacks the sources on top of each other.',
   stale_after: 'Says when the car last reported, once it has said nothing for this many minutes.',
   start_hour: 'The hour the timeline starts at.',
+  start: 'The page the card opens on, counted from 1.',
   stat: 'What each bar shows: what the meter gained, its reading, the mean, the highest or the lowest.',
   state_colors:
     'A colour for each of the device’s states, held under this key: a tone, none, or a colour of your own.',
@@ -338,7 +350,9 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   target: 'Where the charge should stop: a percentage, or an entity that holds one.',
   temperature_tint: 'Tints the colour temperature ruler from warm to cool.',
   tile: 'What the tile shows: the date, or the next event.',
+  tilt_presets: 'Tilts offered as chips under the tilt control, each a tap away.',
   tilt_angle: 'The slats’ angle at 100 % tilt: the tilt then reads in degrees.',
+  tilt_style: 'How the tilt is set: its figure with − and +, or its slats on a ruler.',
   time: 'Which times the card says: the time left, the time it ends, or both.',
   time_step: 'How many minutes the time arrows of a schedule move by.',
   time_zone: 'The time zone the clock shows, as an IANA name.',
@@ -434,6 +448,8 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'ev-charger.invert':
     'Reads the charger’s sensor the other way round, for one that counts charging as negative.',
   'ev-charger.status': 'A sensor that says whether the car is charging or connected.',
+  'expander.cards':
+    'The cards the Expander holds and shows while it is open: any card, Fluvy’s or not.',
   'expander.columns': 'How many of its cards stand side by side.',
   'expander.entities': 'The entities the head’s line counts ("2 of 5 on").',
   'expander.title': 'The title in the head.',
@@ -518,6 +534,11 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'stat-tiles.entity': 'An entity whose value stands large over the tiles.',
   'template.name_lines':
     'Lets the tile’s name take two lines where one would cut it, the tile a line taller.',
+  'swipe.autoplay':
+    'Turns to the next page by itself every this many seconds; 0, only a person turns it.',
+  'swipe.cards': 'The cards it holds, one a page: any card, Fluvy’s or not.',
+  'swipe.columns': 'How many of its cards stand side by side, as many as the width holds.',
+  'swipe.remember': 'Where the page it was left on is kept: this tab while it is open, or nowhere.',
   'template.secondary': 'The line under the name: a keyword, your own words, or a template.',
   'thermostat.image':
     'A picture of your own in the dial’s circle: an address, or an entity whose picture it is.',
@@ -558,6 +579,8 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'rows[]': 'The rows the card lists, in this order.',
   'sensors[]': 'More readouts from any of the device’s entities, after the card’s own.',
   'sources[]': 'The sources of energy, each with its sensors; left out, the Energy dashboard’s.',
+  'thresholds[]':
+    'Values past which the reading takes a colour, each with its tone, and a label and an icon of its own.',
   'tiles[]': 'The tiles, in the order they are drawn.',
 
   // ---- one card's list ----
@@ -674,7 +697,8 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   '[].invert': 'Reads the sensor the other way round.',
   '[].key': 'Which key it is.',
   '[].kind': 'What the item is.',
-  '[].label': 'Counts only the entities with this label.',
+  '[].label':
+    'What the band is called, said beside the reading so that colour is never all that says it.',
   '[].labels': 'Names of your own for the options.',
   '[].level': 'A sensor of its state of charge.',
   '[].low': 'Below this value the row turns to a warning.',
@@ -729,6 +753,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   '[].temperature': 'The temperature a new schedule sets.',
   '[].template': 'A template of your own for the figure.',
   '[].threshold': 'Below this many watts the source’s lane rests.',
+  '[].thresholds': 'Thresholds of the item’s own: values past which its reading takes a colour.',
   '[].tilt': 'The tilt the favourite moves the slats to.',
   '[].time_key': 'The key of each entry that holds its time.',
   '[].tone': 'The item’s colour from the palette’s tones.',
@@ -737,7 +762,8 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   '[].unavailable': 'How the tile looks while its entity is unavailable.',
   '[].unchanged_for': 'Counts an entity whose state has not changed for this long.',
   '[].unit': 'The unit the figure is written in.',
-  '[].value': 'The value from which the line takes this colour.',
+  '[].value':
+    'Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit.',
   '[].value_key': 'The key of each entry that holds its value.',
   '[].verb': 'What a new schedule for it does: turn it on or off, open, close, or run it.',
 
@@ -745,6 +771,7 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'alerts.alerts[].device': 'Counts only the entities of these devices.',
   'alerts.alerts[].device_class': 'Counts only the entities of these device classes.',
   'alerts.alerts[].entity': 'Counts only these entities.',
+  'alerts.alerts[].label': 'Counts only the entities with this label.',
   'alerts.alerts[].name': 'The alert’s name.',
   'alerts.alerts[].secondary': 'The message under the alert’s name.',
   'alerts.alerts[].since': 'Where the time the alert began is read from.',

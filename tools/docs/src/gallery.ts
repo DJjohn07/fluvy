@@ -181,6 +181,7 @@ export const GALLERY: Readonly<Record<string, Example>> = {
       entity: 'cover.blinds',
       subtitle: 'Living room · window',
       tilt_angle: 90,
+      tilt_style: 'slats',
       favorites: [
         { name: 'Morning', position: 60 },
         { name: 'Night', position: 0, tilt: 0 },
@@ -414,6 +415,18 @@ export const GALLERY: Readonly<Record<string, Example>> = {
         },
       ],
       expanded: true,
+    },
+    layout: 'style',
+    variants: { plain: {} },
+  },
+  'fluvy-swipe-card': {
+    config: {
+      type: 'custom:fluvy-swipe-card',
+      cards: [
+        { type: 'custom:fluvy-room-card', area: 'rm_living', path: '/fluvy-auto/room-rm_living' },
+        { type: 'custom:fluvy-room-card', area: 'rm_kitchen' },
+        { type: 'custom:fluvy-room-card', area: 'rm_bedroom' },
+      ],
     },
     layout: 'style',
     variants: { plain: {} },

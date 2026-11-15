@@ -372,6 +372,7 @@
         {
           "key": "thresholds",
           "label": "Thresholds",
+          "does": "Values past which the reading takes a colour, each with its tone, and a label and an icon of its own.",
           "helper": "A reading takes the colour of the nearest threshold it is past",
           "id": "tone",
           "item": [
@@ -408,7 +409,7 @@
             {
               "key": "value",
               "label": "Value",
-              "does": "The value from which the line takes this colour.",
+              "does": "Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit.",
               "helper": "A figure, an entity or a template",
               "type": "text",
               "required": true
@@ -430,7 +431,7 @@
             {
               "key": "label",
               "label": "Label",
-              "does": "Counts only the entities with this label.",
+              "does": "What the band is called, said beside the reading so that colour is never all that says it.",
               "type": "text"
             },
             {
@@ -865,6 +866,7 @@
             {
               "key": "thresholds",
               "label": "Thresholds",
+              "does": "Thresholds of the item’s own: values past which its reading takes a colour.",
               "type": "object"
             },
             {
@@ -2596,6 +2598,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -5055,13 +5058,14 @@
         "light": "images/cards/cover-light.webp",
         "dark": "images/cards/cover-dark.webp",
         "width": 784,
-        "height": 896
+        "height": 928
       },
       "example": {
         "type": "custom:fluvy-cover-card",
         "entity": "cover.blinds",
         "subtitle": "Living room · window",
         "tilt_angle": 90,
+        "tilt_style": "slats",
         "favorites": [
           {
             "name": "Morning",
@@ -5088,6 +5092,7 @@
           "entity": "cover.blinds",
           "subtitle": "Living room · window",
           "tilt_angle": 90,
+          "tilt_style": "slats",
           "favorites": [
             {
               "name": "Morning",
@@ -5137,6 +5142,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -5204,6 +5210,7 @@
         {
           "key": "direction",
           "label": "Position counts",
+          "does": "What the position counts: how far the cover is open, or how far it has come down.",
           "type": "choice",
           "default": "up",
           "values": {
@@ -5214,6 +5221,7 @@
         {
           "key": "invert_position",
           "label": "Position reversed",
+          "does": "Reads the position the other way round, for a cover that reports 100 % when it is closed.",
           "helper": "For a cover that reports 100 % when it is closed; best put right in its integration",
           "type": "boolean",
           "default": false
@@ -5221,7 +5229,9 @@
         {
           "key": "position_presets",
           "label": "Position presets",
+          "does": "Positions offered as chips under the ruler, each a tap away.",
           "type": "choices or text",
+          "default_in_words": "none",
           "values": {
             "0": "0 %",
             "25": "25 %",
@@ -5233,16 +5243,19 @@
         {
           "key": "open_label",
           "label": "Word for open",
+          "does": "The word at the open end of the position ruler and of its presets; left out, \"Open\".",
           "type": "text"
         },
         {
           "key": "closed_label",
           "label": "Word for closed",
+          "does": "The word at the closed end of the position ruler and of its presets; left out, \"Closed\".",
           "type": "text"
         },
         {
           "key": "tilt_style",
           "label": "Tilt as",
+          "does": "How the tilt is set: its figure with − and +, or its slats on a ruler.",
           "type": "choice",
           "default": "steps",
           "values": {
@@ -5253,13 +5266,16 @@
         {
           "key": "invert_tilt",
           "label": "Tilt reversed",
+          "does": "Reads the tilt the other way round: its figure, its slats, its presets and what it sends.",
           "type": "boolean",
           "default": false
         },
         {
           "key": "tilt_presets",
           "label": "Tilt presets",
+          "does": "Tilts offered as chips under the tilt control, each a tap away.",
           "type": "choices or text",
+          "default_in_words": "none",
           "values": {
             "0": "0 %",
             "25": "25 %",
@@ -5930,6 +5946,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -6315,6 +6332,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -6738,6 +6756,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -8102,6 +8121,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -8524,6 +8544,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -10041,6 +10062,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -11290,6 +11312,7 @@
         {
           "key": "thresholds",
           "label": "Thresholds",
+          "does": "Values past which the reading takes a colour, each with its tone, and a label and an icon of its own.",
           "helper": "A reading takes the colour of the nearest threshold it is past",
           "id": "tone",
           "item": [
@@ -11326,7 +11349,7 @@
             {
               "key": "value",
               "label": "Value",
-              "does": "The value from which the line takes this colour.",
+              "does": "Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit.",
               "helper": "A figure, an entity or a template",
               "type": "text",
               "required": true
@@ -11348,7 +11371,7 @@
             {
               "key": "label",
               "label": "Label",
-              "does": "Counts only the entities with this label.",
+              "does": "What the band is called, said beside the reading so that colour is never all that says it.",
               "helper": "Under its readout when other sensors share the chart. Empty: its measure's word, or its name beyond the title.",
               "type": "text"
             },
@@ -11617,6 +11640,7 @@
             {
               "key": "thresholds",
               "label": "Thresholds",
+              "does": "Thresholds of the item’s own: values past which its reading takes a colour.",
               "type": "object"
             },
             {
@@ -13790,6 +13814,7 @@
             {
               "key": "thresholds",
               "label": "Thresholds",
+              "does": "Thresholds of the item’s own: values past which its reading takes a colour.",
               "type": "object"
             },
             {
@@ -15109,6 +15134,31 @@
       "description": "Any cards, one a page, turned by a swipe or the page marks under them: side by side on a wide screen, round from the last to the first.",
       "section": "Structure and navigation",
       "page": "cards/swipe.md",
+      "demo": "https://acosta290.github.io/fluvy/?card=swipe",
+      "pictures": {
+        "light": "images/cards/swipe-light.webp",
+        "dark": "images/cards/swipe-dark.webp",
+        "width": 784,
+        "height": 1112
+      },
+      "example": {
+        "type": "custom:fluvy-swipe-card",
+        "cards": [
+          {
+            "type": "custom:fluvy-room-card",
+            "area": "rm_living",
+            "path": "/fluvy-auto/room-rm_living"
+          },
+          {
+            "type": "custom:fluvy-room-card",
+            "area": "rm_kitchen"
+          },
+          {
+            "type": "custom:fluvy-room-card",
+            "area": "rm_bedroom"
+          }
+        ]
+      },
       "layout": {
         "key": "style",
         "values": [
@@ -15117,7 +15167,27 @@
         ],
         "default": "card"
       },
-      "layouts": {},
+      "layouts": {
+        "plain": {
+          "type": "custom:fluvy-swipe-card",
+          "cards": [
+            {
+              "type": "custom:fluvy-room-card",
+              "area": "rm_living",
+              "path": "/fluvy-auto/room-rm_living"
+            },
+            {
+              "type": "custom:fluvy-room-card",
+              "area": "rm_kitchen"
+            },
+            {
+              "type": "custom:fluvy-room-card",
+              "area": "rm_bedroom"
+            }
+          ],
+          "style": "plain"
+        }
+      },
       "keys": [
         {
           "key": "style",
@@ -15133,7 +15203,7 @@
         {
           "key": "columns",
           "label": "Cards side by side",
-          "does": "How many items stand side by side in a row.",
+          "does": "How many of its cards stand side by side, as many as the width holds.",
           "type": "choice",
           "default": "1",
           "values": {
@@ -15154,6 +15224,7 @@
         {
           "key": "start",
           "label": "Page shown first",
+          "does": "The page the card opens on, counted from 1.",
           "type": "number",
           "default": 1,
           "range": "1 or more"
@@ -15161,19 +15232,21 @@
         {
           "key": "show_indicators",
           "label": "Show the page marks",
+          "does": "Shows the page marks under the cards, each a button to its page.",
           "type": "boolean",
           "default": true
         },
         {
           "key": "loop",
           "label": "Go round from the last page",
+          "does": "Goes round from the last page to the first, and back.",
           "type": "boolean",
           "default": false
         },
         {
           "key": "remember",
           "label": "Remember the page",
-          "does": "Where the way it was left open or folded is kept: this device, the person, or nowhere.",
+          "does": "Where the page it was left on is kept: this tab while it is open, or nowhere.",
           "type": "choice",
           "default": "session",
           "values": {
@@ -15184,6 +15257,7 @@
         {
           "key": "autoplay",
           "label": "Turn by itself every (seconds)",
+          "does": "Turns to the next page by itself every this many seconds; 0, only a person turns it.",
           "helper": "0: only a person turns it. It waits while a finger, the pointer or the focus is on it",
           "type": "number",
           "default": 0,
@@ -15221,7 +15295,7 @@
         {
           "key": "cards",
           "label": "Cards",
-          "does": "The cards the Expander holds and shows while it is open: any card, Fluvy’s or not.",
+          "does": "The cards it holds, one a page: any card, Fluvy’s or not.",
           "type": "object"
         }
       ],
@@ -16993,6 +17067,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -17201,6 +17276,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -18111,6 +18187,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -19885,6 +19962,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -20270,6 +20348,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -20592,6 +20671,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -20901,6 +20981,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -21722,6 +21803,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -22616,6 +22698,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -22868,6 +22951,7 @@
         {
           "key": "thresholds",
           "label": "Thresholds",
+          "does": "Values past which the reading takes a colour, each with its tone, and a label and an icon of its own.",
           "helper": "A reading takes the colour of the nearest threshold it is past",
           "id": "tone",
           "item": [
@@ -22904,7 +22988,7 @@
             {
               "key": "value",
               "label": "Value",
-              "does": "The value from which the line takes this colour.",
+              "does": "Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit.",
               "helper": "A figure, an entity or a template",
               "type": "text",
               "required": true
@@ -22926,7 +23010,7 @@
             {
               "key": "label",
               "label": "Label",
-              "does": "Counts only the entities with this label.",
+              "does": "What the band is called, said beside the reading so that colour is never all that says it.",
               "type": "text"
             },
             {
@@ -23446,6 +23530,7 @@
             {
               "key": "thresholds",
               "label": "Thresholds",
+              "does": "Thresholds of the item’s own: values past which its reading takes a colour.",
               "type": "object"
             },
             {
@@ -23543,6 +23628,7 @@
             {
               "key": "thresholds",
               "label": "Thresholds",
+              "does": "Thresholds of the item’s own: values past which its reading takes a colour.",
               "type": "object"
             },
             {
@@ -23698,6 +23784,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -25430,7 +25517,7 @@
             {
               "key": "value",
               "label": "Value",
-              "does": "The value from which the line takes this colour.",
+              "does": "Where the threshold starts: a figure, an entity’s reading or a template’s answer, in the reading’s unit.",
               "helper": "A figure, an entity or a template",
               "type": "text",
               "required": true
@@ -25452,7 +25539,7 @@
             {
               "key": "label",
               "label": "Label",
-              "does": "Counts only the entities with this label.",
+              "does": "What the band is called, said beside the reading so that colour is never all that says it.",
               "type": "text"
             },
             {
@@ -25644,6 +25731,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -26080,6 +26168,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },
@@ -26453,6 +26542,7 @@
         {
           "key": "show_badge",
           "label": "Show the badge",
+          "does": "Shows the badge at the end of the head, such as the card’s state or a count.",
           "type": "boolean",
           "default": true
         },

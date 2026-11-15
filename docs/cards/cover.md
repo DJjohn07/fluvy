@@ -13,6 +13,7 @@ type: custom:fluvy-cover-card
 entity: cover.blinds
 subtitle: Living room · window
 tilt_angle: 90
+tilt_style: slats
 favorites:
   - name: Morning
     position: 60
@@ -41,7 +42,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `name` | *Name*. The name the card shows, in place of the entity’s own. | name |  |  |
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
-| `show_badge` | *Show the badge*. | boolean | `true` |  |
+| `show_badge` | *Show the badge*. Shows the badge at the end of the head, such as the card’s state or a count. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `subtitle` | *Subtitle*. The line under the title. Your own words, an entity (its state), or a template such as {{ states('sensor.x') }}. | text |  |  |
 | `tilt_angle` | *Tilt in degrees: angle at 100 %*. The slats’ angle at 100 % tilt: the tilt then reads in degrees. | number |  | 0 to 360 |
@@ -66,14 +67,14 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 
 | Key | What it does | Type | Default | Values |
 | --- | --- | --- | --- | --- |
-| `direction` | *Position counts*. | choice | `up` | `up` (How far it is open), `down` (How far it is down) |
-| `invert_position` | *Position reversed*. For a cover that reports 100 % when it is closed; best put right in its integration. | boolean | `false` |  |
-| `position_presets` | *Position presets*. | choices or text |  | `0` (0 %), `25` (25 %), `50` (50 %), `75` (75 %), `100` (100 %) |
-| `open_label` | *Word for open*. | text |  |  |
-| `closed_label` | *Word for closed*. | text |  |  |
-| `tilt_style` | *Tilt as*. | choice | `steps` | `steps`, `slats` |
-| `invert_tilt` | *Tilt reversed*. | boolean | `false` |  |
-| `tilt_presets` | *Tilt presets*. | choices or text |  | `0` (0 %), `25` (25 %), `50` (50 %), `75` (75 %), `100` (100 %) |
+| `direction` | *Position counts*. What the position counts: how far the cover is open, or how far it has come down. | choice | `up` | `up` (How far it is open), `down` (How far it is down) |
+| `invert_position` | *Position reversed*. Reads the position the other way round, for a cover that reports 100 % when it is closed. For a cover that reports 100 % when it is closed; best put right in its integration. | boolean | `false` |  |
+| `position_presets` | *Position presets*. Positions offered as chips under the ruler, each a tap away. | choices or text | none | `0` (0 %), `25` (25 %), `50` (50 %), `75` (75 %), `100` (100 %) |
+| `open_label` | *Word for open*. The word at the open end of the position ruler and of its presets; left out, "Open". | text |  |  |
+| `closed_label` | *Word for closed*. The word at the closed end of the position ruler and of its presets; left out, "Closed". | text |  |  |
+| `tilt_style` | *Tilt as*. How the tilt is set: its figure with − and +, or its slats on a ruler. | choice | `steps` | `steps`, `slats` |
+| `invert_tilt` | *Tilt reversed*. Reads the tilt the other way round: its figure, its slats, its presets and what it sends. | boolean | `false` |  |
+| `tilt_presets` | *Tilt presets*. Tilts offered as chips under the tilt control, each a tap away. | choices or text | none | `0` (0 %), `25` (25 %), `50` (50 %), `75` (75 %), `100` (100 %) |
 
 **Interactions**
 

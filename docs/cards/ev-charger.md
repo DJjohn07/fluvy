@@ -33,7 +33,7 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `name` | *Name*. The name the card shows, in place of the entity’s own. | name |  |  |
 | `icon` | *Icon*. The card’s icon, in place of the entity’s own. | icon |  |  |
 | `show_icon` | *Show the icon*. Shows the icon, hides it, or lets the card decide. | choice | `auto` | `auto` (Automatic), `always`, `never` |
-| `show_badge` | *Show the badge*. | boolean | `true` |  |
+| `show_badge` | *Show the badge*. Shows the badge at the end of the head, such as the card’s state or a count. | boolean | `true` |  |
 | `name_lines` | *Lines for the name*. Lets the name in the card’s head take two balanced lines where one would cut it; the head is a line taller whatever the name. | choice | `1` | `1`, `2` |
 | `invert` | *The sensor counts charging as negative*. Reads the charger’s sensor the other way round, for one that counts charging as negative. | boolean | `false` |  |
 | `level` | *The car’s state of charge*. A sensor of the car’s state of charge. | entity (sensor) |  |  |
