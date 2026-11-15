@@ -733,7 +733,10 @@
     "tile_fill": "Fyld",
     "house_style": "Huset ({style})",
     "label": "Label",
-    "floor": "Etage"
+    "floor": "Etage",
+    "wash": "Toning",
+    "edge": "Kant",
+    "control": "Betjening"
   },
   "tone": {
     "accent": "Accent",
@@ -837,7 +840,8 @@
     "thermostat": "Termostat",
     "vehicle": "Køretøj",
     "items": "Elementer",
-    "chart": "Graf"
+    "chart": "Graf",
+    "swipe": "Karrusel"
   },
   "activity": {
     "title": "Aktivitet",
@@ -1544,7 +1548,8 @@
     "thermostat": "Termostat, vandvarmer eller luftfugter på en skive, med tilstande, forudindstillinger og blæserhastigheder.",
     "vehicle": "En elbil: dens batteri, rækkevidde og ladegrænse, hvornår den er fuld, hvor den er, og dens lås, klima, opladning, bagagerum og vinduer på én række. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG med flere.",
     "items": "Elementerne i en sensors listeegenskab, en række hver (fly over huset, afgange, leveringer), med en forudindstilling til FlightRadar24.",
-    "chart": "Enhver tidsserie på én graf (historik, statistik, en liste i en egenskab som Nordpools priser eller en solprognose, eller en vejrudsigt) fra fortid til fremtid med nu markeret, tærskler i deres farver og de billigste timer fundet."
+    "chart": "Enhver tidsserie på én graf (historik, statistik, en liste i en egenskab som Nordpools priser eller en solprognose, eller en vejrudsigt) fra fortid til fremtid med nu markeret, tærskler i deres farver og de billigste timer fundet.",
+    "swipe": "Alle slags kort, ét pr. side, bladret med et stryg eller med sidemarkeringerne under dem: side om side på en bred skærm, rundt fra den sidste til den første."
   },
   "chart-card": {
     "title": "Graf",
@@ -2052,6 +2057,8 @@
     "window_entity": "Vindue",
     "show_low_battery": "Advar om lavt batteri",
     "found_helper": "Tom: findes på dens enhed",
+    "tint_style": "Vist som",
+    "state_colors": "Farver efter tilstand",
     "line_readouts": "Aflæsninger på linjen",
     "readouts_first": "Den første",
     "readouts_all": "Dem alle",
@@ -3087,6 +3094,15 @@
     "dashboard.thermostat_state": "Termostatens tilstand",
     "dashboard.brief": "Kort",
     "dashboard.detailed": "Detaljeret",
+    "cards.tint": "Enheder viser deres tilstands farve",
+    "cards.tint_style": "Vist som",
+    "dashboard.rooms_as": "Rum som",
+    "dashboard.room_pages": "Sider",
+    "dashboard.room_tabs": "Faner",
+    "template.lights": "Lys",
+    "template.lights_sub": "Alle lys, derefter rum for rum",
+    "template.climate": "Klima",
+    "template.climate_sub": "Termostater, blæsere og målinger, rum for rum",
     "dashboard.names": "Navne",
     "dashboard.names_auto": "Automatisk",
     "dashboard.names_entity": "Entitetsnavn",
@@ -3197,7 +3213,13 @@
     "readout_style_help": "På én række viger en etiket, der ikke er plads til, for sit ikon. På flere bliver ordene stående, og aflæsningerne ombrydes.",
     "readout_labels": "Etiketter på aflæsninger",
     "words": "Ord",
-    "icons": "Ikoner"
+    "icons": "Ikoner",
+    "show_state": "Vis dens tilstand",
+    "show_quick_states": "Vis deres tilstande",
+    "quick_states_help": "Under eller ved siden af hvert ikon: en måling med dens enhed, en dør, der er åben eller lukket, et lys' lysstyrke.",
+    "quick_state_position": "Deres tilstande",
+    "under": "Under ikonet",
+    "beside": "Ved siden af ikonet"
   },
   "sheets": {
     "more": "Mere i Home Assistant",
@@ -3310,7 +3332,29 @@
     "calendars": "Kalendere",
     "lists": "Huskelister",
     "timers": "Timere",
-    "whole_home": "Hele hjemmet"
+    "whole_home": "Hele hjemmet",
+    "all_lights": "Alle lys"
+  },
+  "swipe": {
+    "page": "Side {n} af {count}",
+    "pages": "Sider",
+    "previous": "Forrige side",
+    "next": "Næste side",
+    "counter": "{n} / {count}",
+    "empty": "Ingen kort endnu",
+    "editor.cards": "Kort",
+    "editor.cards_helper": "Ét pr. side, i denne rækkefølge",
+    "editor.style": "Stil",
+    "editor.o_card": "Ét kort",
+    "editor.columns": "Kort side om side",
+    "editor.gap": "Afstand mellem kort (px)",
+    "editor.start": "Side, der vises først",
+    "editor.show_indicators": "Vis sidemarkeringerne",
+    "editor.loop": "Gå rundt fra den sidste side",
+    "editor.remember": "Husk siden",
+    "editor.o_session": "Mens fanen er åben",
+    "editor.autoplay": "Skift side af sig selv hvert (sekunder)",
+    "editor.autoplay_helper": "0: kun en person skifter side. Den venter, mens en finger, markøren eller fokus er på den"
   },
   "template": {
     "card": "Skabelon",
@@ -3456,7 +3500,32 @@
     "trunk_open": "Bagagerum åbent",
     "frunk_open": "Forreste bagagerum åbent",
     "port": "Port",
-    "tyre_ok": "OK"
+    "tyre_ok": "OK",
+    "fuel_range": "Rækkevidde på brændstof",
+    "fuel_volume": "I tanken",
+    "adblue": "AdBlue",
+    "oil": "Olie",
+    "service": "Næste service",
+    "bonnet": "Motorhjelm",
+    "bonnet_open": "Motorhjelm åben",
+    "low_fuel": "Lavt brændstof",
+    "adblue_low": "Lav AdBlue",
+    "oil_check": "Tjek olien",
+    "service_due": "Service forfalden",
+    "in_tank": "{volume} i tanken",
+    "service_in": "Service om {when}",
+    "fuel_of": "Brændstof {percent} %",
+    "level_low": "Lav",
+    "level_ok": "OK",
+    "check": "Tjek",
+    "due": "Forfalden",
+    "role.fuel_low": "Advarsel om lavt brændstof",
+    "role.service_time": "Tid til service",
+    "editor.energy": "Energi",
+    "editor.electric": "Elektrisk",
+    "editor.hybrid": "Plug-in-hybrid",
+    "editor.tank_size": "Tankstørrelse",
+    "editor.tank_size_helper": "I enheden for det, der er i den (L, gal): dens niveau, hvor bilen kun oplyser, hvad der er i den"
   },
   "web": {
     "card": "Webside",
