@@ -47,11 +47,12 @@ const BUDGETS = {
   'sidebar-editor': 6144,
   // the automatic dashboards. 32 KB since 2026-11-15 (1.22: an eighteenth language's naming words, Bulgarian's, as
   // written and as an entity id writes them, 1.2 KB, a dashboard's Names, its Long names, rooms as tabs and the Lights
-  // and Climate dashboards, 1.3 KB: measured at 30.5 KB); 30 KB since 2026-11-15 (1.22: the naming words of a
-  // seventeenth language, Czech, took it 48 B past 29: measured at 29.0 KB); 29 KB since 2026-11-13 (1.20: every card
-  // stands in a part with an id of its own and a person's `edit` is laid over them, #170, 2.1 KB; the range's usage,
-  // tomorrow's production, several arrays and what is shown together told apart, 1.4 KB: measured at 27.7 KB); 25 KB
-  // since 2026-11-12 (1.19.1: scenes on Home and room pages, labels told apart, forecasts): 24 before
+  // and Climate dashboards, 1.3 KB; Danish and Swedish after it: measured at 31.4 KB); 30 KB since 2026-11-15 (1.22:
+  // the naming words of a seventeenth language, Czech, took it 48 B past 29: measured at 29.0 KB); 29 KB since
+  // 2026-11-13 (1.20: every card stands in a part with an id of its own and a person's `edit` is laid over them, #170,
+  // 2.1 KB; the range's usage, tomorrow's production, several arrays and what is shown together told apart, 1.4 KB:
+  // measured at 27.7 KB); 25 KB since 2026-11-12 (1.19.1: scenes on Home and room pages, labels told apart, forecasts):
+  // 24 before
   strategy: 32_768,
   // the heights the strategy counts with the house: what an entity's capabilities draw, what a room holds
   'house-heights': 4096,
@@ -108,7 +109,7 @@ const BUDGETS = {
   // signatures, LG's states and cycles worded in eight languages); 48 before
   // 68 KB since 2026-11-11 (1.19: Russian's appliance stems, #167, about 900 B; measured at 66.8 KB); 70 KB since
   // 2026-11-15 (1.22: Bulgarian's appliance stems as written and as an id writes them, 0.9 KB, a head's two lines:
-  // measured at 68.8 KB)
+  // measured at 69.2 KB with Danish and Swedish)
   appliances: 71_680,
   // the appliances' pictures: one product drawing a kind, fetched by the first card that draws one
   'appliance-art': 32_768,

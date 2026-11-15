@@ -52,6 +52,22 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
   description in the card picker says it draws petrol, diesel and plug-in hybrid cars too (#207).
 - An Expander's `remember: off` written unquoted in a YAML dashboard keeps nothing, as the editor's Off does, where YAML
   read it as false and the card remembered how it was left.
+- The Thermostat card shows the fan speed its unit runs at where its firmware does not offer it (an air conditioner at
+  Home Assistant's `middle` while it lists Low and High): first in the fan row, chosen at full strength and taking no
+  tap, where no chip was marked and the card looked unset; `middle` says Mid in every language, and a preset the climate
+  does not list shows the same way (#202, reported by @waphbs).
+- The Thermostat card and its details sheet show the mode the device runs where the card's own `modes` list leaves it
+  out, or past a water heater's or a humidifier's first six, first and chosen, where no mode was marked; the Fan card's
+  presets, the Vacuum card's suction, a Helpers select whose row's `options` leave out the option in force and the
+  Remote card's sources do the same (#202).
+- The Media card keeps every source the player lists when the source in force is not among them and there is room, where
+  it dropped the last one (#202).
+- The form Home Assistant's pencil opens on an automatic dashboard shows a value written by hand that it does not offer
+  (`tile_size: mini`, `camera_refresh: 15`) as it is written and keeps it when another field changes, where it showed
+  the default and deleted the key; the settings panel's Dashboards tab marks such a value instead of the default.
+- The wall's screensaver tells a screen reader its name in the wall's language (#193).
+- The Vehicle card on an integration it does not know no longer takes an entity whose id ends in a fuel range or a fuel
+  level for the battery's range or charge (#207).
 - German reads as German and in Home Assistant's own words, thanks to @sebfrie: an unavailable entity says "Nicht
   verfügbar", a lock's buttons "Verriegeln" and "Entriegeln" and its states "Verriegelt" and "Entriegelt", every action
   field as Home Assistant's editors say it ("Verhalten bei Antippen", "… Festhalten", "… Doppeltippen", "… des
@@ -180,19 +196,6 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
 - On a wall, the dashboard sidebar starts at the top of the screen as soon as the wall comes on, where over a long view
   it kept the header's 56 px above it; on a phone, its drawer and the round that opens it keep clear of the status bar
   and the system bar that the Companion app reports, at any device size.
-- The Thermostat card shows the fan speed its unit runs at where its firmware does not offer it (an air conditioner at
-  Home Assistant's `middle` while it lists Low and High): first in the fan row, chosen at full strength and taking no
-  tap, where no chip was marked and the card looked unset; `middle` says Mid in every language, and a preset the climate
-  does not list shows the same way (#202, reported by @waphbs).
-- The Thermostat card and its details sheet show the mode the device runs where the card's own `modes` list leaves it
-  out, or past a water heater's or a humidifier's first six, first and chosen, where no mode was marked; the Fan card's
-  presets, the Vacuum card's suction, a Helpers select whose row's `options` leave out the option in force and the
-  Remote card's sources do the same (#202).
-- The Media card keeps every source the player lists when the source in force is not among them and there is room, where
-  it dropped the last one (#202).
-- The form Home Assistant's pencil opens on an automatic dashboard shows a value written by hand that it does not offer
-  (`tile_size: mini`, `camera_refresh: 15`) as it is written and keeps it when another field changes, where it showed
-  the default and deleted the key; the settings panel's Dashboards tab marks such a value instead of the default.
 - The Media card that lets its art go in a narrow column makes its head the height of its three lines instead of leaving
   an empty band above the seek line (#191, reported by @waphbs).
 - The automatic dashboards read every name without its accents, as the appliance card and the lights did: a Czech "Dům",
