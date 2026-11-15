@@ -457,6 +457,9 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'gauge.label': 'The words inside the ring, over the figure.',
   'gauge.max': 'The top of the ring, in the sensor’s unit.',
   'gauge.min': 'The bottom of the ring, in the sensor’s unit.',
+  'gauge.tint':
+    'Whether the card itself takes the colour of the threshold its reading is past: never, or while it is past one.',
+  'gauge.tint_style': 'How that colour is shown: a wash over the card, or the card’s edge.',
   'grid.invert':
     'Reads the grid’s sensors the other way round, for a meter that counts export as positive.',
   'heading.entities': 'Entities whose state the heading shows at its end.',
@@ -524,6 +527,9 @@ export const MEANINGS: Readonly<Record<string, string>> = {
   'scenes.tint': 'When each scene’s tile shows its colour.',
   'sensor.chart': 'The chart’s style.',
   'sensor.entity': 'The sensor the card charts and reads out.',
+  'sensor.tint':
+    'Whether the card itself takes the colour of the threshold its reading is past: never, or while it is past one.',
+  'sensor.tint_style': 'How that colour is shown: a wash over the card, or the card’s edge.',
   'sensor.label': 'The sensor’s name on the chart, where other sensors share it.',
   'slider.entity': 'The player, number or fan the slider sets.',
   'slider.label': 'The words over the slider.',

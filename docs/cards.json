@@ -11175,7 +11175,7 @@
         {
           "key": "tint",
           "label": "Show its colour",
-          "does": "When the card shows its colour beyond its circle: never, while it is on or active, or at rest too.",
+          "does": "Whether the card itself takes the colour of the threshold its reading is past: never, or while it is past one.",
           "type": "choice",
           "default": "off",
           "values": {
@@ -11186,7 +11186,7 @@
         {
           "key": "tint_style",
           "label": "Shown as",
-          "does": "How the colour is shown: a wash over the card, the card’s edge, or the control alone.",
+          "does": "How that colour is shown: a wash over the card, or the card’s edge.",
           "type": "choice",
           "default": "wash",
           "values": {
@@ -22848,7 +22848,7 @@
         {
           "key": "tint",
           "label": "Show its colour",
-          "does": "When the card shows its colour beyond its circle: never, while it is on or active, or at rest too.",
+          "does": "Whether the card itself takes the colour of the threshold its reading is past: never, or while it is past one.",
           "type": "choice",
           "default": "off",
           "values": {
@@ -22859,7 +22859,7 @@
         {
           "key": "tint_style",
           "label": "Shown as",
-          "does": "How the colour is shown: a wash over the card, the card’s edge, or the control alone.",
+          "does": "How that colour is shown: a wash over the card, or the card’s edge.",
           "type": "choice",
           "default": "wash",
           "values": {

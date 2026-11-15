@@ -47,8 +47,8 @@ Every key the card’s editor shows: the editor’s word for it in italics, then
 | `hours` | *Hours of history*. How many hours of history the card draws, up to now. | number | `12` | 1 to 168 |
 | `show_stats` | *Show min / max / average*. Shows the row of figures under the gauge. | boolean | `true` |  |
 | `label` | *Name on the chart*. The sensor’s name on the chart, where other sensors share it. Under its readout when other sensors share the chart. Empty: its measure's word, or its name beyond the title. | text |  |  |
-| `tint` | *Show its colour*. When the card shows its colour beyond its circle: never, while it is on or active, or at rest too. | choice | `off` | `off` (Never), `on` (Past a threshold) |
-| `tint_style` | *Shown as*. How the colour is shown: a wash over the card, the card’s edge, or the control alone. | choice | `wash` | `wash`, `edge` |
+| `tint` | *Show its colour*. Whether the card itself takes the colour of the threshold its reading is past: never, or while it is past one. | choice | `off` | `off` (Never), `on` (Past a threshold) |
+| `tint_style` | *Shown as*. How that colour is shown: a wash over the card, or the card’s edge. | choice | `wash` | `wash`, `edge` |
 | `unit` | *Unit*. The unit the figures are written in; automatic keeps the sensor’s. | choice or text | `auto` | `auto` (Automatic), `W`, `kW`, `MW`, `Wh`, `kWh`, `MWh`, `L`, `m³`, `gal`, `ft³` |
 | `decimals` | *Decimals*. How many decimals the figures have; automatic decides by their size. | choice | `auto` | `auto` (Automatic), `0`, `1`, `2`, `3` |
 | `entities` | *Also on the chart (up to 2)*. Up to two more sensors drawn on the same chart. | list ([its items](#entities)) |  |  |
