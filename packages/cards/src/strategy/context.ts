@@ -113,6 +113,7 @@ export async function buildContext(
       ...(config.tile_switch ? { switches: config.tile_switch } : {}),
       ...(config.group_by === 'room' ? { byRoom: true } : {}),
       ...(config.scenes_style === 'chips' ? { sceneChips: true } : {}),
+      ...(config.rooms_as === 'tabs' ? { roomTabs: true } : {}),
       ...(config.flow_style ? { flow: config.flow_style } : {}),
       ...(config.room_variant ? { room: config.room_variant } : {}),
       roomLook: roomLook(config, 'room_'),

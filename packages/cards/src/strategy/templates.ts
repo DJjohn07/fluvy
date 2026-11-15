@@ -68,9 +68,9 @@ export interface Template {
   readonly columns: 2 | 3;
   /** Whether every view opens with the greeting and the tabs. */
   readonly header: 'hello' | 'none';
-  /** The views in tab order: fixed, or read from the house (a tab a floor). */
+  /** The views in tab order: fixed, or read from the house (a tab a floor, a tab a room). */
   readonly views: readonly ViewSpec[] | ((ctx: StrategyContext) => readonly ViewSpec[]);
-  /** The rooms the dashboard opens as subviews, given the paths of the views it built. */
+  /** The rooms the dashboard opens as subviews, given the paths of the views it built (a room that is a tab is none). */
   readonly rooms?: (ctx: StrategyContext, paths: readonly string[]) => RoomLink[];
   /** Whether it opens every appliance as a subview: Home's bands lead there ("All appliances"). */
   readonly appliances?: boolean;
@@ -182,6 +182,15 @@ const BACKGROUND: TemplateOption = {
   label: 'wall.background',
 };
 
+/**
+ * How the Rooms dashboard opens a room (1.22, #202): a page behind its card, or a tab of its own after "All rooms",
+ * in the house's order of its rooms.
+ */
+const ROOMS_AS = choice('rooms_as', 'dashboard.rooms_as', [
+  { value: 'pages', label: 'dashboard.room_pages' },
+  { value: 'tabs', label: 'dashboard.room_tabs' },
+]);
+
 /** Every room with something in it, each going back to the tab that holds it. */
 const everyRoom = (ctx: StrategyContext, tab: (area: AreaRegistryEntry) => string): RoomLink[] =>
   roomsOf(ctx.home).map((area) => ({
@@ -231,7 +240,11 @@ export const TEMPLATES: readonly Template[] = [
     columns: 3,
     header: 'hello',
     views: roomsViews,
-    rooms: (ctx) => everyRoom(ctx, (area) => roomTab(ctx, area)),
+    // a room that is a tab is no page; one hidden among the tabs stays a page, as every room is without them
+    rooms: (ctx, paths) =>
+      everyRoom(ctx, (area) => roomTab(ctx, area)).filter(
+        ({ area }) => !paths.includes(`room-${area.area_id}`),
+      ),
     options: [
       ...ROOMS,
       THERMOSTAT,
@@ -241,6 +254,7 @@ export const TEMPLATES: readonly Template[] = [
       SCENES,
       NAMES,
       NAME_LINES,
+      ROOMS_AS,
       GREETING_TABS,
       BACKGROUND,
       CAPS,

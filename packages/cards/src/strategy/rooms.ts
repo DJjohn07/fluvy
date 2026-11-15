@@ -23,7 +23,7 @@ import {
   tileRows,
   when,
 } from './layout.js';
-import type { Card, Section, StrategyContext, View } from './types.js';
+import type { Card, Section, StrategyContext, View, ViewSpec } from './types.js';
 
 /*
  * The rooms: a view of every room of the house (its card, grouped by floor when there are floors), and a subview
@@ -31,7 +31,7 @@ import type { Card, Section, StrategyContext, View } from './types.js';
  * lights, covers, gates, fans, media, plugs, readings, openings and cameras, the rest of it as rows, its automations on
  * a card of their own, and its appliances across under them. Every card stands in a part of its view (#170): a room's
  * card `room:<area id>`, a floor's heading `floor:<floor id>` (`other` over the rooms on no floor), a room's lists by
- * their own names.
+ * their own names. Where a dashboard asks (1.22, #202), a room is a tab of it at its page's path, under no way back.
  */
 
 /** The areas a dashboard shows: those with something to show, by the room card's own rule, floor by floor. */
@@ -187,13 +187,13 @@ export function roomParts(home: HomeRegistry, areaId: string): RoomParts {
 }
 
 /**
- * One room: everything it holds, in the home view's reading order, under a way back to where it was opened from; each
- * list at the house's cap, with its "N more" row.
+ * One room: everything it holds, in the home view's reading order, under a way back to where it was opened from (a
+ * tab is opened from nowhere: none); each list at the house's cap, with its "N more" row.
  */
 export function roomSections(
   ctx: StrategyContext,
   area: AreaRegistryEntry,
-  back: RoomBack,
+  back: RoomBack | undefined,
   columns = 3,
 ): Section[] {
   const { home, t } = ctx;
@@ -293,7 +293,7 @@ export function roomSections(
   const sections = flowed(
     ctx,
     [
-      part(ctx, 'back', [heading(back.title, 'fluvy:home', [], back.path)]),
+      ...when(back, (to) => [part(ctx, 'back', [heading(to.title, 'fluvy:home', [], to.path)])]),
       // its scenes first, a tap each, as its card's quick actions are read before its devices (#172)
       ...part(
         ctx,
@@ -435,10 +435,25 @@ export function roomSections(
     columns,
   );
   return [
-    ...(sections.length ? sections : [section(heading(back.title, 'fluvy:home', [], back.path))]),
+    ...(sections.length || !back
+      ? sections
+      : [section(heading(back.title, 'fluvy:home', [], back.path))]),
     ...applianceSections(ctx, parts.devices, columns),
   ];
 }
+
+/**
+ * A room as a tab of its dashboard (1.22, #202), at its page's own path (`room-<area id>`): its card's link, its
+ * parts' ids and what another view shows of it (`also`) are the page's. It always stands, as its page does.
+ */
+export const roomAsTab = (area: AreaRegistryEntry, columns: number): ViewSpec => ({
+  key: `room-${area.area_id}`,
+  icon: area.icon ?? 'fluvy:home',
+  title: 'strategy.rooms',
+  name: area.name,
+  build: (ctx) => roomSections(ctx, area, undefined, columns),
+  when: () => true,
+});
 
 /** The subview of a room. */
 export function roomView(

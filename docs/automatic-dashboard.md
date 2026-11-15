@@ -14,7 +14,7 @@ time it opens, from the registries, so a new device shows up by itself.
 | Template | What it is for |
 | --- | --- |
 | **Home** (`custom:fluvy-home`) | the whole house: Home, Rooms, Lights, Climate, Energy, Security, Media, Agenda and Sensors, each when the house has what it shows, and an Appliances page behind Home's appliance bands |
-| **Rooms** (`custom:fluvy-rooms`) | a card a room, a tab a floor when the house has two or more; each room opens as its own page, with everything its card counts |
+| **Rooms** (`custom:fluvy-rooms`) | a card a room, a tab a floor when the house has two or more; each room opens as its own page, with everything its card counts; or, with `rooms_as: tabs`, "All rooms" first and then a tab a room ([Rooms as tabs](#rooms-as-tabs)) |
 | **Energy** (`custom:fluvy-energy`) | Now (the flow, the balance, the house by source, the grid, the batteries, the car charger), Today (the Energy period bar across the view, and the day's flow, where it went, the score, the balance and the range's usage of electricity, water and gas following it), Production, Devices, Water & gas, Meters |
 | **Security** (`custom:fluvy-security`) | Security (the alarm, what locks, what opens, the first four cameras on one Cameras card), Cameras (twelve cameras on one Cameras card across the view, the rest a "N more" row away), Openings room by room, every one |
 | **Wall** (`custom:fluvy-wall`) | two columns for a tablet on the wall, read from a metre away: the greeting, the clock, the readings, the scenes and the rooms; the thermostat, the security rows and who is home |
@@ -35,7 +35,8 @@ time it opens, from the registries, so a new device shows up by itself.
 
 Views a house has nothing for are left out. Every view keeps the same three columns (two on the wall), so the header
 never moves between tabs, and blocks are cut into the columns so that they end on one line. A room's page is a
-subview: it opens from its card, never from the tabs, and its heading leads back.
+subview: it opens from its card, never from the tabs, and its heading leads back (unless the room is a tab: the Rooms
+dashboard with `rooms_as: tabs`).
 
 ## A room's page
 
@@ -59,6 +60,40 @@ Zigbee2MQTT plugs): its one switch beside a power or energy reading, with no oth
 scenes, automations, locks and cameras never count; the page still reaches them all, its scenes on a Scenes card and its
 automations on an Automations card of their own. A plug tile on Home and on a room's page follows the same rule, and
 `rooms` (below) gives a room its own say: what it includes counts, what it excludes leaves its card and its page.
+
+## Rooms as tabs
+
+The Rooms dashboard opens each room as a page behind its card. Asked, it makes every room a tab of its own instead
+(1.22, #202): off until chosen, in the panel's *Dashboards* tab (*Rooms as*: *Pages* or *Tabs*) or in the raw
+configuration.
+
+```yaml
+strategy:
+  type: custom:fluvy-rooms
+  rooms_as: tabs        # pages, the default, opens each room behind its card
+```
+
+- **All rooms** is the first tab: every room's card under its floor's heading, as Home's Rooms view draws them (the
+  floors' tabs give way to it). Each card leads to its room's tab.
+- **Then a tab a room**, in the house's order of its rooms (the panel's *Dashboards › Rooms in order*): the room's
+  page as it is, without its way back.
+- **The same paths.** A room's tab is at its page's path (`room-<area id>`): a link to a room's page, and what
+  Customise changed on the room (`room-kitchen/lights`, `also: [room-kitchen/scenes]` on another view), act the same
+  either way. A list's "N more" page leads back to its room's tab.
+- **A room hidden among the tabs** in Customise (its *Show this view* off) stays a page behind its card, back to
+  *All rooms*: a house may keep five rooms as tabs and the others as pages, and no card leads nowhere.
+- What Customise kept for a floor's tab (its place among the tabs, a card moved on it) has no tab to act on while the
+  rooms are tabs: it is kept, and acts again when they are pages.
+
+On a phone the header's tabs scroll under a finger, a dozen rooms as easily as three. A tablet in kiosk mode has no
+header at all: there `greeting_tabs: show` draws the tabs as chips under the greeting, the way from room to room.
+
+```yaml
+strategy:
+  type: custom:fluvy-rooms
+  rooms_as: tabs
+  greeting_tabs: show   # the tabs as chips under the greeting too: a kiosk without a header
+```
 
 ## Capped lists
 
@@ -169,6 +204,8 @@ goes past an option, one card hidden, moved or tuned, is [Customise](#customise)
 | `scenes_max` | `4`, `6` (default), `8` | wall | how many scenes the wall offers as chips |
 | `name_lines` | `1` (default), `2` | all | the names of the cards it names after the house's entities (a light, a thermostat, a lock, a camera, an energy reading) in two lines where one would cut them, their heads a line taller (each card's `name_lines`, [The cards](cards.md)); a tile's name stays on its line. Nothing is written until it is chosen |
 | `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were) |
+| `greeting_tabs` | `hide` (default), `show` | home, rooms, energy, security | the views as chips under the greeting too, besides the header's tabs (until 1.4 they always were): the way between them on a kiosk with no header |
+| `rooms_as` | `pages` (default), `tabs` | rooms | each room a page behind its card, or a tab of its own after *All rooms*, in the house's order of its rooms (1.22, [Rooms as tabs](#rooms-as-tabs)) |
 | `background` | `type`: `plain`, `gradient`, `color` or `image`, and that type's own keys: `colors` (one hex, or two from the top to the bottom), `image` (a path of Home Assistant's such as `/local/backgrounds/garden.jpg`, or a web address), `dim` (0 to 80 in steps of 5, default 40), `blur` (default `false`) | all | what lies behind this dashboard's cards in place of the house's (default: the house's, the panel's *Appearance › Background*; below); `type: plain` keeps this dashboard plain whatever the house chooses |
 | `caps` | a list's own number or `none` by its key (`caps: { lights: 12, humidity: none }`), or `none` for every list | all | how many of a long list a view shows (default: the house's caps, above, each with its "N more" row); the panel offers *Shortened* (the default) or *In full* |
 | `rooms` | by area id, a room's `include` and `exclude`, as the room card takes them: entity ids, patterns of ids, device ids or domains (`rooms: { kitchen: { exclude: [switch.dishwasher_*] } }`); and that room's own `name_position`, `readout_style` and `readout_labels`, over the dashboard's (`rooms: { kitchen: { name_position: top } }`) | home, rooms, wall | what that room's card counts and fills by, whether the room is shown, and what its page holds, and how its photo is drawn; in the raw configuration only (the settings file never carries a house's entities) |
@@ -214,9 +251,10 @@ strategy:
 
 The rooms stand in the house's order, the panel's *Dashboards › Rooms in order*
 ([the settings panel](settings-panel.md#rooms-in-order)): every list by room follows it, the Rooms view, the Lights
-view's groups, the lists a "N more" page splits by room, a wall's rooms and the room pages' tabs of the Rooms
-dashboard. *Automatic*, the default, is each list as it always sorted: the rooms floor by floor and A to Z, a list
-by room its biggest room first. What Customise moved on a dashboard stays that dashboard's own, over the house's.
+view's groups, the lists a "N more" page splits by room, a wall's rooms, the rooms' tabs of the Rooms dashboard with
+`rooms_as: tabs` and the room pages' tabs of the Rooms dashboard. *Automatic*, the default, is each list as it always
+sorted: the rooms floor by floor and A to Z, a list by room its biggest room first. What Customise moved on a
+dashboard stays that dashboard's own, over the house's.
 
 ## Names
 

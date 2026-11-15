@@ -131,6 +131,12 @@ export interface FluvyStrategyConfig {
   room_readout_style?: RoomLook['readout_style'];
   /** Their labels (default `auto`: words while they hold, icons where they would not). */
   room_readout_labels?: RoomLook['readout_labels'];
+  /**
+   * How the Rooms dashboard opens a room (1.22, #202): each a page behind its card, under a way back (`pages`, the
+   * default), or each a tab of its own after "All rooms" (`tabs`), in the house's order of its rooms, at the path its
+   * page had.
+   */
+  rooms_as?: 'pages' | 'tabs';
   /** The rooms a wall shows, in that order, an empty one kept (default: every room with something in it). */
   areas?: readonly string[];
   /** Seconds between the cameras' stills (default 10). */
@@ -308,6 +314,8 @@ export interface CardStyle {
   readonly byRoom?: boolean;
   /** The scenes are chips (`scenes_style: chips`, #189). */
   readonly sceneChips?: boolean;
+  /** Every room is a tab of the dashboard (`rooms_as: tabs`, #202). */
+  readonly roomTabs?: boolean;
   readonly flow?: FlowStyle;
   readonly room?: RoomVariant;
   /** What every room's photo is asked for (`room_name_position` …); a room's own comes over it. */

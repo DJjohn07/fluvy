@@ -178,7 +178,7 @@ export async function generateWith(
     sections,
   }));
   const framedViews = views.map((view) => framed(view, ctx, views, template));
-  // a subview per room: reached from a room's card (never a tab), with the same frame
+  // a subview per room that is no tab: reached from a room's card, with the same frame
   const rooms = (
     template.rooms?.(
       ctx,
