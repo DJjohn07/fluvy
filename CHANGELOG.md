@@ -221,6 +221,11 @@ turned on, so an upgrade changes no dashboard. What changes without being asked 
   named "Køleskab" finds its entities by its device's id `koleskab`, where it looked for `k_leskab`.
 - The Cover card under about 200 px wide puts its tilt's stepper under the commands, where the tilt could not be set,
   and shows the position under an up and down sign where the word Position ran past the card (#203).
+- A gauge's word over its figure, Home Assistant's own name for what it measures, is never cut nor laid over the figure:
+  on the ring, the dial and the bar, as on the signed ring, it leaves where its line cannot hold it, where Danish
+  "Elektrisk effekt" wrapped onto the figure in a half column and English "Atmospheric pressure" onto a narrow dial's.
+- The automatic dashboards take a Swedish home's own forecast (`weather.forecast_hem`) first, as they did an English,
+  Spanish or Portuguese one's.
 
 ### Development
 
