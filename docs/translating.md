@@ -14,6 +14,7 @@ language, so the card starts from Fluvy's.
 | `es` | Spanish | `packages/core/src/i18n/locales/es.json` | — |
 | `de` | German | `packages/core/src/i18n/locales/de.json` | — |
 | `nl` | Dutch | `packages/core/src/i18n/locales/nl.json` | — |
+| `da` | Danish | `packages/core/src/i18n/locales/da.json` | — |
 | `fr` | French | `packages/core/src/i18n/locales/fr.json` | — |
 | `it` | Italian | `packages/core/src/i18n/locales/it.json` | — |
 | `pt-BR` | Portuguese (Brazil) | `packages/core/src/i18n/locales/pt-BR.json` | — |
@@ -58,7 +59,7 @@ language, so the card starts from Fluvy's.
   by (what people call their lights, their garden, the solar inverter, the grid meter, a forecast), and the
   `appliance_*` stems an appliance card tells a washer from a dishwasher by (plain lower-case letters). Every name is
   read plain, its accents taken off and in ordinary width, so "Kühlschrank" is `kuhlschrank`, "Płyta" is `plyta`,
-  "Dům" is `dum`, "Счётчик" is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian, Ukrainian or Bulgarian
+  "Dům" is `dum`, "Køkken" is `kokken`, "Emhætte" is `emhaette`, "Счётчик" is `счетчик`, "Їдальня" is `ідальня` and "ＬＥＤ" is `led`; a Russian, Ukrainian or Bulgarian
   й stays й, a letter of its own. Every stem is built plain too, so a language writes its words with their marks ("lumière")
   or without them and a name matches either way; a short word that stands apart only by its marks is written as a word
   (Turkish "dış", outside, is `(^|[ _-])dış(ı|ta)?([ _-]|$)`, never the "dis" of "dishwasher"). A Ukrainian word with an

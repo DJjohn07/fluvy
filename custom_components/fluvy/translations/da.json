@@ -1,0 +1,33 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fluvy",
+        "description": "Installerer Fluvys tema, kort og indstillingspanel. Der er intet at konfigurere."
+      }
+    },
+    "abort": {
+      "already_configured": "Fluvy er allerede sat op.",
+      "single_instance_allowed": "Fluvy er allerede sat op."
+    }
+  },
+  "exceptions": {
+    "frontend_missing": {
+      "message": "Fluvys brugerfladefiler mangler i custom_components/fluvy/frontend. Geninstallér Fluvy via HACS (eller kør `pnpm build` i en udviklingskopi), og genstart derefter Home Assistant."
+    }
+  },
+  "issues": {
+    "legacy_yaml": {
+      "title": "Fjern Fluvys gamle linjer fra configuration.yaml",
+      "description": "Fluvy er nu en integration, der selv registrerer sit panel og sit modul. Fjern disse linjer fra configuration.yaml (behold `frontend: themes: !include_dir_merge_named themes`), tjek konfigurationen, og genstart Home Assistant, når det passer dig:\n\n{lines}"
+    },
+    "theme_not_loaded": {
+      "title": "Fluvys tema er ikke indlæst",
+      "description": "Fluvy skrev sit tema til `{path}`, men Home Assistant viser ikke et tema ved navn Fluvy. Tilføj dette til configuration.yaml, og kør derefter handlingen `frontend.reload_themes` (Udviklerværktøjer → Handlinger); en genstart er ikke nødvendig:\n\n{yaml}\n\nHvis linjerne allerede er der, så se under Indstillinger → System → Logfiler efter et tema, der ikke kunne indlæses."
+    },
+    "resources_yaml_mode": {
+      "title": "Tilføj Fluvys ressource til betjeningspaneler",
+      "description": "Dine ressourcer til betjeningspaneler styres i YAML, så Fluvy kan ikke selv registrere sin egen. Tilføj dette under `lovelace: resources:` i configuration.yaml, og genindlæs browseren:\n\n```yaml\n  - url: {url}\n    type: module\n```\n\nFluvy indlæses allerede på hver side; denne ressource lader betjeningspanelerne indlæse den, før de tegnes."
+    }
+  }
+}

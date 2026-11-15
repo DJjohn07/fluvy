@@ -50,6 +50,7 @@ const JOINS = new RegExp(
     'du|le|les|des|et|au|aux|à|dans|sur|sous|près|chez',
     'di|della|dello|delle|degli|dei|il|lo|i|e|nel|nella|nello|sul|sulla|sullo|alla',
     'het|van|op|bij|aan|onder|boven|naast',
+    'på|ved|og|til|hos',
     'da|do|das|dos|a|o|no|na|nos|nas|em|ao',
     'w|we|oraz|przy|pod|nad|za|obok|z',
     'и|в|во|във|на|за|у|до|под|над|при|около|і|й|та|під|біля',

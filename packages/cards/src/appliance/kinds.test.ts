@@ -148,7 +148,7 @@ describe('what an appliance is', () => {
     expect(kindOf(signals({ platform: 'matter', tops: [250] }))).toMatchObject({ kind: 'oven' });
   });
 
-  it('reads a name in any of the eighteen languages, accents or none, the more particular kind first', () => {
+  it('reads a name in any of the nineteen languages, accents or none, the more particular kind first', () => {
     const names: ReadonlyArray<readonly [string, string]> = [
       ['Washing machine', 'washer'],
       ['Waschmaschine', 'washer'],
@@ -305,6 +305,44 @@ describe('what an appliance is', () => {
       ['Blender', 'blender'],
       ['Toaleta pro kočky', 'litter_box'],
       ['Kuveta', 'litter_box'],
+      // Danish, in its compounds, its ø, æ and å written or as an entity id carries them
+      ['Vaskemaskine', 'washer'],
+      ['Vaskemaskinen i bryggerset', 'washer'],
+      ['Vasketørretumbler', 'washer_dryer'],
+      ['Vaske-tørremaskine', 'washer_dryer'],
+      ['Opvaskemaskine', 'dishwasher'],
+      ['opvaskemaskine_kokken', 'dishwasher'],
+      ['Opvasker', 'dishwasher'],
+      ['Tørretumbler', 'dryer'],
+      ['torretumbler', 'dryer'],
+      ['Kondenstørretumbler', 'dryer'],
+      ['Mikrobølgeovn', 'microwave'],
+      ['mikrobolgeovn', 'microwave'],
+      ['Ovn', 'oven'],
+      ['Dampovn', 'oven'],
+      ['Kogeplade', 'hob'],
+      ['Induktionskogeplade', 'hob'],
+      ['Komfur', 'hob'],
+      ['Emhætte', 'hood'],
+      ['emhaette', 'hood'],
+      ['Vinkøleskab', 'wine'],
+      ['Køleskab', 'fridge'],
+      ['koleskab_kokken', 'fridge'],
+      ['Køle-fryseskab', 'fridge'],
+      ['Kølefryseskab', 'fridge'],
+      ['Fryser', 'freezer'],
+      ['Kummefryser', 'freezer'],
+      ['Fryseskab i kælderen', 'freezer'],
+      ['Kaffemaskine', 'coffee'],
+      ['Elkedel', 'kettle'],
+      ['Airfryer', 'air_fryer'],
+      ['Varmluftsfritureskab', 'air_fryer'],
+      ['Toastjern', 'sandwich_maker'],
+      ['Brødrister', 'toaster'],
+      ['Foodprocessor', 'blender'],
+      ['Foderautomat', 'feeder'],
+      ['Drikkefontæne til katten', 'fountain'],
+      ['Kattebakke', 'litter_box'],
       // Simplified Chinese, its Han anywhere in the name
       ['洗衣机', 'washer'],
       ['洗烘一体机', 'washer_dryer'],
@@ -452,6 +490,10 @@ describe('what an appliance is', () => {
     expect(byWords('Піч у лазні')).toBeUndefined();
     expect(byWords('Розетка в пральні')).toBeUndefined();
     expect(byWords('Пральня')).toBeUndefined();
+    // a Danish wood stove and a panel heater are no ovens, a heat lamp no appliance
+    expect(byWords('Brændeovn')).toEqual({ excluded: 'name' });
+    expect(byWords('Panelovn soveværelse')).toEqual({ excluded: 'name' });
+    expect(byWords('Stikkontakt gang')).toBeUndefined();
   });
 
   it('never takes a vacuum, a charger, a hair dryer or what waits for 1.10 for an appliance', () => {
@@ -496,6 +538,11 @@ describe('what an appliance is', () => {
       'Косачка',
       'Зарядна станция за електромобил',
       'zariadna_stantsiia',
+      'Robotstøvsuger',
+      'Robotplæneklipper',
+      'Hårtørrer',
+      'Ladeboks',
+      'Billader',
     ])
       expect(byWords(name), name).toEqual({ excluded: 'name' });
     // a robot that cleans or mows is never one; the kitchen's (a food processor) is a blender, in every language

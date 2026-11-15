@@ -300,6 +300,41 @@ const nl: Table = {
   'themes.mode': 'Modus',
 };
 
+const da: Table = {
+  'brand.sub': 'Livedemo',
+  'family.home': 'Hjem',
+  'family.devices': 'Enheder',
+  'family.climate': 'Klima',
+  'family.energy': 'Energi',
+  'family.charts': 'Grafer',
+  'family.media': 'Medier',
+  'family.time': 'Tid',
+  'family.helpers': 'Hjælpere',
+  'family.vehicles': 'Biler',
+  'page.panel': 'Indstillinger',
+  'page.activity': 'Aktivitet',
+  'page.history': 'Historik',
+  'mode.light': 'Lys',
+  'mode.dark': 'Mørk',
+  'device.title': 'Enhed',
+  'device.phone': 'Telefon',
+  'device.phone-l': 'Stor telefon',
+  'device.tablet': 'Tablet',
+  'device.desktop': 'Computer',
+  'palette.title': 'Palet',
+  'palette.custom': 'Din egen accentfarve, i indstillingspanelet',
+  'language.title': 'Sprog',
+  'links.install': 'Installér',
+  'links.github': 'GitHub',
+  'banner.text':
+    'Et simuleret hjem: Martas lejlighed en torsdag aften. Hvert kort, hver side og hver indstilling her er den rigtige; Home Assistant er erstattet af en lille stand-in, der skifter tilstand 140 ms efter et handlingskald. Intet er forbundet.',
+  'banner.ok': 'Forstået',
+  'notice.more_info': 'Åbner detaljerne for {entity} i Home Assistant',
+  'notice.navigate': 'Åbner {path} i Home Assistant',
+  'notice.auto':
+    'Det automatiske betjeningspanel bygges i Home Assistant; fanen Betjeningspaneler viser en forhåndsvisning af det',
+};
+
 const fr: Table = {
   'brand.sub': 'Démo en direct',
   'family.home': 'Accueil',
@@ -1349,6 +1384,7 @@ const TABLES: Readonly<Record<LanguageCode, Table>> = {
   es,
   de,
   nl,
+  da,
   fr,
   it,
   'pt-BR': ptBR,

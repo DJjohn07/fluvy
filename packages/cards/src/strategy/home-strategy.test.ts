@@ -440,6 +440,89 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
     }
   });
 
+  it('reads a Danish house by its names, its ø, æ and å written or as an id writes them: lights in compound words, its garden and terrace, its appliances’ switches, a child lock that is none', () => {
+    const registry = new HomeRegistry(
+      house([
+        entity('switch.kokkenlys', 'on', { friendly_name: 'Køkkenlys' }),
+        entity('switch.stuelampe', 'off', { friendly_name: 'Stuelampe' }),
+        entity('switch.loftbelysning_gang', 'off', { friendly_name: 'Loftbelysning gang' }),
+        entity('switch.paere_sovevaerelse', 'off', { friendly_name: 'Pære soveværelse' }),
+        entity('switch.lys_i_haven', 'off', { friendly_name: 'Lys i haven' }),
+        entity('switch.terrasselampe', 'off', { friendly_name: 'Terrasselampe' }),
+        entity('switch.udelys', 'off', { friendly_name: 'Udelys' }),
+        entity('switch.lyskaede_gardsplads', 'off', { friendly_name: 'Lyskæde gårdsplads' }),
+        entity('switch.stik_vaskemaskine', 'off', { friendly_name: 'Stik vaskemaskine' }),
+        entity('switch.torretumbler', 'off', { friendly_name: 'Tørretumbler' }),
+        entity('switch.bornesikring_opvaskemaskine', 'off', {
+          friendly_name: 'Børnesikring opvaskemaskine',
+        }),
+      ]),
+    );
+    const { lights, appliances } = registry;
+    const lit = [
+      'switch.kokkenlys',
+      'switch.stuelampe',
+      'switch.loftbelysning_gang',
+      'switch.paere_sovevaerelse',
+      'switch.lys_i_haven',
+      'switch.terrasselampe',
+      'switch.udelys',
+      'switch.lyskaede_gardsplads',
+    ];
+    expect(lights).toEqual(expect.arrayContaining(lit));
+    for (const id of lit) expect(registry.outdoor(id), id).toBe(lit.indexOf(id) >= 4);
+    for (const id of ['switch.stik_vaskemaskine', 'switch.torretumbler']) {
+      expect(lights, id).not.toContain(id);
+      expect(appliances, id).toContain(id);
+    }
+    expect(appliances).not.toContain('switch.bornesikring_opvaskemaskine');
+  });
+
+  it('names a Danish house’s energy readings’ roles: the solar cells, what is bought and sold, the battery, the charger, the house', () => {
+    const registry = powerHouse(
+      [
+        power('sensor.solceller', 'Solceller'),
+        power('sensor.elmaler', 'Elmåler'),
+        power('sensor.eksport_til_nettet', 'Eksport til nettet'),
+        power('sensor.husbatteri', 'Husbatteri'),
+        power('sensor.ladeboks', 'Ladeboks'),
+        power('sensor.huset', 'Huset'),
+      ],
+      'da',
+    );
+    expect(findEnergyRoles(registry, null)).toMatchObject({
+      solarPowers: [{ id: 'sensor.solceller' }],
+      gridPower: 'sensor.elmaler',
+      gridImport: 'sensor.elmaler',
+      gridExport: 'sensor.eksport_til_nettet',
+      batteryPowers: [{ id: 'sensor.husbatteri' }],
+      charger: 'sensor.ladeboks',
+      homePower: 'sensor.huset',
+    });
+    // the inverter and the charging post as Danish names them, and the house's total by its own words
+    for (const [id, name] of Object.entries({
+      'sensor.x1': 'Vekselretter',
+      'sensor.x2': 'Solcelleanlæg effekt',
+    }))
+      expect(findEnergyRoles(powerHouse([power(id, name)], 'da'), null).solarPowers, name).toEqual([
+        expect.objectContaining({ id }),
+      ]);
+    expect(findEnergyRoles(powerHouse([power('sensor.x', 'Elbillader')], 'da'), null).charger).toBe(
+      'sensor.x',
+    );
+    expect(
+      findEnergyRoles(powerHouse([power('sensor.x', 'Samlet forbrug')], 'da'), null).homePower,
+    ).toBe('sensor.x');
+    // a sunny terrace, a home cinema and a Husqvarna mower say no role: the sun, "hjem" and "hus" are words of their own
+    for (const name of ['Solrig terrasse', 'Hjemmebiograf', 'Husqvarna mower']) {
+      const roles = findEnergyRoles(powerHouse([power('sensor.x', name)], 'da'), null);
+      expect(
+        [roles.solarPowers, roles.gridPower, roles.batteryPowers, roles.homePower],
+        name,
+      ).toEqual([[], undefined, [], undefined]);
+    }
+  });
+
   it('reads every language’s names plain, their marks written or left off, whatever the id says: a place, an energy role, a setting that is no appliance', () => {
     // each name on an id that says nothing, so the name alone is read
     const outdoors: ReadonlyArray<readonly [name: string, outdoor: boolean]> = [
@@ -457,10 +540,14 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ['Dış lamba', true],
       ['Фонарь во дворе', true],
       ['Ліхтар на подвір’ї', true],
+      ['Lys i baghaven', true],
+      ['Udendørs lampe', true],
       // Turkish's "dış" (outside) and "çatı" (roof) are words, never the letters of a dishwasher's or a location's
       ['Dishwasher plug', false],
       ['Location display', false],
       ['Kuchyně', false],
+      ['Køkken', false],
+      ['Lys uden dæmper', false],
     ];
     const lamps = new HomeRegistry(
       house(outdoors.map(([name], at) => entity(`switch.p${at}`, 'off', { friendly_name: name }))),
@@ -513,6 +600,11 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ['tr', 'Toplam tüketim', 'home'],
       ['ru', 'Счётчик электроэнергии', 'grid'],
       ['uk', 'Лічильник енергії', 'grid'],
+      ['da', 'Vekselretter', 'solar'],
+      ['da', 'Elmåler', 'grid'],
+      ['da', 'Energilager', 'battery'],
+      ['da', 'Ladestander', 'charger'],
+      ['da', 'Husstand', 'home'],
       // Turkish's battery (akü) and what is bought (alım) are words: a cherry tree and a name are none
       ['tr', 'Sakura', undefined],
       ['tr', 'Salim', undefined],
@@ -530,6 +622,8 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       'Dźwięk zmywarki',
       'Çocuk kilidi bulaşık makinesi',
       'Férias máquina de lavar',
+      'Børnesikring vaskemaskine',
+      'Tastelås tørretumbler',
     ];
     const plugs = new HomeRegistry(
       house(settings.map((name, at) => entity(`switch.s${at}`, 'off', { friendly_name: name }))),

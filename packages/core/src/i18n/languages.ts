@@ -9,6 +9,7 @@ export const LANGUAGE_CODES = [
   'es',
   'de',
   'nl',
+  'da',
   'fr',
   'it',
   'pt-BR',
@@ -96,6 +97,14 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageInfo>> = {
     name: 'Nederlands',
     english: 'Dutch',
     dayParts: { morning: 5, afternoon: 12, evening: 18, night: 24 },
+  },
+  da: {
+    code: 'da',
+    name: 'Dansk',
+    english: 'Danish',
+    // "godmorgen" until 10:00, "goddag" through the day, "godaften" from 18:00 until the morning: "godnat" is said on
+    // parting before sleep, so the night says the evening's greeting
+    dayParts: { morning: 5, afternoon: 10, night: 18 },
   },
   fr: {
     code: 'fr',
