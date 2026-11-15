@@ -22,7 +22,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { chromium } from 'playwright';
-import { drawn, GALLERY, mounted, shortName } from '../docs/src/gallery.ts';
+import { drawn, GALLERY, MOMENT, mounted, shortName } from '../docs/src/gallery.ts';
 import { digest, FOLDER, MANIFEST, MODES, pictureName } from '../docs/src/pictures.ts';
 import { launchOptions, parseArgs, PLAYGROUND } from './lib.mjs';
 
@@ -30,8 +30,6 @@ const run = promisify(execFile);
 
 const args = parseArgs(process.argv.slice(2), { only: '', url: PLAYGROUND, out: FOLDER });
 
-/** The moment every picture shows (Thursday 17 September 2026, 21:50 in the house's Madrid). */
-const AT = '2026-09-17T19:50:00Z';
 /** A section's width, the design's: a full card's. */
 const SECTION = 360;
 /** The section's margin round its cards, kept round the picture. */
@@ -55,7 +53,7 @@ for (const short of wanted)
 
 /** The gallery in a mode, on the house's palette and language, its clock pinned. */
 const address = (mode) =>
-  `${args.url}?${new URLSearchParams({ sheet: 'gallery', width: String(SECTION), at: AT, palette: 'linen', mode, lang: 'en' })}`;
+  `${args.url}?${new URLSearchParams({ sheet: 'gallery', width: String(SECTION), at: MOMENT, palette: 'linen', mode, lang: 'en' })}`;
 
 /** A picture's pixels (RGB) and its size, as ffmpeg decodes it; none where there is no file. */
 async function decode(file) {
@@ -115,7 +113,7 @@ for (const mode of MODES) {
     timezoneId: 'Europe/Madrid',
   });
   // the page's clock held at the moment, so a running timer or a camera's clock reads the same in every picture
-  await context.clock.setFixedTime(new Date(AT));
+  await context.clock.setFixedTime(new Date(MOMENT));
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(String(error)));

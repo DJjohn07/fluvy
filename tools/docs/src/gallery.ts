@@ -14,6 +14,13 @@
  */
 import type { LovelaceCardConfig } from '@fluvy/core';
 
+/**
+ * The moment the gallery shows: the pictures' (`pnpm docs:images` holds the playground's clock there), and the clock of
+ * every card on the `gallery` sheet that keeps one of its own (`_now`), so the measurer, which draws the sheet at
+ * today's time, sees what the pictures show.
+ */
+export const MOMENT = '2026-09-17T19:50:00Z';
+
 /** One of a card's other layouts: what it needs beside its key, and the columns it is given where they are not the base's. */
 export interface Variant {
   readonly config?: Readonly<Record<string, unknown>>;

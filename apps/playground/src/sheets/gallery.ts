@@ -1,4 +1,4 @@
-import { drawn, GALLERY } from '../../../../tools/docs/src/gallery.js';
+import { drawn, GALLERY, MOMENT } from '../../../../tools/docs/src/gallery.js';
 import type { FrameSpec, SheetSpec } from '../scenes.js';
 import { sheet as alerts } from './alerts.js';
 import { sheet as ambient } from './ambient.js';
@@ -105,7 +105,8 @@ export const sheet: SheetSpec = {
   frames: Object.entries(GALLERY).flatMap(([tag, example]) =>
     drawn(tag, example).map(({ name, config, cols }) => ({
       title: name,
-      cards: [{ ...config, ...(cols ? { cols } : {}) }],
+      // a card's own clock held at the pictures' moment (a test's hook, never in the example)
+      cards: [{ ...config, _now: MOMENT, ...(cols ? { cols } : {}) }],
       ...(VIEWS[tag] ? { hass: VIEWS[tag] } : {}),
     })),
   ),
