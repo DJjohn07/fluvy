@@ -210,6 +210,39 @@ describe('a select in the card', () => {
     expect(chevron(100)).toBe(false);
   });
 
+  it('draws the option in force first where the row’s own leave it out (#202): chosen, and no tap', () => {
+    const { root, calls } = draw(
+      { entity: 'select.tv', options: ['movie', 'standard'] },
+      'dynamic',
+    );
+    const chips = [...root.querySelectorAll<HTMLElement>('.fv-chip')];
+    expect(chips.map((chip) => chip.textContent?.trim())).toEqual(['Dynamic', 'Movie', 'Standard']);
+    expect(chips.map((chip) => chip.getAttribute('aria-pressed'))).toEqual([
+      'true',
+      'false',
+      'false',
+    ]);
+    expect(chips[0]?.getAttribute('aria-disabled')).toBe('true');
+    chips[0]?.click();
+    expect(calls).toEqual([]);
+  });
+
+  it('keeps to the six chips a glance holds unless the row asks for chips: the sixth gives way', () => {
+    const SEVEN = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+    const chips = (row: Partial<HelperRowConfig>): string[] => {
+      const piece = selectPiece(hostOf([]), viewOf(state(SEVEN, 'g')), {
+        entity: 'select.tv',
+        options: SEVEN.slice(0, 6),
+        ...row,
+      });
+      const root = document.createElement('div');
+      render('blocks' in piece ? html`${piece.blocks}` : piece.row, root);
+      return [...root.querySelectorAll('.fv-chip')].map((chip) => chip.textContent?.trim() ?? '');
+    };
+    expect(chips({})).toEqual(['G', 'A', 'B', 'C', 'D', 'E']);
+    expect(chips({ display: 'chips' })).toEqual(['G', 'A', 'B', 'C', 'D', 'E', 'F']);
+  });
+
   it('counts the chevron in what ends the row', () => {
     // "Picture mode" (96) keeps its circle beside "AI Mode" and its chevron (56 + 32 + 20) from 272; beside the
     // words alone it would from 252

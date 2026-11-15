@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
+import { options } from '@fluvy/ui';
 import { render } from 'lit';
-import { describe, expect, it } from 'vitest';
-import { chipRow, fittedColumns } from './chips.js';
+import { describe, expect, it, vi } from 'vitest';
+import { chipRow, fittedColumns, inForce } from './chips.js';
 import type { TextRuler } from './fit.js';
 
 /** A stand-in for the card's ruler: a chip's label at 7 a letter (its pill adds 16 each side's 8). */
@@ -80,5 +81,80 @@ describe('a word of Home Assistant’s no chip of a whole row holds', () => {
     expect(said('chips', 125)).toEqual(['Авто', 'Низкий', 'Естественный ветер']);
     expect(said('full', 126)).toEqual(['Автоматический', 'Низкий', 'Естественный ветер']);
     expect(said('chips', 126)).toEqual(['Автоматический', 'Низкий', 'Естественный ветер']);
+  });
+});
+
+describe('the value in force, offered or not (#202)', () => {
+  /** A hall air conditioner's speeds, as its firmware lists them. */
+  const SPEEDS = ['low', 'high'].map((key) => ({ key, label: key, active: false }));
+  const chip = (key: string) => ({ key, label: `${key}!`, active: false });
+  const keys = (items: readonly { key: string }[]): string[] => items.map((item) => item.key);
+
+  it('leaves a row that offers it as it is', () => {
+    expect(inForce(SPEEDS, 'high', chip)).toBe(SPEEDS);
+  });
+
+  it('stands first where the row does not offer it, in its words, chosen and inert', () => {
+    const shown = inForce(SPEEDS, 'middle', chip);
+    expect(shown).toEqual([
+      { key: 'middle', label: 'middle!', active: true, inert: true },
+      ...SPEEDS,
+    ]);
+  });
+
+  it('takes the place of the last a full row offers, and is one more under its cap', () => {
+    const six = ['a', 'b', 'c', 'd', 'e', 'f'].map(chip);
+    expect(keys(inForce(six, 'g', chip, 6))).toEqual(['g', 'a', 'b', 'c', 'd', 'e']);
+    expect(keys(inForce(six.slice(0, 2), 'g', chip, 6))).toEqual(['g', 'a', 'b']);
+    expect(keys(inForce(six, 'g', chip))).toEqual(['g', 'a', 'b', 'c', 'd', 'e', 'f']);
+  });
+
+  it('marks nothing for none, empty, a state that cannot be read, or one with no words, nor in a row of none', () => {
+    for (const value of ['none', '', 'unknown', 'unavailable', null, undefined, 3])
+      expect(inForce(SPEEDS, value, chip), String(value)).toBe(SPEEDS);
+    expect(inForce(SPEEDS, 'middle', () => undefined)).toBe(SPEEDS);
+    expect(inForce([], 'middle', chip)).toEqual([]);
+  });
+
+  it('is drawn as chosen at full strength, never the dashed look, and takes no tap', () => {
+    const host = document.createElement('div');
+    const onSelect = vi.fn();
+    render(chipRow(inForce(SPEEDS, 'middle', chip), onSelect, 'full', { ruler, width: 320 }), host);
+    const [held, low] = [...host.querySelectorAll<HTMLButtonElement>('.fv-chip')];
+    expect(held?.classList.contains('is-active')).toBe(true);
+    expect(held?.classList.contains('is-unavailable')).toBe(false);
+    expect(held?.disabled).toBe(false);
+    expect(held?.getAttribute('aria-pressed')).toBe('true');
+    expect(held?.getAttribute('aria-disabled')).toBe('true');
+    held?.click();
+    expect(onSelect).not.toHaveBeenCalled();
+    low?.click();
+    expect(onSelect).toHaveBeenCalledWith('low');
+    expect(low?.hasAttribute('aria-disabled')).toBe(false);
+  });
+
+  it('is an option tile chosen and inert alike', () => {
+    const host = document.createElement('div');
+    const onSelect = vi.fn();
+    const modes = [
+      { key: 'heat', label: 'Heat', glyph: 'flame' },
+      { key: 'cool', label: 'Cool', glyph: 'snow' },
+    ];
+    render(
+      options(
+        inForce(modes, 'off', (key) => ({ key, label: 'Off' })),
+        onSelect,
+      ),
+      host,
+    );
+    const [off, heat] = [...host.querySelectorAll<HTMLButtonElement>('.fv-option')];
+    expect(off?.classList.contains('is-active')).toBe(true);
+    expect(off?.classList.contains('is-unavailable')).toBe(false);
+    expect(off?.getAttribute('aria-pressed')).toBe('true');
+    expect(off?.getAttribute('aria-disabled')).toBe('true');
+    off?.click();
+    expect(onSelect).not.toHaveBeenCalled();
+    heat?.click();
+    expect(onSelect).toHaveBeenCalledWith('heat');
   });
 });

@@ -167,10 +167,11 @@ export const sheet: SheetSpec = {
         preset_mode: 'none',
       },
     ],
-    // the thermostats of #46: HomeMatic radiator valves, whose modes come as Auto, Heat, Off, from 5 to 30.5 by 0.5
+    // the thermostats of #46: HomeMatic radiator valves, whose modes come as Auto, Heat, Off, from 5 to 30.5 by 0.5,
+    // on their schedule (Auto, which the frame's lists name: a mode they leave out would stand first, #202)
     [
       'climate.garderobe',
-      'heat',
+      'auto',
       {
         friendly_name: 'Garderobe',
         ...HOMEMATIC,
@@ -182,7 +183,7 @@ export const sheet: SheetSpec = {
     ],
     [
       'climate.atelier',
-      'heat',
+      'auto',
       {
         friendly_name: 'Atelier',
         ...HOMEMATIC,

@@ -37,7 +37,7 @@ import { Card, type CardEditor } from '../shared/base.js';
 import { iconOf } from '../shared/domain.js';
 import { Burst, Hold, motionStyles, releasePresses, StableTemplate } from '../cover/common.js';
 import type { RowStyle, WhenOff } from '../shared/config.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce } from '../shared/chips.js';
 import { modeWord, pretty } from '../shared/mode-words.js';
 import { HeadFit, SWITCH_SLOT } from '../energy/head.js';
 import { heldLabels, type Labels } from '../shared/axis.js';
@@ -402,11 +402,13 @@ export class FluvyFanCard extends Card<FanCardConfig> {
       (item): item is string => typeof item === 'string',
     );
     const preset = this.presetHold.read(view.attr<string | null>('preset_mode') ?? null);
-    const chipItems: ChipItem[] = presets.map((item) => ({
+    const chip = (item: string): ChipItem => ({
       key: item,
       label: modeWord(this.rawHass, view, 'preset_mode', item),
       active: !unusable && item === preset,
-    }));
+    });
+    // the preset in force among them, offered or not (#202), while the fan can be read
+    const chipItems = inForce(presets.map(chip), unusable ? null : preset, chip);
     const showPresets =
       !bare &&
       chipItems.length > 0 &&

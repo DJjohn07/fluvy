@@ -47,7 +47,7 @@ import {
   shownStateText,
 } from '../cover/common.js';
 import type { RowStyle } from '../shared/config.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce } from '../shared/chips.js';
 import { modeWord } from '../shared/mode-words.js';
 import { HeadFit } from '../energy/head.js';
 import { drawnAs } from '../shared/heights.js';
@@ -564,11 +564,13 @@ export class FluvyVacuumCard extends Card<VacuumCardConfig> {
         )
       : [];
     const speed = this.suctionHold.read(view.attr<string | null>('fan_speed') ?? null);
-    const chipItems: ChipItem[] = speeds.map((item) => ({
+    const chip = (item: string): ChipItem => ({
       key: item,
       label: modeWord(this.rawHass, view, 'fan_speed', item),
       active: !unusable && item === speed,
-    }));
+    });
+    // the speed in force among them, offered or not (#202), while the robot can be read
+    const chipItems = inForce(speeds.map(chip), unusable ? null : speed, chip);
 
     const started =
       running && view.stateObj

@@ -19,6 +19,7 @@ import {
   preventMenu,
   startPress,
   stepper,
+  type ChipItem,
   type IconRef,
   type RulerChangeDetail,
   type Tone,
@@ -38,7 +39,7 @@ import {
   type RemoteGroup,
 } from '../remote-family.js';
 import { Card, type CardEditor } from '../shared/base.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce } from '../shared/chips.js';
 import { iconOf } from '../shared/domain.js';
 import { drawnAs } from '../shared/heights.js';
 import { ring, ringStyles } from '../shared/ring.js';
@@ -885,25 +886,39 @@ export class FluvyRemoteCard extends Card<RemoteCardConfig> {
     return Array.isArray(list) ? list.map(String) : [];
   }
 
-  /** The sources as chips (`sourceChips`): the platforms among them go to the apps row where that row is theirs. */
+  /**
+   * The sources as chips (`sourceChips`, by the player's integration): the platforms among them go to the apps row
+   * where that row is theirs (`appsDrawn`); the source in force among them where the player does not list it (#202),
+   * a chip whatever it names, since the apps row draws only the sources listed.
+   */
   private renderSources(
     p: EntityView,
     width: number,
-    chips: readonly SourceChip[],
+    appsDrawn: boolean,
   ): TemplateResult | typeof nothing {
+    const integration = this.hass?.entities?.[p.id]?.platform;
+    const listed = this.sources(p);
+    const chips = sourceChips(listed, appsDrawn, integration);
     if (!chips.length) return nothing;
     const current = textAttr(p, 'source');
-    const still = !this.usable() || !this.alive('input');
+    const usable = this.usable();
+    const still = !usable || !this.alive('input');
+    const chip = ([source, label]: SourceChip): ChipItem => ({
+      key: source,
+      label,
+      name: true,
+      active: usable && source === current,
+      unavailable: !usable,
+      disabled: still && usable,
+    });
+    // a source it lists and no chip says is the apps row's, or has no words
+    const said = (source: string): ChipItem | undefined => {
+      const [own] = listed.includes(source) ? [] : sourceChips([source], false, integration);
+      return own && chip(own);
+    };
     return html`<div class="rm-gap"></div>
       ${chipRow(
-        chips.map(([source, label]) => ({
-          key: source,
-          label,
-          name: true,
-          active: this.usable() && source === current,
-          unavailable: !this.usable(),
-          disabled: still && this.usable(),
-        })),
+        inForce(chips.map(chip), usable ? current : null, said),
         (source) => {
           haptic(this, 'selection');
           this.call('media_player', 'select_source', { source }, p.id);
@@ -1373,13 +1388,7 @@ export class FluvyRemoteCard extends Card<RemoteCardConfig> {
       for (const group of groups)
         switch (group) {
           case 'source':
-            parts.push(
-              this.renderSources(
-                p,
-                width,
-                sourceChips(this.sources(p), appsDrawn, this.hass?.entities?.[p.id]?.platform),
-              ),
-            );
+            parts.push(this.renderSources(p, width, appsDrawn));
             break;
           case 'dpad':
             if (keyed) parts.push(this.renderPad(width));

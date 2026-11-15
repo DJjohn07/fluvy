@@ -169,6 +169,13 @@
   transform: scale(0.94);
 }
 
+/* a chip or a tile that takes no tap (out of reach, or the value in force its row does not offer) gives nothing
+   under the finger */
+.fv-chip[aria-disabled='true']:active .fv-chip__pill,
+.fv-option[aria-disabled='true']:active {
+  transform: none;
+}
+
 /* `scale`, not `transform`: a card's entrance animation holds `transform` (fill both), which would win over the press */
 .fv-tile--tap:active,
 .fv-scene:active {

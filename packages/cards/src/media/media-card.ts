@@ -84,7 +84,7 @@ import {
 import { mediaHeight } from '../media-family.js';
 import { configKeys, type RowStyle } from '../shared/config.js';
 import { iconOf } from '../shared/domain.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce } from '../shared/chips.js';
 import { fitLine } from '../shared/fit.js';
 import { imageEntity, imageOf, isControl } from '../shared/picture.js';
 import type { EditorDefaults } from '../shared/rows-editor.js';
@@ -873,17 +873,15 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
     if (!Array.isArray(list) || !list.length || !view.supports(MEDIA.SELECT_SOURCE)) return nothing;
     const current = textAttr(view, 'source');
     const names = list.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean);
-    const shown = names.slice(0, MAX_SOURCES);
-    if (current && !shown.includes(current)) {
-      shown.pop();
-      shown.unshift(current);
-    }
-    if (!shown.length) return nothing;
-    const items: ChipItem[] = shown.map((source) => ({
+    const chip = (source: string): ChipItem => ({
       key: source,
       label: source,
       active: source === current,
-    }));
+    });
+    // the first six, and the source in force first where they leave it out: the sixth gives way where all six stand,
+    // and none where there is room (#202)
+    const items = inForce(names.slice(0, MAX_SOURCES).map(chip), current, chip, MAX_SOURCES);
+    if (!items.length) return nothing;
     // measured, so a source's name is never cut in a narrow column ("Netflix" in a third of 171): two a row instead
     const fit = { ruler: this.head.ruler, width: this.contentWidth };
     return html`${label(this.t('media.source'))}${chipRow(items, (key) => this.call('media_player', 'select_source', { source: key }), this.config?.source_style, fit)}`;

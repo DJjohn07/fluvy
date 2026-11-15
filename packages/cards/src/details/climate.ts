@@ -13,7 +13,7 @@ import {
 } from '../thermostat/readings.js';
 import {
   chooseMode,
-  defaultModes,
+  modesDrawn,
   stepTarget,
   targetCall,
   thermostatModel,
@@ -311,7 +311,7 @@ export class FluvyDetailsClimate extends DetailsSheet {
     const shown = this.target(m);
     const idle = unusable || m.off || !shown;
     const target = this.t('climate.target');
-    const modes = defaultModes(m.kind === 'climate', m.modes);
+    const modes = modesDrawn(m);
     return html`<div class="dt-hero">
         <fluvy-dial
           .radius=${this.ring}
@@ -370,6 +370,7 @@ export class FluvyDetailsClimate extends DetailsSheet {
                 label: mode.label,
                 active: mode.active ?? false,
                 unavailable: unusable,
+                inert: mode.inert ?? false,
                 ...(mode.glyph ? { glyph: mode.glyph } : {}),
                 ...(mode.tone ? { tone: mode.tone } : {}),
               })),

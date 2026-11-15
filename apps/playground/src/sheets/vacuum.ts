@@ -54,7 +54,15 @@ const withServices = (hass: HomeAssistant): HomeAssistant => ({ ...hass, service
 export const sheet: SheetSpec = {
   states: [
     ['vacuum.dr_robot', 'docked', robot('Robot vacuum')],
-    ['vacuum.dr_roborock', 'idle', robot('Roborock', { fan_speed: 'balanced', battery_level: 72 })],
+    [
+      'vacuum.dr_roborock',
+      'idle',
+      robot('Roborock', {
+        fan_speed: 'balanced',
+        fan_speed_list: ['quiet', 'balanced', 'turbo', 'max'],
+        battery_level: 72,
+      }),
+    ],
     [
       'vacuum.dr_s8',
       'idle',

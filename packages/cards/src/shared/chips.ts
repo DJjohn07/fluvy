@@ -76,6 +76,30 @@ const wordsOnly = (item: Choice): Choice => {
   return glyph ? words : item;
 };
 
+/** What marks nothing in force: Home Assistant's `none` (a preset unset), and a state it cannot say. */
+const UNSET: ReadonlySet<string> = new Set(['none', 'unknown', 'unavailable']);
+
+/**
+ * A row's choices with the value in force among them (#202): a value the row does not offer (a speed the unit runs at
+ * but its firmware does not list, a mode the card's own list leaves out, a source past the row's cap) stands first as
+ * one more choice, in its words (`chip`, none where it has none), marked and inert: it says what the device does, at
+ * full strength, and takes no tap. Where the row is capped and full, the last it offers gives way to it. Empty,
+ * `none` and a state that cannot be read mark nothing, and a row that offers nothing stays empty.
+ */
+export function inForce<
+  T extends { readonly key: string; readonly active?: boolean; readonly inert?: boolean },
+>(
+  items: readonly T[],
+  value: unknown,
+  chip: (value: string) => T | undefined,
+  cap = Infinity,
+): readonly T[] {
+  if (typeof value !== 'string' || !value || UNSET.has(value)) return items;
+  if (!items.length || items.some((item) => item.key === value)) return items;
+  const shown = chip(value);
+  return shown ? [{ ...shown, active: true, inert: true }, ...items.slice(0, cap - 1)] : items;
+}
+
 /** A content-sized chip's pill: 14 each side of its label (`data-fit`). */
 const OWN_SIDES = 28;
 

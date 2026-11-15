@@ -10,7 +10,7 @@ import {
   type HelperRowConfig,
 } from './context.js';
 import { menuRow } from './rows.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce } from '../shared/chips.js';
 import { type RowStyle } from '../shared/config.js';
 import {
   chooseOption,
@@ -50,7 +50,8 @@ export type SelectPiece =
 /**
  * `input_select` / `select`: the label and its options as chips; a long list (or a row that says so) is a row whose
  * value opens Fluvy's dropdown. Either offers the row's options in its order and words, and chooses with
- * `select_option`.
+ * `select_option`; the option in force is among the chips where the row's own leave it out (#202), within the six
+ * chips a glance holds unless the row asks for chips.
  */
 export function selectPiece(
   host: HelperHost,
@@ -62,12 +63,18 @@ export function selectPiece(
   if (end) return { row: menuRow(host, view, row, end.button ?? '') };
   const state = host.state(view);
   const unusable = isUnusable(view);
-  const items: ChipItem[] = optionsOf(view, row).map((option) => ({
+  const chip = (option: string): ChipItem => ({
     key: option,
     label: optionLabel(host.hass, view, row, option),
     active: option === state,
     unavailable: unusable,
-  }));
+  });
+  const items = inForce(
+    optionsOf(view, row).map(chip),
+    unusable ? null : state,
+    chip,
+    row.display === 'chips' ? Infinity : MAX_CHIPS,
+  );
   return {
     blocks: [
       field(nameOf(host, view, row), fieldContext(host, view, row), nothing, unusable),

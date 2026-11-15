@@ -131,6 +131,11 @@ the thermostat and the fan can keep to the essentials (`when_off: essentials`) �
 modes, the fan its switch and speed ruler — and presets, fan speeds, oscillation and direction come back the moment a
 mode or the switch wakes it (the water heater and the humidifier only have modes, so nothing hides on them).
 
+A row of choices always shows the value in force. A fan speed, a preset, a mode, a select's option or a source that
+the row does not offer (left out by the card's own list, past the row's six, or never listed by the device) stands
+first, chosen, and takes no tap: an air conditioner running at `middle` while it offers Low and High says Mid, and a
+thermostat with `modes: [heat, cool]` says Off while it is off. Choosing another value takes it away again.
+
 A compact or mini tile keeps its name to one line, ending a long one in an ellipsis; `name_lines: 2` lets it take a
 second line where one would cut it — on the tile and tiles cards, the template card, the room lights' tiles and the
 room card's tiles and row. The tile is then a line taller whatever its name says (a compact one 88 instead of 76, 96

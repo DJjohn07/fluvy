@@ -670,10 +670,6 @@
   color: var(--fluvy-text-secondary);
 }
 
-.fv-chip.is-unavailable:active .fv-chip__pill {
-  transform: none;
-}
-
 /* the dashed ring says it; the chip itself is not faded (the general `.is-unavailable` fade would take its name
    under 3:1) */
 .fv-chip.is-unavailable {

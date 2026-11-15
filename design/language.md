@@ -393,6 +393,16 @@ Rectangular tappables share **one radius: 12** (option tiles, buttons, keys, fie
   never showed it ("Auto · Aus" on HomeMatic after unticking Heat). The alarm's modes alike, from the panel's
   features. A card's select may take its options from the house this way (`static choices`); the form itself stays
   one static schema.
+- **The value in force always shows (1.22, #202):** a row of choices that leaves out the value its device runs at
+  — a fan speed its firmware does not list, a mode or a preset the card's own list leaves out, a water heater's seventh
+  operation, a select's option its row does not offer, a source past a player's six or one it does not list — draws it
+  first as one more choice, in Home Assistant's word (else Fluvy's, else tidied): chosen (the active fill or tile, in
+  its tone), at full strength and inert — `aria-pressed` and `aria-disabled`, no tap, no press. Never the dashed ring,
+  which says a device cannot be read. Where the row is capped and full (a water heater's and a humidifier's six modes,
+  a player's six sources, a select's six chips unless its row asks for chips), the last it offers gives way to it.
+  `none`, an empty value and a device out of reach mark nothing, and a row that offers nothing stays empty. The
+  thermostat's modes, presets and fan speeds, its details sheet's modes, the fan's presets, the robot's suction, the
+  helpers' select chips, the remote's and the player's sources (shared `inForce`).
 - **What a thermostat shows:** `show_modes: false` hides the modes and their label (a 128 tile block, 88 as chips);
   `show_current: false` drops "· Now 20.6°" and the dial's sub; `subtitle` replaces the line under the name (empty
   hides it), which otherwise leaves the area out where it is the name ("Garderobe / Garderobe" said it twice).

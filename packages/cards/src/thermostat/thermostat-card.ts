@@ -43,7 +43,7 @@ import { HeadFit, type FittedHead } from '../energy/head.js';
 import { optionCell, optionColumnsFor, optionsHold, valuesHeld } from '../shared/options.js';
 import { BrokenPictures, imageEntity, imageOf } from '../shared/picture.js';
 import type { WhenOff } from '../shared/config.js';
-import { chipRow } from '../shared/chips.js';
+import { chipRow, inForce, type Choice } from '../shared/chips.js';
 import { haWord, modeWord, pretty } from '../shared/mode-words.js';
 import { fitValueRow, STEPPER, STEPPER_HALVES, valueRowClass } from '../shared/value-row.js';
 import { degrees, doing, setpoint, type Doing } from './doing.js';
@@ -106,6 +106,8 @@ export interface ThermostatModel {
   readonly doing: Doing;
   /** Every mode the entity offers, in `modeOrder`. */
   readonly modes: readonly OptionItem[];
+  /** The mode it runs, as its tile says it, whether the entity lists it or not; none out of reach (#202). */
+  readonly running: OptionItem | undefined;
   readonly presets: readonly string[];
   readonly preset: string | undefined;
   readonly fans: readonly string[];
@@ -157,6 +159,7 @@ const SPEEDS = new Map<string, MessageKey>([
   ['low', 'fan.low'],
   ['mid', 'fan.mid'],
   ['medium', 'fan.mid'],
+  ['middle', 'fan.mid'],
   ['high', 'fan.high'],
 ]);
 
@@ -185,6 +188,26 @@ export function modeOrder(view: EntityView): string[] {
 /** The modes drawn where the config lists none: a climate's all, a water heater's and a humidifier's first six. */
 export const defaultModes = <T>(climate: boolean, modes: readonly T[]): T[] =>
   climate ? [...modes] : modes.slice(0, SHOWN);
+
+/**
+ * The modes a thermostat's row draws, on its card and its details sheet: those a card's list asks for, in its order
+ * (a humidifier's older `__off` is its `off`), those the entity offers; else what it shows by default
+ * (`defaultModes`); and the mode it runs among them wherever they leave it out (`inForce`, #202: a water heater's first
+ * six give their last place up to it).
+ */
+export function modesDrawn(m: ThermostatModel, asked?: readonly string[]): readonly OptionItem[] {
+  const shown = asked?.length
+    ? asked
+        .map((key) => m.modes.find((o) => o.key === (key === '__off' ? 'off' : key)))
+        .filter((o): o is OptionItem => o !== undefined)
+    : defaultModes(m.kind === 'climate', m.modes);
+  return inForce(
+    shown,
+    m.running?.key,
+    () => m.running,
+    asked?.length || m.kind === 'climate' ? Infinity : SHOWN,
+  );
+}
 
 /**
  * A mode's word, the same on the card and in its editor: Fluvy's for a climate's seven and for Off; else Home
@@ -264,6 +287,19 @@ export function thermostatModel(host: ThermostatHost, view: EntityView): Thermos
   const word = (m: string): string => modeLabel(host.rawHass, view, m);
   // a mode's setpoint from when it last ran ("Cool · 24°"), while the device can be read
   const recall = (m: string): string => (view.status === 'ok' ? recallSetpoint(view.id, m) : '');
+  // the modes offered as tiles, and the one it runs as its tile, listed or not, while it can be read
+  const modeTiles = (
+    keys: readonly string[],
+    runs: string | undefined,
+    tile: (m: string) => OptionItem,
+  ): Pick<ThermostatModel, 'modes' | 'running'> => {
+    const offered = keys.map(tile);
+    return {
+      modes: offered,
+      running:
+        runs && isUsable(view) ? (offered.find((o) => o.key === runs) ?? tile(runs)) : undefined,
+    };
+  };
   if (view.domain === 'humidifier') {
     // on runs a mode, off is Off; out of reach is neither
     const off = state === 'off';
@@ -287,7 +323,7 @@ export function thermostatModel(host: ThermostatHost, view: EntityView): Thermos
       canOff: true,
       arc: 'to-target',
       doing: doing(host, view, state, off ? 'neutral' : 'water', host.ask),
-      modes: modes.map((m): OptionItem =>
+      ...modeTiles(modes, off ? 'off' : on ? mode : undefined, (m): OptionItem =>
         m === 'off'
           ? {
               key: m,
@@ -339,7 +375,7 @@ export function thermostatModel(host: ThermostatHost, view: EntityView): Thermos
       canOff: modes.includes('off'),
       arc: 'to-target',
       doing: doing(host, view, state, off ? 'neutral' : 'heat', host.ask),
-      modes: modes.map((m): OptionItem => ({
+      ...modeTiles(modes, state, (m): OptionItem => ({
         key: m,
         label: word(m),
         value:
@@ -405,7 +441,7 @@ export function thermostatModel(host: ThermostatHost, view: EntityView): Thermos
           ? 'none'
           : 'to-target',
     doing: doing(host, view, state, tone, host.ask),
-    modes: modes.map((m): OptionItem => ({
+    ...modeTiles(modes, state, (m): OptionItem => ({
       key: m,
       label: word(m),
       value:
@@ -816,16 +852,9 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       }`;
   }
 
-  /**
-   * The modes the config asks for, in its order (a humidifier's older `__off` is its `off`), those the entity offers;
-   * else what the card shows by default (`defaultModes`). None where the config hides the row.
-   */
+  /** The modes the config asks for (`modesDrawn`); none where it hides the row. */
   private shownModes(m: ThermostatModel): readonly OptionItem[] {
-    if (this.config?.show_modes === false) return [];
-    if (!this.config?.modes?.length) return defaultModes(m.kind === 'climate', m.modes);
-    return this.config.modes
-      .map((key) => m.modes.find((o) => o.key === (key === '__off' ? 'off' : key)))
-      .filter((o): o is OptionItem => o !== undefined);
+    return this.config?.show_modes === false ? [] : modesDrawn(m, this.config?.modes);
   }
 
   private renderModes(
@@ -865,6 +894,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
         label: o.label,
         active: o.active ?? false,
         unavailable: o.unavailable ?? false,
+        inert: o.inert ?? false,
         ...(o.glyph ? { glyph: o.glyph } : {}),
       })),
       select,
@@ -898,6 +928,24 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
         : `${formatNumber(this.hass, v, { digits: 0 })}°`;
 
     const fitted = this.fitHead(view, m, name);
+    // a preset and a fan speed in Home Assistant's words, else Fluvy's for a standard speed; the one in force is
+    // among them whether the entity offers it or not (#202), while it can be read
+    const preset = (p: string): Choice => ({
+      key: p,
+      label: modeWord(this.rawHass, view, 'preset_mode', p),
+      active: p === m.preset,
+      unavailable: unusable,
+    });
+    const fan = (f: string): Choice => {
+      const speed = SPEEDS.get(f.toLowerCase());
+      return {
+        key: f,
+        label: modeWord(this.rawHass, view, 'fan_mode', f, speed),
+        ...(speed ? { own: localize(this.hass, speed) } : {}),
+        active: f === m.fan,
+        unavailable: unusable,
+      };
+    };
     // out of reach, a mode, a preset and a fan speed keep their place at rest: the dashed tile or chip takes no tap
     const modes = this.shownModes(m).map((o) => (unusable ? { ...o, unavailable: true } : o));
     // the essentials while off: the head, the value and the modes stay; presets and fan speeds wait for a mode
@@ -943,12 +991,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       ${
         m.presets.length && !essentials && this.config?.show_presets !== false
           ? html`${label(this.t('climate.preset'))}${chipRow(
-              m.presets.map((p) => ({
-                key: p,
-                label: modeWord(this.rawHass, view, 'preset_mode', p),
-                active: p === m.preset,
-                unavailable: unusable,
-              })),
+              inForce(m.presets.map(preset), unusable ? undefined : m.preset, preset),
               (key) => this.call('climate', 'set_preset_mode', { preset_mode: key }),
               this.config?.preset_style,
               { ruler: this.head.ruler, width: this.contentWidth },
@@ -958,16 +1001,7 @@ export class FluvyThermostatCard extends Card<ThermostatCardConfig> {
       ${
         m.fans.length && !essentials && this.config?.show_fan !== false
           ? html`${label(this.t('climate.fan'))}${chipRow(
-              m.fans.map((f) => {
-                const speed = SPEEDS.get(f.toLowerCase());
-                return {
-                  key: f,
-                  label: modeWord(this.rawHass, view, 'fan_mode', f, speed),
-                  ...(speed ? { own: localize(this.hass, speed) } : {}),
-                  active: f === m.fan,
-                  unavailable: unusable,
-                };
-              }),
+              inForce(m.fans.map(fan), unusable ? undefined : m.fan, fan),
               (key) => this.call('climate', 'set_fan_mode', { fan_mode: key }),
               this.config?.fan_style,
               { ruler: this.head.ruler, width: this.contentWidth },

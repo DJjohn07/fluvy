@@ -400,6 +400,8 @@ export interface OptionItem {
   readonly active?: boolean;
   /** What it stands for cannot be read: the Unavailable surface (the dashed hairline, the off ink), no tap. */
   readonly unavailable?: boolean;
+  /** At full strength but no tap (`aria-disabled`): the value in force where its row does not offer it (`inForce`). */
+  readonly inert?: boolean;
   /** A figure's own tap (tiles with no choice to make): a button laid over its tile, named by its label and value. */
   readonly onTap?: (() => void) | undefined;
   /** A figure's still press of 500 ms (or the keyboard's menu key); the click that follows is swallowed. */
@@ -476,8 +478,8 @@ export function options(
             data-target
             style=${style}
             aria-pressed=${o.active ? 'true' : 'false'}
-            aria-disabled=${o.unavailable ? 'true' : nothing}
-            @click=${o.unavailable ? nothing : () => onSelect(o.key)}
+            aria-disabled=${o.unavailable || o.inert ? 'true' : nothing}
+            @click=${o.unavailable || o.inert ? nothing : () => onSelect(o.key)}
           >
             ${body}
           </button>`;
@@ -502,6 +504,8 @@ export interface ChipItem {
   readonly name?: boolean;
   /** What it stands for cannot be read: the dashed ring, no tap (a hold still opens it). */
   readonly unavailable?: boolean;
+  /** At full strength but no tap (`aria-disabled`): the value in force where its row does not offer it (`inForce`). */
+  readonly inert?: boolean;
   readonly disabled?: boolean;
 }
 
@@ -537,7 +541,7 @@ export function chips(
     class="fv-chips ${className} ${fill ? 'fv-chips--fill' : ''}"
     style=${grid ? `grid-template-columns:repeat(${grid.tracks}, minmax(0, 1fr))` : nothing}
   >
-    ${items.map((c, index) => html`<button class="fv-chip ${c.active ? 'is-active' : ''} ${c.tone ? `fv-chip--toned fv-tone--${c.tone}` : ''} ${c.unavailable ? 'is-unavailable' : ''}" data-target data-fit=${fill ? nothing : '28'} data-accent=${c.accent ?? nothing} style=${grid && grid.spans[index] !== 1 ? `grid-column:span ${grid.spans[index]}` : nothing} aria-pressed=${c.active ? 'true' : 'false'} aria-disabled=${c.unavailable ? 'true' : nothing} aria-label=${c.short ? c.label : nothing} title=${c.short ? c.label : nothing} ?disabled=${c.disabled ?? false} .fvTap=${c.onHold && !c.unavailable ? () => onSelect(c.key) : undefined} .fvHold=${c.onHold} @pointerdown=${c.onHold ? startPress : nothing} @contextmenu=${c.onHold ? preventMenu : nothing} @click=${c.onHold ? clickPress : c.unavailable ? nothing : () => onSelect(c.key)}><span class="fv-chip__pill" data-control>${c.glyph ? icon(c.glyph) : nothing}${c.short ? nothing : c.name ? html`<span class="fv-chip__name" data-name>${c.label}</span>` : c.glyph ? c.label : html`<span class="fv-chip__label">${c.label}</span>`}</span></button>`)}
+    ${items.map((c, index) => html`<button class="fv-chip ${c.active ? 'is-active' : ''} ${c.tone ? `fv-chip--toned fv-tone--${c.tone}` : ''} ${c.unavailable ? 'is-unavailable' : ''}" data-target data-fit=${fill ? nothing : '28'} data-accent=${c.accent ?? nothing} style=${grid && grid.spans[index] !== 1 ? `grid-column:span ${grid.spans[index]}` : nothing} aria-pressed=${c.active ? 'true' : 'false'} aria-disabled=${c.unavailable || c.inert ? 'true' : nothing} aria-label=${c.short ? c.label : nothing} title=${c.short ? c.label : nothing} ?disabled=${c.disabled ?? false} .fvTap=${c.onHold && !c.unavailable && !c.inert ? () => onSelect(c.key) : undefined} .fvHold=${c.onHold} @pointerdown=${c.onHold ? startPress : nothing} @contextmenu=${c.onHold ? preventMenu : nothing} @click=${c.onHold ? clickPress : c.unavailable || c.inert ? nothing : () => onSelect(c.key)}><span class="fv-chip__pill" data-control>${c.glyph ? icon(c.glyph) : nothing}${c.short ? nothing : c.name ? html`<span class="fv-chip__name" data-name>${c.label}</span>` : c.glyph ? c.label : html`<span class="fv-chip__label">${c.label}</span>`}</span></button>`)}
   </div>`;
 }
 
