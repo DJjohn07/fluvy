@@ -17,7 +17,7 @@
   <a href="https://github.com/sponsors/acosta290"><img alt="Sponsor Fluvy" src="https://img.shields.io/badge/sponsor-keep%20the%20robot%20fed-db61a2.svg?logo=githubsponsors&logoColor=white"></a>
 </p>
 
-<p align="center"><b>Try it: <a href="https://acosta290.github.io/fluvy/">acosta290.github.io/fluvy</a></b> — the real cards, pages and settings panel on a simulated home, in your browser.</p>
+<p align="center"><b>Try it: <a href="https://acosta290.github.io/fluvy/">acosta290.github.io/fluvy</a></b> — every card live on a simulated home, in each of its layouts, with the YAML that draws it to copy; the real pages, automatic dashboard and settings panel, in your browser.</p>
 
 <p align="center">
   <a href="https://acosta290.github.io/fluvy/?palette=linen"><img src="https://raw.githubusercontent.com/acosta290/fluvy/main/docs/images/readme/hero.webp" width="822" alt="Fluvy on the Linen palette: light and plug tiles, a thermostat, the day's energy in the soft style and a media player"></a>

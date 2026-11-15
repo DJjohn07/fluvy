@@ -8,15 +8,17 @@ import {
   deviceFor,
   frameWidth,
   parseState,
+  parseView,
+  samePage,
   serialize,
 } from './state.js';
 
 const parse = (query: string) => parseState(new URLSearchParams(query));
 
 describe('the demo state', () => {
-  it('starts on the home family, a phone, English, the light mode and Blaze', () => {
+  it('starts on the overview, a phone, English, the light mode and Blaze', () => {
     expect(parse('')).toEqual({
-      view: { kind: 'sheet', name: 'home' },
+      view: { kind: 'overview' },
       mode: 'light',
       device: 'phone',
       language: 'en',
@@ -109,5 +111,68 @@ describe('the demo state', () => {
   it('carries a Home Assistant path from Pages’ fallback', () => {
     expect(parse('path=%2Flogbook').path).toBe('/logbook');
     expect(serialize(parse('path=%2Flogbook')).has('path')).toBe(false);
+  });
+
+  it('opens a card’s page by its short name, and one of its layouts', () => {
+    expect(parse('card=tile').view).toEqual({ kind: 'card', card: 'tile' });
+    expect(parse('card=tile&layout=compact').view).toEqual({
+      kind: 'card',
+      card: 'tile',
+      layout: 'compact',
+    });
+    // a layout the card does not have is no layout; a card there is not is the overview
+    expect(parse('card=tile&layout=hero').view).toEqual({ kind: 'card', card: 'tile' });
+    expect(parse('card=nope').view).toEqual({ kind: 'overview' });
+    // the card's page with the look the link wears, back as it was given
+    for (const query of [
+      'card=tile&layout=mini&mode=dark&device=desktop&lang=de&palette=linen',
+      'card=calendar&layout=month-day&mode=light&device=phone',
+      'card=energy-flow&mode=light&device=tablet&shape=round',
+    ])
+      expect(serialize(parse(query)).toString()).toBe(query);
+  });
+
+  it('names every page of the menu in its own words, and reads them back', () => {
+    for (const query of [
+      'cards=1&mode=light&device=phone',
+      'themes=1&mode=dark&device=desktop',
+      'dashboard=auto&mode=light&device=phone',
+      'dashboard=auto&view=room-living&mode=light&device=phone',
+      'sheet=home&mode=light&device=phone',
+      'sheet=energy&mode=dark&device=tablet',
+    ])
+      expect(serialize(parse(query)).toString()).toBe(query);
+    expect(parse('dashboard=auto').view).toEqual({ kind: 'auto', view: 'home' });
+    expect(parse('dashboard=auto&view=../../etc').view).toEqual({ kind: 'auto', view: 'home' });
+    // the playground's other dashboards are its own: here the overview
+    expect(parse('dashboard=home').view).toEqual({ kind: 'overview' });
+  });
+
+  it('keeps every link the demo was shared by before: each opens what it opened', () => {
+    expect(parse('sheet=home').view).toEqual({ kind: 'sheet', name: 'home' });
+    expect(parse('sheet=animated&palette=linen').view).toEqual({ kind: 'sheet', name: 'animated' });
+    expect(parse('panel=charts&palette=linen').view).toEqual({ kind: 'panel', tab: 'charts' });
+    expect(parse('history=1&palette=linen').view).toEqual({ kind: 'history' });
+    expect(parse('activity=1&palette=linen').view).toEqual({ kind: 'activity' });
+    // the README's links that named no page open the overview, on the device and palette they name
+    const front = parse('palette=linen&device=desktop');
+    expect(front.view).toEqual({ kind: 'overview' });
+    expect(front.device).toBe('desktop');
+    expect(front.look.palette).toBe('linen');
+  });
+
+  it('reads the page alone for back and forward, and tells a card’s layouts one page', () => {
+    expect(parseView(new URLSearchParams('card=fan&layout=compact&mode=dark'))).toEqual({
+      kind: 'card',
+      card: 'fan',
+      layout: 'compact',
+    });
+    expect(
+      samePage({ kind: 'card', card: 'fan' }, { kind: 'card', card: 'fan', layout: 'compact' }),
+    ).toBe(true);
+    expect(samePage({ kind: 'card', card: 'fan' }, { kind: 'card', card: 'tile' })).toBe(false);
+    expect(samePage({ kind: 'sheet', name: 'home' }, { kind: 'sheet', name: 'energy' })).toBe(
+      false,
+    );
   });
 });

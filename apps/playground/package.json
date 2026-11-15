@@ -27,6 +27,7 @@
     "./scenes": "./src/scenes.ts",
     "./hass": "./src/hass.ts",
     "./house": "./src/house.ts",
+    "./automatic": "./src/automatic.ts",
     "./ha-icons": "./src/ha-icons.ts",
     "./panel": "./src/panel.ts",
     "./history": "./src/history.ts",

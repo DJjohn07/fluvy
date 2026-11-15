@@ -6,14 +6,14 @@
     <meta name="theme-color" content="#f3eee4" />
     <meta
       name="description"
-      content="Fluvy, a premium theme and card library for Home Assistant: the real cards, pages and settings panel on a simulated home."
+      content="Fluvy, a premium theme and card library for Home Assistant: every card live on a simulated home, with the YAML that draws it, and the real pages and settings panel."
     />
     <title>Fluvy · live demo</title>
     <link rel="stylesheet" href="/src/demo.css" />
   </head>
   <body>
     <div id="shell"></div>
-    <main id="stage" class="demo-stage"></main>
+    <main id="stage" class="demo-stage" tabindex="-1"></main>
     <script>globalThis.__FLUVY_FONTS__ = false; /* the demo serves Inter itself, from packages/fonts */</script>
     <script type="module" src="/src/main.ts"></script>
   </body>

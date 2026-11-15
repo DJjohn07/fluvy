@@ -11,12 +11,14 @@ import {
 } from '@fluvy/core';
 import { TABS, type Tab } from '@fluvy/cards/panel/model';
 import { isPaletteName, isPillName, isShapeName, type PaletteMode } from '@fluvy/tokens/runtime';
+import { cardOf, layoutsOf } from './catalog.js';
 
 /**
- * What the demo shows, and the URL that says it. The parameters are the playground's (`sheet`, `mode`, `width`,
- * `lang`, `palette`, `shape`, `pills`, `accent` with `character`, `base`, `fill`, `highlight`, `charts`, `panel`,
- * `history`, `activity`, `moment`, `at`), so every playground link opens here as it does there; `device` is the
- * demo's own.
+ * What the demo shows, and the URL that says it. The parameters are the playground's (`sheet`, `dashboard=auto` with
+ * `view`, `mode`, `width`, `lang`, `palette`, `shape`, `pills`, `accent` with `character`, `base`, `fill`,
+ * `highlight`, `charts`, `panel`, `history`, `activity`, `moment`, `at`), so every playground link opens here as it
+ * does there; `device`, `card` with `layout`, `cards` and `themes` are the demo's own. A link that names no page opens
+ * the overview.
  */
 
 export type DeviceName = 'phone' | 'phone-l' | 'tablet' | 'desktop';
@@ -48,7 +50,18 @@ export interface DemoCharts {
 export type DemoLanguage = LanguageCode;
 
 export type DemoView =
+  /** What Fluvy is, how to install it, and its strongest frames. */
+  | { readonly kind: 'overview' }
+  /** Every card, by the README's groups. */
+  | { readonly kind: 'cards' }
+  /** A card's page: its example and each of its layouts, `layout` the one the link points at. */
+  | { readonly kind: 'card'; readonly card: string; readonly layout?: string }
+  /** A family of the playground's sheets, or one sheet, as frames. */
   | { readonly kind: 'sheet'; readonly name: string }
+  /** A view of the automatic dashboard, by its path, as its strategy builds it from the demo house. */
+  | { readonly kind: 'auto'; readonly view: string }
+  /** The palettes, light and dark. */
+  | { readonly kind: 'themes' }
   | { readonly kind: 'panel'; readonly tab: Tab }
   | { readonly kind: 'history'; readonly moment?: string }
   | { readonly kind: 'activity'; readonly moment?: string };
@@ -74,8 +87,9 @@ export const AT = '2026-09-17T21:47:12';
 export const DEFAULT_LOOK: Look = { palette: 'blaze', shape: 'soft', pills: 'round' };
 /** The factory's: `classic` everywhere, no sets of the house's own. */
 export const DEFAULT_CHARTS: DemoCharts = { settings: CHART_DEFAULTS, sets: [] };
-export const DEFAULT_SHEET = 'home';
-export const DEFAULT_VIEW: DemoView = { kind: 'sheet', name: DEFAULT_SHEET };
+export const DEFAULT_VIEW: DemoView = { kind: 'overview' };
+/** The automatic dashboard's first view, what `dashboard=auto` opens on. */
+export const AUTO_HOME = 'home';
 
 export const isDevice = (value: unknown): value is DeviceName =>
   typeof value === 'string' && Object.hasOwn(DEVICES, value);
@@ -136,13 +150,66 @@ export function chartsParam(charts: DemoCharts): string | undefined {
   return Object.keys(out).length ? JSON.stringify(out) : undefined;
 }
 
-function viewOf(params: URLSearchParams): DemoView {
+/** A view path of the automatic dashboard as its strategy writes them (`home`, `room-living`). */
+const VIEW_PATH = /^[\w-]{1,64}$/;
+
+/**
+ * The page a URL names: the first of its page parameters, in the order below; the overview where it names none. Read
+ * alone by back and forward, which move between pages and keep the look the visitor chose.
+ */
+export function parseView(params: URLSearchParams): DemoView {
   const panel = params.get('panel');
   if (panel !== null) return { kind: 'panel', tab: isTab(panel) ? panel : 'appearance' };
   const moment = params.get('moment');
   if (params.get('history') === '1') return { kind: 'history', ...(moment ? { moment } : {}) };
   if (params.get('activity') === '1') return { kind: 'activity', ...(moment ? { moment } : {}) };
-  return { kind: 'sheet', name: params.get('sheet') || DEFAULT_SHEET };
+  const card = cardOf(params.get('card') ?? '');
+  if (card) {
+    const layout = params.get('layout') ?? '';
+    return {
+      kind: 'card',
+      card: card.short,
+      ...(layoutsOf(card).includes(layout) ? { layout } : {}),
+    };
+  }
+  if (params.get('dashboard') === 'auto') {
+    const view = params.get('view') ?? '';
+    return { kind: 'auto', view: VIEW_PATH.test(view) ? view : AUTO_HOME };
+  }
+  if (params.get('cards') === '1') return { kind: 'cards' };
+  if (params.get('themes') === '1') return { kind: 'themes' };
+  const sheet = params.get('sheet');
+  return sheet ? { kind: 'sheet', name: sheet } : DEFAULT_VIEW;
+}
+
+/** A page's own parameters, as `viewOf` reads them back. */
+function viewParams(view: DemoView, params: URLSearchParams): void {
+  switch (view.kind) {
+    case 'overview':
+      return;
+    case 'cards':
+    case 'themes':
+      params.set(view.kind, '1');
+      return;
+    case 'card':
+      params.set('card', view.card);
+      if (view.layout) params.set('layout', view.layout);
+      return;
+    case 'sheet':
+      params.set('sheet', view.name);
+      return;
+    case 'auto':
+      params.set('dashboard', 'auto');
+      if (view.view !== AUTO_HOME) params.set('view', view.view);
+      return;
+    case 'panel':
+      params.set('panel', view.tab);
+      return;
+    case 'history':
+    case 'activity':
+      params.set(view.kind, '1');
+      if (view.moment) params.set('moment', view.moment);
+  }
 }
 
 /** The device a screen of `viewportWidth` is: what the demo shows first, until the link or a chip says otherwise. */
@@ -160,7 +227,7 @@ export function parseState(params: URLSearchParams, viewportWidth = 0): DemoStat
   const at = params.get('at');
   const path = params.get('path');
   return {
-    view: viewOf(params),
+    view: parseView(params),
     mode: mode === 'dark' ? 'dark' : 'light',
     device: isDevice(device) ? device : deviceFor(viewportWidth),
     ...(Number.isInteger(width) && width >= 280 && width <= 1200 ? { frameWidth: width } : {}),
@@ -175,14 +242,7 @@ export function parseState(params: URLSearchParams, viewportWidth = 0): DemoStat
 /** The URL of a state: the playground's names, only what differs from the defaults (the mode and the device always: a link pins what was seen). */
 export function serialize(state: DemoState): URLSearchParams {
   const params = new URLSearchParams();
-  const { view } = state;
-  if (view.kind === 'sheet') {
-    if (view.name !== DEFAULT_SHEET) params.set('sheet', view.name);
-  } else if (view.kind === 'panel') params.set('panel', view.tab);
-  else {
-    params.set(view.kind, '1');
-    if (view.moment) params.set('moment', view.moment);
-  }
+  viewParams(state.view, params);
   params.set('mode', state.mode);
   params.set('device', state.device);
   if (state.frameWidth) params.set('width', String(state.frameWidth));
@@ -216,3 +276,7 @@ export const columns = (state: DemoState): number =>
 /** Two views are the same thing on screen. */
 export const sameView = (a: DemoView, b: DemoView): boolean =>
   JSON.stringify(a) === JSON.stringify(b);
+
+/** Two views are the same page: a card's, whichever of its layouts the link points at, is one page. */
+export const samePage = (a: DemoView, b: DemoView): boolean =>
+  a.kind === 'card' && b.kind === 'card' ? a.card === b.card : sameView(a, b);

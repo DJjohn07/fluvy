@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 /**
  * The demo, checked as a visitor would find it (a built site served by `vite preview`, or the dev server):
- * - the landing shows cards, a palette recolours the page, a device changes the columns, dark mode and a language reach
- *   the cards in place, a card asking for more-info is answered with a notice and no navigation;
- * - every family mounts at a desktop's width and a phone's, nothing wider than the screen, and between them the
- *   families draw every card of the catalogue;
+ * - the overview shows Fluvy and its frames, a palette recolours the page, a device changes the columns, dark mode and a
+ *   language reach the cards in place, a card asking for more-info is answered with a notice and no navigation;
+ * - every card has a page that mounts its examples and nothing else, without an error; every example's "View YAML"
+ *   opens on exactly the docs' YAML of it (`toYaml` of the gallery's example, read from `tools/docs`), Copy writes that
+ *   text and says it did, Escape closes the panel and gives the focus back;
+ * - a link to a card's layout opens on that layout, marked; back and forward move between pages; the menu (the rail on
+ *   a desktop, the drawer on a phone) and the search open cards, and say when they find none;
+ * - every family of the showcase mounts at a desktop's width and a phone's, nothing wider than the screen, and between
+ *   them the families draw every card of the catalogue; the automatic dashboard builds its views;
  * - the stand-in answers as the playground's does, one sentinel per thing it holds: the registries (a printer, a
  *   camera's motion, an area's lights, a room), the repairs and the integrations' words (the alerts' counts), stored
  *   data, statistics, the Energy date pickers' collections (a strip moving its followers), a frame's own house (an
@@ -21,9 +26,12 @@
  */
 import { chromium } from 'playwright';
 import { launchOptions } from './lib.mjs';
+// the docs' own gallery and YAML writer: what every card's page must show, word for word
+import { drawn, GALLERY, shortName } from '../docs/src/gallery.ts';
+import { toYaml } from '../docs/src/yaml.ts';
 
 const DEMO = process.env.DEMO ?? 'http://127.0.0.1:5185/fluvy/';
-/** The families, in the order of their chips. */
+/** The families of the showcase, in the menu's order. */
 const FAMILIES = [
   'home',
   'devices',
@@ -81,17 +89,49 @@ const words = (page, name) =>
     if (el) walk(el);
     return text.replace(/\s+/g, ' ').trim();
   }, name);
-/** Picks an option of one of the chrome's fields (`device`, `language`) by its label. */
+/** The demo's fields: the device beside a page's title, the language in the top bar. */
+const FIELDS = {
+  device: 'fluvy-demo-head fluvy-select.hd-device',
+  language: 'fluvy-demo-shell fluvy-select.dm-language',
+};
+/** Picks an option of one of the demo's fields (`device`, `language`) by its label. */
 const choose = async (page, field, label) => {
-  const select = page.locator(`fluvy-demo-shell fluvy-select.demo-select--${field}`);
+  const select = page.locator(FIELDS[field]);
   await select.locator('.fv-select').click();
   await select.locator('[role="option"]', { hasText: label }).first().click();
   await page.waitForTimeout(400);
 };
-const toast = (page) => page.locator('fluvy-demo-shell .demo-toast').count();
+const toast = (page) => page.locator('fluvy-demo-shell .dm-toast').count();
 /** The page is no wider than the screen. */
 const overflow = (page) =>
   page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+/** The page the address names now. */
+const query = (page) => new URL(page.url()).searchParams;
+/**
+ * Opens an entry of the menu by its link (`card=fan&`, `sheet=charts&`): the rail on a desktop, the drawer from the menu
+ * button on a phone, the group holding it opened first where it is closed.
+ */
+const fromMenu = async (page, link, group) => {
+  const phone = (page.viewportSize()?.width ?? 0) < 1024;
+  if (phone) await page.locator('fluvy-demo-shell .dm-menu-button').click();
+  const menu = page.locator(`fluvy-demo-shell ${phone ? '.dm-drawer' : '.dm-rail'}`);
+  const entry = menu.locator(`a[href*="${link}"]`);
+  if (group && !(await entry.count()))
+    await menu.locator('button.dm-item', { hasText: group }).first().click();
+  await entry.first().click();
+  await page.waitForTimeout(800);
+};
+/** The YAML panel's text as a person would select it (the gutter's numbers are not text), and whether it is open. */
+const panel = (page) =>
+  page.evaluate(() => {
+    const root = document.querySelector('fluvy-demo-yaml')?.shadowRoot;
+    const dialog = root?.querySelector('dialog');
+    return {
+      open: Boolean(dialog?.open),
+      text: root?.querySelector('.ym-code')?.textContent ?? '',
+      copy: root?.querySelector('.ym-copy')?.textContent?.trim() ?? '',
+    };
+  });
 /** A frame's chart (its first card's drawing): the style it is drawn in and its paths (the ids a page counts left out). */
 const chartOf = (page, name) =>
   frame(page, name)
@@ -104,17 +144,18 @@ const chartOf = (page, name) =>
       ].join('\n'),
     );
 
-/* ---------- the landing and the chrome ---------- */
+/* ---------- the overview and the chrome ---------- */
 {
   const page = await open('');
   check(
-    'the landing shows the home family',
-    (await frames(page)) >= 3,
+    'the overview shows what Fluvy is and its frames',
+    (await page.locator('fluvy-demo-head h1').count()) === 1 && (await frames(page)) >= 6,
     `${await frames(page)} frames`,
   );
   check('the look is on the page', (await accent(page)) !== '', await accent(page));
   const before = await accent(page);
-  await page.locator('fluvy-demo-shell .demo-dot[aria-label="Volt"]').click();
+  await page.locator('fluvy-demo-shell .dm-palette-button').click();
+  await page.locator('fluvy-demo-shell .dm-pop .dm-dot[aria-label="Volt"]').click();
   await page.waitForTimeout(300);
   const after = await accent(page);
   check(
@@ -123,17 +164,18 @@ const chartOf = (page, name) =>
     `${before} → ${after}`,
   );
   check('…and the URL says so', page.url().includes('palette=volt'), page.url());
-  // the landing opens on the visitor's own device (a desktop here): the device field changes the columns
+  await page.keyboard.press('Escape');
+  // the overview opens on the visitor's own device (a desktop here): the device field changes the columns
   const lanes = () => page.locator('#stage .demo-lane').count();
   const desktop = await lanes();
-  await choose(page, 'device', 'Tablet');
-  const tablet = await lanes();
+  await choose(page, 'device', 'Phone');
+  const phone = await lanes();
   check(
     'a device changes the columns',
-    desktop === 3 && tablet === 2,
-    `${desktop} → ${tablet} lanes`,
+    desktop === 2 && phone === 1,
+    `${desktop} → ${phone} lanes`,
   );
-  await page.locator('fluvy-demo-shell .fv-chip', { hasText: 'Dark' }).click();
+  await page.locator('fluvy-demo-shell .dm-top .dm-mode').click();
   await page.waitForTimeout(300);
   check(
     'dark mode reaches the cards',
@@ -143,7 +185,7 @@ const chartOf = (page, name) =>
       .evaluate((el) => el.hasAttribute('dark')),
   );
   const languages = await page
-    .locator('fluvy-demo-shell fluvy-select.demo-select--language')
+    .locator(FIELDS.language)
     .evaluate((select) => select.options.map((option) => option.label));
   check(
     'the language field names every language once, by its own name',
@@ -155,9 +197,14 @@ const chartOf = (page, name) =>
     languages.join(', '),
   );
   await choose(page, 'language', 'Español');
+  await page.waitForTimeout(300);
   check(
-    'the language changes in place',
-    (await page.locator('html').getAttribute('lang')) === 'es' && page.url().includes('lang=es'),
+    'the language changes in place, the menu with it',
+    (await page.locator('html').getAttribute('lang')) === 'es' &&
+      page.url().includes('lang=es') &&
+      (await page
+        .locator('fluvy-demo-shell .dm-rail', { hasText: 'Todas las tarjetas' })
+        .count()) === 1,
   );
   // a card asking for more-info: a notice, and the page stays where it is
   const url = page.url();
@@ -188,16 +235,255 @@ const chartOf = (page, name) =>
   await page.close();
 }
 
-/* ---------- every family, on a desktop and on a phone; every card between them ---------- */
-const drawn = new Set();
+/* ---------- every card's page: its examples alone, each one's YAML the docs' ---------- */
+{
+  const page = await open('cards=1', DESKTOP, {
+    permissions: ['clipboard-read', 'clipboard-write'],
+  });
+  const index = await page.locator('fluvy-demo-index .ix-card').count();
+  check(
+    'the cards page lists every card of the gallery',
+    index === Object.keys(GALLERY).length,
+    `${index} of ${Object.keys(GALLERY).length}`,
+  );
+  const wrong = [];
+  let examples = 0;
+  for (const [tag, example] of Object.entries(GALLERY)) {
+    const short = shortName(tag);
+    const expected = drawn(tag, example);
+    // opened as the menu, the search and the cards page open it
+    await page.evaluate(
+      (card) =>
+        document.dispatchEvent(
+          new CustomEvent('demo-go', { detail: { kind: 'card', card }, bubbles: true }),
+        ),
+      short,
+    );
+    await page.waitForTimeout(150);
+    const plates = page.locator('#stage fluvy-demo-example');
+    const mounted = await plates.count();
+    const tags = await page
+      .locator('#stage [data-frame] > *')
+      .evaluateAll((cards) => cards.map((card) => card.localName));
+    if (
+      query(page).get('card') !== short ||
+      mounted !== expected.length ||
+      tags.length !== expected.length ||
+      tags.some((name) => name !== tag)
+    )
+      wrong.push(`${short}: ${mounted} of ${expected.length} [${tags.join(' ')}]`);
+    for (const [at, shownExample] of expected.entries()) {
+      await plates.nth(at).locator('.ex-yaml').click();
+      await page.waitForFunction(
+        () => document.querySelector('fluvy-demo-yaml')?.shadowRoot?.querySelector('dialog')?.open,
+      );
+      if ((await panel(page)).text !== toYaml(shownExample.config))
+        wrong.push(`${shownExample.name}: its YAML is not the docs'`);
+      examples += 1;
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(
+        () => !document.querySelector('fluvy-demo-yaml')?.shadowRoot?.querySelector('dialog'),
+      );
+    }
+  }
+  check(
+    `every card's page mounts its examples alone, and each one's YAML is the docs' (${examples} examples)`,
+    wrong.length === 0 && examples > Object.keys(GALLERY).length,
+    wrong.slice(0, 6).join(' | '),
+  );
+
+  // Copy writes the exact text and says so; Escape gives the focus back to the button that opened the panel
+  await page.evaluate(() =>
+    document.dispatchEvent(
+      new CustomEvent('demo-go', { detail: { kind: 'card', card: 'cover' }, bubbles: true }),
+    ),
+  );
+  await page.waitForTimeout(300);
+  const button = page.locator('#stage fluvy-demo-example').first().locator('.ex-yaml');
+  await button.click();
+  await page.waitForTimeout(400);
+  await page.locator('fluvy-demo-yaml .ym-copy').click();
+  await page.waitForTimeout(200);
+  const copied = await page.evaluate(() => window.navigator.clipboard.readText());
+  check(
+    'Copy writes the YAML, exactly, and says it did',
+    copied === toYaml(GALLERY['fluvy-cover-card'].config) && (await panel(page)).copy === 'Copied',
+    JSON.stringify((await panel(page)).copy),
+  );
+  check(
+    'the YAML panel keeps the focus inside while it is open',
+    await page.evaluate(() => {
+      const root = document.querySelector('fluvy-demo-yaml')?.shadowRoot;
+      return Boolean(
+        root?.activeElement && root.querySelector('dialog')?.contains(root.activeElement),
+      );
+    }),
+  );
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  check(
+    'Escape closes it and gives the focus back to "View YAML"',
+    !(await panel(page)).open &&
+      (await button.evaluate((el) => el.getRootNode().activeElement === el)),
+  );
+  // the scrim closes it too
+  await button.click();
+  await page.waitForTimeout(500);
+  await page.mouse.click(40, 500);
+  await page.waitForTimeout(400);
+  check('a tap on the scrim closes it', !(await panel(page)).open);
+  await page.close();
+}
+
+/* ---------- deep links, back and forward ---------- */
+{
+  const page = await open('card=fan&layout=compact&palette=linen&mode=dark');
+  const marked = page.locator('#stage fluvy-demo-example[marked]');
+  const top = await marked.evaluate((el) => el.getBoundingClientRect().top);
+  check(
+    'a link to a layout opens its card on that layout, marked and in view, in the look it names',
+    (await marked.count()) === 1 &&
+      (await marked.evaluate((el) => el.layout)) === 'compact' &&
+      top >= 64 &&
+      top < DESKTOP.height - 200 &&
+      query(page).get('palette') === 'linen' &&
+      query(page).get('mode') === 'dark',
+    `top ${Math.round(top)}`,
+  );
+  await fromMenu(page, 'card=tile&', 'Control');
+  await fromMenu(page, 'cards=1&');
+  check('the menu opens pages, the address following', query(page).get('cards') === '1');
+  await page.goBack();
+  await page.waitForTimeout(600);
+  check(
+    'back opens the page before, in the look the visitor wears',
+    query(page).get('card') === 'tile' &&
+      (await page.locator('fluvy-demo-head h1').textContent()) === 'Tile' &&
+      query(page).get('palette') === 'linen',
+    page.url(),
+  );
+  await page.goBack();
+  await page.waitForTimeout(600);
+  check(
+    '…and back again the layout the link named',
+    query(page).get('card') === 'fan' &&
+      query(page).get('layout') === 'compact' &&
+      (await marked.count()) === 1,
+    page.url(),
+  );
+  await page.goForward();
+  await page.waitForTimeout(600);
+  check('forward opens the next', query(page).get('card') === 'tile', page.url());
+  // a layout's chip marks it in place
+  await page.locator('fluvy-demo-head .fv-chip', { hasText: 'mini' }).click();
+  await page.waitForTimeout(600);
+  check(
+    'a layout chip marks its example, the page staying',
+    query(page).get('layout') === 'mini' &&
+      (await marked.evaluate((el) => el.layout)) === 'mini' &&
+      (await page.locator('#stage fluvy-demo-example').count()) === 3,
+  );
+  await page.close();
+}
+
+/* ---------- the search and the menu, on a desktop and on a phone ---------- */
+{
+  const page = await open('');
+  const field = page.locator('fluvy-demo-shell .dm-top input[type="search"]');
+  await field.fill('thermo');
+  await page.waitForTimeout(200);
+  const found = await page.locator('fluvy-demo-shell .dm-results [role="option"]').count();
+  await field.press('Enter');
+  await page.waitForTimeout(800);
+  check(
+    'on a desktop the search finds a card by its name and Enter opens it',
+    found >= 1 && query(page).get('card') === 'thermostat',
+    page.url(),
+  );
+  await field.fill('dimmer');
+  await page.waitForTimeout(200);
+  const byLine = await page
+    .locator('fluvy-demo-shell .dm-results [role="option"] .dm-result__name')
+    .allTextContents();
+  await field.fill('zzzz');
+  await page.waitForTimeout(200);
+  check(
+    '…by its line too, and says when it finds none',
+    byLine.includes('Light') &&
+      (await page.locator('fluvy-demo-shell .dm-results .dm-none').textContent()) ===
+        'No card found',
+    byLine.join(', '),
+  );
+  await page.close();
+}
+{
+  const page = await open('', PHONE);
+  check(
+    'a phone has the menu button and no rail',
+    (await page.locator('fluvy-demo-shell .dm-menu-button').isVisible()) &&
+      !(await page.locator('fluvy-demo-shell .dm-rail').isVisible()),
+  );
+  await page.locator('fluvy-demo-shell .dm-search-button').click();
+  await page.waitForTimeout(400);
+  const field = page.locator('fluvy-demo-shell .dm-drawer input[type="search"]');
+  check(
+    'its search round opens the drawer on the search',
+    await field.evaluate((el) => el.getRootNode().activeElement === el),
+  );
+  await field.fill('energy flow');
+  await page.waitForTimeout(200);
+  await page.locator('fluvy-demo-shell .dm-drawer [role="option"]').first().click();
+  await page.waitForTimeout(800);
+  check(
+    'on a phone the search opens a card and the drawer closes',
+    query(page).get('card') === 'energy-flow' &&
+      (await page.locator('fluvy-demo-shell .dm-drawer').count()) === 0,
+    page.url(),
+  );
+  await fromMenu(page, 'card=lock&', 'Security');
+  check(
+    'on a phone the drawer’s groups open a card',
+    query(page).get('card') === 'lock' &&
+      (await page.locator('fluvy-demo-shell .dm-drawer').count()) === 0,
+    page.url(),
+  );
+  await page.locator('fluvy-demo-shell .dm-menu-button').click();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  check(
+    'Escape closes the drawer and gives the focus back to the menu button',
+    (await page.locator('fluvy-demo-shell .dm-drawer').count()) === 0 &&
+      (await page
+        .locator('fluvy-demo-shell .dm-menu-button')
+        .evaluate((el) => el.getRootNode().activeElement === el)),
+  );
+  // "View YAML" on a phone is the bottom sheet, the whole width
+  await page.locator('#stage fluvy-demo-example').first().locator('.ex-yaml').click();
+  await page.waitForTimeout(500);
+  // the window's width, less a scrollbar's room where the browser keeps one (a phone keeps none)
+  const sheet = await page.locator('fluvy-demo-yaml .ym-sheet').evaluate((el) => ({
+    ...el.getBoundingClientRect().toJSON(),
+    screen: el.closest('dialog')?.clientWidth,
+  }));
+  check(
+    'on a phone "View YAML" is a bottom sheet the whole width',
+    sheet.left === 0 && sheet.width === sheet.screen && Math.round(sheet.bottom) === PHONE.height,
+    JSON.stringify(sheet),
+  );
+  check('nothing is wider than a phone', (await overflow(page)) <= 0, `${await overflow(page)} px`);
+  await page.close();
+}
+
+/* ---------- every family of the showcase, on a desktop and on a phone; every card between them ---------- */
+const tagsDrawn = new Set();
 let catalogue = [];
 for (const viewport of [DESKTOP, PHONE]) {
   const page = await open('', viewport);
   const seen = [];
-  for (const [index, family] of FAMILIES.entries()) {
-    await page.locator('fluvy-demo-shell .demo-views .fv-chip').nth(index).click();
-    await page.waitForTimeout(800);
-    const shown = new URL(page.url()).searchParams.get('sheet') ?? 'home';
+  for (const family of FAMILIES) {
+    await fromMenu(page, `sheet=${family}&`, 'Showcase');
+    const shown = query(page).get('sheet');
     const count = await frames(page);
     const wide = await overflow(page);
     if (shown !== family || count < 1 || wide > 0)
@@ -215,7 +501,7 @@ for (const viewport of [DESKTOP, PHONE]) {
         walk(document.getElementById('stage'));
         return [...out];
       });
-      for (const tag of tags) drawn.add(tag);
+      for (const tag of tags) tagsDrawn.add(tag);
       catalogue = await page.evaluate(() => (window.customCards ?? []).map((card) => card.type));
     }
   }
@@ -226,12 +512,34 @@ for (const viewport of [DESKTOP, PHONE]) {
   );
   await page.close();
 }
-const missing = catalogue.filter((type) => !drawn.has(type));
+const missing = catalogue.filter((type) => !tagsDrawn.has(type));
 check(
   `the families draw every card of the catalogue (${catalogue.length - missing.length} of ${catalogue.length})`,
   catalogue.length >= 62 && missing.length === 0,
   missing.join(', '),
 );
+
+/* ---------- the automatic dashboard ---------- */
+{
+  const page = await open('dashboard=auto');
+  const built = () =>
+    page.waitForFunction(() => document.querySelectorAll('#stage [data-frame]').length > 0, null, {
+      timeout: 20000,
+    });
+  await built();
+  const views = (await page.locator('fluvy-demo-head .fv-chip').allTextContents()).map((view) =>
+    view.trim(),
+  );
+  await page.locator('fluvy-demo-head .fv-chip', { hasText: /^Energy$/ }).click();
+  await page.waitForTimeout(400);
+  await built();
+  check(
+    'the automatic dashboard builds its views from the demo house, a chip each',
+    views.length >= 5 && views.includes('Energy') && query(page).get('view') === 'energy',
+    views.join(', '),
+  );
+  await page.close();
+}
 
 /* ---------- the stand-in answers as the playground's ---------- */
 {
@@ -350,11 +658,8 @@ check(
     decodeURIComponent(page.url()).includes('charts={"style":"soft"}'),
     page.url(),
   );
-  await page
-    .locator('fluvy-demo-shell .demo-views .fv-chip')
-    .nth(FAMILIES.indexOf('charts'))
-    .click();
-  await page.waitForTimeout(1500);
+  await fromMenu(page, 'sheet=charts&', 'Showcase');
+  await page.waitForTimeout(700);
   const fromPanel = await chartOf(page, 'chart/Chart · history');
   await page.close();
 

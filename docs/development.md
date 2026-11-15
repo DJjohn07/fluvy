@@ -20,7 +20,7 @@ packages/bundle/           @fluvy/bundle   the build: the entry, its chunks, the
 packages/fonts/            Inter (OFL), subset
 packages/demo-home/        @fluvy/demo-home  the fictional house the tests and the playground share
 apps/playground/           the real cards on a simulated hass: screenshots, the measurer, interaction tests
-apps/demo/                 the public demo on GitHub Pages: the playground's sheets and pages behind a landing page
+apps/demo/                 the public demo on GitHub Pages: every card with its YAML, the sheets, the pages and the panel
 apps/design-lab/           the approved design sheets (static HTML on packages/ui/styles)
 design/                    the design language and the approved renders
 tools/render/              screenshots, the alignment measurer, interaction tests, contact sheets
@@ -274,19 +274,41 @@ pnpm --filter @fluvy/demo build && pnpm --filter @fluvy/demo preview   # the bui
 DEMO=http://127.0.0.1:4173/fluvy/ node tools/render/demo-smoke.mjs     # what visitors get, checked
 ```
 
-`apps/demo` is the playground as a visitor sees it: its sheets grouped into families, its pages, and the settings
-panel, behind a landing page drawn with the design system's own parts. Its cards draw as the playground's: each sheet
-stands in a house of its own and each frame is mounted by the playground's own module (`@fluvy/playground/house`:
-`createHouse`, `mountFrame`), so a family's sheets never meet on an entity id and a frame keeps its width (up to the
-lane's), its columns, its status colours and its own view of the house. The look runs on Fluvy's own settings
-machinery kept in memory (`@fluvy/playground/look-memory`): a palette dot on the landing, the Appearance tab and the
-Charts tab change the same settings, live. The URL takes the playground's parameters (`sheet`, `panel` with every tab
-of the panel, `history`, `activity`, `mode`, `width`, `lang`, `palette`, `accent`, `charts`…) and
-`device=phone|phone-l|tablet|desktop`; what a card cannot do here (a more-info dialog, a page of Home Assistant)
-becomes a notice. The Web page card's pages (`apps/playground/public/web`) are served beside the demo's own files.
-`pages.yml` builds it on every push to `main`, smoke-tests the built site (every family at a desktop's and a phone's
-width, every card of the catalogue, a sentinel for each thing the stand-in holds, the panel's tabs and `charts=`, the
-languages) and deploys it to https://acosta290.github.io/fluvy/.
+`apps/demo` is Fluvy's shop window: every card live on the demo house with the YAML that draws it, the playground's
+sheets and pages, the automatic dashboard and the settings panel, drawn with the design system's own parts. Its chrome
+(`shell.ts`) is a top bar (the brand, a search that finds a card by its name or its line, the palette, light and dark,
+the language, GitHub and Install) and a menu: a rail beside the page from 1024 px, a drawer from the menu button
+below. The menu's parts are the overview (what Fluvy is, how to install it, its strongest frames), **Cards** (every
+card in the README's groups, `families.ts`), the automatic dashboard (built by its own strategy from the house of
+every sheet, `@fluvy/playground/automatic`, fetched when it is opened), the settings panel, Activity and History, the
+showcase (the playground's sheets in their families) and **Themes** (every palette in light and dark).
+
+A card's page (`?card=<short>`, the tag without `fluvy-` and `-card`) draws the documentation's gallery
+(`tools/docs/src/gallery.ts`, one spec the docs' pictures, the docs' YAML and the demo share): its example and each
+of its layouts on a plate of its own, mounted from the playground's `gallery` sheet and nothing else, each with a
+**View YAML** and a link to `docs/cards/<short>.md`. `&layout=<value>` marks that layout and scrolls to it. View YAML
+opens `yaml-sheet.ts`, a side sheet on a wide screen and the bottom sheet on a phone: `toYaml()` of the example, word
+for word, coloured by the demo's own highlighter (`highlight.ts`, for the writer's known grammar: keys, strings,
+numbers, booleans and null, dashes, comments, each in a token of the look), with Copy. A card's name and line are the
+card picker's (`window.customCards`), in the page's language.
+
+Its cards draw as the playground's: each sheet stands in a house of its own and each frame is mounted by the
+playground's own module (`@fluvy/playground/house`: `createHouse`, `mountFrame`), so a family's sheets never meet on an
+entity id and a frame keeps its width (up to the lane's), its columns, its status colours and its own view of the
+house. The look runs on Fluvy's own settings machinery kept in memory (`@fluvy/playground/look-memory`): the palette in
+the top bar, the Themes page, the Appearance tab and the Charts tab change the same settings, live. The URL says what
+is shown (`state.ts`): the playground's parameters (`sheet`, `dashboard=auto` with `view`, `panel` with every tab of
+the panel, `history`, `activity`, `mode`, `width`, `lang`, `palette`, `accent`, `charts`…), and the demo's own
+(`card` with `layout`, `cards=1`, `themes=1`, `device=phone|phone-l|tablet|desktop`); a link that names no page opens
+the overview, so every link shared before still opens. Opening a page pushes it onto the history (back and forward
+move between pages and keep the look); a change of the look rewrites the address in place. What a card cannot do here
+(a more-info dialog, a page of Home Assistant) becomes a notice; a room of the automatic dashboard opens its view. The
+Web page card's pages (`apps/playground/public/web`) are served beside the demo's own files. `pages.yml` builds it on
+every push to `main`, smoke-tests the built site (every card's page and every example's YAML against the docs' own
+`toYaml`, Copy, the panel's focus, deep links and back and forward, the menu and the search on a desktop and a phone,
+every family at a desktop's and a phone's width, every card of the catalogue, the automatic dashboard, a sentinel for
+each thing the stand-in holds, the panel's tabs and `charts=`, the languages) and deploys it to
+https://acosta290.github.io/fluvy/.
 
 ## The tools
 

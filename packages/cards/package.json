@@ -28,6 +28,7 @@
     "./history": "./src/history/view.ts",
     "./panel": "./src/panel/define.ts",
     "./panel/model": "./src/panel/model.ts",
+    "./clipboard": "./src/panel/clipboard.ts",
     "./wall": "./src/wall/index.ts"
   },
   "scripts": {

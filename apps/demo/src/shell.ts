@@ -1,20 +1,14 @@
 import { css, html, LitElement, nothing, type PropertyValues, type TemplateResult } from 'lit';
 import type { PaletteName } from '@fluvy/tokens/runtime';
 import { isLanguageCode, offeredLanguages } from '@fluvy/core';
-import {
-  baseStyles,
-  chips,
-  fitPills,
-  glyph,
-  reducedMotion,
-  sideScroll,
-  type ChipItem,
-} from '@fluvy/ui';
+import { baseStyles, fitPills, glyph, reducedMotion, sideScroll, type GlyphName } from '@fluvy/ui';
 import '@fluvy/ui/select';
 import type { SelectChangeDetail, SelectOption } from '@fluvy/ui/select';
-import { FAMILIES, familyOf } from './families.js';
-import { DEVICE_NAMES, isDevice, type DemoState, type DemoView } from './state.js';
-import { t } from './strings.js';
+import { CARDS, cardOf, searchCards, wordsOf, type DemoCard } from './catalog.js';
+import { CARD_GROUPS, FAMILIES, familyOf, groupOf } from './families.js';
+import { follow, hrefOf, INSTALL, REPO } from './nav.js';
+import type { DemoState, DemoView } from './state.js';
+import { t, type StringKey } from './strings.js';
 
 /** A preset on the palette row: its accent as the dot's colour. */
 export interface PaletteDot {
@@ -23,16 +17,6 @@ export interface PaletteDot {
   readonly ink: string;
 }
 
-const REPO = 'https://github.com/acosta290/fluvy';
-/** Where the page leads: the installation and the repository, in words, or as rounds on a phone. */
-const LINKS = [
-  { href: `${REPO}#installation`, label: 'links.install', glyph: 'download' },
-  { href: REPO, label: 'links.github', glyph: 'code' },
-] as const;
-/** The device field's value while a link's own width is shown. */
-const WIDTH = 'width';
-const BANNER_KEY = 'fluvy-demo:banner';
-
 /** The languages as the settings panel offers them: each by its own name, its English one beside it. */
 const LANGUAGE_OPTIONS: readonly SelectOption[] = offeredLanguages().map((language) => ({
   value: language.code,
@@ -40,131 +24,262 @@ const LANGUAGE_OPTIONS: readonly SelectOption[] = offeredLanguages().map((langua
   ...(language.english !== language.name ? { hint: language.english } : {}),
 }));
 
+/** The most results the search lists. */
+const RESULTS = 8;
+/** How long the drawer takes to leave. */
+const LEAVE_MS = 200;
+
+/** The pages of the menu's last part, in its order. */
+const PAGES: readonly {
+  readonly view: DemoView;
+  readonly label: StringKey;
+  readonly glyph: GlyphName;
+}[] = [
+  { view: { kind: 'auto', view: 'home' }, label: 'page.auto', glyph: 'sparkle' },
+  { view: { kind: 'panel', tab: 'appearance' }, label: 'page.panel', glyph: 'gear' },
+  { view: { kind: 'activity' }, label: 'page.activity', glyph: 'list' },
+  { view: { kind: 'history' }, label: 'page.history', glyph: 'chart' },
+];
+
 /**
- * The demo's chrome: the brand, what to look at (the card families, the pages), and how (the palette, the mode,
- * the device, the language), drawn with the design system's own parts. Changes go out as `demo-change` with the
- * fields to change; the page answers by setting `state` again. Two rows on a desktop or a tablet: the device and the
- * language are fields, and the views and the palettes scroll sideways where the row cannot hold them. On a phone it is
- * lower still, one row each in every language: the brand with the links as two rounds, the views, the palettes, the
- * dark mode as a round beside the language; the device is gone (a phone is a phone).
+ * The demo's chrome, drawn with the design system's own parts: a top bar (the brand, a search that finds a card by its
+ * name or its line, the palette, light and dark, the language, the repository and how to install) and the menu, a rail
+ * beside the page on a desktop and a drawer from the menu button on a phone or a tablet: the overview, the cards in the
+ * README's groups, the showcase of the design sheets, the automatic dashboard and the pages, and the themes. The page
+ * stands in its slot. A page is opened as `demo-go` (every entry is a link too), a look changed as `demo-change`; the
+ * page answers by setting `state` again.
  */
 export class FluvyDemoShell extends LitElement {
   static override styles = [
     ...baseStyles,
     css`
       :host {
-        position: sticky;
-        top: 0;
-        z-index: 3;
         display: block;
+        min-height: 100vh;
         color: var(--fluvy-text);
-        background: color-mix(in srgb, var(--fluvy-page) 90%, transparent);
-        box-shadow: 0 1px 0 var(--fluvy-border);
-        -webkit-backdrop-filter: blur(16px);
-        backdrop-filter: blur(16px);
         font-family: Inter, system-ui, sans-serif;
+        --dm-bar: 64px;
+        --dm-rail: 288px;
       }
-      .demo-bar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px 16px;
-        max-width: 1408px;
-        margin: 0 auto;
-        padding: 12px 16px;
-      }
-      .demo-bar--look {
-        padding-top: 0;
-      }
-      .demo-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-right: auto;
+      a {
         color: inherit;
         text-decoration: none;
       }
-      .demo-brand__mark {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
+      .dm-skip {
+        position: fixed;
+        top: 8px;
+        left: 16px;
+        z-index: 5;
+        transform: translateY(-120%);
       }
-      .demo-brand__text {
+      .dm-skip:focus-visible {
+        transform: none;
+      }
+
+      /* ---------- the top bar ---------- */
+      .dm-top {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: var(--dm-bar);
+        padding: 0 16px;
+        box-sizing: border-box;
+        background: color-mix(in srgb, var(--fluvy-page) 88%, transparent);
+        box-shadow: 0 1px 0 var(--fluvy-border);
+        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(16px);
+      }
+      .dm-brand {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 12px;
+        height: 44px;
+        padding-right: 8px;
+        border-radius: var(--fluvy-radius-control);
+      }
+      .dm-brand img {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      .dm-brand__text {
         display: flex;
         flex-direction: column;
       }
-      .demo-brand__name {
-        font-size: 20px;
-        line-height: 24px;
+      .dm-brand__name {
+        font-size: 17px;
         font-weight: 600;
+        line-height: 20px;
         letter-spacing: -0.01em;
       }
-      .demo-brand__sub {
-        font-size: 13px;
-        line-height: 16px;
+      .dm-brand__sub {
+        font-size: 12px;
         font-weight: 500;
+        line-height: 16px;
         color: var(--fluvy-text-secondary);
+        white-space: nowrap;
       }
-      .demo-bar .fv-chips {
-        margin: 0;
-      }
-      /* a row that runs on past its room: it scrolls sideways (a finger, a trackpad, the wheel), never wraps, and
-         fades only on a side where it goes on, as the panel's tabs do */
-      .demo-scroll {
-        flex: 1 1 0;
-        min-width: 0;
-        overflow-x: auto;
-        scrollbar-width: none;
-        overscroll-behavior-x: contain;
-        -webkit-mask-image: linear-gradient(
-          90deg,
-          var(--demo-fade-start, transparent),
-          #000 24px,
-          #000 calc(100% - 24px),
-          var(--demo-fade-end, transparent)
-        );
-        mask-image: linear-gradient(
-          90deg,
-          var(--demo-fade-start, transparent),
-          #000 24px,
-          #000 calc(100% - 24px),
-          var(--demo-fade-end, transparent)
-        );
-      }
-      .demo-scroll.is-start {
-        --demo-fade-start: #000;
-      }
-      .demo-scroll.is-end {
-        --demo-fade-end: #000;
-      }
-      .demo-scroll::-webkit-scrollbar {
-        display: none;
-      }
-      .demo-views .fv-chips,
-      .demo-palette {
-        flex-wrap: nowrap;
-        width: max-content;
-      }
-      /* the views beside the links while they fit */
-      .demo-views .fv-chips {
+      .dm-end {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 8px;
         margin-left: auto;
       }
-      .demo-links {
-        display: flex;
-        gap: 8px;
+      .dm-language {
+        width: 176px;
       }
-      .demo-links a {
-        text-decoration: none;
+      /* the search starts where the page's own words do, past the rail */
+      .dm-top > .dm-brand {
+        width: var(--dm-rail);
+        box-sizing: border-box;
       }
-      .demo-links--round,
-      .demo-dark {
+      .dm-menu-button,
+      .dm-search-button {
         display: none;
       }
-      .demo-palette {
-        display: flex;
-        align-items: center;
+
+      /* ---------- the search ---------- */
+      .dm-search {
+        position: relative;
+        flex: 0 1 400px;
+        min-width: 0;
       }
-      .demo-dot {
+      .dm-search .fv-field__input {
+        appearance: none;
+      }
+      .dm-results {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        z-index: 4;
+        box-sizing: border-box;
+        min-width: 320px;
+        max-height: min(560px, calc(100vh - var(--dm-bar) - 16px));
+        padding: 4px;
+        overflow-y: auto;
+        scrollbar-width: none;
+        border-radius: var(--fluvy-radius-lg);
+        background: var(--fluvy-card);
+        box-shadow:
+          0 0 0 1px var(--fluvy-edge, var(--fluvy-border)),
+          var(--fluvy-shadow-lift);
+        animation: fv-menu-in 200ms var(--fv-ease-out, ease-out) both;
+        --fv-menu-from: -4px;
+      }
+      .dm-results--inline {
+        position: static;
+        min-width: 0;
+        max-height: none;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+        animation: none;
+      }
+      .dm-result {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+      .dm-result[aria-selected='true'] {
+        background: var(--fluvy-inset, var(--fluvy-page));
+      }
+      .dm-results--inline .dm-result[aria-selected='true'] {
+        background: var(--fluvy-card);
+      }
+      .dm-result__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .dm-result__name {
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 20px;
+      }
+      .dm-result__group {
+        flex: 0 0 auto;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        color: var(--fluvy-text-secondary);
+      }
+      .dm-result__line,
+      .dm-none {
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 18px;
+        color: var(--fluvy-text-secondary);
+      }
+      .dm-none {
+        margin: 0;
+        padding: 12px;
+      }
+
+      /* ---------- the palette's dots ---------- */
+      .dm-palette-button {
+        position: relative;
+      }
+      .dm-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--fluvy-accent);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fluvy-text) 14%, transparent);
+      }
+      .dm-pop {
+        position: absolute;
+        top: calc(var(--dm-bar) - 8px);
+        right: 16px;
+        z-index: 4;
+        width: 264px;
+        box-sizing: border-box;
+        padding: 12px;
+        border-radius: var(--fluvy-radius-lg);
+        background: var(--fluvy-card);
+        box-shadow:
+          0 0 0 1px var(--fluvy-edge, var(--fluvy-border)),
+          var(--fluvy-shadow-lift);
+        animation: fv-menu-in 200ms var(--fv-ease-out, ease-out) both;
+        --fv-menu-from: -4px;
+      }
+      .dm-pop__head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 0 4px 8px;
+      }
+      .dm-pop__title {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 16px;
+      }
+      .dm-pop__name {
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 16px;
+        color: var(--fluvy-text-secondary);
+      }
+      .dm-dots {
+        display: grid;
+        grid-template-columns: repeat(5, 44px);
+        justify-content: space-between;
+      }
+      .dm-dots--row {
+        display: flex;
+        width: max-content;
+      }
+      .dm-dot {
         position: relative;
         flex: 0 0 auto;
         width: 44px;
@@ -175,7 +290,7 @@ export class FluvyDemoShell extends LitElement {
         cursor: pointer;
         color: var(--fluvy-text-secondary);
       }
-      .demo-dot::before {
+      .dm-dot::before {
         content: '';
         position: absolute;
         top: 10px;
@@ -187,62 +302,258 @@ export class FluvyDemoShell extends LitElement {
         box-shadow: 0 0 0 1px color-mix(in srgb, var(--fluvy-text) 14%, transparent);
         transition: transform 180ms var(--fv-ease, ease);
       }
-      .demo-dot.is-active::before {
+      .dm-dot.is-active::before {
+        box-shadow:
+          0 0 0 2px var(--fluvy-card),
+          0 0 0 4px var(--dot, var(--fluvy-accent));
+      }
+      .dm-drawer .dm-dot.is-active::before {
         box-shadow:
           0 0 0 2px var(--fluvy-page),
           0 0 0 4px var(--dot, var(--fluvy-accent));
       }
-      .demo-dot:focus-visible {
+      .dm-dot:focus-visible {
         outline: none;
       }
-      .demo-dot:focus-visible::before {
+      .dm-dot:focus-visible::before {
         box-shadow:
-          0 0 0 2px var(--fluvy-page),
+          0 0 0 2px var(--fluvy-card),
           0 0 0 4px var(--fluvy-accent);
       }
       @media (hover: hover) {
-        .demo-dot:hover::before {
+        .dm-dot:hover::before {
           transform: scale(1.12);
         }
       }
-      .demo-dot--custom svg {
+      .dm-dot--custom svg {
         position: absolute;
         top: 14px;
         left: 14px;
         width: 16px;
         height: 16px;
       }
-      .demo-select {
-        width: 176px;
+
+      /* ---------- the body: the rail beside the page ---------- */
+      .dm-body {
+        display: grid;
+        grid-template-columns: var(--dm-rail) minmax(0, 1fr);
       }
-      .demo-select--language {
-        width: 224px;
+      .dm-rail {
+        position: sticky;
+        top: var(--dm-bar);
+        height: calc(100vh - var(--dm-bar));
+        box-sizing: border-box;
+        padding: 16px 12px 32px 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+        box-shadow: inset -1px 0 0 var(--fluvy-border);
       }
-      .demo-banner {
+      .dm-rail::-webkit-scrollbar {
+        display: none;
+      }
+      .dm-main {
+        min-width: 0;
+      }
+
+      /* ---------- the menu ---------- */
+      .dm-nav {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px 16px;
-        max-width: 1408px;
-        margin: 0 auto;
-        padding: 0 16px 12px;
-        font-size: 14px;
-        line-height: 20px;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .dm-label {
+        margin: 16px 0 4px;
+        padding: 0 12px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 16px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
         color: var(--fluvy-text-secondary);
       }
-      .demo-banner p {
-        flex: 1 1 480px;
-        margin: 0;
+      .dm-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 12px;
+        border: 0;
+        border-radius: var(--fluvy-radius-control);
+        background: none;
+        color: var(--fluvy-text);
+        font: inherit;
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 20px;
+        text-align: left;
+        cursor: pointer;
       }
-      .demo-toast {
+      .dm-item > svg {
+        flex: 0 0 20px;
+        width: 20px;
+        height: 20px;
+        color: var(--fluvy-text-secondary);
+      }
+      .dm-item__label {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 12px 0;
+      }
+      .dm-item--card {
+        padding-left: 44px;
+        font-size: 14px;
+        color: var(--fluvy-text-secondary);
+      }
+      .dm-item__chevron {
+        display: inline-flex;
+        flex: 0 0 20px;
+        color: var(--fluvy-text-secondary);
+        transition: transform 180ms var(--fv-ease, ease);
+      }
+      .dm-item__chevron svg {
+        width: 20px;
+        height: 20px;
+      }
+      .dm-item[aria-expanded='true'] .dm-item__chevron {
+        transform: rotate(90deg);
+      }
+      @media (hover: hover) {
+        .dm-item:hover {
+          background: var(--fluvy-card);
+        }
+      }
+      .dm-item.is-active,
+      .dm-item.is-active:hover {
+        background: var(--fluvy-accent-fill);
+        color: var(--fluvy-accent-on-fill);
+      }
+      .dm-item.is-active > svg {
+        color: inherit;
+      }
+      .dm-sub {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      /* ---------- the drawer ---------- */
+      .dm-drawer {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(336px, calc(100vw - 48px));
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        border: 0;
+        background: var(--fluvy-page);
+        color: inherit;
+        box-shadow:
+          1px 0 0 var(--fluvy-edge, var(--fluvy-border)),
+          24px 0 64px -24px rgb(0 0 0 / calc(0.4 * var(--fluvy-shade, 1)));
+        overflow: hidden;
+        animation: dm-in 280ms var(--fv-ease-out, ease-out) both;
+      }
+      .dm-drawer[open] {
+        display: flex;
+        flex-direction: column;
+      }
+      .dm-drawer::backdrop {
+        background: color-mix(in srgb, var(--fluvy-neutral-05, #000) 48%, transparent);
+        animation: fv-fade 240ms var(--fv-ease, ease) both;
+      }
+      .dm-drawer.is-leaving {
+        animation: dm-out 200ms var(--fv-ease, ease) both;
+      }
+      @keyframes dm-in {
+        from {
+          transform: translateX(-100%);
+        }
+      }
+      @keyframes dm-out {
+        to {
+          transform: translateX(-100%);
+        }
+      }
+      .dm-drawer__head {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 8px;
+        height: var(--dm-bar);
+        padding: 0 16px;
+        box-sizing: border-box;
+      }
+      .dm-drawer__head .dm-brand {
+        margin-right: auto;
+      }
+      .dm-drawer__search {
+        flex: 0 0 auto;
+        padding: 0 16px 8px;
+      }
+      .dm-drawer__body {
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 0 16px 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+      }
+      .dm-drawer__foot {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        box-shadow: 0 -1px 0 var(--fluvy-border);
+      }
+      .dm-drawer__row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dm-drawer__row > fluvy-select {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+      .dm-scroll {
+        margin: 0 -16px;
+        padding: 0 6px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .dm-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .dm-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .dm-links > a {
+        gap: 8px;
+      }
+      .dm-links svg,
+      .dm-install svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      /* ---------- the notice ---------- */
+      .dm-toast {
         position: fixed;
         left: 50%;
         bottom: 24px;
-        z-index: 4;
+        z-index: 6;
         max-width: calc(100vw - 32px);
         box-sizing: border-box;
         padding: 12px 16px;
-        border-radius: var(--fluvy-radius-control, 12px);
+        border-radius: var(--fluvy-radius-control);
         background: var(--fluvy-card);
         color: var(--fluvy-text);
         box-shadow:
@@ -251,67 +562,70 @@ export class FluvyDemoShell extends LitElement {
         font-size: 14px;
         line-height: 20px;
         transform: translateX(-50%);
-        animation: demo-toast 240ms var(--fv-ease-out, ease-out) both;
+        animation: dm-toast 240ms var(--fv-ease-out, ease-out) both;
       }
-      @keyframes demo-toast {
+      @keyframes dm-toast {
         from {
           opacity: 0;
           transform: translate(-50%, 8px);
         }
       }
-      /* a phone keeps its screen for the cards: the chrome is lower and scrolls away with the page; the views and the
-         palettes run on past the screen's edge, each one row */
-      @media (max-width: 720px) {
-        :host {
-          position: static;
+
+      /* a tablet: the menu in a drawer, the search beside the brand, the language and the links in the drawer */
+      @media (max-width: 1023px) {
+        .dm-body {
+          grid-template-columns: minmax(0, 1fr);
         }
-        .demo-bar {
-          gap: 8px 16px;
-          padding: 8px 16px;
-        }
-        .demo-bar--look {
-          padding-top: 0;
-        }
-        .demo-links--words,
-        .demo-modes {
+        .dm-rail,
+        .dm-end > .dm-wide {
           display: none;
         }
-        .demo-links--round,
-        .demo-dark {
-          display: flex;
-        }
-        .demo-views {
-          order: 1;
-        }
-        .demo-scroll {
-          flex: 1 0 100%;
-          margin: 0 -16px;
-          padding: 0 16px;
-        }
-        .demo-views .fv-chips {
-          margin-left: 0;
-        }
-        .demo-palette {
-          margin: 0 -10px;
-          padding: 0 6px;
-        }
-        .demo-select--device {
-          display: none;
-        }
-        .demo-select--language {
-          flex: 1 1 0;
+        .dm-top > .dm-brand {
           width: auto;
-          min-width: 0;
         }
-        .demo-banner {
-          padding-bottom: 8px;
+        .dm-menu-button {
+          display: inline-flex;
+        }
+        .dm-top > .dm-search {
+          flex: 1 1 400px;
+          margin-left: 8px;
+        }
+      }
+      /* a phone: the bar holds the menu, the brand, the search's round and light or dark; the rest is in the drawer */
+      @media (max-width: 719px) {
+        :host {
+          --dm-bar: 60px;
+        }
+        .dm-top {
+          gap: 4px;
+          padding: 0 8px;
+        }
+        .dm-top > .dm-search,
+        .dm-palette-button,
+        .dm-top .dm-brand__sub {
+          display: none;
+        }
+        .dm-search-button {
+          display: inline-flex;
+        }
+        .dm-brand {
+          gap: 10px;
+        }
+        .dm-brand img {
+          width: 32px;
+          height: 32px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .demo-toast {
+        .dm-toast,
+        .dm-drawer,
+        .dm-drawer::backdrop,
+        .dm-results,
+        .dm-pop {
           animation: none;
         }
-        .demo-dot::before {
+        .dm-dot::before,
+        .dm-item__chevron {
           transition: none;
         }
       }
@@ -323,7 +637,13 @@ export class FluvyDemoShell extends LitElement {
     palettes: { attribute: false },
     mark: { attribute: false },
     notice: { state: true },
-    banner: { state: true },
+    drawer: { state: true },
+    leaving: { state: true },
+    query: { state: true },
+    active: { state: true },
+    searching: { state: true },
+    paletteOpen: { state: true },
+    folded: { state: true },
   };
 
   declare state: DemoState | undefined;
@@ -331,57 +651,66 @@ export class FluvyDemoShell extends LitElement {
   /** The brand mark's URL. */
   declare mark: string;
   declare notice: string;
-  declare banner: boolean;
+  /** The drawer is open. */
+  declare drawer: boolean;
+  declare leaving: boolean;
+  /** What is typed in the search, and the result the keys are on. */
+  declare query: string;
+  declare active: number;
+  /** The top bar's search has the focus: its results show under it. */
+  declare searching: boolean;
+  declare paletteOpen: boolean;
+  /** The menu's groups the visitor opened or closed, over the rule (the shown card's group open, the rest closed). */
+  declare folded: ReadonlyMap<string, boolean>;
   private timer = 0;
+  private leaveTimer = 0;
   private refit: (() => void) | undefined;
-  /** The rows that scroll sideways, given the mouse's reach and their edges once. */
-  private readonly rows = new WeakSet<HTMLElement>();
-  /** A row's room changed (a narrower window, the pills fitted): its edges again. */
-  private readonly resized = new ResizeObserver((entries) => {
-    for (const entry of entries) edges(entry.target as HTMLElement);
-  });
+  /** Where the focus goes back to when the drawer closes. */
+  private opener: HTMLElement | undefined;
+  /** The search's field to focus once the drawer is open. */
+  private focusSearch = false;
 
   constructor() {
     super();
     this.palettes = [];
     this.mark = '';
     this.notice = '';
-    this.banner = true;
-    try {
-      this.banner = localStorage.getItem(BANNER_KEY) !== 'seen';
-    } catch {
-      this.banner = true;
-    }
+    this.drawer = false;
+    this.leaving = false;
+    this.query = '';
+    this.active = 0;
+    this.searching = false;
+    this.paletteOpen = false;
+    this.folded = new Map();
   }
 
-  /** The pills sized from their text on the 4 px grid, as every card does (again once the web font is in). */
-  protected override updated(changed: PropertyValues): void {
-    super.updated(changed);
-    fitPills(this.renderRoot);
-    if (!this.refit) {
-      this.refit = () => {
-        fitPills(this.renderRoot, true);
-        this.align(false);
-      };
-      void document.fonts.ready.then(this.refit);
-    }
-    if (changed.has('state')) this.align(changed.get('state') !== undefined);
+  override connectedCallback(): void {
+    super.connectedCallback();
+    document.addEventListener('pointerdown', this.outside);
+    document.addEventListener('keydown', this.escape);
   }
 
-  /** Each sideways row with what is chosen in it in the middle: at once the first time, gliding after. */
-  private align(glide: boolean): void {
-    for (const row of this.renderRoot.querySelectorAll<HTMLElement>('.demo-scroll')) {
-      if (!this.rows.has(row)) {
-        this.rows.add(row);
-        sideScroll(row);
-        row.addEventListener('scroll', () => edges(row), { passive: true });
-        this.resized.observe(row);
-      }
-      const chosen = row.querySelector<HTMLElement>('.is-active');
-      if (chosen) centre(row, chosen, glide);
-      edges(row);
-    }
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    document.removeEventListener('pointerdown', this.outside);
+    document.removeEventListener('keydown', this.escape);
   }
+
+  /** A press outside the palette's dots closes them. */
+  private readonly outside = (event: PointerEvent): void => {
+    if (!this.paletteOpen) return;
+    const path = event.composedPath();
+    const pop = this.renderRoot.querySelector('.dm-pop');
+    const button = this.renderRoot.querySelector('.dm-palette-button');
+    if (!path.some((node) => node === pop || node === button)) this.paletteOpen = false;
+  };
+
+  /** Escape closes the palette's dots, giving the focus back to their button. */
+  private readonly escape = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || !this.paletteOpen) return;
+    this.paletteOpen = false;
+    this.renderRoot.querySelector<HTMLElement>('.dm-palette-button')?.focus();
+  };
 
   /** A word for the visitor, gone by itself. */
   say(text: string): void {
@@ -391,186 +720,555 @@ export class FluvyDemoShell extends LitElement {
   }
 
   private change(patch: Partial<DemoState>): void {
-    this.dispatchEvent(new CustomEvent('demo-change', { detail: patch }));
+    this.dispatchEvent(
+      new CustomEvent('demo-change', { detail: patch, bubbles: true, composed: true }),
+    );
   }
 
-  private view(view: DemoView): void {
-    this.change({ view });
-  }
-
-  private dismiss(): void {
-    this.banner = false;
-    try {
-      localStorage.setItem(BANNER_KEY, 'seen');
-    } catch {
-      // a private window: the banner comes back next time, which is fine
+  /** The pills sized from their text on the 4 px grid, as every card does (again once the web font is in). */
+  protected override updated(changed: PropertyValues): void {
+    super.updated(changed);
+    fitPills(this.renderRoot);
+    if (!this.refit) {
+      this.refit = () => fitPills(this.renderRoot, true);
+      void document.fonts.ready.then(this.refit);
     }
+    const dialog = this.renderRoot.querySelector<HTMLDialogElement>('.dm-drawer');
+    if (dialog && this.drawer && !dialog.open) {
+      dialog.showModal();
+      const row = dialog.querySelector<HTMLElement>('.dm-scroll');
+      if (row) sideScroll(row);
+      const target = this.focusSearch
+        ? dialog.querySelector<HTMLElement>('.fv-field__input')
+        : dialog.querySelector<HTMLElement>('.dm-close');
+      this.focusSearch = false;
+      target?.focus();
+      dialog.querySelector<HTMLElement>('.dm-item.is-active')?.scrollIntoView({ block: 'center' });
+    }
+    // the rail shows the page's own entry: where it is out of sight the rail scrolls itself to it, never the page
+    if (changed.has('state')) {
+      const rail = this.renderRoot.querySelector<HTMLElement>('.dm-rail');
+      const item = rail?.querySelector<HTMLElement>('.dm-item.is-active');
+      if (rail && item && rail.clientHeight > 0) {
+        const top = item.offsetTop - rail.offsetTop;
+        if (top < rail.scrollTop || top + item.offsetHeight > rail.scrollTop + rail.clientHeight)
+          rail.scrollTo({
+            top: top - rail.clientHeight / 2,
+            behavior: changed.get('state') && !reducedMotion() ? 'smooth' : 'instant',
+          });
+      }
+    }
+  }
+
+  /* ---------- the drawer ---------- */
+
+  private openDrawer(event: Event, search = false): void {
+    clearTimeout(this.leaveTimer);
+    this.opener = event.currentTarget as HTMLElement;
+    this.focusSearch = search;
+    this.leaving = false;
+    this.drawer = true;
+  }
+
+  /** Closes the drawer, gliding out; `now` at once (a page opened from it). */
+  private closeDrawer(now = false): void {
+    if (!this.drawer) return;
+    const finish = (): void => {
+      clearTimeout(this.leaveTimer);
+      this.leaving = false;
+      this.drawer = false;
+      this.renderRoot.querySelector<HTMLDialogElement>('.dm-drawer')?.close();
+      if (this.opener?.isConnected) this.opener.focus();
+      this.opener = undefined;
+    };
+    if (now || reducedMotion()) {
+      finish();
+      return;
+    }
+    this.leaving = true;
+    this.leaveTimer = window.setTimeout(finish, LEAVE_MS);
+  }
+
+  /** A page opened from the menu: the drawer closes behind it, the search is emptied. */
+  private open(event: MouseEvent, view: DemoView): void {
+    follow(event, view);
+    if (!event.defaultPrevented) return;
+    this.query = '';
+    this.searching = false;
+    this.closeDrawer(true);
+  }
+
+  /* ---------- the search ---------- */
+
+  private results(): DemoCard[] {
+    return searchCards(this.query, CARDS, wordsOf).slice(0, RESULTS);
+  }
+
+  private onInput(event: Event): void {
+    this.query = (event.target as HTMLInputElement).value;
+    this.active = 0;
+    // typed again after a card was opened from it, the field still has the focus: its results show again
+    this.searching = true;
+  }
+
+  private onSearchKey(event: KeyboardEvent): void {
+    const found = this.results();
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      if (!found.length) return;
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      this.active = Math.min(Math.max(this.active + step, 0), found.length - 1);
+      return;
+    }
+    if (event.key === 'Enter') {
+      const card = found[this.active] ?? found[0];
+      if (!card || !this.state) return;
+      event.preventDefault();
+      this.query = '';
+      this.searching = false;
+      this.closeDrawer(true);
+      this.dispatchEvent(
+        new CustomEvent<DemoView>('demo-go', {
+          detail: { kind: 'card', card: card.short },
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      return;
+    }
+    if (event.key === 'Escape' && this.query) {
+      // the first Escape empties the field; a second is the drawer's (it closes)
+      event.preventDefault();
+      event.stopPropagation();
+      this.query = '';
+    }
+  }
+
+  private clearSearch(event: Event): void {
+    this.query = '';
+    (
+      (event.currentTarget as HTMLElement).parentElement?.querySelector(
+        'input',
+      ) as HTMLElement | null
+    )?.focus();
+  }
+
+  private renderSearch(inline: boolean): TemplateResult {
+    const state = this.state as DemoState;
+    const lang = state.language;
+    const found = this.query ? this.results() : [];
+    const listed = this.query !== '' && (inline || this.searching);
+    const id = inline ? 'dm-found-drawer' : 'dm-found';
+    return html`<div class="dm-search">
+      <label class="fv-field fv-field--on-page">
+        ${glyph('search')}
+        <input
+          class="fv-field__input"
+          type="search"
+          role="combobox"
+          autocomplete="off"
+          spellcheck="false"
+          aria-autocomplete="list"
+          aria-expanded=${listed ? 'true' : 'false'}
+          aria-controls=${id}
+          aria-activedescendant=${listed && found.length ? `${id}-${this.active}` : nothing}
+          aria-label=${t(lang, 'search.label')}
+          placeholder=${t(lang, 'search.placeholder')}
+          .value=${this.query}
+          @input=${this.onInput}
+          @keydown=${this.onSearchKey}
+          @focus=${() => (this.searching = true)}
+          @blur=${() => (this.searching = false)}
+        />
+        ${
+          this.query
+            ? html`<button
+                class="fv-round fv-round--bare"
+                data-target
+                aria-label=${t(lang, 'search.clear')}
+                title=${t(lang, 'search.clear')}
+                @click=${this.clearSearch}
+              >
+                ${glyph('close')}
+              </button>`
+            : nothing
+        }
+      </label>
+      ${
+        listed
+          ? html`<div
+              class="dm-results ${inline ? 'dm-results--inline' : ''}"
+              id=${id}
+              role="listbox"
+              aria-label=${t(lang, 'search.label')}
+              @pointerdown=${(event: Event) => event.preventDefault()}
+            >
+              ${
+                found.length
+                  ? found.map((card, index) => {
+                      const words = wordsOf(card);
+                      const group = groupOf(card.short);
+                      const view: DemoView = { kind: 'card', card: card.short };
+                      return html`<a
+                        class="dm-result"
+                        id=${`${id}-${index}`}
+                        role="option"
+                        aria-selected=${index === this.active ? 'true' : 'false'}
+                        href=${hrefOf(state, view)}
+                        @pointerenter=${() => (this.active = index)}
+                        @click=${(event: MouseEvent) => this.open(event, view)}
+                      >
+                        <span class="dm-result__head">
+                          <span class="dm-result__name">${words.name}</span>
+                          ${group ? html`<span class="dm-result__group">${t(lang, group.label)}</span>` : nothing}
+                        </span>
+                        ${words.description ? html`<span class="dm-result__line">${words.description}</span>` : nothing}
+                      </a>`;
+                    })
+                  : html`<p class="dm-none" role="status">${t(lang, 'search.none')}</p>`
+              }
+            </div>`
+          : nothing
+      }
+    </div>`;
+  }
+
+  /* ---------- the menu ---------- */
+
+  /** Whether a group of the menu is open: as the visitor left it, else open where it holds the page shown. */
+  private isOpen(key: string, holdsShown: boolean): boolean {
+    return this.folded.get(key) ?? holdsShown;
+  }
+
+  private toggle(key: string, holdsShown: boolean): void {
+    const next = new Map(this.folded);
+    next.set(key, !this.isOpen(key, holdsShown));
+    this.folded = next;
+  }
+
+  private item(
+    view: DemoView,
+    label: string,
+    icon: GlyphName | undefined,
+    active: boolean,
+    extra = '',
+  ): TemplateResult {
+    return html`<a
+      class="dm-item ${extra} ${active ? 'is-active' : ''}"
+      href=${hrefOf(this.state as DemoState, view)}
+      aria-current=${active ? 'page' : nothing}
+      @click=${(event: MouseEvent) => this.open(event, view)}
+      >${icon ? glyph(icon) : nothing}<span class="dm-item__label">${label}</span></a
+    >`;
+  }
+
+  /** A group of the menu: its row opens and closes it, its entries under it. */
+  private group(
+    key: string,
+    label: string,
+    icon: GlyphName,
+    holdsShown: boolean,
+    entries: () => TemplateResult[],
+    where: string,
+  ): TemplateResult {
+    const open = this.isOpen(key, holdsShown);
+    const id = `dm-${where}-${key}`;
+    return html`<button
+        class="dm-item"
+        aria-expanded=${open ? 'true' : 'false'}
+        aria-controls=${id}
+        @click=${() => this.toggle(key, holdsShown)}
+      >
+        ${glyph(icon)}<span class="dm-item__label">${label}</span
+        ><span class="dm-item__chevron">${glyph('chevron')}</span>
+      </button>
+      <div class="dm-sub" id=${id} ?hidden=${!open}>${open ? entries() : nothing}</div>`;
+  }
+
+  private renderMenu(where: 'rail' | 'drawer'): TemplateResult {
+    const state = this.state as DemoState;
+    const lang = state.language;
+    const { view } = state;
+    const shownCard = view.kind === 'card' ? view.card : undefined;
+    const shownGroup = shownCard ? groupOf(shownCard)?.key : undefined;
+    const shownFamily = view.kind === 'sheet' ? familyOf(view.name)?.key : undefined;
+    return html`<nav class="dm-nav" aria-label=${t(lang, 'nav.menu')}>
+      ${this.item({ kind: 'overview' }, t(lang, 'nav.overview'), 'home', view.kind === 'overview')}
+      <p class="dm-label">${t(lang, 'nav.cards')}</p>
+      ${this.item({ kind: 'cards' }, t(lang, 'nav.all_cards'), 'grid', view.kind === 'cards')}
+      ${CARD_GROUPS.map((group) =>
+        this.group(
+          group.key,
+          t(lang, group.label),
+          group.glyph,
+          shownGroup === group.key,
+          () =>
+            group.cards.flatMap((short) => {
+              const card = cardOf(short);
+              return card
+                ? [
+                    this.item(
+                      { kind: 'card', card: short },
+                      wordsOf(card).name,
+                      undefined,
+                      shownCard === short,
+                      'dm-item--card',
+                    ),
+                  ]
+                : [];
+            }),
+          where,
+        ),
+      )}
+      <p class="dm-label">${t(lang, 'nav.pages')}</p>
+      ${PAGES.map((page) =>
+        this.item(page.view, t(lang, page.label), page.glyph, page.view.kind === view.kind),
+      )}
+      ${this.group(
+        'showcase',
+        t(lang, 'nav.showcase'),
+        'sparkle',
+        shownFamily !== undefined,
+        () =>
+          FAMILIES.map((family) =>
+            this.item(
+              { kind: 'sheet', name: family.key },
+              t(lang, family.label),
+              undefined,
+              shownFamily === family.key,
+              'dm-item--card',
+            ),
+          ),
+        where,
+      )}
+      <p class="dm-label">${t(lang, 'nav.themes')}</p>
+      ${this.item({ kind: 'themes' }, t(lang, 'nav.themes'), 'palette', view.kind === 'themes')}
+    </nav>`;
+  }
+
+  /* ---------- the look ---------- */
+
+  private renderDots(row: boolean): TemplateResult {
+    const state = this.state as DemoState;
+    const chosen = typeof state.look.palette === 'string' ? state.look.palette : '';
+    return html`<div
+      class="dm-dots ${row ? 'dm-dots--row' : ''}"
+      role="group"
+      aria-label=${t(state.language, 'palette.title')}
+    >
+      ${this.palettes.map(
+        (palette) =>
+          html`<button
+            class="dm-dot ${chosen === palette.name ? 'is-active' : ''}"
+            data-target
+            style="--dot:${palette.ink}"
+            title=${palette.title}
+            aria-label=${palette.title}
+            aria-pressed=${chosen === palette.name ? 'true' : 'false'}
+            @click=${() => this.change({ look: { ...state.look, palette: palette.name } })}
+          ></button>`,
+      )}
+      <a
+        class="dm-dot dm-dot--custom ${chosen === '' ? 'is-active' : ''}"
+        data-target
+        href=${hrefOf(state, { kind: 'panel', tab: 'appearance' })}
+        title=${t(state.language, 'palette.custom')}
+        aria-label=${t(state.language, 'palette.custom')}
+        @click=${(event: MouseEvent) => {
+          this.paletteOpen = false;
+          this.open(event, { kind: 'panel', tab: 'appearance' });
+        }}
+      >
+        ${glyph('plus')}
+      </a>
+    </div>`;
+  }
+
+  private renderLanguage(cls: string): TemplateResult {
+    const lang = (this.state as DemoState).language;
+    return html`<fluvy-select
+      class=${cls}
+      on-page
+      .label=${t(lang, 'language.title')}
+      .value=${lang}
+      .options=${LANGUAGE_OPTIONS}
+      @fluvy-change=${(event: CustomEvent<SelectChangeDetail>) => {
+        const { value } = event.detail;
+        if (isLanguageCode(value)) this.change({ language: value });
+      }}
+    ></fluvy-select>`;
+  }
+
+  private renderMode(): TemplateResult {
+    const state = this.state as DemoState;
+    const dark = state.mode === 'dark';
+    return html`<button
+      class="fv-round fv-round--on-page dm-mode ${dark ? 'is-on' : ''}"
+      data-target
+      title=${t(state.language, 'mode.dark')}
+      aria-label=${t(state.language, 'mode.dark')}
+      aria-pressed=${dark ? 'true' : 'false'}
+      @click=${() => this.change({ mode: dark ? 'light' : 'dark' })}
+    >
+      ${glyph('moon')}
+    </button>`;
+  }
+
+  private renderBrand(): TemplateResult {
+    const state = this.state as DemoState;
+    return html`<a
+      class="dm-brand"
+      href=${hrefOf(state, { kind: 'overview' })}
+      @click=${(event: MouseEvent) => this.open(event, { kind: 'overview' })}
+    >
+      ${this.mark ? html`<img src=${this.mark} alt="" />` : nothing}
+      <span class="dm-brand__text">
+        <span class="dm-brand__name">Fluvy</span>
+        <span class="dm-brand__sub">${t(state.language, 'brand.sub')}</span>
+      </span>
+    </a>`;
   }
 
   override render(): TemplateResult | typeof nothing {
     const state = this.state;
     if (!state) return nothing;
     const lang = state.language;
-    const { view } = state;
-    const current = view.kind === 'sheet' ? familyOf(view.name) : view.kind;
-    const views: ChipItem[] = [
-      ...FAMILIES.map((family) => ({
-        key: family.key,
-        label: t(lang, family.label),
-        active: current === family.key,
-      })),
-      { key: 'panel', label: t(lang, 'page.panel'), active: current === 'panel' },
-      {
-        key: 'activity',
-        label: t(lang, 'page.activity'),
-        active: current === 'activity',
-      },
-      {
-        key: 'history',
-        label: t(lang, 'page.history'),
-        active: current === 'history',
-      },
-    ];
-    const modes: ChipItem[] = [
-      { key: 'light', label: t(lang, 'mode.light'), active: state.mode === 'light' },
-      { key: 'dark', label: t(lang, 'mode.dark'), active: state.mode === 'dark' },
-    ];
-    // a link's own width (the playground's `width=`) is said as it is, until a device is chosen
-    const devices: SelectOption[] = [
-      ...DEVICE_NAMES.map((device) => ({ value: device, label: t(lang, `device.${device}`) })),
-      ...(state.frameWidth ? [{ value: WIDTH, label: `${state.frameWidth} px` }] : []),
-    ];
-    const chosen = typeof state.look.palette === 'string' ? state.look.palette : '';
+    const paletteName =
+      typeof state.look.palette === 'string'
+        ? (this.palettes.find((palette) => palette.name === state.look.palette)?.title ?? '')
+        : t(lang, 'palette.custom');
     return html`
-      <div class="demo-bar">
-        <a class="demo-brand" href=${REPO}>
-          ${this.mark ? html`<img class="demo-brand__mark" src=${this.mark} alt="" />` : nothing}
-          <span class="demo-brand__text">
-            <span class="demo-brand__name">Fluvy</span>
-            <span class="demo-brand__sub">${t(lang, 'brand.sub')}</span>
-          </span>
-        </a>
-        <nav class="demo-views demo-scroll">${chips(views, (key) => this.pick(key))}</nav>
-        <div class="demo-links demo-links--words">
-          ${LINKS.map(
-            (link) =>
-              html`<a class="fv-btn fv-btn--quiet" data-target data-fit="32" href=${link.href}
-                >${t(lang, link.label)}</a
-              >`,
-          )}
-        </div>
-        <div class="demo-links demo-links--round">
-          ${LINKS.map(
-            (link) =>
-              html`<a
-                class="fv-round fv-round--on-page"
-                data-target
-                href=${link.href}
-                title=${t(lang, link.label)}
-                aria-label=${t(lang, link.label)}
-                >${glyph(link.glyph)}</a
-              >`,
-          )}
-        </div>
-      </div>
-      <div class="demo-bar demo-bar--look">
-        <div class="demo-scroll">
-          <div class="demo-palette" role="group" aria-label=${t(lang, 'palette.title')}>
-            ${this.palettes.map(
-              (palette) =>
-                html`<button
-                  class="demo-dot ${chosen === palette.name ? 'is-active' : ''}"
-                  data-target
-                  style="--dot:${palette.ink}"
-                  title=${palette.title}
-                  aria-label=${palette.title}
-                  aria-pressed=${chosen === palette.name ? 'true' : 'false'}
-                  @click=${() => this.change({ look: { ...state.look, palette: palette.name } })}
-                ></button>`,
-            )}
-            <button
-              class="demo-dot demo-dot--custom ${chosen === '' ? 'is-active' : ''}"
-              data-target
-              title=${t(lang, 'palette.custom')}
-              aria-label=${t(lang, 'palette.custom')}
-              @click=${() => this.view({ kind: 'panel', tab: 'appearance' })}
-            >
-              ${glyph('plus')}
-            </button>
-          </div>
-        </div>
-        ${chips(modes, (key) => this.change({ mode: key === 'dark' ? 'dark' : 'light' }), 'demo-modes')}
+      <a
+        class="dm-skip fv-btn fv-btn--accent"
+        href="#stage"
+        @click=${(event: Event) => {
+          event.preventDefault();
+          document.getElementById('stage')?.focus();
+        }}
+        >${t(lang, 'nav.skip')}</a
+      >
+      <header class="dm-top">
         <button
-          class="demo-dark fv-round fv-round--on-page ${state.mode === 'dark' ? 'is-on' : ''}"
+          class="fv-round fv-round--bare dm-menu-button"
           data-target
-          title=${t(lang, 'mode.dark')}
-          aria-label=${t(lang, 'mode.dark')}
-          aria-pressed=${state.mode === 'dark' ? 'true' : 'false'}
-          @click=${() => this.change({ mode: state.mode === 'dark' ? 'light' : 'dark' })}
+          aria-label=${t(lang, 'nav.open')}
+          title=${t(lang, 'nav.open')}
+          aria-haspopup="dialog"
+          aria-expanded=${this.drawer ? 'true' : 'false'}
+          @click=${(event: Event) => this.openDrawer(event)}
         >
-          ${glyph('moon')}
+          ${glyph('menu')}
         </button>
-        <fluvy-select
-          class="demo-select demo-select--device"
-          on-page
-          .label=${t(lang, 'device.title')}
-          .value=${state.frameWidth ? WIDTH : state.device}
-          .options=${devices}
-          @fluvy-change=${(event: CustomEvent<SelectChangeDetail>) => {
-            const { value } = event.detail;
-            if (isDevice(value)) this.change({ device: value, frameWidth: undefined });
-          }}
-        ></fluvy-select>
-        <fluvy-select
-          class="demo-select demo-select--language"
-          on-page
-          .label=${t(lang, 'language.title')}
-          .value=${lang}
-          .options=${LANGUAGE_OPTIONS}
-          @fluvy-change=${(event: CustomEvent<SelectChangeDetail>) => {
-            const { value } = event.detail;
-            if (isLanguageCode(value)) this.change({ language: value });
-          }}
-        ></fluvy-select>
+        ${this.renderBrand()} ${this.renderSearch(false)}
+        <div class="dm-end">
+          <button
+            class="fv-round fv-round--bare dm-search-button"
+            data-target
+            aria-label=${t(lang, 'search.label')}
+            title=${t(lang, 'search.label')}
+            @click=${(event: Event) => this.openDrawer(event, true)}
+          >
+            ${glyph('search')}
+          </button>
+          <button
+            class="fv-round fv-round--on-page dm-palette-button"
+            data-target
+            aria-label=${`${t(lang, 'palette.title')}: ${paletteName}`}
+            title=${t(lang, 'palette.title')}
+            aria-expanded=${this.paletteOpen ? 'true' : 'false'}
+            aria-controls="dm-palette"
+            @click=${() => (this.paletteOpen = !this.paletteOpen)}
+          >
+            <span class="dm-swatch"></span>
+          </button>
+          ${
+            // the dots next to their button for the keys (Tab goes on into them), laid out under the bar
+            this.paletteOpen
+              ? html`<div
+                  class="dm-pop"
+                  id="dm-palette"
+                  role="group"
+                  aria-label=${t(lang, 'palette.title')}
+                >
+                  <div class="dm-pop__head">
+                    <span class="dm-pop__title">${t(lang, 'palette.title')}</span>
+                    <span class="dm-pop__name">${paletteName}</span>
+                  </div>
+                  ${this.renderDots(false)}
+                </div>`
+              : nothing
+          }
+          ${this.renderMode()} ${this.renderLanguage('dm-language dm-wide')}
+          <a
+            class="fv-round fv-round--on-page dm-wide"
+            data-target
+            href=${REPO}
+            title=${t(lang, 'links.github')}
+            aria-label=${t(lang, 'links.github')}
+            >${glyph('code')}</a
+          >
+          <a
+            class="fv-btn fv-btn--accent dm-install dm-wide"
+            data-target
+            data-fit="32"
+            href=${INSTALL}
+            >${t(lang, 'links.install')}</a
+          >
+        </div>
+      </header>
+      <div class="dm-body">
+        <aside class="dm-rail">${this.renderMenu('rail')}</aside>
+        <div class="dm-main"><slot></slot></div>
       </div>
       ${
-        this.banner
-          ? html`<div class="demo-banner">
-              <p>${t(lang, 'banner.text')}</p>
-              <button class="fv-btn fv-btn--quiet" data-target @click=${() => this.dismiss()}>
-                ${t(lang, 'banner.ok')}
-              </button>
-            </div>`
+        this.drawer
+          ? html`<dialog
+              class="dm-drawer ${this.leaving ? 'is-leaving' : ''}"
+              aria-label=${t(lang, 'nav.menu')}
+              @cancel=${(event: Event) => {
+                event.preventDefault();
+                this.closeDrawer();
+              }}
+              @click=${(event: MouseEvent) => {
+                // the scrim, outside the drawer's own box
+                if (event.target === event.currentTarget) {
+                  const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
+                  if (event.clientX > box.right || event.clientX < box.left) this.closeDrawer();
+                }
+              }}
+            >
+              <div class="dm-drawer__head">
+                ${this.renderBrand()}
+                <button
+                  class="fv-round fv-round--bare dm-close"
+                  data-target
+                  aria-label=${t(lang, 'nav.close')}
+                  title=${t(lang, 'nav.close')}
+                  @click=${() => this.closeDrawer()}
+                >
+                  ${glyph('close')}
+                </button>
+              </div>
+              <div class="dm-drawer__search">${this.renderSearch(true)}</div>
+              <div class="dm-drawer__body">${this.query ? nothing : this.renderMenu('drawer')}</div>
+              <div class="dm-drawer__foot">
+                <div class="dm-scroll">${this.renderDots(true)}</div>
+                <div class="dm-drawer__row">${this.renderMode()} ${this.renderLanguage('')}</div>
+                <div class="dm-links">
+                  <a class="fv-btn fv-btn--on-page" data-target href=${REPO}
+                    >${glyph('code')}${t(lang, 'links.github')}</a
+                  >
+                  <a class="fv-btn fv-btn--accent" data-target href=${INSTALL}
+                    >${glyph('download')}${t(lang, 'links.install')}</a
+                  >
+                </div>
+              </div>
+            </dialog>`
           : nothing
       }
-      ${this.notice ? html`<div class="demo-toast" role="status">${this.notice}</div>` : nothing}
+      ${this.notice ? html`<div class="dm-toast" role="status">${this.notice}</div>` : nothing}
     `;
   }
-
-  private pick(key: string): void {
-    if (key === 'panel') this.view({ kind: 'panel', tab: 'appearance' });
-    else if (key === 'activity' || key === 'history') this.view({ kind: key });
-    else this.view({ kind: 'sheet', name: key });
-  }
-}
-
-/** How far from an end a row's fade reaches: within it, the row goes to the end itself. */
-const FADE = 24;
-
-/** Scrolls a row sideways (only it, never the page) to put an item in its middle, or to the end it is near. */
-function centre(row: HTMLElement, item: HTMLElement, glide: boolean): void {
-  const most = row.scrollWidth - row.clientWidth;
-  if (most <= 0) return;
-  const at = item.getBoundingClientRect().left - row.getBoundingClientRect().left + row.scrollLeft;
-  const middle = at - (row.clientWidth - item.offsetWidth) / 2;
-  const left = middle < FADE ? 0 : most - middle < FADE ? most : middle;
-  row.scrollTo({ left, behavior: glide && !reducedMotion() ? 'smooth' : 'instant' });
-}
-
-/** A row fades only on a side where it goes on. */
-function edges(row: HTMLElement): void {
-  row.classList.toggle('is-start', row.scrollLeft <= 1);
-  row.classList.toggle('is-end', row.scrollLeft >= row.scrollWidth - row.clientWidth - 1);
 }
 
 if (!customElements.get('fluvy-demo-shell'))

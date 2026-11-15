@@ -35,6 +35,10 @@ html,
 body {
   margin: 0;
 }
+/* the scrollbar's room kept whether the page scrolls or not: the lanes never change their count as it comes and goes */
+html {
+  scrollbar-gutter: stable;
+}
 body {
   min-height: 100vh;
   background: var(--fluvy-page, #f3eee4);
@@ -42,20 +46,33 @@ body {
   font-family: Inter, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-/* the frames in lanes: one per column the device has, each a dashboard column wide (the frame's 16 px sides
-   around it, never wider than the screen), filled by height, centred */
+/* the page beside the menu: its head, then its frames */
 .demo-stage {
+  display: block;
+  padding: 32px 24px 64px;
+  outline: none;
+}
+.demo-section {
+  margin: 40px 0 16px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+}
+/* the frames in lanes: one per column the device has and the page holds, each a dashboard column wide (the frame's
+   16 px sides around it, never wider than the page), filled by height, from the page's own edge */
+.demo-lanes {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: 24px;
-  padding: 24px 16px 64px;
 }
 .demo-lane {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: min(calc(var(--demo-frame, 360px) + 32px), calc(100vw - 32px));
+  width: min(calc(var(--demo-frame, 360px) + 32px), 100%);
+  min-width: 0;
 }
 .demo-lane > .pg-frame {
   width: auto;
@@ -63,8 +80,32 @@ body {
 .demo-lane > .demo-frame--own {
   align-self: center;
 }
+/* a card's examples in columns of the device's width, in their order, kept level by the browser */
+.demo-plates {
+  columns: var(--demo-columns, 1);
+  column-gap: 24px;
+  max-width: calc(
+    var(--demo-columns, 1) * (var(--demo-frame, 360px) + 32px) + (var(--demo-columns, 1) - 1) * 24px
+  );
+}
+.demo-plates > * {
+  break-inside: avoid;
+  margin-bottom: 24px;
+}
+/* a card's example: its plate draws the section's edge, the frame its cards */
+fluvy-demo-example > .pg-frame {
+  background: none;
+  box-shadow: none;
+}
 /* a page (the settings panel, Activity, History) takes the whole width, as Home Assistant gives it */
 .demo-stage.pg-panel {
-  display: block;
   padding: 0;
+}
+@media (max-width: 719px) {
+  .demo-stage {
+    padding: 24px 16px 48px;
+  }
+  .demo-section {
+    margin-top: 32px;
+  }
 }
