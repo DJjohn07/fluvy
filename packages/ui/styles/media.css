@@ -23,6 +23,12 @@
   height: 48px; /* 48 centred on the 80 art → 16 offset, on the grid */
 }
 
+/* a column that lets the art go: the head is its three lines' 64 (the title's 24, two lines of 20), the round centred
+   on them (8 offset, on the grid) */
+.md-now--bare {
+  height: 64px;
+}
+
 .md-now > .fv-round svg {
   width: 24px;
   height: 24px;

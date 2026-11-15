@@ -447,14 +447,14 @@
       "tag": "fluvy-media-card",
       "declared": 352,
       "drawn": 288,
-      "reason": "a player that is off draws Turn on in place of its transport: the on height is reserved (the language's rule)"
+      "reason": "a player that is off draws no transport, the head's power round turning it on: the on height is reserved (the language's rule)"
     },
     {
       "frame": "media/Power · off",
       "tag": "fluvy-media-card",
       "declared": 440,
       "drawn": 376,
-      "reason": "a player that is off draws Turn on in place of its transport: the on height is reserved (the language's rule)"
+      "reason": "a player that is off draws no transport, the head's power round turning it on: the on height is reserved (the language's rule)"
     },
     {
       "frame": "nested/A device unreadable",

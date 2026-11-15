@@ -81,11 +81,11 @@ type CardElement = HTMLElement & {
   updateComplete: Promise<boolean>;
 };
 
-async function draw(config: Record<string, unknown>): Promise<CardElement> {
+async function draw(config: Record<string, unknown>, width = 360): Promise<CardElement> {
   const card = document.createElement('fluvy-media-card') as CardElement;
   card.setConfig({ type: 'custom:fluvy-media-card', ...config });
   card.hass = hass;
-  card.width = 360;
+  card.width = width;
   document.body.append(card);
   await card.updateComplete;
   return card;
@@ -277,5 +277,19 @@ describe('a line of the person’s own (#101)', () => {
     expect(
       lines(await draw({ entity: 'media_player.garden', secondary: 'Garden · Sonos' }))[0],
     ).toMatch(/^Unavailable/);
+  });
+});
+
+describe('a column too narrow for the art (#191)', () => {
+  it('lets the art go and makes the head its three lines’ 64, by the width alone, whatever is playing', async () => {
+    for (const entity of ['media_player.kitchen', 'media_player.speaker', 'media_player.garden']) {
+      // a 296 card's 256 holds the 80 art, the 96 a name starts in and the round: the head is the art's 80
+      const wide = (await draw({ entity }, 296)).shadowRoot!;
+      expect(wide.querySelector('.md-now > .fv-art'), entity).not.toBeNull();
+      expect(wide.querySelector('.md-now--bare'), entity).toBeNull();
+      const narrow = (await draw({ entity }, 295)).shadowRoot!;
+      expect(narrow.querySelector('.md-now > .fv-art'), entity).toBeNull();
+      expect(narrow.querySelector('.md-now--bare'), entity).not.toBeNull();
+    }
   });
 });

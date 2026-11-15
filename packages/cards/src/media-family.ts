@@ -36,8 +36,8 @@ const MAX_SOURCES = 6;
 /**
  * The player: artwork, title and controls (264), the volume under them (88), the sources as chips under their label
  * where the player has some (six at most, filled rows: the house lists them, `house-heights.ts`; none where it is not
- * there to say); a hero and a row their own. A player that is off draws "Turn on" in place of its transport: the on
- * height is the one reserved.
+ * there to say); a hero and a row their own. A player that is off draws no transport where the head's power round
+ * turns it on: the on height is the one reserved.
  */
 export function mediaHeight(config: LovelaceCardConfig, sources: readonly string[] = []): number {
   if (config['variant'] === 'hero') return 600;

@@ -1028,7 +1028,8 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
 
     // the title is a name and may end in an ellipsis; the lines under it lose their trailing segments instead. A column
     // that would leave the words less than a name's start beside the 80 art and the round lets the art go (the head's
-    // own rule: the words and the art are one button, so its tap stays), and the head keeps its 80
+    // own rule: the words and the art are one button, so its tap stays), and the head is then its three lines' 64, the
+    // round centred on them: a width's layout, never what is playing (#191)
     const keepsArt = this.contentWidth - ART - HEAD_GAP - ROUND >= TITLE_FLOOR;
     const room = this.contentWidth - (keepsArt ? ART : 0) - HEAD_GAP - ROUND;
     // why a player is out of reach is said whole: "Not found" where "Entity not found" would not hold
@@ -1047,7 +1048,7 @@ export class FluvyMediaCard extends Card<MediaCardConfig> {
     const source = this.head.fitSub(speaker, room - SPEAKER_GLYPH);
     return html`<article class=${classes} data-card>
       <div
-        class="md-now ${heads}"
+        class="md-now ${keepsArt ? '' : 'md-now--bare'} ${heads}"
         .fvHold=${onHold}
         @pointerdown=${pressed ? startPress : nothing}
         @contextmenu=${onHold ? preventMenu : nothing}
