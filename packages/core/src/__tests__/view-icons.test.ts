@@ -284,6 +284,42 @@ describe('the icon a view’s name says', () => {
       ['Хоризонт', undefined],
     ];
     expect(bulgarian.map(([t]) => named(t))).toEqual(bulgarian.map(([, icon]) => icon));
+    // Swedish, å, ä and ö read as a, a and o, a room and a floor by a compound's end (vardagsrum, övervåning)
+    const swedish: ReadonlyArray<readonly [string, string | undefined]> = [
+      ['Belysning', 'bulb'],
+      ['Ljus', 'bulb'],
+      ['Golvvärme', 'thermo'],
+      ['Väder', 'cloud'],
+      ['Solceller', 'sun'],
+      ['El', 'bolt'],
+      ['Förbrukning', 'bolt'],
+      ['Säkerhet', 'shield'],
+      ['Larm', 'shield'],
+      ['Vardagsrum', 'rooms'],
+      ['Kök', 'rooms'],
+      ['Hall', 'rooms'],
+      ['Övervåning', 'rooms'],
+      ['Källare', 'rooms'],
+      ['Kameror', 'camera'],
+      ['Dörrar', 'lock'],
+      ['Hemmabio', 'film'],
+      ['Trädgård', 'leaf'],
+      ['Växter', 'leaf'],
+      ['Scener', 'automation'],
+      ['Bilar', 'car'],
+      ['Schema', 'calendar'],
+      ['Familjen', 'person'],
+      ['Bevattning', 'drop'],
+      ['Fläktar', 'fan'],
+      ['Persienner', 'blinds'],
+      ['Dammsugare', 'vacuum'],
+      ['Mätvärden', 'chart'],
+      ['Hem', 'home'],
+      ['Översikt', 'home'],
+      ['Hallon', undefined],
+      ['Elin', undefined],
+    ];
+    expect(swedish.map(([t]) => named(t))).toEqual(swedish.map(([, icon]) => icon));
     // a stem under four letters is a whole word: the hall (хол, зал) and the home (дім, дом) never inside a longer one
     const short: ReadonlyArray<readonly [string, string | undefined]> = [
       ['Хол', 'rooms'],

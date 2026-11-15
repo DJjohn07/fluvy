@@ -62,6 +62,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'крушк',
       'полиле',
       'лунич',
+      'ljus',
+      'belysn',
     ],
   ],
   [
@@ -119,6 +121,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'тепла підлога',
       'охлажд',
       'парно',
+      '*varme',
+      'uppvarmn',
     ],
   ],
   [
@@ -172,6 +176,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'прогноз',
       'метео',
       'времето',
+      'vader',
     ],
   ],
   [
@@ -211,6 +216,9 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'соларн',
       'фотоволт',
       'фец',
+      'solcell',
+      'solenergi',
+      'solpanel',
     ],
   ],
   [
@@ -258,6 +266,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'лічильн',
       'консум',
       'ток',
+      'el',
+      'forbrukn',
     ],
   ],
   [
@@ -294,6 +304,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'сигурн',
       'аларм',
       'защит',
+      'sakerhet',
+      'larm',
     ],
   ],
   // an Italian "camera da letto" is a bedroom, before "camera" is a camera
@@ -461,6 +473,14 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'сутерен',
       'килер',
       'дрешник',
+      '*rum',
+      'kok',
+      'hall$',
+      'kontor',
+      'matsal',
+      'tvattstuga',
+      'kallare',
+      '*vaning',
     ],
   ],
   [
@@ -480,6 +500,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'камер',
       'видеонаб',
       'відеоспост',
+      'kameror',
     ],
   ],
   [
@@ -518,6 +539,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'врата',
       'врати',
       'заключ',
+      'dorr',
     ],
   ],
   [
@@ -586,6 +608,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'кино',
       'телевіз',
       'кіно',
+      'bio',
+      'hemmabio',
     ],
   ],
   [
@@ -647,6 +671,10 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'морав',
       'оранжер',
       'цветя',
+      'tradgard',
+      'utomhus',
+      'ute',
+      'vaxt',
     ],
   ],
   [
@@ -667,6 +695,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       '场景',
       'автоматиз',
       'сцен',
+      'scen',
     ],
   ],
   [
@@ -704,6 +733,10 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'кола$',
       'коли$',
       'електромоб',
+      'bil',
+      'bilar',
+      'billadd',
+      'laddbox',
     ],
   ],
   [
@@ -728,6 +761,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'расписан',
       'розклад',
       'разписан',
+      'schema',
     ],
   ],
   [
@@ -767,6 +801,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'семейств',
       'присъств',
       'обитател',
+      'familj',
+      'narvaro',
     ],
   ],
   [
@@ -801,6 +837,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'напояван',
       'поливан',
       'поливн',
+      'vatten',
+      'bevattn',
     ],
   ],
   [
@@ -825,6 +863,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'витяжк',
       'абсорб',
       'проветр',
+      'flakt',
     ],
   ],
   [
@@ -871,6 +910,10 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'жалуз',
       'тента',
       'тенти',
+      'persienn',
+      'gardin',
+      'rullgardin',
+      'markis',
     ],
   ],
   [
@@ -895,6 +938,7 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'прибиран',
       'прахосмук',
       'почиств',
+      'dammsug',
     ],
   ],
   [
@@ -929,6 +973,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'сензор',
       'датчи',
       'диаграм',
+      'matvard',
+      'givare',
     ],
   ],
   [
@@ -979,6 +1025,8 @@ const TABLE: ReadonlyArray<readonly [icon: IconName, words: readonly string[]]> 
       'начало',
       'преглед',
       'вкъщи',
+      'hem',
+      'oversikt',
     ],
   ],
 ];
