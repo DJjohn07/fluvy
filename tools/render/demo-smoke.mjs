@@ -97,6 +97,8 @@ const FIELDS = {
 /** Picks an option of one of the demo's fields (`device`, `language`) by its label. */
 const choose = async (page, field, label) => {
   const select = page.locator(FIELDS[field]);
+  // the field in view at once: a list closes on a scroll, and the page scrolls smoothly to a field out of view
+  await select.evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await select.locator('.fv-select').click();
   await select.locator('[role="option"]', { hasText: label }).first().click();
   await page.waitForTimeout(400);

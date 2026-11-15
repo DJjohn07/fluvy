@@ -65,7 +65,17 @@ export const FAMILIES: readonly Family[] = [
     key: 'helpers',
     label: 'family.helpers',
     glyph: 'sliders',
-    sheets: ['inputs', 'lists', 'items', 'template', 'automations', 'alerts', 'web', 'expander'],
+    sheets: [
+      'inputs',
+      'lists',
+      'items',
+      'template',
+      'automations',
+      'alerts',
+      'web',
+      'expander',
+      'swipe',
+    ],
   },
 ];
 
