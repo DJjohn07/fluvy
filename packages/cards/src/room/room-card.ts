@@ -61,6 +61,7 @@ import {
   FluvyTileCard,
   type LineReadouts,
   type NameLines,
+  type ReadoutsLayout,
   type SwitchStyle,
   type TileItem,
 } from '../tile/tile-card.js';
@@ -123,6 +124,8 @@ export interface RoomCardConfig extends FluvyCardConfig, LightColours, RoomTunin
   switch_style?: SwitchStyle;
   /** Its tiles' lines say every readout that can be read (`all`, #197), the last giving way first; the first (`first`, the default). */
   line_readouts?: LineReadouts;
+  /** Its tiles' readouts as columns at their rows' ends (`end`, #197), as many as each holds whole; on their lines (`line`, the default). */
+  readouts_layout?: ReadoutsLayout;
   /** The quick actions at the end of its head, its row or its picture (default). */
   show_quick_actions?: boolean;
   /** The arrows that say the room opens (default); hidden, the words have their room and a tap still opens it. */

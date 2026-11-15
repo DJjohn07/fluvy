@@ -48,6 +48,7 @@ import { fitLine, TextRuler, type Segment } from '../shared/fit.js';
 import { FontsSettled } from '../shared/fonts.js';
 import { statusToneOf, washesAtRest, type LightColours, type Tint } from '../shared/colour.js';
 import { NAME_LINE, twoLines, type NameLines } from '../shared/heights.js';
+import { NAME_MIN } from '../shared/row-end.js';
 import { shorterForms } from '../shared/secondary.js';
 import { changedAt, sinceIds } from '../shared/since.js';
 import { askedParts, type NumberKeys } from '../shared/units.js';
@@ -78,6 +79,8 @@ export type ShowSwitch = boolean | 'value';
 export type SwitchStyle = 'toggle' | 'rocker';
 /** The readouts a small tile's line says (`line_readouts`, #197): the first (the default), or every one. */
 export type LineReadouts = 'first' | 'all';
+/** Where a compact tile's readouts stand (`readouts_layout`, #197): on its line (the default), or at its row's end. */
+export type ReadoutsLayout = 'line' | 'end';
 
 /**
  * One readout of a tile, in the Grid card's shape (#197): its sensor, a name of its own — its label in a foot, said
@@ -147,6 +150,11 @@ export interface TileCardConfig extends FluvyCardConfig, LightColours, Omit<Tile
    * and its level, the last giving way first; the first alone (`first`, the default).
    */
   line_readouts?: LineReadouts;
+  /**
+   * A compact tile's readouts as columns at its row's end (`end`, #197), each under its label as in a large tile's
+   * foot: as many as it holds whole, the rest on its line; all on its line (`line`, the default).
+   */
+  readouts_layout?: ReadoutsLayout;
 }
 
 /**
@@ -156,13 +164,15 @@ export interface TileCardConfig extends FluvyCardConfig, LightColours, Omit<Tile
  * width. `words`: the line is the person's own (a template card's): what is left of it once its last parts are gone
  * ends in an ellipsis, as a name does, rather than going. `figure`: the figure the line ends in and keeps
  * (`keepsFigure`): where the whole line does not hold, the words before it go and the figure stays, alone. `plated`:
- * a compact tile's rocker stands at its row's end. `forms`: what the line says instead, in order, where it holds not
- * even its first words (a thermostat's action: Fluvy's own word, then its mode).
+ * a compact tile's rocker stands at its row's end. `ends`: the room its readouts take there as columns
+ * (`readouts_layout: end`). `forms`: what the line says instead, in order, where it holds not even its first words (a
+ * thermostat's action: Fluvy's own word, then its mode).
  */
 interface LineFit {
   readonly dash?: boolean;
   readonly inside?: boolean;
   readonly plated?: boolean;
+  readonly ends?: number;
   readonly under?: boolean;
   readonly words?: boolean | undefined;
   readonly figure?: string | undefined;
@@ -170,8 +180,8 @@ interface LineFit {
 }
 
 /**
- * A readout as a tile writes it: its figure and its unit, its label over them in a foot, its own name where it has
- * one (said before its figure on a line), and whether it can be read.
+ * A readout as a tile writes it: its figure and its unit, its label over them (a foot's, a column's), its own name
+ * where it has one (said before its figure on a line), and whether it can be read.
  */
 interface Reading extends ValueParts {
   readonly label: string;
@@ -217,6 +227,8 @@ const PLATE_CIRCLE = 228;
 const TWO_READOUTS = 120;
 /** Three readouts (power, today, cost) share a foot from this inner width: a tile on its own row. */
 const THREE_READOUTS = 292;
+/** A compact tile's columns at its row's end (`readouts_layout: end`) stand 16 apart, and 16 from its words (tiles.css). */
+const END_GAP = 16;
 
 /**
  * The switch a large tile is asked to show (`show_switch`), by the one rule every card that draws one follows: its
@@ -263,7 +275,7 @@ const headValue = (value: string, unit: string): TemplateResult =>
 const onLine = ({ own, value, unit }: Reading): string =>
   [own, value, unit].filter(Boolean).join(' ');
 
-/** A readout under its label, as a large tile's foot draws it. */
+/** A readout under its label, as a large tile's foot and a compact one's end draw it. */
 const cell = ({ label, value, unit, named }: Reading): TemplateResult =>
   readout({ label, value, unit, size: 'xs', name: named });
 
@@ -313,8 +325,9 @@ export const tintsAtRest = (
  * a wall rocker (`switch_style`, #177), its switch is a plate standing on end — a large tile's where its toggle
  * stood, a compact one's at its row's end, its own tap then opening the details — and it switches and nothing more:
  * no ruler, no level. A small tile's line says its first readout after its state, or every one where asked
- * (`line_readouts`, #197), the last giving way first. Active = the tone's pastel fill in every size; unavailable = the
- * off skin on the same anatomy, at the same size.
+ * (`line_readouts`, #197), the last giving way first; a compact one asked to (`readouts_layout: end`) stands them at
+ * its row's end instead, as columns under their labels, as many as it holds. Active = the tone's pastel fill in every
+ * size; unavailable = the off skin on the same anatomy, at the same size.
  */
 export class FluvyTileCard extends Card<TileCardConfig> {
   /** The card's height at a 360 column, for the automatic dashboard's columns. */
@@ -355,6 +368,19 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+      }
+      /* a compact tile's readouts at its row's end (readouts_layout: end, #197): columns 16 apart and 16 from the
+         words (the row's 12 and 4 more), each a foot's readout — its label over its figure, 40 in the row's 44 — set
+         to the end, as a side readout is */
+      .fv-tile__end {
+        display: flex;
+        flex: none;
+        gap: 16px;
+        margin-left: 4px;
+        text-align: right;
+      }
+      .fv-tile__end .fv-readout__value {
+        justify-content: flex-end;
       }
       /* a foot under the state line: a name that would end in an ellipsis steps down to 14 px first (as the compact tiles' does) */
       .fv-tile--tight .fv-tile__name {
@@ -600,26 +626,14 @@ export class FluvyTileCard extends Card<TileCardConfig> {
   }
 
   /**
-   * A tile's state line fitted to its tile: what does not fit loses its " · " segments from the end (a large tile's
-   * "· 11 days ago", a small one's readings, the last first); a reading that does not fit alone says itself in the
-   * first of its shorter forms that does ("5.1M queries", "12 days ago": `shorterForms`, #93); a word that cannot fit
-   * at all is a dash or nothing (`dash`) — never a cut. The room is the tile's width less its sides (16 on a large or
-   * compact tile, 12 on a mini, or what a narrower mini can spare around its 44 circle) and, where the line sits beside
-   * the circle (a large tile's off skin, a compact one 128 or wider, an inner one 136 or wider), the circle and its
-   * gap; a compact tile's rocker takes its plate and its gap too.
+   * The room a tile's words have: its width less its sides (16 on a large or compact tile, 12 on a mini, or what a
+   * narrower mini can spare around its 44 circle) and, where they sit beside the circle (a large tile's off skin, a
+   * compact one 128 or wider, an inner one 136 or wider), the circle and its gap; a compact tile's rocker takes its
+   * plate and its gap too, and its columns at its row's end theirs (`ends`).
    */
-  private fitState(line: string, size: TileSize, view: EntityView, fit: LineFit = {}): string {
-    const {
-      dash = false,
-      inside = false,
-      under = false,
-      words = false,
-      figure,
-      plated,
-      forms,
-    } = fit;
+  private wordsRoom(size: TileSize, fit: LineFit): number {
+    const { inside = false, under = false, plated = false, ends = 0 } = fit;
     const width = Math.floor(this.tileWidth());
-    const small = size !== 'large';
     const mini = size === 'mini';
     const sides = mini ? (width < 68 ? Math.max(8, Math.floor((width - 44) / 2)) : 12) : 16;
     // a compact tile under 128 (an inner one under 136, one with its rocker under 228) hides its circle (tiles.css)
@@ -628,9 +642,27 @@ export class FluvyTileCard extends Card<TileCardConfig> {
       !mini && !under && (size === 'large' || width >= (plated ? PLATE_CIRCLE : inside ? 136 : 128))
         ? 44 + 12
         : 0;
-    const room = width - 2 * sides - beside - (plated ? PLATE + 12 : 0);
-    const cls = small ? `fv-tile fv-tile--${size} > fv-tile__state` : 'fv-tile > fv-tile__state';
-    const measure = (text: string): number => this.ruler.width(cls, text);
+    return width - 2 * sides - beside - (plated ? PLATE + 12 : 0) - ends;
+  }
+
+  /** A state line's width as its tile draws it (a mini's 12 px, a compact's 13, a large one's 14). */
+  private lineWidth(text: string, size: TileSize): number {
+    return this.ruler.width(
+      size === 'large' ? 'fv-tile > fv-tile__state' : `fv-tile fv-tile--${size} > fv-tile__state`,
+      text,
+    );
+  }
+
+  /**
+   * A tile's state line fitted to its tile: what does not fit loses its " · " segments from the end (a large tile's
+   * "· 11 days ago", a small one's readings, the last first); a reading that does not fit alone says itself in the
+   * first of its shorter forms that does ("5.1M queries", "12 days ago": `shorterForms`, #93); a word that cannot fit
+   * at all is a dash or nothing (`dash`) — never a cut. Its room is its tile's words' (`wordsRoom`).
+   */
+  private fitState(line: string, size: TileSize, view: EntityView, fit: LineFit = {}): string {
+    const { dash = false, words = false, figure, forms } = fit;
+    const room = this.wordsRoom(size, fit);
+    const measure = (text: string): number => this.lineWidth(text, size);
     // a line that ends in the figure it keeps loses the words before it, whole, and never the figure
     const keeps = figure !== undefined && line.endsWith(` · ${figure}`);
     const segments: Segment[] = keeps
@@ -675,12 +707,40 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     });
   }
 
-  /** The room a readout's cell must have to hold it whole: its label's, or its figure's with its unit. */
+  /** The room a readout's cell must have to hold it whole: its label's, or its figure's with its unit, as a foot draws them. */
   private cellWidth({ label, value, unit }: Reading): number {
     return Math.max(
       this.ruler.width('fv-readout__label', label),
       this.ruler.width('fv-readout fv-readout--xs > fv-readout__value', value, 'fv-unit', unit),
     );
+  }
+
+  /**
+   * How many of a compact tile's readouts stand as columns at its row's end (`readouts_layout: end`), from the first,
+   * and the room they take of its words': each as wide as its label and its figure, 16 apart and 16 from the words,
+   * while the words keep theirs — the name (96 of it at most, as a row's beside what ends it) and the tile's own line
+   * (`line`: what it says without a readout). A tile too narrow for the first has none: its readouts are its line's.
+   */
+  private ends(
+    readings: readonly Reading[],
+    name: string,
+    line: string,
+    fit: LineFit,
+  ): { readonly count: number; readonly width: number } {
+    const room = this.wordsRoom('compact', fit);
+    const floor = Math.max(
+      Math.min(NAME_MIN, this.nameWidth(name, 15)),
+      this.lineWidth(line, 'compact'),
+    );
+    let count = 0;
+    let width = 0;
+    for (const reading of readings) {
+      const next = width + END_GAP + this.cellWidth(reading);
+      if (room - next < floor) break;
+      width = next;
+      count += 1;
+    }
+    return { count, width };
   }
 
   private flip(view: EntityView, next: boolean): void {
@@ -802,10 +862,14 @@ export class FluvyTileCard extends Card<TileCardConfig> {
     return this.width;
   }
 
-  /** Whether the name reads whole at the large tile's 16/600 (2 px of margin for a fallback face). */
+  /** A name's width at the tile's 600 in `size` px (a large tile's 16, a compact one's 15), 2 px of margin for a fallback face. */
+  private nameWidth(name: string, size: number): number {
+    return textWidth(name, `600 ${size}px ${getComputedStyle(this).fontFamily}`) + 2;
+  }
+
+  /** Whether the name reads whole at the large tile's 16/600. */
   private nameFits(name: string): boolean {
-    const family = getComputedStyle(this).fontFamily;
-    return textWidth(name, `600 16px ${family}`) <= this.tileWidth() - 32 - 2;
+    return this.nameWidth(name, 16) <= this.tileWidth() - 32;
   }
 
   /**
@@ -915,15 +979,25 @@ export class FluvyTileCard extends Card<TileCardConfig> {
         doubleNow,
       );
       const own = told?.line ?? this.tileLine(item, view, lit, level, false, true);
-      // its line says its first readout, or every one where it is asked (`line_readouts`) — those that can be read, on
-      // a tile that can
+      const fit: LineFit = { dash: !usable, inside, words, figure, plated, forms: told?.forms };
       const readings = this.readings(item, name);
-      const joined = this.config?.line_readouts === 'all' ? readings : readings.slice(0, 1);
+      // a compact tile asked to stand its readouts at its row's end (`readouts_layout`) draws as many as hold there
+      // as columns, and its line says the rest; any other small tile's line says the first, or every one where it is
+      // asked (`line_readouts`) — those that can be read, on a tile that can
+      const ends =
+        size === 'compact' && this.config?.readouts_layout === 'end'
+          ? this.ends(readings, name, this.fitState(own, size, view, fit), fit)
+          : null;
+      const joined = ends
+        ? readings.slice(ends.count)
+        : this.config?.line_readouts === 'all'
+          ? readings
+          : readings.slice(0, 1);
       const line = this.fitState(
         [own, ...(usable ? joined.filter(({ ok }) => ok).map(onLine) : [])].join(' · '),
         size,
         view,
-        { dash: !usable, inside, words, figure, plated, forms: told?.forms },
+        { ...fit, ends: ends?.width ?? 0 },
       );
       return html`<article
         class=${classes}
@@ -937,6 +1011,7 @@ export class FluvyTileCard extends Card<TileCardConfig> {
           <h3 class="fv-tile__name">${name}</h3>
           <p class="fv-tile__state" data-name=${words ? '' : nothing}>${line}</p>
         </div>
+        ${ends?.count ? html`<div class="fv-tile__end">${readings.slice(0, ends.count).map(cell)}</div>` : nothing}
         ${plated ? this.plate(view, lit, tone, label, usable) : nothing}
         ${tapNow || holdNow ? pressCover(label, tapNow, holdNow) : nothing}
       </article>`;

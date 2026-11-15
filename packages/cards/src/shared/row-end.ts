@@ -16,7 +16,7 @@ const CHEVRON = 4 + 16;
 /** A row's 44 circle and the 12 gaps on either side of its words. */
 const ROW_SIDES = 44 + 12 + 12;
 /** The least a row's name may have beside an action before the circles give way to it (the name itself when shorter). */
-const NAME_MIN = 96;
+export const NAME_MIN = 96;
 
 /** What ends a list row: a button's words ("Run", "06:45", "Kitchen"), or the width of what else does (a switch). */
 export interface RowEnd {

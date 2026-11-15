@@ -6,6 +6,7 @@ import {
   colourFields,
   drawsSwitch,
   emptyFields,
+  endsReadouts,
   entitiesField,
   entityField,
   fieldRow,
@@ -24,6 +25,7 @@ import {
   namesField,
   onlyWhen,
   readoutsField,
+  readoutsLayoutField,
   selectField,
   showActionField,
   showSwitchField,
@@ -67,6 +69,7 @@ export const keys = configKeys<TilesCardConfig>()([
   'switch_style',
   'show_action',
   'line_readouts',
+  'readouts_layout',
   'tiles',
   'columns',
   'tint',
@@ -159,6 +162,7 @@ export const defaults: EditorDefaults = (config) => ({
   switch_style: 'toggle',
   show_action: false,
   line_readouts: 'first',
+  readouts_layout: 'line',
   tint: 'on',
   light_colors: lightDefaults().colors,
   light_whites: 'temperature',
@@ -193,10 +197,22 @@ export function getConfigForm(): LovelaceConfigForm {
       // a light's colours where the group holds a light; its large tiles' sliders in a style (the fill is theirs)
       onlyWhen(holdsLight('tiles', 'entities'), lightColourFields()),
       ...sliderFields(true).map((row) => onlyWhen(({ size }) => size === 'large', row)),
-      // what its small tiles' lines say of their readouts, where a tile has two or more: the first, or every one
-      onlyWhen(
-        (data) => joinsReadouts(data['size'], mostReadouts(data, 'tiles', 'entities')),
-        lineReadoutsField(),
+      // its tiles' readouts: at a compact tile's end, and on a small one's line the first, or every one, where a tile
+      // has two or more
+      fieldRow(
+        onlyWhen(
+          (data) => endsReadouts(data['size'], mostReadouts(data, 'tiles', 'entities')),
+          readoutsLayoutField(),
+        ),
+        onlyWhen(
+          (data) =>
+            joinsReadouts(
+              data['size'],
+              mostReadouts(data, 'tiles', 'entities'),
+              data['readouts_layout'],
+            ),
+          lineReadoutsField(),
+        ),
       ),
       emptyFields(),
     ],

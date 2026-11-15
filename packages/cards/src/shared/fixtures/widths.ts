@@ -8,13 +8,14 @@
 const STATE = 'fv-tile__state';
 const CJK = 0x2e80;
 
-/** Lays out a tile's state line by the model above until the returned function puts happy-dom's back. */
-export function stateLineWidths(): () => void {
+/** Lays out the elements of `classes` by the model above until the returned function puts happy-dom's back. */
+function laidOut(classes: readonly string[]): () => void {
   const own = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
     configurable: true,
     get(this: HTMLElement): number {
-      if (!this.classList.contains(STATE)) return (own?.get?.call(this) as number | undefined) ?? 0;
+      if (!classes.some((name) => this.classList.contains(name)))
+        return (own?.get?.call(this) as number | undefined) ?? 0;
       return [...(this.textContent ?? '')].reduce(
         (width, char) => width + ((char.codePointAt(0) ?? 0) >= CJK ? 13 : 7),
         0,
@@ -25,3 +26,13 @@ export function stateLineWidths(): () => void {
     if (own) Object.defineProperty(HTMLElement.prototype, 'offsetWidth', own);
   };
 }
+
+/** Lays out a tile's state line by the model above until the returned function puts happy-dom's back. */
+export const stateLineWidths = (): (() => void) => laidOut([STATE]);
+
+/**
+ * A tile's state line and its readouts — each one's label and its figure with its unit, as a large tile's foot and a
+ * compact one's columns at its end draw them (#197) — by the same model.
+ */
+export const readoutWidths = (): (() => void) =>
+  laidOut([STATE, 'fv-readout__label', 'fv-readout__value']);

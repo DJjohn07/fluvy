@@ -187,6 +187,21 @@ readouts:
     decimals: 2
 ```
 
+`readouts_layout: end` stands a compact tile's readouts at its row's end instead, as columns under their labels, as a
+large tile's foot does: as many as hold whole beside the name and the state, from the first, and the rest on the line.
+A tile too narrow for one column says them all on its line, so two tiles a row on a phone read as they would with
+`line_readouts: all`. A mini or a large tile keeps its line and its foot.
+
+```yaml
+type: custom:fluvy-tiles-card
+size: compact
+columns: 1
+readouts_layout: end
+tiles:
+  - entity: switch.washer
+    readouts: [sensor.washer_power, sensor.washer_energy]
+```
+
 A sensor card's readouts are named by their measure when nothing is set ("Temperature", "Humidity"); `label` names
 the card's own sensor, an entry's `name` names that entry, and each entry may take its own `color`:
 
@@ -1864,8 +1879,8 @@ roles:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `since`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `line_readouts` (`first`, `all`), `readouts` (a list: `entity`, `name`, `unit`, `decimals`) | — |
-| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `group_by` (`none`, `area`, `floor`), `group_order` (`auto`, `name`), `short_names`, `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `line_readouts` (`first`, `all`), `empty_text`, `hide_empty`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `unavailable`, `show_switch`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`; between them `type: section`) | `entities` → `tiles` |
+| **Tile** | `custom:fluvy-tile-card` | A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini. | `size` (`large`, `compact`, `mini`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `since`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `readouts_layout` (`line`, `end`), `line_readouts` (`first`, `all`), `readouts` (a list: `entity`, `name`, `unit`, `decimals`) | — |
+| **Tiles** | `custom:fluvy-tiles-card` | A group of compact or mini tiles, two to four per row, 8 px apart. | `size` (`compact`, `mini`, `large`), `columns` (`1`, `2`, `3`, `4`, `auto`), `group_by` (`none`, `area`, `floor`), `group_order` (`auto`, `name`), `short_names`, `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `show_action`, `tint` (`on`, `always`), `light_colors`, `light_whites` (`palette`, `temperature`), `readouts_layout` (`line`, `end`), `line_readouts` (`first`, `all`), `empty_text`, `hide_empty`, `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `unavailable`, `show_switch`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`; between them `type: section`) | `entities` → `tiles` |
 | **Template** | `custom:fluvy-template-card` | A tile whose name, line, icon, colour and fill are templates, with or without an entity; a Mushroom template card pastes in. | `secondary` (`state`, `area`, `last-changed`, `none`), `since`, `variant` (`compact`, `mini`, `large`), `active` (`auto`, `always`, `never`), `name_lines` (`1`, `2`), `show_switch` (`true`, `false`, `value`), `switch_style` (`toggle`, `rocker`), `tint` (`on`, `always`), `readouts` (a list: `entity`, `name`, `unit`, `decimals`) | `primary` → `name`, `icon_color` → `color`, `layout` → `variant`, `vertical` → `variant` |
 | **Light** | `custom:fluvy-light-card` | The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature. | `show_brightness` (`true`, `when_on`, `false`), `variant` (`auto`, `full`, `compact`), `show_stepper`, `live_update`, `show_temperature`, `show_color`, `temperature_tint`, `tint` (`off`, `on`, `always`), `tint_strength` (`soft`, `brightness`, `full`, `full_brightness`), `light_whites` (`palette`, `temperature`), `colors` (a list: `color`, `name`, `rgb`) | — |
 | **Slider** | `custom:fluvy-slider-card` | Any value on the precision ruler: a player’s volume with its mute, a number or a helper, a fan’s speed, another entity’s switch in its head. | `variant` (`full`, `compact`, `tile`), `show_stepper`, `control` (`auto`, `mute`, `switch`, `none`), `toggle_entity`, `min`, `max`, `label`, `live_update`, `tint` (`off`, `on`, `always`) | — |
@@ -1898,7 +1913,7 @@ roles:
 
 | Card | Type | What it is | Options | Reads |
 | --- | --- | --- | --- | --- |
-| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `name_position` (`bottom`, `top`), `show_climate`, `show_count`, `readout_style` (`row`, `wrap`), `readout_labels` (`auto`, `words`, `icons`, `none`), `show_quick_actions`, `show_arrow`, `show_action`, `picture`, `path`, `lights`, `temperature_entity`, `humidity_entity`, `include`, `exclude`, `tint` (`on`, `always`), `name_lines` (`1`, `2`), `switch_style` (`toggle`, `rocker`), `line_readouts` (`first`, `all`), `light_colors`, `light_whites` (`palette`, `temperature`), `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`), `quick_actions` (a list: `group`, `entity`, `name`, `icon`, `tone`, `color`, `tap_action`, `hold_action`, `double_tap_action`) | — |
+| **Room** | `custom:fluvy-room-card` | A room of the house from its area: its picture, its climate, what is on, and its controls. | `area`, `variant` (`photo`, `tile`, `row`), `controls` (`rows`, `tiles`, `none`), `name_position` (`bottom`, `top`), `show_climate`, `show_count`, `readout_style` (`row`, `wrap`), `readout_labels` (`auto`, `words`, `icons`, `none`), `show_quick_actions`, `show_arrow`, `show_action`, `picture`, `path`, `lights`, `temperature_entity`, `humidity_entity`, `include`, `exclude`, `tint` (`on`, `always`), `name_lines` (`1`, `2`), `switch_style` (`toggle`, `rocker`), `readouts_layout` (`line`, `end`), `line_readouts` (`first`, `all`), `light_colors`, `light_whites` (`palette`, `temperature`), `tiles` (a list: `entity`, `name`, `icon`, `tone`, `color`, `readouts`, `since`, `switch_style`, `show_action`, `tap_action`, `hold_action`, `double_tap_action`, `icon_tap_action`, `icon_hold_action`, `icon_double_tap_action`), `quick_actions` (a list: `group`, `entity`, `name`, `icon`, `tone`, `color`, `tap_action`, `hold_action`, `double_tap_action`) | — |
 | **Map** | `custom:fluvy-map-card` | Where everyone is: the house’s zones as columns of faces, a row a person, or Home Assistant’s map on a plate. | `title`, `variant` (`zones`, `map`, `rows`), `map_shape` (`wide`, `square`), `hours_to_show`, `default_zoom`, `fit_zones`, `show_empty`, `show_distance`, `map_path`, `empty_text`, `hide_empty`, `zones` (a list: `entity`, `name`, `icon`) | — |
 
 ## Structure and navigation

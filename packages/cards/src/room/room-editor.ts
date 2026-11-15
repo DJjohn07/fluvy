@@ -21,6 +21,7 @@ import {
   choiceField,
   colourFields,
   editorWord,
+  endsReadouts,
   entitiesField,
   entityField,
   fieldRow,
@@ -34,6 +35,7 @@ import {
   nameIconFields,
   nameLinesField,
   onlyWhen,
+  readoutsLayoutField,
   selectField,
   showActionField,
   showIconField,
@@ -147,6 +149,7 @@ export const keys = configKeys<RoomCardConfig>()([
   'tint',
   'switch_style',
   'line_readouts',
+  'readouts_layout',
   'light_colors',
   'light_whites',
 ]);
@@ -289,6 +292,7 @@ export const defaults: EditorDefaults = (config, hass) => {
     name_lines: '1',
     switch_style: 'toggle',
     line_readouts: 'first',
+    readouts_layout: 'line',
     show_count: true,
     show_climate: true,
     readout_style: 'row',
@@ -370,10 +374,18 @@ export function getConfigForm(): LovelaceConfigForm {
       ),
       // its tiles' switches as wall rockers, each at its tile's end
       onlyWhen(drawsTiles, switchStyleField()),
-      // what its tiles' lines say of their readouts, where a tile has two or more: the first, or every one
-      onlyWhen(
-        (form) => drawsTiles(form) && joinsReadouts('compact', mostReadouts(form, 'tiles')),
-        lineReadoutsField(),
+      // its tiles' readouts: at a tile's end, and on its line the first, or every one, where a tile has two or more
+      fieldRow(
+        onlyWhen(
+          (form) => drawsTiles(form) && endsReadouts('compact', mostReadouts(form, 'tiles')),
+          readoutsLayoutField(),
+        ),
+        onlyWhen(
+          (form) =>
+            drawsTiles(form) &&
+            joinsReadouts('compact', mostReadouts(form, 'tiles'), form['readouts_layout']),
+          lineReadoutsField(),
+        ),
       ),
       onlyWhen(drawsLights, lightColourFields()),
       // where the room opens, where none is chosen

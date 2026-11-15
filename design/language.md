@@ -2919,8 +2919,15 @@ is its config's.
   the state and the level, each a " · " segment ("On · 70 % · 12 W · 0.4 kWh"). The line is the tile's one unwrapped
   line, fitted as it always was: the last segment gives way first, a reading whole or not at all, a word never cut. A
   reading that cannot be read is left out; a tile that cannot be read says its word alone.
+- **At the row's end** (`readouts_layout: end`, a compact tile): the readings stand as columns at the row's end, each
+  a foot's xs readout (11/600 label over its 16/20 figure, 40 tall in the row's 44), set to the right, 16 apart and
+  16 from the words (the row's 12 and 4 more), before a rocker's plate where it has one. Each column is as wide as
+  its label or its figure, measured; as many stand as hold whole while the words keep theirs (the name's 96 or less,
+  the state line whole), from the first, and the rest join the line. Under the width of one column the tile is the
+  line's. Out of reach the columns keep their places, each figure a dash.
 - **The editors** list a tile's readouts item by item (the rows editor; a group's or a room's tile, Home Assistant's
-  list of objects in its form) and offer over them the line's choice on a small tile with two or more.
+  list of objects in its form) and offer over them the layout on a compact tile and the line's choice on a small tile
+  with two or more, never at the end, where the line says what the columns leave.
 
 ## Vehicle (1.13)
 

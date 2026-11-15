@@ -11,7 +11,7 @@ import {
   shownNames,
   type FormStub,
 } from '../shared/fixtures/editor.js';
-import { stateLineWidths } from '../shared/fixtures/widths.js';
+import { readoutWidths, stateLineWidths } from '../shared/fixtures/widths.js';
 import type { FluvyRowsEditor } from '../shared/rows-editor.js';
 import { FluvyTilesCard } from '../tiles/tiles-card.js';
 import { FluvyTileCard } from './tile-card.js';
@@ -21,9 +21,10 @@ afterAll(() => familiesDefined);
 
 /**
  * A small tile's readouts (#197): its line says the first after its state, as it always did, or every one that can be
- * read where its card asks (`line_readouts: all`), the last giving way first; and a readout may be a sensor with a
- * name, a unit and decimals of its own, as the Grid card's are. Its height never changes, and nothing changes where
- * the config asks for none of it.
+ * read where its card asks (`line_readouts: all`), the last giving way first; a readout may be a sensor with a name,
+ * a unit and decimals of its own, as the Grid card's are; and a compact tile may stand them at its row's end as
+ * columns under their labels (`readouts_layout: end`), as many as it holds, the rest on its line. Its height never
+ * changes, and nothing changes where the config asks for none of it.
  */
 
 const STAMP = '2026-09-17T19:00:00+00:00';
@@ -278,16 +279,77 @@ describe('a readout says what it is of its own: a name, a unit, decimals (#197)'
   });
 });
 
+describe('a compact tile’s readouts at its row’s end (`readouts_layout: end`, #197)', () => {
+  let restore: () => void;
+  beforeAll(() => {
+    restore = readoutWidths();
+  });
+  afterAll(() => restore());
+  afterEach(() => document.body.replaceChildren());
+
+  const END = washer({ readouts_layout: 'end' });
+  const at = async (width: number, states?: Record<string, unknown>) => {
+    const [tile] = await drawn(END, width, states);
+    return { line: line(tile!), columns: cells(tile!, '.fv-tile__end') };
+  };
+
+  it('as many as hold whole beside the name and the line, from the first; the rest on the line', async () => {
+    // a column is as wide as its label or its figure, 16 from the next; the words keep the name's 96 and the state
+    expect(await at(360)).toEqual({
+      line: 'On',
+      columns: [
+        ['Power', '142 W'],
+        ['Today', '0.8 kWh'],
+        ['drum', '40 °C'],
+      ],
+    });
+    expect(await at(300)).toEqual({
+      line: 'On · 40 °C',
+      columns: [
+        ['Power', '142 W'],
+        ['Today', '0.8 kWh'],
+      ],
+    });
+    // too narrow for the first: every reading is the line's, the last giving way first
+    expect(await at(200)).toEqual({ line: 'On · 142 W', columns: [] });
+  });
+
+  it('out of reach the columns keep their places, each a dash', async () => {
+    const { line: said, columns } = await at(360, DEAD);
+    expect(said).toBe('Unavailable');
+    expect(columns.map(([label, value]) => [label, value])).toEqual([
+      ['Power', '—'],
+      ['Today', '—'],
+      ['drum', '—'],
+    ]);
+  });
+
+  it('a mini tile and a large one keep theirs: the line, the foot', async () => {
+    const [mini] = await drawn({ ...END, size: 'mini' });
+    expect(mini!.querySelector('.fv-tile__end')).toBeNull();
+    expect(line(mini!)).toBe('On · 142 W');
+    const [large] = await drawn({ ...END, size: 'large' });
+    expect(large!.querySelector('.fv-tile__end')).toBeNull();
+    expect(cells(large!, '.fv-tile__foot').length).toBeGreaterThan(0);
+  });
+});
+
 describe('a tile’s height is its config’s, whatever its readouts say (#197)', () => {
   it.each(['compact', 'mini', 'large'] as const)('%s', (size) => {
     const plain = { type: 'custom:fluvy-tile-card', entity: 'switch.washer', size };
-    const asked = { ...plain, readouts: WASHER, line_readouts: 'all' } as const;
+    const asked = {
+      ...plain,
+      readouts: WASHER,
+      line_readouts: 'all',
+      readouts_layout: 'end',
+    } as const;
     expect(FluvyTileCard.layoutHeight(asked)).toBe(FluvyTileCard.layoutHeight(plain));
     const group = { type: 'custom:fluvy-tiles-card', size, tiles: [{ entity: 'switch.washer' }] };
     expect(
       FluvyTilesCard.layoutHeight({
         ...group,
         line_readouts: 'all',
+        readouts_layout: 'end',
         tiles: [{ entity: 'switch.washer', readouts: WASHER }],
       }),
     ).toBe(FluvyTilesCard.layoutHeight(group));
@@ -314,14 +376,23 @@ describe('the editors offer each where it acts (#197)', () => {
   const tile = (more: Record<string, unknown>) =>
     editorOf(FluvyTileCard, { type: 'custom:fluvy-tile-card', entity: 'switch.washer', ...more });
 
-  it('the tile’s readouts item by item, and over them what a small tile’s line says, with two or more', async () => {
+  it('the tile’s readouts item by item, and over them how they stand: the end on a compact tile, the line’s with two or more', async () => {
     const two = WASHER.slice(0, 2);
     expect(listTitles(await tile({ size: 'compact', readouts: two }))).toEqual(['Readouts']);
-    expect(head(await tile({ size: 'compact', readouts: two }))).toEqual(['line_readouts']);
-    expect(head(await tile({ size: 'compact', readouts: two.slice(0, 1) }))).toEqual([]);
+    expect(head(await tile({ size: 'compact', readouts: two }))).toEqual([
+      'readouts_layout',
+      'line_readouts',
+    ]);
+    expect(head(await tile({ size: 'compact', readouts: two.slice(0, 1) }))).toEqual([
+      'readouts_layout',
+    ]);
+    // at the end, the line says what the end does not hold: nothing to choose there
+    expect(head(await tile({ size: 'compact', readouts: two, readouts_layout: 'end' }))).toEqual([
+      'readouts_layout',
+    ]);
     expect(head(await tile({ size: 'mini', readouts: two }))).toEqual(['line_readouts']);
     expect(head(await tile({ size: 'mini', readouts: two.slice(0, 1) }))).toEqual([]);
-    // a large tile's foot draws them all
+    // a large tile's foot draws them: neither
     expect(head(await tile({ readouts: two }))).toEqual([]);
     // nor are they in the tile's own form
     const form = shownNames(cardForm(await tile({ size: 'compact', readouts: two })).schema);
@@ -370,18 +441,18 @@ describe('the editors offer each where it acts (#197)', () => {
     expect(await shown(group(['switch.washer']))).toEqual([]);
     expect(
       await shown(group(['switch.heater', { entity: 'switch.washer', readouts: WASHER }])),
+    ).toEqual(['readouts_layout', 'line_readouts']);
+    expect(
+      await shown(group([{ entity: 'switch.washer', readouts: WASHER }], { size: 'mini' })),
     ).toEqual(['line_readouts']);
-    expect(await shown(group([{ entity: 'switch.washer', readouts: WASHER.slice(0, 1) }]))).toEqual(
-      [],
-    );
     const room = (more: Record<string, unknown>) =>
       editorOf(FluvyRoomCard, {
         type: 'custom:fluvy-room-card',
         area: 'utility',
-        tiles: [{ entity: 'switch.washer', readouts: WASHER }],
+        tiles: [{ entity: 'switch.washer', readouts: WASHER.slice(0, 1) }],
         ...more,
       });
-    expect(await shown(room({ controls: 'tiles' }))).toEqual(['line_readouts']);
+    expect(await shown(room({ controls: 'tiles' }))).toEqual(['readouts_layout']);
     expect(await shown(room({ controls: 'rows' }))).toEqual([]);
   });
 

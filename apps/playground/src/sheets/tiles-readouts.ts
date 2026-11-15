@@ -7,16 +7,18 @@ if (!customElements.get('fluvy-room-card')) customElements.define('fluvy-room-ca
 /*
  * A tile's readouts (#197) on real cards: a compact and a mini tile's line saying the first reading, as it always did,
  * or every one (`line_readouts: all`) — one, two and three of them, the last giving way first as the tile narrows —
- * in a group and in a room's tiles; readouts with names, units and decimals of their own (a NAS's two temperatures
- * told apart, a heater's power in kW), on a line and in a large tile's foot, beside the same sensors as bare ids. Half
- * a section (152, 172) and a whole one (211, 266, 360) are the measurer's probes; light and dark are the page's
- * (`&mode=dark`).
+ * in a group and in a room's tiles; a compact tile's readouts as columns at its row's end (`readouts_layout: end`), as
+ * many as it holds beside its name, the rest on its line, with a lamp's level, a wall rocker and a tile out of reach,
+ * and in a group; readouts with names, units and decimals of their own (a NAS's two temperatures told apart, a
+ * heater's power in kW), on a line and in a large tile's foot, beside the same sensors as bare ids. Half a section
+ * (152, 172) and a whole one (211, 266, 360) are the measurer's probes; light and dark are the page's (`&mode=dark`).
  */
 
 const TILE = 'custom:fluvy-tile-card';
 const TILES = 'custom:fluvy-tiles-card';
 const ROOM = 'custom:fluvy-room-card';
 const ALL = { line_readouts: 'all' } as const;
+const END = { readouts_layout: 'end' } as const;
 const WIDTHS = [152, 172, 211, 266];
 
 /** A NAS's readings, two of them temperatures: each says its own name. */
@@ -108,6 +110,9 @@ export const sheet: SheetSpec = {
     ['switch.rd_dryer', 'off', { friendly_name: 'Dryer', device_class: 'outlet' }],
     ['sensor.rd_dryer_power', '0', power('Dryer Power')],
     ['sensor.rd_dryer_energy', '2.1', energy('Dryer Energy')],
+    ['switch.rd_freezer', 'unavailable', { friendly_name: 'Freezer', device_class: 'outlet' }],
+    ['sensor.rd_freezer_power', 'unavailable', power('Freezer Power')],
+    ['sensor.rd_freezer_energy', 'unavailable', energy('Freezer Energy')],
   ],
   registry: {
     // a cost keeps its cents, as Home Assistant's monetary sensors do
@@ -197,6 +202,41 @@ export const sheet: SheetSpec = {
         tiles: [
           { entity: 'switch.rd_washer', readouts: WASHER },
           { entity: 'switch.rd_dryer', readouts: ['sensor.rd_dryer_power'] },
+        ],
+      },
+    ]),
+    // the readings at the row's end, each under its label: as many as hold beside the name, the rest on the line
+    frame('At the end · one, two, three', upTo('switch.rd_washer', WASHER, END)),
+    frame('At the end · named', upTo('switch.rd_nas', NAS, END)),
+    // a lamp's level stays on its line; a wall rocker stands after the columns; out of reach, the columns keep
+    // their places
+    frame('At the end · a level, a rocker, out of reach', [
+      whole('light.rd_lamp', { readouts: LAMP, ...END }),
+      whole('switch.rd_dryer', {
+        readouts: ['sensor.rd_dryer_power', 'sensor.rd_dryer_energy'],
+        switch_style: 'rocker',
+        ...END,
+      }),
+      whole('switch.rd_freezer', {
+        readouts: ['sensor.rd_freezer_power', 'sensor.rd_freezer_energy'],
+        ...END,
+      }),
+    ]),
+    // half a section holds a column only beside a short name: else the readings are the line's
+    frame('At the end · two a row', [
+      half('switch.rd_washer', { readouts: WASHER, ...END }),
+      half('switch.rd_nas', { readouts: NAS, ...END }),
+    ]),
+    // a group says it for its tiles, one a row
+    frame('A group · at the end', [
+      {
+        type: TILES,
+        columns: 1,
+        ...END,
+        tiles: [
+          { entity: 'switch.rd_washer', readouts: WASHER },
+          { entity: 'switch.rd_heater', readouts: ['sensor.rd_heater_power'] },
+          { entity: 'switch.rd_nas', readouts: NAS },
         ],
       },
     ]),

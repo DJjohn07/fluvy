@@ -10,6 +10,7 @@ import {
   askedSliderStyle,
   colourFields,
   drawsSwitch,
+  endsReadouts,
   entitiesField,
   entityField,
   fieldRow,
@@ -23,6 +24,7 @@ import {
   nameLinesField,
   numberFields,
   onlyWhen,
+  readoutsLayoutField,
   selectField,
   showActionField,
   showSwitchField,
@@ -56,6 +58,7 @@ export const keys = configKeys<TileCardConfig>()([
   'show_action',
   'readouts',
   'line_readouts',
+  'readouts_layout',
   'since',
   'tint',
   'light_colors',
@@ -69,6 +72,7 @@ export const defaults: EditorDefaults = () => ({
   switch_style: 'toggle',
   show_action: false,
   line_readouts: 'first',
+  readouts_layout: 'line',
   since: '',
   tint: 'on',
   light_colors: lightDefaults().colors,
@@ -119,9 +123,9 @@ export const READOUTS: RowsListSpec = {
   },
 };
 
-/** The readouts where the tile draws them, and over them what a small one's line says of them. */
+/** The readouts where the tile draws them, how they stand over them: at a compact tile's end, on a small one's line. */
 export const lists: readonly RowsListSpec[] = [
-  { ...READOUTS, fields: ['line_readouts'], when: drawsReadouts },
+  { ...READOUTS, fields: ['readouts_layout', 'line_readouts'], when: drawsReadouts },
 ];
 
 export function getConfigForm(): LovelaceConfigForm {
@@ -145,11 +149,16 @@ export function getConfigForm(): LovelaceConfigForm {
       // a light's colours, for a light; the slider's style where a large tile's foot is one
       onlyWhen(({ entity }) => String(entity).startsWith('light.'), lightColourFields()),
       ...sliderFields(true).map((row) => onlyWhen(largeRuled, row)),
-      // the readouts are edited item by item, and over them what a small tile's line says of them, where it has two
-      // or more: the first, or every one (the rows editor takes both out of the form)
+      // the readouts are edited item by item, and how they stand over them (the rows editor takes the three out of
+      // the form): at a compact tile's end, and on a small one's line the first, or every one, where it has two or more
       entitiesField('readouts', ['sensor']),
       onlyWhen(
-        (data) => joinsReadouts(data['size'], listed(data, 'readouts').length),
+        (data) => endsReadouts(data['size'], listed(data, 'readouts').length),
+        readoutsLayoutField(),
+      ),
+      onlyWhen(
+        (data) =>
+          joinsReadouts(data['size'], listed(data, 'readouts').length, data['readouts_layout']),
         lineReadoutsField(),
       ),
       // a small tile's tap toggles what toggles, a large one's opens; its circle may be its switch

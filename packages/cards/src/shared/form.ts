@@ -699,9 +699,28 @@ export const lineReadoutsField = (): HaFormSchemaItem =>
     ['all', 'editor.readouts_all'],
   ]);
 
-/** Whether a tile's line may say more than its first readout (`lineReadoutsField`): a small one with two or more. */
-export const joinsReadouts = (size: unknown, readouts: number): boolean =>
-  size !== 'large' && readouts > 1;
+/**
+ * Where a compact tile's readouts stand (`readouts_layout`, 1.22, #197): on its line (the default), or as columns at
+ * its row's end, as the word under it says.
+ */
+export const readoutsLayoutField = (): HaFormSchemaItem => ({
+  ...choiceField('readouts_layout', [
+    ['line', 'editor.readouts_line'],
+    ['end', 'editor.readouts_end'],
+  ]),
+  helper: 'editor.readouts_layout_helper',
+});
+
+/** Whether a tile may stand its readouts at its row's end (`readoutsLayoutField`): a compact one that has any. */
+export const endsReadouts = (size: unknown, readouts: number): boolean =>
+  size === 'compact' && readouts > 0;
+
+/**
+ * Whether a tile's line may say more than its first readout (`lineReadoutsField`): a small one with two or more,
+ * unless it stands them at its end, where the line says what the end does not hold.
+ */
+export const joinsReadouts = (size: unknown, readouts: number, layout: unknown): boolean =>
+  size !== 'large' && readouts > 1 && !(endsReadouts(size, readouts) && layout === 'end');
 
 /** The most readouts a tile of a card's list names (`key`, `alias`: where the card keeps its tiles). */
 export const mostReadouts = (
