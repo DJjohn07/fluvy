@@ -513,8 +513,9 @@ check(
     JSON.stringify(fill),
   );
   // a band too narrow for a title and its link: the link's words give way first, then the title's size, and the
-  // title stays whole beside its chevron
-  await band.evaluate((el) => (el.style.width = '240px'));
+  // title stays whole beside its chevron (224: both links' words gone, "Großgeräte" down to 20 where "Kleingeräte"
+  // beside its plug still holds 27)
+  await band.evaluate((el) => (el.style.width = '224px'));
   await settle(mockup, 300);
   const narrow = await titles();
   check(
@@ -526,8 +527,8 @@ check(
       ]) &&
       JSON.stringify(narrow) ===
         JSON.stringify([
-          ['27px', 'whole', '', '›', 32],
           ['20px', 'whole', '', '›', 32],
+          ['27px', 'whole', '', '›', 32],
         ]),
     JSON.stringify({ wide, narrow }),
   );
