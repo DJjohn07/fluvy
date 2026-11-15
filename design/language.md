@@ -603,6 +603,60 @@ names none draws as it did, and never fetches what reads them.
   threshold, its first frame waiting for it as a see-through card's does for its sheet, so a card is never drawn in its
   own colours a moment before its band's.
 
+## The cover's tilt (1.22, #203)
+
+The Cover card's tilt, asked for (`tilt_style: slats`; `steps`, the readout and its stepper, stays the default), is
+the position's twin in the readout anatomy the card already has, with a picture anyone reads at a glance: the window
+seen from the room, the blind down. The maintainer's design; the reporter's slats drawing was not understood.
+
+- **The readout**: "Tilt" in the readout's label, the figure (24/28, tabular) with its unit, a degree sign attached
+  ("45°"), and after it, 8 apart in the unit's 13/500 ink, the slats' state in words: "Closed" at 0, "Open" at 100,
+  "Partly open" between (where the slats turn 135° or more, `tilt_angle`, open is the middle and both ends are
+  closed). Where the column cannot hold the words for every figure the tilt can show, the words give way, never one
+  figure's and not another's; under the commands at 152 the figure steps down to s, and a label longer than the room
+  beside the picture (it-IT "Inclinazione" at 152) stands across the row, over it. Nothing else gives way.
+- **The picture** at the readout's end, 44 × 44 on the 4 grid, its bottom on the readout's: a well (radius 12, the
+  inset fill) holding a 32 × 32 pane (radius 6) of daylight and five slats across it at a pitch of 6.4. A slat is 1.6
+  thick lying level and 5.6 standing, turned about its own middle (`scaleY`), so open is five hairlines over the light
+  and shut is the blind's own colour, the slats nearly meeting, the light dimmed to 30 % (`0.3 + 0.7 × open`).
+- **Its colours** hold on every palette in both modes, the pane at least 3:1 from a slat (measured over the sixteen:
+  the least is 3.2) and each clear of the well: in light the light tone's ink 42 % into the card and the slats the
+  text 40 % into the secondary; in dark the light tone's ink half into the text, the slats the text 34 % into the
+  card. A see-through card mixes them with its solid card; a surface read by its edges (`--fluvy-shade` 0) draws the
+  pane in the card's colour and the slats in the text's ink, their thickness alone saying it. Decorative:
+  `aria-hidden`; the ruler carries the value and the words.
+- **The control** is the house's ruler 8 under the row, band 44, at the column's width, its ends' words under it
+  ("Closed", "Open"; with `tilt_angle` of 135 or more "Closed · Open · Closed"), sending on release as the details
+  sheet's does. Dragged, the slats and the light follow the finger; otherwise they ease over 240 ms (transform and
+  opacity only), at once with reduced motion. Nothing loops.
+- **Where it stands**: in the side column under Position where the column holds the readout and the picture, in the
+  first of the column's rooms that does (24 from the ruler and its words, 16, the ruler's words given way). The block
+  is then 176 tall where it was 160 and the ruler 176 long, the tilt ruler's words level with the position ruler's
+  "Closed": the declared height grows by 16, by config alone. Narrower (211, 172, 152), under the commands at the
+  card's width, 16 under them; on a cover with no position, over the commands where the steps stood.
+- **Out of reach**: the well in the dashes the commands wear, no light, the slats half turned in the unavailable
+  ink, the figure "—", the ruler still. A cover that only opens and closes its slats keeps the stepper.
+- **Steps under 200** (a fix on the way): where the side column cannot hold even the stepper's halves, the tilt's
+  readout and stepper stand under the commands at the card's width, at the position's size; before 1.22 the stepper
+  gave way and the tilt could not be set. Where the column cannot hold the word "Position" either (152, and 172 in a
+  long language), its label is the up-and-down glyph, its words read out, and its figure steps down to s where 100 %
+  does not hold at m; before, the word ran past the card.
+
+**Presets** (`position_presets`, `tilt_presets`): a control's places as a filled row of chips, 12 under what they
+follow, each row adding 12 and its rows of 44 to the declared height. The position's follow the commands that move
+it. The tilt's follow its ruler's words where it stands under the commands; beside the position they stand away
+from it, after the position's, so they are under its name ("Tilt", the favourites' label: 16, 20, then 8), the row
+adding 88. A figure is the card's own
+("50 %", "45°"); an end is said in words ("Closed", "Open": the position's in the ruler's own words); the one in force
+is lit, as a favourite is.
+
+**A cover counted its own way**: `invert_position` (the cover reports 100 % closed: the figure and the knob are 100
+less, what is sent turned back, both commands live), `invert_tilt` (the same for the tilt and its slats) and
+`direction: down` (the figure counts how far the blind has come down, "down" after it in the unit's ink where the
+column holds it, the ruler lit from the top down to the knob, `origin` 100). Numbers only: the state's word and the
+commands are Home Assistant's. `open_label` and `closed_label` name the position ruler's ends; a word of the person's
+longer than the ends' 56 ends in an ellipsis.
+
 ## Clocks and calendar
 
 - Analog face = the ruler's ticks bent into a circle: majors R/10 in ink, minors R/20 in border-strong (majors only at R 56); hour hand 0.52 R inside the numerals, minute 0.85 R and second 0.88 R over the numerals to the tick ring, widths 6/4/2 (R ≥ 96) · 5/3/2 (72) · 4/3/2 (56), round caps; only the second hand carries a counterweight (cap radius + 8); the cap is the Fluvy knob without halo or lift, 28 / 20 / 16. Numerals 14/600 secondary at 0.75 R (12/600 at R 56). Plain clocks are accent; a weather clock takes the sky's tone (accent at night, solar by day). Digital time 64/72 at −0.03 em, tabular, ink pulled onto the column (−0.06 em, declared `data-align="optical"`); seconds or AM/PM as a 24 unit on the baseline; date 14/500 secondary — the full date in a 320 column, "Thu 17 Sep" in narrow columns and tiles.

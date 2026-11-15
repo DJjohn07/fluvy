@@ -117,6 +117,17 @@
   color: var(--fluvy-text-secondary);
 }
 
+/* a cover's slats (1.22, #203) in their well as they rest, in their own ink; no light, the tilt cannot be read */
+.is-off .cv-slats:where([data-unavailable='quiet'], [data-unavailable='quiet'] *) {
+  background: var(--fluvy-inset, var(--fluvy-page));
+  outline: none;
+}
+
+.is-off .cv-slats__pane:where([data-unavailable='quiet'], [data-unavailable='quiet'] *),
+.is-off .cv-slats i:where([data-unavailable='quiet'], [data-unavailable='quiet'] *) {
+  background: var(--cv-ink);
+}
+
 /* what cannot act is drawn as it rests, at full strength (it still takes no tap) */
 :is(.is-off, .is-unavailable, .fv-tile--off)
   .fv-switch[aria-disabled='true']:where([data-unavailable='quiet'], [data-unavailable='quiet'] *),

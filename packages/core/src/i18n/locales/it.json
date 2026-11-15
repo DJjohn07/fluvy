@@ -119,6 +119,12 @@
     "class.water": "acqua",
     "class.gas": "gas"
   },
+  "cover-card": {
+    "closed": "Chiuse",
+    "open": "Aperte",
+    "partly_open": "Socchiuse",
+    "down": "abbassata"
+  },
   "fan": {
     "speed": "Velocità",
     "oscillate": "Oscilla",
@@ -637,6 +643,20 @@
     "names_entity": "Nome dell’entità",
     "names_device": "Nome del dispositivo",
     "names_helper": "Dove non è impostato un nome proprio",
+    "position_tilt": "Apertura e inclinazione",
+    "direction": "L’apertura indica",
+    "direction_up": "Quanto è aperta",
+    "direction_down": "Quanto è abbassata",
+    "invert_position": "Apertura invertita",
+    "invert_tilt": "Inclinazione invertita",
+    "invert_helper": "Per una tapparella che indica 100 % da chiusa; meglio correggerlo nella sua integrazione",
+    "position_presets": "Aperture preimpostate",
+    "tilt_presets": "Inclinazioni preimpostate",
+    "open_label": "Parola per aperto",
+    "closed_label": "Parola per chiuso",
+    "tilt_style": "Inclinazione come",
+    "tilt_steps": "Passi",
+    "tilt_slats": "Lamelle",
     "thresholds": "Soglie",
     "thresholds_helper": "Una lettura prende il colore della soglia più vicina che ha superato",
     "threshold_value": "Valore",

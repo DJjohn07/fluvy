@@ -119,6 +119,12 @@
     "class.water": "水",
     "class.gas": "ガス"
   },
+  "cover-card": {
+    "closed": "閉",
+    "open": "開",
+    "partly_open": "半開き",
+    "down": "下げ"
+  },
   "fan": {
     "speed": "風量",
     "oscillate": "首振り",
@@ -587,6 +593,20 @@
     "names_entity": "エンティティ名",
     "names_device": "デバイス名",
     "names_helper": "個別の名前がない項目に使います",
+    "position_tilt": "位置とチルト",
+    "direction": "位置の数え方",
+    "direction_up": "開いている量",
+    "direction_down": "下がっている量",
+    "invert_position": "位置を反転",
+    "invert_tilt": "チルトを反転",
+    "invert_helper": "閉じた状態で100 %と報告するカバー用。統合側で直すのが最善です",
+    "position_presets": "位置のプリセット",
+    "tilt_presets": "チルトのプリセット",
+    "open_label": "「開」の表記",
+    "closed_label": "「閉」の表記",
+    "tilt_style": "チルトの表示",
+    "tilt_steps": "ステップ",
+    "tilt_slats": "スラット",
     "thresholds": "しきい値",
     "thresholds_helper": "測定値は、超えたしきい値のうち最も近いものの色になります",
     "threshold_value": "値",

@@ -901,6 +901,12 @@
     "class.water": "voda",
     "class.gas": "plyn"
   },
+  "cover-card": {
+    "closed": "Zavřeno",
+    "open": "Otevřeno",
+    "partly_open": "Částečně otevřeno",
+    "down": "staženo"
+  },
   "fan": {
     "speed": "Rychlost",
     "oscillate": "Oscilace",
@@ -1379,6 +1385,20 @@
     "names_entity": "Název entity",
     "names_device": "Název zařízení",
     "names_helper": "Kde není nastaven vlastní název",
+    "position_tilt": "Poloha a naklopení",
+    "direction": "Poloha udává",
+    "direction_up": "Míru otevření",
+    "direction_down": "Míru stažení",
+    "invert_position": "Obrácená poloha",
+    "invert_tilt": "Obrácené naklopení",
+    "invert_helper": "Pro stínění, které při zavření hlásí 100 %; nejlépe je to opravit v jeho integraci",
+    "position_presets": "Předvolby polohy",
+    "tilt_presets": "Předvolby naklopení",
+    "open_label": "Slovo pro otevřeno",
+    "closed_label": "Slovo pro zavřeno",
+    "tilt_style": "Naklopení jako",
+    "tilt_steps": "Kroky",
+    "tilt_slats": "Lamely",
     "thresholds": "Prahy",
     "thresholds_helper": "Hodnota převezme barvu nejbližšího prahu, který překročila",
     "threshold_value": "Hodnota",

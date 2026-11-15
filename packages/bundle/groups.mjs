@@ -252,13 +252,14 @@ const RING = /\/packages\/cards\/src\/shared\/ring\.ts/;
 const VACUUM_DRIVE = /\/packages\/cards\/src\/vacuum\/drive\//;
 
 /**
- * The Cover card (the blind's, the garage door's, the gate's and the valve's card, and its sheet; its editor goes with
- * the forms; `cover/common.ts`, what the fan, the vacuum, the details sheets and four more cards share with it, stays
- * in core): fetched as the bundle starts and defined as it lands, as the Vacuum card is (`cover-family.ts` stays in
- * core: the tag, the height). It left core in 1.22.
+ * The Cover card (the blind's, the garage door's, the gate's and the valve's card, its sheet and its own English; its
+ * editor goes with the forms, what the details sheet and a tile say of a cover too is core's, and so is
+ * `cover/common.ts`, what the fan, the vacuum, the details sheets and four more cards share with it): fetched as the
+ * bundle starts and defined as it lands, as the Vacuum card is (`cover-family.ts` stays in core: the tag, the
+ * height). It left core in 1.22.
  */
 const COVER =
-  /\/packages\/(cards\/src\/(cover-cards\.ts|cover\/(?!common\.ts))|ui\/src\/styles\/(generated\/)?cover\.ts)/;
+  /\/packages\/(cards\/src\/(cover-cards\.ts|cover\/(?!common\.ts))|ui\/src\/styles\/(generated\/)?cover\.ts|core\/src\/i18n\/locales\/en\/cover\.json)/;
 
 /**
  * The Vacuum card (the robot's and the mower's card, which robots a hand can drive and how, and the drive pad's

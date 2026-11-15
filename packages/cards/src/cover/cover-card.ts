@@ -15,14 +15,18 @@ import {
   actions,
   clamp,
   head,
+  icon,
   label,
   readout,
+  rulerLabels,
   sheetStyles,
   stepper,
+  unitSpan,
   type ActionItem,
   type ChipItem,
   type RulerChangeDetail,
   type RulerWindowDetail,
+  type Tone,
 } from '@fluvy/ui';
 import { coverStyles } from '@fluvy/ui/styles/cover';
 
@@ -51,10 +55,11 @@ import {
   coverHeight,
   OPEN,
   OPEN_TILT,
+  presetsOf,
   SET_POSITION,
   SET_TILT_POSITION,
   STOP,
-  USUAL,
+  usualFor,
 } from '../cover-family.js';
 import { drawnAs } from '../shared/heights.js';
 import { stateLook, tintOf, type StateTintConfig } from '../shared/state-tint.js';
@@ -66,8 +71,10 @@ import {
   type Reading,
   type RowLayout,
 } from '../shared/value-row.js';
+import { openness, slats } from './slats.js';
 
 const coverStrings = strings('cover');
+const cardStrings = strings('cover-card');
 
 /** One saved place for a cover: "Morning · 60 %". `position` and `tilt` are percentages, 100 = open. */
 export interface CoverFavorite {
@@ -79,6 +86,9 @@ export interface CoverFavorite {
 /** `full` (default): the position ruler, tilt, the actions and the favourites. `compact`: the head and the actions. */
 export type CoverVariant = 'full' | 'compact';
 
+/** How the tilt is set: its readout and a stepper (`steps`, the default), or its slats and a ruler (`slats`, #203). */
+export type TiltStyle = 'steps' | 'slats';
+
 export interface CoverCardConfig extends FluvyCardConfig, StateTintConfig {
   subtitle?: string;
   variant?: CoverVariant;
@@ -89,6 +99,25 @@ export interface CoverCardConfig extends FluvyCardConfig, StateTintConfig {
   show_favorites?: boolean;
   /** The slats' angle at 100 % tilt. When set, tilt reads and steps in degrees (15°) instead of percent. */
   tilt_angle?: number;
+  tilt_style?: TiltStyle;
+  /**
+   * Where the position and the tilt go in a tap (#203): the card's own figures, as chips under their control, the ends
+   * said in words. The editor writes them as words ("50").
+   */
+  position_presets?: readonly (number | string)[];
+  tilt_presets?: readonly (number | string)[];
+  /**
+   * The cover reports 100 % where it is closed (#203): the card turns its figure, its knob, its presets and what it
+   * sends round; the state's word and the commands stay Home Assistant's, and both commands stay live.
+   */
+  invert_position?: boolean;
+  /** The same for the tilt: its figure, its slats, its presets and what it sends. */
+  invert_tilt?: boolean;
+  /** What the position counts: how far the cover is open (`up`, the default), or how far it has come down (`down`). */
+  direction?: 'up' | 'down';
+  /** The words at the position ruler's ends, and at its presets' (#203): "Open" and "Closed" where none is given. */
+  open_label?: string;
+  closed_label?: string;
 }
 
 /** The ruler's band, and its words (56) with the 8 before the band: what the side column beside them does not get. */
@@ -100,6 +129,14 @@ const SIDE_ROOM = [
   { gap: 16, words: true },
   { gap: 16, words: false },
 ] as const;
+type SideRoom = (typeof SIDE_ROOM)[number];
+/** The position ruler's length, and its length where the tilt's slats stand beside it (#203). */
+const LENGTH = 160;
+const LENGTH_SLATS = 176;
+/** The slats' picture and the 12 before it, at the end of the tilt's readout. */
+const PICTURE = 12 + 44;
+/** Between a figure's unit and the word after it (`.cv-said`). */
+const SAID_GAP = 8;
 
 type Percent = number | null;
 
@@ -111,6 +148,39 @@ const percentAttr = (view: EntityView, key: string): Percent => {
   return value === null ? null : clamp(Math.round(value), 0, 100);
 };
 
+/** A percent turned round (`invert_position`, `invert_tilt`, `direction: down`), or as it is. */
+const mirror = (turned: boolean, value: number): number => (turned ? 100 - value : value);
+
+/**
+ * A readout with what it says in words after its figure (#203: the slats' "Partly open", a position counted "down"),
+ * in the unit's ink: the readout's own anatomy, the word where its column holds it, a degree sign attached to its
+ * figure ("45°"), and its label as `glyph` where the column cannot hold its words (read out still).
+ */
+const saidReadout = (
+  label: string,
+  size: 'm' | 's',
+  value: string,
+  unit: string,
+  said: string,
+  glyph?: string,
+): TemplateResult =>
+  html`<div class="fv-readout fv-readout--${size}">
+    ${
+      glyph
+        ? html`<p class="fv-readout__label fv-readout__label--icon">
+            ${icon(glyph)}<span class="fv-sr" data-measure="skip">${label}</span>
+          </p>`
+        : html`<p class="fv-readout__label">${label}</p>`
+    }
+    <p class="fv-readout__value">
+      <span>${value}</span
+      >${unit ? unitSpan(unit, unit === '°') : nothing}${said ? html`<span class="fv-unit cv-said">${said}</span>` : nothing}
+    </p>
+  </div>`;
+
+/** Where the tilt's slats stand: beside the position in the side column, under the commands, or alone over them. */
+type SlatsAt = 'side' | 'under' | 'alone';
+
 /**
  * Blinds, shades, garage doors, gates — and valves, which Home Assistant models the same way.
  * The vertical ruler is the position (open at the top, closed at the bottom), the side column
@@ -118,6 +188,10 @@ const percentAttr = (view: EntityView, key: string): Percent => {
  *
  * A blind takes its time: the knob and the number hold the position that was asked for while the
  * cover says it is travelling, instead of snapping back to where the motor happens to be.
+ *
+ * Asked (#203), the tilt is its slats: the window seen from the room, the blind down, its slats turning as the tilt
+ * does, over the house's ruler; each control has its presets as chips; and the card counts as its cover does — one
+ * that says 100 % where it is closed, one counted as it comes down. Nothing of it until it is asked.
  */
 export class FluvyCoverCard extends Card<CoverCardConfig> {
   /** The card's height at a 360 column from its config alone: the whole card (`coverHeight`). */
@@ -161,12 +235,18 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     ...Card.properties,
     dragged: { state: true },
     fine: { state: true },
+    tiltDragged: { state: true },
+    tiltFine: { state: true },
   };
 
   /** Position under the finger while the ruler is being dragged. */
   declare dragged: Percent;
   /** The tenth of the range the ruler shows while its fine scale is up: the end labels become numbers. */
   declare fine: RulerWindowDetail | null;
+  /** The tilt under the finger while the slats' ruler is dragged (#203): the slats follow it. */
+  declare tiltDragged: Percent;
+  /** The slats' ruler's fine scale, while it is up: its end words become numbers. */
+  declare tiltFine: RulerWindowDetail | null;
 
   private travelling = false;
   private readonly target = new Hold<Percent>(this, () => this.travelling);
@@ -178,6 +258,8 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     super();
     this.dragged = null;
     this.fine = null;
+    this.tiltDragged = null;
+    this.tiltFine = null;
   }
 
   static override editor(): Promise<CardEditor> {
@@ -196,6 +278,9 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     if (!config.entity) throw new Error('fluvy-cover-card: "entity" is required');
     if (config.favorites !== undefined && !Array.isArray(config.favorites))
       throw new Error('fluvy-cover-card: "favorites" must be a list of { name, position, tilt }');
+    for (const key of ['position_presets', 'tilt_presets'] as const)
+      if (config[key] !== undefined && !Array.isArray(config[key]))
+        throw new Error(`fluvy-cover-card: "${key}" must be a list of percentages`);
     return config;
   }
 
@@ -205,10 +290,22 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     return this.config?.variant === 'compact';
   }
 
+  /** What a cover draws where the house is not there to say: its usual parts, its tilt where the config asks for it. */
+  private get usual(): number {
+    return this.config ? usualFor(this.config) : 0;
+  }
+
   override getCardSize(): number {
     if (this.compact) return 3;
-    const view = drawnAs(this.entity(), USUAL);
-    return 3 + (view.supports(SET_POSITION) ? 4 : 0) + (this.favoritesFor(view).length ? 2 : 0);
+    const view = drawnAs(this.entity(), this.usual);
+    const rows = (key: 'position_presets' | 'tilt_presets'): number =>
+      presetsOf(this.config?.[key]).length ? 1 : 0;
+    return (
+      3 +
+      (view.supports(SET_POSITION) ? 4 + rows('position_presets') : 0) +
+      (view.supports(SET_TILT_POSITION) ? rows('tilt_presets') : 0) +
+      (this.favoritesFor(view).length ? 2 : 0)
+    );
   }
 
   /** The full card needs its ruler's width; the compact one — the head and the actions — half a section at least. */
@@ -224,6 +321,16 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     this.tiltBurst.flush();
     this.target.clear();
     this.tiltHold.clear();
+  }
+
+  /** The cover reports 100 % where it is closed (`invert_position`). */
+  private get inverted(): boolean {
+    return this.config?.invert_position === true;
+  }
+
+  /** The position is counted as the cover comes down (`direction: down`): the figure is 100 less how open it is. */
+  private get down(): boolean {
+    return this.config?.direction === 'down';
   }
 
   /** The favourites this cover can actually reach: a position needs SET_POSITION, a tilt needs SET_TILT_POSITION. */
@@ -244,14 +351,24 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     return typeof angle === 'number' && angle > 0 ? angle : 0;
   }
 
+  /** The tilt the cover reports, held where one was just chosen: Home Assistant's number. */
   private tiltOf(view: EntityView): Percent {
     return this.tiltHold.read(percentAttr(view, 'current_tilt_position'), near);
   }
 
+  /** The tilt as the card shows it: turned round where the cover reports it so (`invert_tilt`). */
+  private cardTilt(view: EntityView): Percent {
+    const tilt = this.tiltOf(view);
+    return tilt === null ? null : mirror(this.config?.invert_tilt === true, tilt);
+  }
+
   private command(view: EntityView, key: string): void {
     const valve = view.domain === 'valve';
+    // a cover that reports its position turned round goes to an end the card cannot know: nothing is held for it
     const positioned =
-      view.supports(SET_POSITION) && percentAttr(view, 'current_position') !== null;
+      view.supports(SET_POSITION) &&
+      percentAttr(view, 'current_position') !== null &&
+      !this.inverted;
     if (key === 'stop') {
       this.target.clear();
       this.expect(view.id, view.state); // drops an "Opening" we were still expecting
@@ -267,14 +384,26 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     );
   }
 
-  private moveTo(view: EntityView, position: number): void {
-    const value = clamp(Math.round(position), 0, 100);
+  /** Sends the cover to `opening` (how open it is, as the ruler reads it): Home Assistant's own number for it. */
+  private moveTo(view: EntityView, opening: number): void {
+    const value = mirror(this.inverted, clamp(Math.round(opening), 0, 100));
     this.dragged = null;
     this.target.set(value);
     this.expect(view.id, view.state); // a new destination: drops an "Opening" still expected from the row
     this.call(view.domain, view.domain === 'valve' ? 'set_valve_position' : 'set_cover_position', {
       position: value,
     });
+  }
+
+  /** Sends the tilt to `tilt` as the card shows it: Home Assistant's own number for it, held until it answers. */
+  private tiltTo(tilt: number, burst = false): void {
+    const value = mirror(this.config?.invert_tilt === true, clamp(Math.round(tilt), 0, 100));
+    this.tiltDragged = null;
+    this.tiltHold.set(value);
+    const send = (): void =>
+      this.call('cover', 'set_cover_tilt_position', { tilt_position: value });
+    if (burst) this.tiltBurst.push(send);
+    else send();
   }
 
   /** One step of the tilt stepper: 10 % at a time, or 5° when the card reads in degrees. Quick steps make one call. */
@@ -288,44 +417,84 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     const angle = this.tiltAngle;
     const perPercent = angle ? angle / 100 : 1;
     const grid = angle ? 5 : 10;
-    const shown = Math.round((this.tiltOf(view) ?? 0) * perPercent);
+    const shown = Math.round((this.cardTilt(view) ?? 0) * perPercent);
     const next =
       direction > 0
         ? Math.floor(shown / grid) * grid + grid
         : Math.ceil(shown / grid) * grid - grid;
-    const tilt = clamp(Math.round(next / perPercent), 0, 100);
-    this.tiltHold.set(tilt);
-    this.tiltBurst.push(() =>
-      this.call('cover', 'set_cover_tilt_position', { tilt_position: tilt }),
-    );
+    this.tiltTo(next / perPercent, true);
   }
 
   private applyFavorite(view: EntityView, favorite: CoverFavorite): void {
     if (typeof favorite.position === 'number' && view.supports(SET_POSITION))
-      this.moveTo(view, favorite.position);
-    if (typeof favorite.tilt === 'number' && view.supports(SET_TILT_POSITION)) {
-      const tilt = clamp(Math.round(favorite.tilt), 0, 100);
-      this.tiltHold.set(tilt);
-      this.call('cover', 'set_cover_tilt_position', { tilt_position: tilt });
-    }
+      this.moveTo(view, mirror(this.down, favorite.position));
+    if (typeof favorite.tilt === 'number' && view.supports(SET_TILT_POSITION))
+      this.tiltTo(favorite.tilt);
   }
 
   private percent(value: number): string {
     return `${formatNumber(this.hass, value, { digits: 0 })} %`;
   }
 
+  /**
+   * The position ruler's ends: the config's words (`open_label`, `closed_label`, #203), else "Open" and "Closed"; `own`
+   * where they are the person's, which may end in an ellipsis.
+   */
+  private ends(): {
+    readonly open: string;
+    readonly closed: string;
+    readonly own: { readonly open: boolean; readonly closed: boolean };
+  } {
+    const own = (text: unknown): string => (typeof text === 'string' ? text.trim() : '');
+    const open = own(this.config?.open_label);
+    const closed = own(this.config?.closed_label);
+    return {
+      open: open || this.t('common.open'),
+      closed: closed || this.t('common.closed'),
+      own: { open: open !== '', closed: closed !== '' },
+    };
+  }
+
   /** "Morning · 60 %", "Night · closed", or just "60 %" when the favourite has no name. */
   private favoriteLabel(favorite: CoverFavorite): string {
     const position = favorite.position;
+    const ends = this.ends();
+    const opening = typeof position === 'number' ? mirror(this.down, position) : 0;
     const value =
       typeof position === 'number'
-        ? position >= 100
-          ? this.t('common.open')
-          : position <= 0
-            ? this.t('common.closed')
+        ? opening >= 100
+          ? ends.open
+          : opening <= 0
+            ? ends.closed
             : this.percent(position)
         : `${this.t('cover.tilt')} ${this.percent(favorite.tilt ?? 0)}`;
     return favorite.name ? `${favorite.name} · ${value.toLowerCase()}` : value;
+  }
+
+  /** A readout's figure with its unit, at `size`; `tight`, a unit attached to it (`saidReadout`'s degree sign). */
+  private figureWidth(size: 'm' | 's', reading: Reading, tight = false): number {
+    return this.head.ruler.width(
+      `fv-readout fv-readout--${size} > fv-readout__value`,
+      reading.value,
+      tight ? 'fv-unit fv-unit--tight' : 'fv-unit',
+      reading.unit ?? '',
+    );
+  }
+
+  /** The slats' state in words at `tilt` % of their travel (#203): shut, part way, open. */
+  private slatsSaid(tilt: number): string {
+    const k = openness(tilt, this.tiltAngle);
+    return cardStrings(this.hass, k <= 0 ? 'closed' : k >= 1 ? 'open' : 'partly_open');
+  }
+
+  /** A readout's label. */
+  private labelWidth(text: string): number {
+    return this.head.ruler.width('fv-readout > fv-readout__label', text);
+  }
+
+  /** A word said after a figure, with the gap before it (`.cv-said`). */
+  private saidWidth(word: string): number {
+    return word ? SAID_GAP + this.head.ruler.width('fv-unit cv-said', word) : 0;
   }
 
   /**
@@ -333,52 +502,202 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
    * the tilt, fully tilted) and the tilt's stepper beside its readout, else under it (its halves at 44 under 96).
    * Where the column cannot hold them with the ruler's words and 24 between, the 24 closes to 16, then the ruler's
    * words give way: its knob and the position say where the cover is, the commands under them which way it opens.
+   * Where not even the stepper's halves hold (a card under about 200), the tilt goes under the commands at the card's
+   * width, where it can still be set (`under`). The tilt's slats (#203) stand in the column where it holds their
+   * readout and picture, in the first of those rooms that does; else they go under the commands too.
    */
   private sideFit(
-    tilt: { readonly label: string; readonly figure: Reading; readonly canTilt: boolean } | null,
-  ): { readonly gap: number; readonly words: boolean; readonly tilt: RowLayout } {
-    const ruler = this.head.ruler;
+    tilt: {
+      readonly label: string;
+      readonly figure: Reading;
+      readonly canTilt: boolean;
+      readonly slats: boolean;
+    } | null,
+  ): {
+    readonly gap: number;
+    readonly words: boolean;
+    readonly column: number;
+    readonly tilt: RowLayout;
+    readonly under: boolean;
+  } {
     const width = (label: string, figure: Reading): number =>
-      Math.max(
-        ruler.width('fv-readout > fv-readout__label', label),
-        ruler.width(
-          'fv-readout fv-readout--m > fv-readout__value',
-          figure.value,
-          'fv-unit',
-          figure.unit ?? '',
-        ),
-      );
+      Math.max(this.labelWidth(label), this.figureWidth('m', figure));
+    const position = width(this.t('cover.position'), {
+      value: formatNumber(this.hass, 100, { digits: 0 }),
+      unit: '%',
+    });
+    const column = (room: SideRoom): number =>
+      this.contentWidth - RULER_BAND - room.gap - (room.words ? RULER_WORDS : 0);
+    const roomFor = (need: number): SideRoom | undefined =>
+      SIDE_ROOM.find((room) => column(room) >= need);
+    // the position's readout alone in the column, the tilt under the commands
+    const under = { ...(roomFor(position) ?? SIDE_ROOM[2]), tilt: 'alone', under: true } as const;
+    if (tilt?.slats) {
+      const beside = roomFor(Math.max(position, width(tilt.label, tilt.figure) + PICTURE));
+      return beside
+        ? { ...beside, column: column(beside), tilt: 'alone', under: false }
+        : { ...under, column: column(under) };
+    }
     // the column holds the readouts and, under the tilt's readout at the least, its whole stepper
     const need = Math.max(
-      width(this.t('cover.position'), {
-        value: formatNumber(this.hass, 100, { digits: 0 }),
-        unit: '%',
-      }),
+      position,
       tilt ? width(tilt.label, tilt.figure) : 0,
       tilt?.canTilt ? STEPPER : 0,
     );
-    const column = (room: (typeof SIDE_ROOM)[number]): number =>
-      this.contentWidth - RULER_BAND - room.gap - (room.words ? RULER_WORDS : 0);
-    const room = SIDE_ROOM.find((room) => column(room) >= need) ?? SIDE_ROOM[2];
-    return {
-      ...room,
-      tilt: tilt
-        ? fitValueRow(ruler, {
-            width: column(room),
-            control: tilt.canTilt ? STEPPER : 0,
-            narrow: STEPPER_HALVES,
-            labels: [tilt.label],
-            figures: [tilt.figure],
-            sizes: ['m'],
-          }).layout
-        : 'alone',
-    };
+    const room = roomFor(need) ?? SIDE_ROOM[2];
+    const layout = tilt
+      ? fitValueRow(this.head.ruler, {
+          width: column(room),
+          control: tilt.canTilt ? STEPPER : 0,
+          narrow: STEPPER_HALVES,
+          labels: [tilt.label],
+          figures: [tilt.figure],
+          sizes: ['m'],
+        }).layout
+      : 'alone';
+    return tilt?.canTilt && layout === 'alone'
+      ? { ...under, column: column(under) }
+      : { ...room, column: column(room), tilt: layout, under: false };
+  }
+
+  /**
+   * The tilt as its slats (#203): its readout — "Tilt", the figure, the slats' state in words where the column holds
+   * them for every figure the tilt can show — with the picture at its end, and under them the house's ruler at the
+   * column's width, the ends' words under it. Where the column is short the word gives way first, then the figure
+   * steps down a size (under the commands at 152), and a label longer than the room beside the picture stands across
+   * the row over it; the picture and the ruler stay. The ruler sends on release, as the details sheet's does, the slats
+   * following the finger meanwhile.
+   */
+  private renderSlats(
+    view: EntityView,
+    o: {
+      readonly name: string;
+      readonly width: number;
+      readonly tone: Tone;
+      readonly unusable: boolean;
+      readonly at: SlatsAt;
+    },
+  ): TemplateResult {
+    const angle = this.tiltAngle;
+    const unit = angle ? '°' : '%';
+    const figure = (tilt: number): string =>
+      formatNumber(this.hass, angle ? (tilt * angle) / 100 : tilt, { digits: 0 });
+    const said = (tilt: number): string => this.slatsSaid(tilt);
+    const title = this.t('cover.tilt');
+    // every figure the tilt can show with its words: shut, level and part way (its widest figure), the row laid out for
+    // the widest of them, never for the one it shows now
+    const shown = angle >= 135 ? [0, 50, 99, 100] : [0, 99, 100];
+    const widest = (size: 'm' | 's', withWords: boolean): number =>
+      Math.max(
+        ...shown.map(
+          (tilt) =>
+            this.figureWidth(size, { value: figure(tilt), unit }, unit === '°') +
+            (withWords ? this.saidWidth(said(tilt)) : 0),
+        ),
+      );
+    const room = o.width - PICTURE;
+    const size = o.at === 'side' || widest('m', false) <= room ? 'm' : 's';
+    const worded = widest(size, true) <= room;
+    // a label longer than the room beside the picture (it-IT "Inclinazione" at 152) stands across the row, over it
+    const across = this.labelWidth(title) > room;
+    const tilt = this.tiltDragged ?? this.cardTilt(view);
+    const unknown = o.unusable || tilt === null;
+    // the ruler's ends in words ("Closed · Open · Closed" where the slats turn 135° or more), where its width holds
+    // them 8 apart (measured in the axis' type, the ruler words' own); else in figures, as its fine scale's are
+    const fine = this.tiltFine;
+    const stops = angle >= 135 ? [0, 50, 100] : [0, 100];
+    const endWords = stops.map((tilt) => said(tilt));
+    const spoken =
+      endWords.reduce((sum, word) => sum + this.head.ruler.width('fv-axis', word), 0) +
+        8 * (stops.length - 1) <=
+      o.width;
+    const reading = (tilt: number): string => `${figure(tilt)}${unit === '°' ? '' : ' '}${unit}`;
+    const ends = fine
+      ? ([
+          [0, reading(fine.min)],
+          [1, reading(fine.max)],
+        ] as const)
+      : stops.map(
+          (tilt, index) => [tilt / 100, spoken ? endWords[index]! : reading(tilt)] as const,
+        );
+    return html`<div class="cv-tilt cv-tilt--${o.at}">
+      <div class="cv-tilt__row ${across ? 'cv-tilt__row--across' : ''}">
+        ${saidReadout(
+          title,
+          size,
+          unknown ? '—' : figure(tilt),
+          unknown ? '' : unit,
+          worded && !unknown ? said(tilt) : '',
+        )}
+        ${slats(unknown ? null : openness(tilt, angle), this.tiltDragged !== null)}
+      </div>
+      <fluvy-ruler
+        .value=${tilt ?? 0}
+        .min=${0}
+        .max=${100}
+        .step=${1}
+        .length=${o.width}
+        .band=${44}
+        .tone=${o.unusable ? 'neutral' : o.tone}
+        ?inactive=${unknown}
+        ?disabled=${o.unusable}
+        .look=${sliderStyleOf(this.config)}
+        ?still=${sliderStill()}
+        unit=${unit}
+        .label=${`${o.name} · ${title}`}
+        .format=${figure}
+        @fluvy-input=${(event: CustomEvent<RulerChangeDetail>) => {
+          this.tiltDragged = event.detail.value;
+        }}
+        @fluvy-change=${(event: CustomEvent<RulerChangeDetail>) => this.tiltTo(event.detail.value)}
+        @fluvy-cancel=${() => {
+          this.tiltDragged = null;
+        }}
+        @fluvy-window=${(event: CustomEvent<RulerWindowDetail>) => {
+          this.tiltFine = event.detail.fine ? event.detail : null;
+        }}
+      ></fluvy-ruler>
+      ${rulerLabels(ends)}
+    </div>`;
+  }
+
+  /**
+   * A control's presets (#203): one chip each, filling its row, the one in force lit; `word` says an end where it has
+   * one ("Closed", "Open"), every other is its figure. Away from its control (the tilt's, its slats or its stepper
+   * beside the position), under the control's name (`label`), as the favourites are.
+   */
+  private renderPresets(
+    presets: readonly number[],
+    o: {
+      readonly value: Percent;
+      readonly word: (preset: number) => string;
+      readonly unusable: boolean;
+      readonly pick: (preset: number) => void;
+      readonly label?: string;
+    },
+  ): TemplateResult | typeof nothing {
+    if (!presets.length) return nothing;
+    const items: ChipItem[] = presets.map((preset) => ({
+      key: String(preset),
+      label: o.word(preset),
+      active: !o.unusable && near(o.value, preset),
+    }));
+    return html`<div class="cv-presets ${o.label ? 'cv-presets--named' : ''}">
+      ${o.label ? label(o.label) : nothing}${chipRow(
+        items,
+        (key) => {
+          if (!o.unusable) o.pick(Number(key));
+        },
+        'full',
+        { ruler: this.head.ruler, width: this.contentWidth },
+      )}
+    </div>`;
   }
 
   protected renderCard(): TemplateResult {
     // out of reach (unavailable, missing; never read: its usual parts) it keeps its anatomy and its size, its controls
     // disabled: only the colours change (1.9)
-    const view = drawnAs(this.entity(), USUAL);
+    const view = drawnAs(this.entity(), this.usual);
     const name = this.nameFor(view, this.config?.name);
     const valve = view.domain === 'valve';
     const unusable = !isUsable(view);
@@ -396,7 +715,15 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     const moving = shown === 'opening' || shown === 'closing';
     this.travelling = moving;
 
-    const position = reported === null ? null : (this.dragged ?? this.target.read(reported, near));
+    // how open the cover is, as its ruler reads it: the cover's own number, turned round where it reports it so
+    // (`invert_position`), the finger's while the ruler is dragged; and the figure the card says, counted as it comes
+    // down where it is asked (`direction: down`)
+    const position =
+      reported === null
+        ? null
+        : (this.dragged ?? mirror(this.inverted, this.target.read(reported, near) ?? reported));
+    const down = this.down;
+    const figureOf = (opening: number): number => mirror(down, opening);
     const tilt = this.tiltOf(view);
     const open = view.status === 'ok' && (position !== null ? position > 0 : shown !== 'closed');
     // its state's tone: the card's own (the accent while it is open or moving, a valve's the water's), or the
@@ -411,21 +738,25 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     const tinted = tintOf(this.accents, this.config, colour, open || moving);
 
     const canPosition = view.supports(SET_POSITION);
+    const canSetTilt = !valve && view.supports(SET_TILT_POSITION);
     const canTilt =
-      !valve &&
-      (view.supports(SET_TILT_POSITION) || view.supports(OPEN_TILT) || view.supports(CLOSE_TILT));
+      canSetTilt || (!valve && (view.supports(OPEN_TILT) || view.supports(CLOSE_TILT)));
     const showTilt =
       !valve && !compact && this.config?.show_tilt !== false && (canTilt || tilt !== null);
+    // the tilt as its slats where it is asked and the cover takes an angle; one that only opens and closes its slats
+    // keeps the stepper
+    const asSlats = showTilt && canSetTilt && this.config?.tilt_style === 'slats';
 
-    // a cover whose state is only assumed (one-way radio) keeps both directions live, as Home Assistant does
-    const assumed = view.attr<boolean>('assumed_state') === true;
+    // a cover whose state is only assumed (one-way radio), or whose position the card turns round, keeps both
+    // directions live, as Home Assistant does for the first
+    const live = view.attr<boolean>('assumed_state') === true || this.inverted;
     const row: ActionItem[] = [];
     if (view.supports(OPEN))
       row.push({
         key: 'open',
         glyph: 'up',
         label: this.t('cover.open'),
-        disabled: unusable || (!assumed && (fullyOpen || shown === 'opening')),
+        disabled: unusable || (!live && (fullyOpen || shown === 'opening')),
       });
     if (view.supports(STOP))
       row.push({ key: 'stop', glyph: 'stop', label: this.t('cover.stop'), disabled: unusable });
@@ -434,7 +765,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
         key: 'close',
         glyph: 'down',
         label: this.t('cover.close'),
-        disabled: unusable || (!assumed && (fullyClosed || shown === 'closing')),
+        disabled: unusable || (!live && (fullyClosed || shown === 'closing')),
       });
 
     const favorites =
@@ -450,13 +781,15 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
         );
       if (row.length > fit) row.splice(fit);
     }
+    const cardTilt = this.cardTilt(view);
+    const said = position === null ? null : figureOf(position);
     const chipItems: ChipItem[] = favorites.map((favorite, index) => ({
       key: String(index),
       label: this.favoriteLabel(favorite),
       active:
         !unusable &&
-        (typeof favorite.position !== 'number' || near(position, Math.round(favorite.position))) &&
-        (typeof favorite.tilt !== 'number' || near(tilt, Math.round(favorite.tilt))),
+        (typeof favorite.position !== 'number' || near(said, Math.round(favorite.position))) &&
+        (typeof favorite.tilt !== 'number' || near(cardTilt, Math.round(favorite.tilt))),
     }));
 
     const fine = this.fine;
@@ -464,9 +797,9 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     const tiltLabel = this.t('cover.tilt');
     const tiltUnit = angle ? '°' : '%';
     const tiltValue =
-      tilt === null
+      cardTilt === null
         ? '—'
-        : formatNumber(this.hass, angle ? (tilt * angle) / 100 : tilt, { digits: 0 });
+        : formatNumber(this.hass, angle ? (cardTilt * angle) / 100 : cardTilt, { digits: 0 });
     // the tilt's row laid out for its widest figure (fully tilted), never for the one it shows now: beside the
     // ruler in the side column, or across the card where the cover has no position
     const tiltFigure = {
@@ -475,27 +808,32 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
     };
     const side =
       canPosition && !compact
-        ? this.sideFit(showTilt ? { label: tiltLabel, figure: tiltFigure, canTilt } : null)
+        ? this.sideFit(
+            showTilt ? { label: tiltLabel, figure: tiltFigure, canTilt, slats: asSlats } : null,
+          )
         : null;
+    // the tilt's own row across the card: on a cover with no position, and under the commands where the side column
+    // cannot hold its stepper, at the position's size there
     const tiltFit =
-      !canPosition && showTilt
+      showTilt && !asSlats && (!canPosition || side?.under)
         ? fitValueRow(this.head.ruler, {
             width: this.contentWidth,
             control: canTilt ? STEPPER : 0,
             narrow: STEPPER_HALVES,
             labels: [tiltLabel],
             figures: [tiltFigure],
+            ...(canPosition ? { sizes: ['m', 's'] as const } : {}),
           })
         : null;
-    const tiltLayout = side?.tilt ?? tiltFit?.layout ?? 'alone';
+    const tiltLayout = tiltFit?.layout ?? side?.tilt ?? 'alone';
     const tiltReadout = readout({
       label: tiltLabel,
       size: tiltFit?.size ?? 'm',
       value: tiltValue,
-      unit: tilt === null ? '' : tiltUnit,
+      unit: cardTilt === null ? '' : tiltUnit,
     });
     const tiltStepper =
-      canTilt && tiltLayout !== 'alone'
+      canTilt && !asSlats && tiltLayout !== 'alone'
         ? this.tiltStepper.get(`${tiltLabel}|${unusable}`, () =>
             stepper((direction) => this.stepTilt(direction), {
               disabled: unusable,
@@ -504,6 +842,74 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
             }),
           )
         : nothing;
+    // where the slats stand: beside the position where the column holds them, else under the commands; over the
+    // commands on a cover with no position
+    const slatsAt: SlatsAt | null = !asSlats
+      ? null
+      : !side
+        ? 'alone'
+        : side.under
+          ? 'under'
+          : 'side';
+    const tiltRow = tiltFit
+      ? html`<div class="dv-value ${valueRowClass(tiltFit.layout)}">
+          ${tiltReadout}${tiltStepper}${canTilt && tiltFit.layout === 'alone' ? this.readoutTap(view.id, `${name} · ${tiltLabel} ${tiltValue} ${cardTilt === null ? '' : tiltUnit}`) : nothing}
+        </div>`
+      : nothing;
+    const slatsOf = (at: SlatsAt, width: number): TemplateResult =>
+      this.renderSlats(view, { name, width, tone, unusable, at });
+
+    const ends = this.ends();
+    const positionPresets = side
+      ? this.renderPresets(presetsOf(this.config?.position_presets), {
+          value: said,
+          unusable,
+          word: (preset) => {
+            const opening = figureOf(preset);
+            return opening >= 100 ? ends.open : opening <= 0 ? ends.closed : this.percent(preset);
+          },
+          pick: (preset) => this.moveTo(view, figureOf(preset)),
+        })
+      : nothing;
+    const tiltPresets =
+      showTilt && canSetTilt
+        ? this.renderPresets(presetsOf(this.config?.tilt_presets), {
+            value: cardTilt,
+            unusable,
+            ...(side && !side.under ? { label: tiltLabel } : {}),
+            // an end in words where it is the slats' only one: shut both ways round past 135°, its figures there
+            word: (preset) => {
+              const k = openness(preset, angle);
+              return k >= 1 || (k <= 0 && angle < 135)
+                ? this.slatsSaid(preset)
+                : angle
+                  ? `${formatNumber(this.hass, (preset * angle) / 100, { digits: 0 })}°`
+                  : this.percent(preset);
+            },
+            pick: (preset) => this.tiltTo(preset),
+          })
+        : nothing;
+
+    // the position's readout in its column at its widest (100 %): where a card under about 180 cannot hold its words,
+    // its label is a glyph (read out still) and its figure a size smaller; where it counts down, "down" after the
+    // figure where the column holds it
+    const positionReadout = (column: number): TemplateResult => {
+      const title = this.t('cover.position');
+      const hundred = { value: formatNumber(this.hass, 100, { digits: 0 }), unit: '%' };
+      const size = this.figureWidth('m', hundred) <= column ? 'm' : 's';
+      const counted = down ? cardStrings(this.hass, 'down') : '';
+      const worded =
+        counted !== '' && this.figureWidth(size, hundred) + this.saidWidth(counted) <= column;
+      return saidReadout(
+        title,
+        size,
+        said === null ? '—' : formatNumber(this.hass, said, { digits: 0 }),
+        said === null ? '' : '%',
+        worded && said !== null ? counted : '',
+        this.labelWidth(title) > column ? 'updown' : undefined,
+      );
+    };
+    const length = slatsAt ? LENGTH_SLATS : LENGTH;
 
     const classLabel = coverClassLabel(this.hass, view.domain, view.deviceClass);
     const { sub, shorter } = this.subtitle(
@@ -544,13 +950,16 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
       ${
         side
           ? html` <div
-              class="dv-cover ${tiltLayout === 'stack' || tiltLayout === 'halves' ? 'dv-cover--tight' : ''} ${side.gap === 16 ? 'dv-cover--narrow' : ''} ${side.words ? '' : 'dv-cover--bare'}"
+              class="dv-cover ${side.tilt === 'stack' || side.tilt === 'halves' ? 'dv-cover--tight' : ''} ${side.gap === 16 ? 'dv-cover--narrow' : ''} ${side.words ? '' : 'dv-cover--bare'} ${slatsAt ? 'cv-cover--slats' : ''}"
             >
               <div class="dv-cover__ruler">
-                <div class="dv-vlabels" style="height:160px">
-                  <span style="top:0">${fine ? this.percent(fine.max) : this.t('common.open')}</span
-                  ><span style="top:160px"
-                    >${fine ? this.percent(fine.min) : this.t('common.closed')}</span
+                <div class="dv-vlabels" style="height:${length}px">
+                  <span class=${ends.own.open && !fine ? 'is-own' : nothing} style="top:0"
+                    >${fine ? this.percent(figureOf(fine.max)) : ends.open}</span
+                  ><span
+                    class=${ends.own.closed && !fine ? 'is-own' : nothing}
+                    style="top:${length}px"
+                    >${fine ? this.percent(figureOf(fine.min)) : ends.closed}</span
                   >
                 </div>
                 <fluvy-ruler
@@ -559,7 +968,8 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                   .min=${0}
                   .max=${100}
                   .step=${1}
-                  .length=${160}
+                  .origin=${down ? 100 : Number.NaN}
+                  .length=${length}
                   .band=${44}
                   .tone=${unusable ? 'neutral' : tone}
                   ?inactive=${unusable || position === null}
@@ -568,7 +978,7 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                   ?still=${sliderStill()}
                   unit="%"
                   .label=${`${name} · ${this.t('cover.position')}`}
-                  .format=${(value: number) => formatNumber(this.hass, value, { digits: 0 })}
+                  .format=${(value: number) => formatNumber(this.hass, figureOf(value), { digits: 0 })}
                   @fluvy-input=${(event: CustomEvent<RulerChangeDetail>) => {
                     this.dragged = event.detail.value;
                   }}
@@ -582,17 +992,28 @@ export class FluvyCoverCard extends Card<CoverCardConfig> {
                 ></fluvy-ruler>
               </div>
               <div class="dv-cover__side">
-                ${readout({ label: this.t('cover.position'), value: position === null ? '—' : formatNumber(this.hass, position, { digits: 0 }), unit: position === null ? '' : '%' })}
-                ${showTilt ? html`<div class="dv-cover__tilt ${tiltLayout === 'halves' ? 'fv-value-row--halves' : ''}">${tiltReadout}${tiltStepper}</div>` : nothing}
+                ${positionReadout(side.column)}
+                ${
+                  slatsAt === 'side'
+                    ? slatsOf('side', side.column)
+                    : showTilt && !slatsAt && !side.under
+                      ? html`<div
+                          class="dv-cover__tilt ${side.tilt === 'halves' ? 'fv-value-row--halves' : ''}"
+                        >
+                          ${tiltReadout}${tiltStepper}
+                        </div>`
+                      : nothing
+                }
               </div>
             </div>`
-          : tiltFit
-            ? html`<div class="dv-value ${valueRowClass(tiltFit.layout)}">
-                ${tiltReadout}${tiltStepper}${canTilt && tiltFit.layout === 'alone' ? this.readoutTap(view.id, `${name} · ${tiltLabel} ${tiltValue} ${tilt === null ? '' : tiltUnit}`) : nothing}
-              </div>`
-            : nothing
+          : slatsAt === 'alone'
+            ? slatsOf('alone', this.contentWidth)
+            : tiltRow
       }
       ${row.length ? actions(row, (key) => this.command(view, key), cells.columns) : nothing}
+      ${positionPresets}
+      ${slatsAt === 'under' ? slatsOf('under', this.contentWidth) : side ? tiltRow : nothing}
+      ${tiltPresets}
       ${
         chipItems.length
           ? html`${label(coverStrings(this.hass, 'favourites'))}${chipRow(

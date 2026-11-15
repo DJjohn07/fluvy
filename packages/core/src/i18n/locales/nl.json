@@ -119,6 +119,12 @@
     "class.water": "water",
     "class.gas": "gas"
   },
+  "cover-card": {
+    "closed": "Dicht",
+    "open": "Open",
+    "partly_open": "Deels open",
+    "down": "omlaag"
+  },
   "fan": {
     "speed": "Snelheid",
     "oscillate": "Oscilleren",
@@ -637,6 +643,20 @@
     "names_entity": "Entiteitsnaam",
     "names_device": "Apparaatnaam",
     "names_helper": "Waar geen eigen naam is ingesteld",
+    "position_tilt": "Positie en kanteling",
+    "direction": "Positie telt",
+    "direction_up": "Hoe ver open",
+    "direction_down": "Hoe ver omlaag",
+    "invert_position": "Positie omgekeerd",
+    "invert_tilt": "Kanteling omgekeerd",
+    "invert_helper": "Voor een bekleding die dicht 100 % meldt; liefst in de integratie zelf rechtzetten",
+    "position_presets": "Vaste posities",
+    "tilt_presets": "Vaste kantelingen",
+    "open_label": "Woord voor open",
+    "closed_label": "Woord voor dicht",
+    "tilt_style": "Kanteling als",
+    "tilt_steps": "Stappen",
+    "tilt_slats": "Lamellen",
     "thresholds": "Drempels",
     "thresholds_helper": "Een meting krijgt de kleur van de dichtstbijzijnde drempel die ze voorbij is",
     "threshold_value": "Waarde",

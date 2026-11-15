@@ -119,6 +119,12 @@
     "class.water": "su",
     "class.gas": "gaz"
   },
+  "cover-card": {
+    "closed": "Kapalı",
+    "open": "Açık",
+    "partly_open": "Kısmen açık",
+    "down": "aşağıda"
+  },
   "fan": {
     "speed": "Hız",
     "oscillate": "Salınım",
@@ -637,6 +643,20 @@
     "names_entity": "Varlık adı",
     "names_device": "Cihaz adı",
     "names_helper": "Kendi adı ayarlanmamış olanlarda",
+    "position_tilt": "Konum ve eğim",
+    "direction": "Konumun anlamı",
+    "direction_up": "Ne kadar açık",
+    "direction_down": "Ne kadar aşağıda",
+    "invert_position": "Ters konum",
+    "invert_tilt": "Ters eğim",
+    "invert_helper": "Kapalıyken %100 bildiren bir panjur için; en iyisi entegrasyonunda düzeltmek",
+    "position_presets": "Hazır konumlar",
+    "tilt_presets": "Hazır eğimler",
+    "open_label": "Açık için sözcük",
+    "closed_label": "Kapalı için sözcük",
+    "tilt_style": "Eğim biçimi",
+    "tilt_steps": "Adımlar",
+    "tilt_slats": "Lameller",
     "thresholds": "Eşikler",
     "thresholds_helper": "Bir okuma, geçtiği en yakın eşiğin rengini alır",
     "threshold_value": "Değer",

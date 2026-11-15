@@ -1,3 +1,5 @@
+// the card's own words first: they are here before it speaks
+import './cover/english.js';
 import { registerCard } from '@fluvy/core';
 import { COVER_FAMILY } from './cover-family.js';
 import { FluvyCoverCard } from './cover/cover-card.js';

@@ -119,6 +119,12 @@
     "class.water": "agua",
     "class.gas": "gas"
   },
+  "cover-card": {
+    "closed": "Cerradas",
+    "open": "Abiertas",
+    "partly_open": "Entreabiertas",
+    "down": "bajada"
+  },
   "fan": {
     "speed": "Velocidad",
     "oscillate": "Oscilar",
@@ -637,6 +643,20 @@
     "names_entity": "Nombre de la entidad",
     "names_device": "Nombre del dispositivo",
     "names_helper": "Donde no hay un nombre propio",
+    "position_tilt": "Posición e inclinación",
+    "direction": "La posición cuenta",
+    "direction_up": "Cuánto está abierta",
+    "direction_down": "Cuánto está bajada",
+    "invert_position": "Posición invertida",
+    "invert_tilt": "Inclinación invertida",
+    "invert_helper": "Para una persiana que indica 100 % cuando está cerrada; mejor corregirlo en su integración",
+    "position_presets": "Posiciones predefinidas",
+    "tilt_presets": "Inclinaciones predefinidas",
+    "open_label": "Palabra para abierto",
+    "closed_label": "Palabra para cerrado",
+    "tilt_style": "Inclinación como",
+    "tilt_steps": "Pasos",
+    "tilt_slats": "Lamas",
     "thresholds": "Umbrales",
     "thresholds_helper": "Una lectura toma el color del umbral más cercano que ha superado",
     "threshold_value": "Valor",

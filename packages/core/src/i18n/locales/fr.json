@@ -119,6 +119,12 @@
     "class.water": "eau",
     "class.gas": "gaz"
   },
+  "cover-card": {
+    "closed": "Fermées",
+    "open": "Ouvertes",
+    "partly_open": "Entrouvertes",
+    "down": "baissé"
+  },
   "fan": {
     "speed": "Vitesse",
     "oscillate": "Oscillation",
@@ -637,6 +643,20 @@
     "names_entity": "Nom de l’entité",
     "names_device": "Nom de l’appareil",
     "names_helper": "Là où aucun nom propre n’est défini",
+    "position_tilt": "Position et inclinaison",
+    "direction": "La position compte",
+    "direction_up": "Son ouverture",
+    "direction_down": "Sa descente",
+    "invert_position": "Position inversée",
+    "invert_tilt": "Inclinaison inversée",
+    "invert_helper": "Pour un volet qui indique 100 % une fois fermé ; mieux vaut le corriger dans son intégration",
+    "position_presets": "Positions prédéfinies",
+    "tilt_presets": "Inclinaisons prédéfinies",
+    "open_label": "Mot pour ouvert",
+    "closed_label": "Mot pour fermé",
+    "tilt_style": "Inclinaison en",
+    "tilt_steps": "Pas",
+    "tilt_slats": "Lames",
     "thresholds": "Seuils",
     "thresholds_helper": "Une mesure prend la couleur du seuil le plus proche qu’elle a franchi",
     "threshold_value": "Valeur",

@@ -733,6 +733,79 @@ hysteresis, and give the card the helper's state to read.
 The editor lists the thresholds one by one under the card's own fields, and over them the card's colour in its band
 while one is named; a row's are Home Assistant's list in its form. The automatic dashboards write none.
 
+## Cover
+
+The cover card draws a blind, a shutter, a garage door, a gate or a valve: its position on a ruler standing upright
+(open at the top), the tilt beside it, open, stop and close under them, and your favourites. In 1.22 it learns a few
+things more, each off until you ask for it, so a card you already have draws as it did.
+
+**The tilt as its slats.** `tilt_style: slats` draws the tilt as the window seen from the room, the blind down: five
+slats over the daylight, thin where they lie level and thick where they stand shut, the light dimming as they close.
+Its figure and its state in words ("Closed", "Partly open", "Open") stand beside it, and the house's ruler under it
+sets the tilt: the slats follow your finger and the tilt is sent once, as you let go. Beside the position where the
+card is wide enough (the card is then 16 taller), under the commands where it is not. `steps`, the default, keeps the
+readout and its − and + buttons. A cover that only opens and closes its slats (no angle to set) keeps the buttons; a
+card under about 200 wide, where the buttons had no room beside the position and the tilt could not be set, now puts
+them under the commands, and says the position under an up-and-down sign where the word "Position" has no room
+(1.22).
+
+```yaml
+type: custom:fluvy-cover-card
+entity: cover.office_blind
+tilt_style: slats
+```
+
+**Presets.** `position_presets` and `tilt_presets` are the places a tap sends the cover to, as chips under the
+commands (the tilt's under its name, or right under its slats where those stand under the commands): percentages as
+the card shows them, the ends said in words, the one in force lit. `favorites` stays for places with a name of their
+own.
+
+```yaml
+type: custom:fluvy-cover-card
+entity: cover.office_blind
+position_presets: [0, 50, 100]
+tilt_presets: [0, 50, 100]
+```
+
+**A cover counted its own way.** Home Assistant counts a cover's position from 0 (closed) to 100 (open), and its
+tilt from 0 (closed) to 100 (open). Where your integration says the opposite, or you would rather count how far a
+blind has come down, three keys turn the card's numbers round; the state's word ("Open", "Closed") and the open and
+close commands stay Home Assistant's, since the card cannot know which of them your integration got right:
+
+| Key | Answers | What the card does |
+| --- | --- | --- |
+| `invert_position: true` | My cover says 100 % when it is closed | Shows 100 − the reported position, the knob at the top when the cover is really open; what you choose is sent turned back. Open and close both stay live |
+| `invert_tilt: true` | My cover's tilt says 100 % when the slats are closed | The same for the tilt: its figure, its slats, its presets and what is sent |
+| `direction: down` | I count how far the blind has come down | Shows 100 − how far it is open, with "down" beside the figure, the ruler lit from the top down to the knob as the fabric hangs; `up`, the default, counts how far it is open |
+
+Presets and favourites are read on the card's own figures, and sent as Home Assistant's. Tiles, the details sheet, the
+room card, voice assistants and automations all read the cover as Home Assistant reports it, so a cover reported the
+wrong way round is best put right at its source, where every one of them sees it once: KNX (`invert_position`,
+`invert_angle`), MQTT (`position_open` and `position_closed`, or `tilt_min` and `tilt_max`), Zigbee2MQTT
+(`invert_cover` in the device's settings) or a [template cover](https://www.home-assistant.io/integrations/cover.template/)
+that turns it round. These keys are for a cover you cannot put right there.
+
+```yaml
+type: custom:fluvy-cover-card
+entity: cover.bedroom_blind
+invert_position: true   # it reports 100 % when it is down
+invert_tilt: true
+direction: down         # "35 % down": how far it has come down
+```
+
+**The ends' words.** `open_label` and `closed_label` rename the position ruler's ends and its presets' ends ("Up" and
+"Down" for an awning, say); a word too long for the ruler's side ends in an ellipsis.
+
+```yaml
+type: custom:fluvy-cover-card
+entity: cover.terrace_awning
+open_label: Out
+closed_label: In
+```
+
+The editor holds them in a folded **Position and tilt** group, each only where the cover can act on it. The automatic
+dashboards write none of them.
+
 ## Thermostat
 
 The thermostat card's badge says what the device is doing, not the mode it is in: **Heating**, **Idle**,

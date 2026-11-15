@@ -6,6 +6,7 @@ import type automations from './locales/en/automations.json';
 import type cardsAbout from './locales/en/cards-about.json';
 import type chart from './locales/en/chart.json';
 import type chartCard from './locales/en/chart-card.json';
+import type cover from './locales/en/cover.json';
 import type customise from './locales/en/customise.json';
 import type details from './locales/en/details.json';
 import type devices from './locales/en/devices.json';
@@ -48,6 +49,7 @@ export type Catalogue = typeof core &
   typeof cardsAbout &
   typeof chart &
   typeof chartCard &
+  typeof cover &
   typeof customise &
   typeof details &
   typeof devices &

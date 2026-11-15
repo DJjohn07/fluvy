@@ -1073,6 +1073,12 @@
     "class.water": "woda",
     "class.gas": "gaz"
   },
+  "cover-card": {
+    "closed": "Zamknięte",
+    "open": "Otwarte",
+    "partly_open": "Częściowo otwarte",
+    "down": "opuszczone"
+  },
   "distribution": {
     "distribution": "Rozkład",
     "other": "Inne",
@@ -1318,6 +1324,20 @@
     "names_entity": "Nazwa encji",
     "names_device": "Nazwa urządzenia",
     "names_helper": "Tam, gdzie nie ustawiono własnej nazwy",
+    "position_tilt": "Pozycja i nachylenie",
+    "direction": "Pozycja liczona jako",
+    "direction_up": "Stopień otwarcia",
+    "direction_down": "Stopień opuszczenia",
+    "invert_position": "Odwrócona pozycja",
+    "invert_tilt": "Odwrócone nachylenie",
+    "invert_helper": "Dla osłony, która po zamknięciu zgłasza 100 %; najlepiej poprawić to w jej integracji",
+    "position_presets": "Gotowe pozycje",
+    "tilt_presets": "Gotowe nachylenia",
+    "open_label": "Słowo dla otwarcia",
+    "closed_label": "Słowo dla zamknięcia",
+    "tilt_style": "Nachylenie jako",
+    "tilt_steps": "Kroki",
+    "tilt_slats": "Lamele",
     "thresholds": "Progi",
     "thresholds_helper": "Odczyt przyjmuje kolor najbliższego progu, który przekroczył",
     "threshold_value": "Wartość",

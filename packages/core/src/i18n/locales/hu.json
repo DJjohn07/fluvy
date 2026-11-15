@@ -119,6 +119,12 @@
     "class.water": "víz",
     "class.gas": "gáz"
   },
+  "cover-card": {
+    "closed": "Zárva",
+    "open": "Nyitva",
+    "partly_open": "Részben nyitva",
+    "down": "leengedve"
+  },
   "fan": {
     "speed": "Sebesség",
     "oscillate": "Forgás",
@@ -587,6 +593,20 @@
     "names_entity": "Entitás neve",
     "names_device": "Eszköz neve",
     "names_helper": "Ahol nincs megadva saját név",
+    "position_tilt": "Pozíció és döntés",
+    "direction": "A pozíció jelentése",
+    "direction_up": "Mennyire van nyitva",
+    "direction_down": "Mennyire van leengedve",
+    "invert_position": "Fordított pozíció",
+    "invert_tilt": "Fordított döntés",
+    "invert_helper": "Olyan árnyékolóhoz, amely zárva 100 %-ot jelez; legjobb az integrációjában javítani",
+    "position_presets": "Pozíció-előbeállítások",
+    "tilt_presets": "Döntés-előbeállítások",
+    "open_label": "Szó a nyitottra",
+    "closed_label": "Szó a zártra",
+    "tilt_style": "Döntés módja",
+    "tilt_steps": "Lépések",
+    "tilt_slats": "Lamellák",
     "thresholds": "Küszöbértékek",
     "thresholds_helper": "Az érték a legközelebbi átlépett küszöbérték színét veszi fel",
     "threshold_value": "Érték",

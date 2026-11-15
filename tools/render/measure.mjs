@@ -920,7 +920,8 @@ function audit(opts) {
 
       const sideways = scrolledAway(el, frame) || scrolledWithin(el, frame);
 
-      // a declared fill row: its cells are equal and span its content box
+      // a declared fill row: its cells are equal and span its content box; wrapped into lines (a command row under a
+      // finger's 44: 2 + 1, the last across), the cells of each line are equal among themselves
       if (el.hasAttribute('data-fill-row')) {
         const cells = [...el.children].filter((c) => c.getBoundingClientRect().width > 0);
         if (cells.length) {
@@ -933,7 +934,13 @@ function audit(opts) {
             parseFloat(ecs.paddingRight);
           const span =
             Math.max(...rects.map((r) => r.right)) - Math.min(...rects.map((r) => r.left));
-          if (Math.max(...widths) - Math.min(...widths) > 0.01)
+          const lines = [];
+          for (const r of rects) {
+            const line = lines.find((l) => Math.abs(l.top - r.top) < 0.5);
+            if (line) line.widths.push(r.width);
+            else lines.push({ top: r.top, widths: [r.width] });
+          }
+          if (lines.some(({ widths: w }) => Math.max(...w) - Math.min(...w) > 0.01))
             add('fill-row', el, rect, `cells ${widths.map(r3).join(' / ')} are not equal`);
           // whole-pixel cells may leave what the division does not share as a tail at the end: less than a pixel
           // per cell on the row, never past its content box

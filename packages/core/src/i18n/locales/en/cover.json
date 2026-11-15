@@ -1,0 +1,8 @@
+{
+  "cover-card": {
+    "closed": "Closed",
+    "open": "Open",
+    "partly_open": "Partly open",
+    "down": "down"
+  }
+}

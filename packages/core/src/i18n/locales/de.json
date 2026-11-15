@@ -119,6 +119,12 @@
     "class.water": "Wasser",
     "class.gas": "Gas"
   },
+  "cover-card": {
+    "closed": "Geschlossen",
+    "open": "Offen",
+    "partly_open": "Teilweise offen",
+    "down": "zu"
+  },
   "fan": {
     "speed": "Geschwindigkeit",
     "oscillate": "Oszillation",
@@ -637,6 +643,20 @@
     "names_entity": "Entitätsname",
     "names_device": "Gerätename",
     "names_helper": "Wo kein eigener Name festgelegt ist",
+    "position_tilt": "Position und Neigung",
+    "direction": "Position zählt",
+    "direction_up": "Wie weit offen",
+    "direction_down": "Wie weit zu",
+    "invert_position": "Position umgekehrt",
+    "invert_tilt": "Neigung umgekehrt",
+    "invert_helper": "Für einen Behang, der geschlossen 100 % meldet; am besten in seiner Integration korrigieren",
+    "position_presets": "Positionsvorgaben",
+    "tilt_presets": "Neigungsvorgaben",
+    "open_label": "Wort für offen",
+    "closed_label": "Wort für geschlossen",
+    "tilt_style": "Neigung als",
+    "tilt_steps": "Schritte",
+    "tilt_slats": "Lamellen",
     "thresholds": "Schwellenwerte",
     "thresholds_helper": "Ein Messwert nimmt die Farbe des nächsten Schwellenwerts an, den er überschreitet",
     "threshold_value": "Wert",
