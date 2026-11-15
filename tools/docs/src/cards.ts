@@ -1,61 +1,145 @@
 /**
- * The cards' tables in `docs/cards.md`, generated from the code so the docs cannot drift: for every card of the
- * catalogue its name, type, description and the options its editor shows (the card's own keys with a select's
- * values, its lists with their item keys, and the sections a list takes between its items) and the older names it
- * still reads. The prose around the tables is written by hand and kept; the tables live between
- * `<!-- generated:cards -->` and `<!-- /generated:cards -->`.
- *
- *   pnpm docs:cards            writes docs/cards.md
- *   pnpm --filter @fluvy/docs check   fails when the file is not what the code says (what `pnpm check` runs)
+ * The cards as the code says them: for every card of the catalogue its name, what it is, every key its editor shows
+ * (the editor's word and the sentence under it, what the key holds, what the card does when it is left out, a
+ * choice's values), its lists with their item's fields, the older names it still reads, and its example from the
+ * gallery with each of its layouts. Everything `docs/` says about a card is made from this (`pages.ts`) and held to
+ * it (`build.ts --check`), so the docs cannot drift from the editors' contract (`Card` in the cards' `shared/base.ts`).
+ * What a key does is said in a sentence of the docs' own (`meanings.ts`) before the editor's helper.
  */
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import type { HaFormSchemaItem, LovelaceCardConfig, LovelaceConfigForm } from '@fluvy/core';
 import about from '@fluvy/core/locales/en/cards-about.json';
 import core from '@fluvy/core/locales/en/core.json';
-import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { drawn, GALLERY, shortName, type Drawn, type Example } from './gallery.js';
+import { MEANINGS } from './meanings.js';
 
-GlobalRegistrator.register();
-
-const CATALOGUE = await (await import('@fluvy/cards')).catalogue();
+// the cards and core read the DOM as they load
+if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
 const { cardKey } = await import('@fluvy/core');
+const form = await import('../../../packages/cards/src/shared/form.js');
 
-/** A card's name and what it is, as English says them (the catalogue's `cards` and `cards-about`). */
-function words(tag: string): { name: string; description: string } {
-  const key = cardKey(tag) as keyof typeof core.cards;
-  return { name: core.cards[key], description: about['cards-about'][key] };
+type Schema = readonly HaFormSchemaItem[];
+
+/** One list of a card, as its editor declares it (`RowsListSpec`). */
+interface ListSpec {
+  readonly key: string;
+  readonly alias?: string;
+  readonly title: string;
+  readonly helper?: string;
+  readonly schema: Schema;
+  readonly idKey?: string;
+  readonly sections?: boolean | 'labels';
+  readonly computeLabel?: LovelaceConfigForm['computeLabel'];
+  readonly computeHelper?: Helper;
 }
-
-type Schema = readonly {
-  name: string;
-  selector?: Record<string, unknown>;
-  type?: string;
-  flatten?: boolean;
-  schema?: Schema;
-}[];
+type Helper = (
+  schema: HaFormSchemaItem,
+  localize: (key: string) => string,
+  data?: Readonly<Record<string, unknown>>,
+) => string | undefined;
+type Defaults = (config: LovelaceCardConfig, hass: undefined) => Readonly<Record<string, unknown>>;
 /** What a card's editor shows (its class's, or the module a card every page carries keeps it in). */
 interface Editor {
-  keys: readonly string[];
-  lists?: readonly {
-    key: string;
-    alias?: string;
-    schema: Schema;
-    sections?: boolean | 'labels';
-  }[];
-  getConfigForm(): { schema: Schema };
+  readonly base: readonly string[];
+  readonly keys: readonly string[];
+  readonly lists?: readonly ListSpec[];
+  readonly defaults?: Defaults | undefined;
+  getConfigForm(): LovelaceConfigForm & { computeHelper?: Helper };
+}
+interface Move {
+  readonly from: string;
+  readonly to: string;
+  readonly when?: (value: unknown) => boolean;
+}
+interface Aliases {
+  readonly keys?: readonly Move[];
+  readonly items?: Readonly<Record<string, readonly Move[]>>;
+  readonly drop?: readonly string[];
 }
 interface Contract {
-  aliases?: { keys?: readonly { from: string; to: string }[]; drop?: readonly string[] };
+  readonly aliases?: Aliases;
   editor(): Promise<Editor>;
 }
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const FILE = join(root, 'docs', 'cards.md');
-const OPEN = '<!-- generated:cards -->';
-const CLOSE = '<!-- /generated:cards -->';
+/** A key of a card, or of an item of one of its lists, as the docs say it. */
+export interface Key {
+  readonly key: string;
+  /** The editor's word for it. */
+  readonly label: string;
+  /** The sentence the editor says under it. */
+  readonly helper?: string;
+  /** What it does, in the docs' own sentence, and the name of the entry of `MEANINGS` it is read from. */
+  readonly meaning?: string;
+  readonly meaningOf?: string;
+  /** What it holds, in a word: `entity`, `text`, `number`, `boolean`, `choice`, `action`, `map` (keys of its own). */
+  readonly type: string;
+  readonly required: boolean;
+  /** What the card does when the key is left out, where its editor declares it. */
+  readonly default?: unknown;
+  /** The same in words, where it is no value to write (a tone left out is the card's own). */
+  readonly defaultWords?: string;
+  /** A choice's values, each with the editor's word for it. */
+  readonly values: readonly { readonly value: string; readonly label: string }[];
+  /** A number's range, as the editor holds it ("0 to 100, in steps of 5"). */
+  readonly range?: string;
+  /** The folded group of the editor it stands in ("Interactions"). */
+  readonly group?: string;
+}
 
-/** The sections of the page, each the tags it holds in order. */
-const SECTIONS: ReadonlyArray<readonly [title: string, tags: readonly string[]]> = [
+/** A list of a card: its key, its word, and the fields an item may carry. */
+export interface List {
+  readonly key: string;
+  readonly label: string;
+  readonly helper?: string;
+  /** What it holds, in the docs' own sentence, and the name of the entry of `MEANINGS` it is read from. */
+  readonly meaning?: string;
+  readonly meaningOf?: string;
+  /** The field that identifies an item: a bare id stands for an item with nothing else. */
+  readonly id: string;
+  /** What may stand between its items: a section's label and a divider, or labels alone. */
+  readonly sections?: 'sections' | 'labels';
+  readonly item: readonly Key[];
+}
+
+/** An older name a card still reads: where it stood, and what it is read as (none: folded into another key). */
+export interface Read {
+  readonly from: string;
+  readonly to?: string;
+  /** Whether only some of its values are read so (`forecast: none` → `show_forecast: false`). */
+  readonly partly: boolean;
+}
+
+/** The select a card's layouts are chosen by. */
+export interface Layout {
+  readonly key: string;
+  readonly values: readonly string[];
+  /** The value the editor shows on a new card. */
+  readonly default: string;
+}
+
+export interface CardDoc {
+  readonly tag: string;
+  /** Its short name: what its page and its pictures are named by. */
+  readonly short: string;
+  readonly name: string;
+  readonly description: string;
+  /** The section of the index it stands in. */
+  readonly section: string;
+  readonly keys: readonly Key[];
+  readonly lists: readonly List[];
+  readonly reads: readonly Read[];
+  readonly layout?: Layout;
+  /** Its example from the gallery, and that example as it is drawn: the base, then each other layout. */
+  readonly example?: Example;
+  readonly drawn: readonly Drawn[];
+  /** Every key a configuration of it may carry: the form's and the lists', with the older names of its lists. */
+  readonly known: ReadonlySet<string>;
+  /** Its configuration as the card reads it: the older names moved to the newer ones. */
+  normalise(config: LovelaceCardConfig): LovelaceCardConfig;
+}
+
+/** The sections of the index, each the tags it holds in order. */
+export const SECTIONS: ReadonlyArray<readonly [title: string, tags: readonly string[]]> = [
   [
     'Everyday',
     [
@@ -142,125 +226,305 @@ const SECTIONS: ReadonlyArray<readonly [title: string, tags: readonly string[]]>
   ['Time', ['fluvy-clock-card', 'fluvy-calendar-card']],
 ];
 
-type Field = { name: string; selector?: Record<string, unknown>; schema?: Schema };
+/** A card's name and what it is, as English says them (the catalogue's `cards` and `cards-about`). */
+function words(tag: string): { name: string; description: string } {
+  const key = cardKey(tag) as keyof typeof core.cards;
+  return { name: core.cards[key], description: about['cards-about'][key] };
+}
+
+/** The docs' sentence for a key, the more particular entry first: the card's own, then every card's. */
+function meaningOf(names: readonly string[]): { meaning?: string; meaningOf?: string } {
+  const found = names.find((name) => MEANINGS[name] !== undefined);
+  return found ? { meaning: MEANINGS[found] as string, meaningOf: found } : {};
+}
 
 /**
- * The cards whose `name_lines` is their tiles' names (a tile, a set of them, the template card's, a room's and its
- * lights'), not the head's the page's introduction names with `show_icon`: said in their rows, as their own.
+ * The keys a card's layouts may be chosen by, the first its editor shows as a select: `variant` on most, a tile's
+ * `size`, an Expander's `style`, and the dial a humidity card has in place of a layout.
  */
-const TILE_NAMES = new Set([
-  'fluvy-tile-card',
-  'fluvy-tiles-card',
-  'fluvy-template-card',
-  'fluvy-lights-card',
-  'fluvy-room-card',
-]);
+const LAYOUT_KEYS = ['variant', 'size', 'style', 'gauge'] as const;
 
 /**
- * Every field of a form, through its rows and its folded groups; a group that holds its fields under a key of its own
- * (a card's colours by state) is that key's.
+ * The choices that declare no default, each with what leaving it out means: a tone is the card's own, and of several
+ * chosen of a list none chosen is everything its device offers, or nothing added. Every other select and switch of
+ * a card's form declares what the card does without it (`undeclared` names the ones that do not).
  */
-const flatten = (schema: Schema): Field[] =>
+export const UNDECLARED: Readonly<Record<string, string>> = {
+  tone: 'the card’s own',
+  modes: 'what the device offers',
+  drinks: 'what the device offers',
+  include: 'nothing more',
+  exclude: 'nothing',
+  confirm: 'each appliance’s own',
+};
+
+/**
+ * Every field of a form through its rows, each with the folded group it stands in; a group that holds its fields under
+ * a key of its own (a card's colours by state) is that key's, one field.
+ */
+const flatten = (
+  schema: Schema,
+  group?: string,
+): { readonly field: HaFormSchemaItem; readonly group?: string }[] =>
   schema.flatMap((item) =>
-    item.schema && (!item.name || item.flatten) ? flatten(item.schema) : [item],
+    item.schema && !form.holdsOwn(item)
+      ? flatten(item.schema, item.type === 'expandable' ? item.title : group)
+      : item.type === 'constant'
+        ? []
+        : [{ field: item, ...(group ? { group } : {}) }],
   );
 
-/** A select's values, in its order. */
-const valuesOf = (field: Field): string[] =>
-  (
-    field.selector?.['select'] as { options?: readonly { value: string }[] } | undefined
-  )?.options?.map((o) => o.value) ?? [];
+type Selector = Readonly<Record<string, unknown>>;
+const selectorOf = (field: HaFormSchemaItem): readonly [kind: string, options: Selector] => {
+  const [kind = '', options] = Object.entries(field.selector ?? {})[0] ?? [];
+  return [kind, (options ?? {}) as Selector];
+};
+
+/** A select's choices, each value with the editor's word for it; a group's keys, where it holds its own. */
+const choicesOf = (field: HaFormSchemaItem): { value: string; label: string }[] => {
+  if (field.schema) return field.schema.map(({ name }) => ({ value: name, label: name }));
+  const [kind, options] = selectorOf(field);
+  if (kind !== 'select') return [];
+  return (
+    (options['options'] ?? []) as readonly (string | { value: string; label?: string })[]
+  ).map((option) =>
+    typeof option === 'string'
+      ? { value: option, label: option }
+      : { value: option.value, label: option.label ?? option.value },
+  );
+};
+
+/** What a field holds, in a word. */
+function typeOf(field: HaFormSchemaItem): string {
+  const [kind, options] = selectorOf(field);
+  const many = options['multiple'] === true;
+  if (field.condition) return 'condition';
+  if (field.schema) return 'map';
+  switch (kind) {
+    case 'entity': {
+      const domains = [options['domain'] ?? []].flat().map(String);
+      return `${many ? 'entities' : 'entity'}${domains.length ? ` (${domains.join(', ')})` : ''}`;
+    }
+    case 'entity_name':
+      return 'name';
+    case 'select':
+      return `${many ? 'choices' : 'choice'}${options['custom_value'] === true ? ' or text' : ''}`;
+    case 'ui_color':
+    case 'color_rgb':
+      return 'colour';
+    case 'ui_action':
+      return 'action';
+    default:
+      return kind || 'text';
+  }
+}
+
+/** A number's range as its field holds it; none where it takes any. */
+function rangeOf(field: HaFormSchemaItem): string | undefined {
+  const [kind, options] = selectorOf(field);
+  if (kind !== 'number') return undefined;
+  const { min, max, step, unit_of_measurement: unit } = options;
+  const of = (value: unknown): string => `${String(value)}${unit ? ` ${String(unit)}` : ''}`;
+  const span =
+    min !== undefined && max !== undefined
+      ? `${of(min)} to ${of(max)}`
+      : min !== undefined
+        ? `${of(min)} or more`
+        : max !== undefined
+          ? `up to ${of(max)}`
+          : '';
+  const steps = typeof step === 'number' && step !== 1 ? `in steps of ${step}` : '';
+  return [span, steps].filter(Boolean).join(', ') || undefined;
+}
 
 /**
- * A key as the table names it: the key, with a select's values after it, or the keys a group held under it takes (a
- * state's colour, by the state). A key the form shows in turns (one select for a sensor alone, another beside others)
- * is said once, with every value any of its selects offers.
+ * A key as the docs say it, from the fields that show it (a key the form shows in turns, one select for a sensor
+ * alone and another beside others, is said once, with every value any of them offers).
  */
-function option(field: Field, fields: readonly Field[]): string {
-  if (field.schema)
-    return `\`${field.name}\` (keys ${field.schema.map((f) => `\`${f.name}\``).join(', ')})`;
-  const values = [...new Set(fields.filter((f) => f.name === field.name).flatMap(valuesOf))];
-  return values.length
-    ? `\`${field.name}\` (${values.map((value) => `\`${value}\``).join(', ')})`
-    : `\`${field.name}\``;
-}
-
-function row(
-  tag: string,
-  name: string,
-  description: string,
-  card: Contract,
-  editor: Editor,
-): string {
-  const cardLists = editor.lists ?? [];
-  // a list's own key is said once, as the list
-  const own = (key: string): boolean =>
-    editor.keys.includes(key) || (key === 'name_lines' && TILE_NAMES.has(tag));
-  const fields = flatten(editor.getConfigForm().schema).filter(
-    (f) => own(f.name) && !cardLists.some((list) => list.key === f.name),
+function keyOf(
+  fields: readonly { readonly field: HaFormSchemaItem; readonly group?: string }[],
+  said: { readonly label: string; readonly helper?: string | undefined },
+  defaults: Readonly<Record<string, unknown>>,
+  meanings: readonly string[],
+): Key {
+  const [{ field, group } = { field: { name: '' } as HaFormSchemaItem }] = fields;
+  const [kind, options] = selectorOf(field);
+  const values = fields.flatMap(({ field: shown }) => choicesOf(shown));
+  const unique = values.filter(
+    (choice, index) => values.findIndex((other) => other.value === choice.value) === index,
   );
-  const shown = fields
-    .filter((field, index) => fields.findIndex((f) => f.name === field.name) === index)
-    .map((field) => option(field, fields));
-  const lists = cardLists.map((list) => {
-    const keys = flatten(list.schema).map((f) => `\`${f.name}\``);
-    // a list in parts: what stands between its items (a label alone among tiles and scenes: `labels`)
-    const between = !list.sections
-      ? ''
-      : `; between them \`type: section\`${list.sections === 'labels' ? '' : ', `type: divider`'}`;
-    return `\`${list.key}\` (a list: ${keys.join(', ')}${between})`;
-  });
-  const options = [...shown, ...lists];
-  const reads = [
-    ...(card.aliases?.keys ?? []).map((m) => `\`${m.from}\` → \`${m.to}\``),
-    ...cardLists.filter((list) => list.alias).map((list) => `\`${list.alias}\` → \`${list.key}\``),
-    ...(card.aliases?.drop ?? []).map((key) => `\`${key}\` (folded in)`),
-  ];
-  const cells = [
-    `**${name}**`,
-    `\`custom:${tag}\``,
-    description,
-    options.length ? options.join(', ') : '—',
-    reads.length ? reads.join(', ') : '—',
-  ];
-  return `| ${cells.join(' | ')} |`;
+  const declared = field.name in defaults;
+  // an action's default is its selector's own: what a tap does while none is chosen
+  const action = kind === 'ui_action' ? options['default_action'] : undefined;
+  const range = rangeOf(field);
+  const required = fields.every(({ field: shown }) => shown.required === true);
+  const undeclared =
+    !declared && !required
+      ? kind === 'ui_action' && action === undefined
+        ? 'the card’s own'
+        : kind === 'select' || kind === 'boolean'
+          ? UNDECLARED[field.name]
+          : undefined
+      : undefined;
+  return {
+    key: field.name,
+    label: said.label,
+    ...(said.helper ? { helper: said.helper } : {}),
+    ...meaningOf(meanings.map((name) => name.replace('*', field.name))),
+    type: typeOf(field),
+    required,
+    ...(declared
+      ? { default: defaults[field.name] }
+      : action !== undefined
+        ? { default: action }
+        : {}),
+    ...(undeclared ? { defaultWords: undeclared } : {}),
+    values: unique,
+    ...(range ? { range } : {}),
+    ...(group ? { group } : {}),
+  };
 }
 
-const catalogue = new Map(
-  await Promise.all(
-    CATALOGUE.map(async ([tag, element]) => {
-      const card = element as unknown as Contract;
-      return [tag, { card, editor: await card.editor(), ...words(tag) }] as const;
-    }),
-  ),
-);
-const placed = new Set(SECTIONS.flatMap(([, tags]) => tags));
-const missing = [...catalogue.keys()].filter((tag) => !placed.has(tag));
-if (missing.length) throw new Error(`cards without a section: ${missing.join(', ')}`);
+/** The fields of a schema by their key, in the order each is first shown. */
+const byKey = (
+  schema: Schema,
+): Map<string, { readonly field: HaFormSchemaItem; readonly group?: string }[]> => {
+  const shown = new Map<string, { readonly field: HaFormSchemaItem; readonly group?: string }[]>();
+  for (const entry of flatten(schema))
+    shown.set(entry.field.name, [...(shown.get(entry.field.name) ?? []), entry]);
+  return shown;
+};
 
-const tables = SECTIONS.map(([title, tags]) => {
-  const rows = tags.map((tag) => {
-    const entry = catalogue.get(tag);
-    if (!entry) throw new Error(`${tag} is in a section but not in the catalogue`);
-    return row(tag, entry.name, entry.description, entry.card, entry.editor);
-  });
-  return `## ${title}\n\n| Card | Type | What it is | Options | Reads |\n| --- | --- | --- | --- | --- |\n${rows.join('\n')}`;
-}).join('\n\n');
+/** Every card of the catalogue as the docs say it, in the index's order. */
+export async function readCards(): Promise<readonly CardDoc[]> {
+  const [{ catalogue }, rows, shared] = await Promise.all([
+    import('@fluvy/cards'),
+    import('../../../packages/cards/src/shared/rows-editor.js'),
+    import('../../../packages/cards/src/shared/config.js'),
+  ]);
+  const word = (key: string | undefined): string | undefined =>
+    key ? form.editorWord(key as Parameters<typeof form.editorWord>[0]) : undefined;
+  const asIs = (key: string): string => key;
 
-const generated = `${OPEN}\n\n${tables}\n\n${CLOSE}`;
-const current = await readFile(FILE, 'utf8');
-const start = current.indexOf(OPEN);
-const end = current.indexOf(CLOSE);
-if (start < 0 || end < 0) throw new Error(`${FILE}: the generated markers are missing`);
-const next = `${current.slice(0, start)}${generated}${current.slice(end + CLOSE.length)}`;
+  const entries = new Map((await catalogue()).map((entry) => [entry[0], entry] as const));
+  const placed = SECTIONS.flatMap(([, tags]) => tags);
+  const missing = [...entries.keys()].filter((tag) => !placed.includes(tag));
+  if (missing.length) throw new Error(`cards without a section: ${missing.join(', ')}`);
 
-if (process.argv.includes('--check')) {
-  if (next !== current) {
-    console.error(`✗ docs/cards.md is not what the code says: run pnpm docs:cards`);
-    process.exit(1);
-  }
-  console.log(`✓ docs/cards.md: ${catalogue.size} cards as the code says`);
-} else {
-  await writeFile(FILE, next);
-  console.log(`docs/cards.md: ${catalogue.size} cards in ${SECTIONS.length} sections`);
+  const cards: CardDoc[] = [];
+  for (const [section, tags] of SECTIONS)
+    for (const tag of tags) {
+      const entry = entries.get(tag);
+      if (!entry) throw new Error(`${tag} is in a section but not in the catalogue`);
+      const card = entry[1] as unknown as Contract;
+      const short = shortName(tag);
+      const editor = await card.editor();
+      const config = editor.getConfigForm();
+      const lists = editor.lists ?? [];
+      const listed = new Set(
+        lists.flatMap((list) => [list.key, ...(list.alias ? [list.alias] : [])]),
+      );
+      const defaults =
+        (rows.editorDefaults(config, editor.defaults as never) as Defaults | undefined)?.(
+          { type: `custom:${tag}` },
+          undefined,
+        ) ?? {};
+
+      // a list's own key is said once, as the list
+      const keys = [...byKey(config.schema)]
+        .filter(([name]) => !listed.has(name))
+        .map(([, fields]) => {
+          const [{ field } = { field: { name: '' } as HaFormSchemaItem }] = fields;
+          return keyOf(
+            fields,
+            {
+              label: config.computeLabel?.(field, asIs) ?? field.name,
+              helper: config.computeHelper?.(field, asIs, defaults) ?? word(field.helper),
+            },
+            defaults,
+            [`${short}.*`, '*'],
+          );
+        });
+
+      const select = LAYOUT_KEYS.map((name) => keys.find((key) => key.key === name)).find(
+        (key) => key?.type === 'choice',
+      );
+      const example = GALLERY[tag];
+      const aliases = card.aliases;
+      const specs = [...(aliases ? [aliases] : []), shared.COMMON_ALIASES];
+      const names = new Set(keys.map((key) => key.key));
+      cards.push({
+        tag,
+        short,
+        ...words(tag),
+        section,
+        keys,
+        lists: lists.map((list) => ({
+          key: list.key,
+          label: word(list.title) ?? list.key,
+          ...(list.helper ? { helper: word(list.helper) ?? '' } : {}),
+          ...meaningOf([`${short}.${list.key}[]`, `${list.key}[]`]),
+          id: list.idKey ?? 'entity',
+          ...(list.sections
+            ? { sections: list.sections === 'labels' ? 'labels' : 'sections' }
+            : {}),
+          item: [...byKey(list.schema)].map(([, fields]) => {
+            const [{ field } = { field: { name: '' } as HaFormSchemaItem }] = fields;
+            const label =
+              list.computeLabel?.(field, asIs) ??
+              config.computeLabel?.(field, asIs) ??
+              rows.itemLabels(field, asIs);
+            const helper =
+              list.computeHelper?.(field, asIs, {}) ??
+              config.computeHelper?.(field, asIs) ??
+              rows.itemHelpers(field, asIs);
+            // a field that carries no floating label on purpose (a colour well) is named by the word under it
+            return keyOf(
+              fields,
+              label ? { label, helper } : { label: helper ?? field.name },
+              // an item's fields declare no default of their own: a key left out follows the card
+              {},
+              [`${short}.${list.key}[].*`, '[].*'],
+            );
+          }),
+        })),
+        reads: [
+          ...(aliases?.keys ?? []).map((move) => ({
+            from: move.from,
+            to: move.to,
+            partly: move.when !== undefined,
+          })),
+          ...lists
+            .filter((list) => list.alias)
+            .map((list) => ({ from: list.alias as string, to: list.key, partly: false })),
+          ...Object.entries(aliases?.items ?? {}).flatMap(([list, moves]) =>
+            moves.map((move) => ({
+              from: `${list}[].${move.from}`,
+              to: `${list}[].${move.to}`,
+              partly: move.when !== undefined,
+            })),
+          ),
+          ...(aliases?.drop ?? []).map((from) => ({ from, partly: false })),
+          // the names every card once read, where this one has the key they are read as
+          ...(shared.COMMON_ALIASES.keys ?? [])
+            .filter((move) => names.has(move.to) && !names.has(move.from))
+            .filter((move) => !(aliases?.keys ?? []).some((own) => own.from === move.from))
+            .map((move) => ({ from: move.from, to: move.to, partly: false })),
+        ],
+        ...(select
+          ? {
+              layout: {
+                key: select.key,
+                values: select.values.map((choice) => choice.value),
+                default: String(select.default ?? ''),
+              },
+            }
+          : {}),
+        ...(example ? { example } : {}),
+        drawn: example ? drawn(tag, example) : [],
+        known: new Set(['type', ...names, ...listed]),
+        normalise: (given) => shared.normaliseConfig(given, ...specs),
+      });
+    }
+  return cards;
 }

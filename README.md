@@ -84,9 +84,10 @@ frame where less motion is asked for.
 
 ## Sixty-six cards
 
-Every card has an editor form and a live preview in the card picker; every option is documented in
-[the cards](docs/cards.md). Sliders and dials are precision controls: relative drag, slide away to slow down,
-hold for the 1 % scale.
+Every card has an editor form and a live preview in the card picker. [The cards' gallery](docs/cards.md#everyday)
+shows each one with its picture, and its page the YAML that draws it and every option with what it does; each one can
+be tried in [the live demo](https://acosta290.github.io/fluvy/). Sliders and dials are precision controls: relative
+drag, slide away to slow down, hold for the 1 % scale.
 
 <p align="center">
   <a href="https://acosta290.github.io/fluvy/?sheet=slider&amp;palette=linen"><img src="https://raw.githubusercontent.com/acosta290/fluvy/main/docs/media/dimmer.gif" width="411" alt="The precision dimmer: a relative drag, finer away from the ruler, and the 1 % scale on hold"></a><a href="https://acosta290.github.io/fluvy/?sheet=flow&amp;palette=linen"><img src="https://raw.githubusercontent.com/acosta290/fluvy/main/docs/media/energy-flow.gif" width="411" alt="The energy flow of a three-phase house changing pace: importing while a phase exports, then all sun, then the battery at night, every lane in its source's colour"></a>
