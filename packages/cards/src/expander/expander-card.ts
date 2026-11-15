@@ -124,6 +124,8 @@ const FOOT_GLYPH: Readonly<Record<ChevronSize, number>> = { regular: 24, large: 
 
 /** The event Home Assistant's `fire-dom-event` action sends, from any card: its detail is the action. */
 const ASK_EVENT = 'll-custom';
+/** The card's type, as a config names it. */
+const EXPANDER = 'custom:fluvy-expander-card';
 
 /** What an action asks of an expander: which one (none: the one that holds the card), and what of it. */
 interface Ask {
@@ -152,6 +154,23 @@ function askOf(detail: unknown): Ask | undefined {
   if (asked) return { id: nameOf(asked['id']), action: asked['action'] };
   const theirs = record(record(action?.['expander-card'])?.['data']);
   return theirs && { id: nameOf(theirs['expander-card-id']), action: theirs['action'] };
+}
+
+/** Whether what an action asks opens: `open`, or a word other than `close` while it, or its group, is folded. */
+const opening = (action: unknown, folded: boolean): boolean =>
+  action === 'open' || (action !== 'close' && folded);
+
+/**
+ * The names of the expanders a config holds, at any depth (in a stack, in another expander): those an expander keeps
+ * out of the page while it is folded.
+ */
+function namesHeld(config: unknown, names = new Set<string>()): Set<string> {
+  const card = record(config);
+  if (!card) return names;
+  const name = !Array.isArray(card) && card['type'] === EXPANDER ? nameOf(card['id']) : '';
+  if (name) names.add(name);
+  for (const value of Object.values(card)) namesHeld(value, names);
+  return names;
 }
 
 /** Whether a condition asks anything of the entity it names: one that asks nothing opens nothing. */
@@ -494,22 +513,36 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
     };
   }
 
-  /** The expanders in the page that have a name: who the window's listener asks. */
+  /** The expanders in the page that have a name, or hold one that has: who the window's listener asks. */
   private static readonly named = new Set<FluvyExpanderCard>();
 
   /**
+   * The names an ask opened the expanders round them for, by the one that opened last: an expander of that name
+   * coming into the page as they open answers it, and one that holds it opens too, until the one that opened for it
+   * has come to rest.
+   */
+  private static readonly waiting = new Map<string, FluvyExpanderCard>();
+
+  /**
    * A card somewhere in the page asks for an expander by its name: every one in the page with that name answers,
-   * as one — a toggle opens them all while any is folded. One listener on the window, where every card's event
-   * ends, there with the first named expander in the page and gone with the last. A name is only ever compared.
+   * as one — a toggle opens them all while any is folded. One inside a folded expander is not in the page: to open
+   * it, the folded ones that hold it open, and it answers as it comes into the page (`heed`). One listener on the
+   * window, where every card's event ends, there with the first expander listed and gone with the last. A name is
+   * only ever compared.
    */
   private static readonly onAsk = (event: Event): void => {
     const ask = askOf((event as CustomEvent<unknown>).detail);
     if (!ask?.id) return;
-    const group = [...FluvyExpanderCard.named].filter(
-      (card) => card.name === ask.id && !card.preview,
-    );
-    const folded = group.some((card) => !card.open_);
+    const listed = [...FluvyExpanderCard.named].filter((card) => !card.preview);
+    const group = listed.filter((card) => card.name === ask.id);
+    const holders = listed.filter((card) => !card.open_ && card.inner.has(ask.id));
+    const folded = holders.length > 0 || group.some((card) => !card.open_);
     for (const card of group) card.answer(ask.action, folded);
+    if (!opening(ask.action, folded)) return;
+    for (const holder of holders) {
+      holder.answer('open');
+      FluvyExpanderCard.waiting.set(ask.id, holder);
+    }
   };
 
   private readonly head = new HeadFit(this);
@@ -522,6 +555,8 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
   private headed: Held[] | undefined;
   /** The name other cards ask for it by (`id`); none: only the cards it holds can ask. */
   private name = '';
+  /** The names of the expanders its cards hold (`namesHeld`): out of the page while it is folded. */
+  private inner: ReadonlySet<string> = new Set();
   /** What it is remembered by, and how its config last said it starts (open or folded, and where that is kept). */
   private key = '';
   private stated = '';
@@ -590,6 +625,7 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
       this.headed = undefined;
     }
     this.name = nameOf(id);
+    this.inner = namesHeld(cards);
     this.list();
     this.key = expanderKey(config, location.pathname, this.name);
     // how it starts: said anew by a config that starts it another way; any other change leaves it as it stands
@@ -727,7 +763,27 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
    * stands, or how its group does. It is the person's doing: remembered, and no longer its condition's to fold.
    */
   private answer(action: unknown, folded = !this.open_): void {
-    this.set(action === 'open' || (action !== 'close' && folded), 'person');
+    this.set(opening(action, folded), 'person');
+  }
+
+  /**
+   * Come into the page as the expanders round it open for an ask by name (`waiting`): it opens if it is the one
+   * asked for, and so does a folded one that holds it, waited on in its turn.
+   */
+  private heed(): void {
+    const waiting = FluvyExpanderCard.waiting;
+    if (this.preview) return;
+    for (const [name, by] of waiting)
+      if (by !== this && (name === this.name || (!this.open_ && this.inner.has(name)))) {
+        this.answer('open');
+        if (name !== this.name) waiting.set(name, this);
+      }
+  }
+
+  /** What it opened for is waited on no longer: its cards are in the page, or it has left it. */
+  private heard(): void {
+    for (const [name, by] of FluvyExpanderCard.waiting)
+      if (by === this) FluvyExpanderCard.waiting.delete(name);
   }
 
   /**
@@ -743,12 +799,16 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
     this.answer(ask.action);
   };
 
-  /** Listed by its name while it is in the page: the window's listener comes with the first, and goes with the last. */
+  /**
+   * Listed by its name, or by those of the expanders it holds, while it is in the page: the window's listener comes
+   * with the first, and goes with the last.
+   */
   private list(): void {
     const named = FluvyExpanderCard.named;
-    if (this.isConnected && this.name) {
+    if (this.isConnected && (this.name || this.inner.size)) {
       if (!named.size) window.addEventListener(ASK_EVENT, FluvyExpanderCard.onAsk);
       named.add(this);
+      this.heed();
     } else if (named.delete(this) && !named.size)
       window.removeEventListener(ASK_EVENT, FluvyExpanderCard.onAsk);
   }
@@ -804,6 +864,7 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
   private settle(): void {
     this.settling = undefined;
     this.rest_ = true;
+    this.heard();
     if (!this.open) this.mounted_ = false;
   }
 
@@ -897,6 +958,7 @@ export class FluvyExpanderCard extends Card<ExpanderCardConfig> {
     this.removeEventListener(VISIBILITY_EVENT, this.onVisibility);
     this.removeEventListener(ASK_EVENT, this.onOwnAsk);
     this.list();
+    this.heard();
     window.clearTimeout(this.closing);
     this.closing = undefined;
     // a fold caught moving comes to rest at once: nothing waits on a card that left the page

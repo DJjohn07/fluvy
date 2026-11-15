@@ -1404,8 +1404,9 @@ cards:
 
 Opening it this way is your doing, as a tap on its head is: it is remembered (`remember`; an expander with an `id` is
 remembered by its view and its `id`, whatever else of it changes), `open_when` no longer folds it afterwards, and
-`close_after` counts from then. An expander inside a folded one is not in the page, and hears nothing until the outer
-one is open.
+`close_after` counts from then. An expander inside a folded one is not in the page until that one opens: asked to open
+(or toggled) by its `id`, the folded expanders round it open, and it opens as it comes into the page; asked to fold
+while it is out of the page, it is left as it was.
 
 Coming from expander-card, the buttons that open one go on working: Fluvy answers its action as it is written
 (`expander-card: {data: {expander-card-id, action}}`), so only the cards themselves are rewritten.

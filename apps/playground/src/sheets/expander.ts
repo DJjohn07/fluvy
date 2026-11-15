@@ -533,6 +533,52 @@ export const sheet: SheetSpec = {
         }),
       ],
     },
+    // asked for by its name inside a folded one: the garage opens, and the charger's expander in it with it
+    {
+      title: 'Opened inside a folded one',
+      cards: [
+        {
+          type: 'custom:fluvy-template-card',
+          name: 'Charger',
+          secondary: 'Open it inside the garage',
+          icon: 'plug',
+          tap_action: ask({ id: 'charger', action: 'toggle' }),
+        },
+        {
+          type: EXPANDER,
+          title: 'Garage',
+          icon: 'garage',
+          entities: ['light.ex_garage', 'switch.ex_charger'],
+          remember: 'off',
+          cards: [
+            {
+              type: 'custom:fluvy-tiles-card',
+              size: 'compact',
+              tiles: [
+                { entity: 'light.ex_garage' },
+                { entity: 'binary_sensor.ex_garage_door', name: 'Door' },
+              ],
+            },
+            {
+              type: EXPANDER,
+              id: 'charger',
+              title: 'Charger',
+              icon: 'plug',
+              entities: ['switch.ex_charger'],
+              remember: 'off',
+              cards: [
+                {
+                  type: 'custom:fluvy-tiles-card',
+                  size: 'compact',
+                  columns: 1,
+                  entities: ['switch.ex_charger'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     // Home Assistant's cards that do not pad by its 16 (#186): a heading's words and a picture in the column, a tile
     // in it on its own surface, as a tile of Fluvy's
     {

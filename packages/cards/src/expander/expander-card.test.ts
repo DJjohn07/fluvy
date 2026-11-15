@@ -1133,6 +1133,45 @@ describe('opened by another card', () => {
     remove.mockRestore();
   });
 
+  it('opens the folded expander that holds one asked for, which opens as it comes into the page', async () => {
+    const SHED = { ...NAMED, id: 'shed', title: 'Shed' };
+    const outer = await drawn({
+      title: 'Outside',
+      remember: 'off',
+      cards: [{ type: 'vertical-stack', cards: [{ type: TYPE, ...SHED }] }],
+    });
+    // a fold, or a name it holds none of, opens nothing
+    fire(document.body, { fluvy_expander: { id: 'shed', action: 'close' } });
+    fire(document.body, { fluvy_expander: { id: 'garage', action: 'open' } });
+    await outer.card.updateComplete;
+    expect(isOpen(outer.root)).toBe(false);
+    fire(document.body, { fluvy_expander: { id: 'shed', action: 'toggle' } });
+    await outer.card.updateComplete;
+    expect(isOpen(outer.root)).toBe(true);
+    // Home Assistant builds the one it holds, which comes into the page open, as it was asked
+    const inner = await drawn(SHED);
+    expect(isOpen(inner.root)).toBe(true);
+    // in the page, a toggle folds it alone
+    fire(document.body, { fluvy_expander: { id: 'shed', action: 'toggle' } });
+    await Promise.all([outer.card.updateComplete, inner.card.updateComplete]);
+    expect([isOpen(outer.root), isOpen(inner.root)]).toEqual([true, false]);
+    // once the fold that let it in has come to rest, one of that name comes as its config says
+    await new Promise((resolve) => setTimeout(resolve, MOTION * 2));
+    expect(isOpen((await drawn(SHED)).root)).toBe(false);
+  });
+
+  it('opens every folded expander on the way to it, each as it comes into the page', async () => {
+    const shed = { type: TYPE, ...NAMED, id: 'shed', title: 'Shed' };
+    const garden = { type: TYPE, title: 'Garden', remember: 'off', cards: [shed] };
+    const outer = await drawn({ title: 'Outside', remember: 'off', cards: [garden] });
+    fire(document.body, { fluvy_expander: { id: 'shed', action: 'open' } });
+    await outer.card.updateComplete;
+    expect(isOpen(outer.root)).toBe(true);
+    const between = await drawn(garden);
+    const inner = await drawn(shed);
+    expect([isOpen(between.root), isOpen(inner.root)]).toEqual([true, true]);
+  });
+
   it('takes a name that is a word or a number, as it is written, and refuses anything else in words', async () => {
     const numbered = await drawn({ ...NAMED, id: 7 });
     fire(document.body, { fluvy_expander: { id: '7', action: 'open' } });
