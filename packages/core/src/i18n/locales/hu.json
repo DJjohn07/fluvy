@@ -3006,6 +3006,10 @@
     "dashboard.thermostat_state": "Termosztátok állapota",
     "dashboard.brief": "Rövid",
     "dashboard.detailed": "Részletes",
+    "dashboard.names": "Nevek",
+    "dashboard.names_auto": "Automatikus",
+    "dashboard.names_entity": "Entitás neve",
+    "dashboard.names_full": "Teljes név",
     "dashboard.name_lines": "Hosszú nevek",
     "dashboard.one_line": "Egy sor",
     "dashboard.two_lines": "Két sor"

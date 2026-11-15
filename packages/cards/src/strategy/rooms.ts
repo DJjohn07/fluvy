@@ -5,6 +5,7 @@ import { arranged, listed, part } from './edit.js';
 import type { HomeRegistry } from './home-registry.js';
 import {
   applianceTiles,
+  cardNames,
   coverTiles,
   entityRows,
   flowed,
@@ -13,6 +14,7 @@ import {
   heading,
   lightGroups,
   lightTiles,
+  namedEntries,
   readoutsCards,
   scenesCap,
   scenesCard,
@@ -202,9 +204,12 @@ export function roomSections(
     const id = found[kind];
     return id && !climateAttribute(id, kind) && !home.ofAppliance(id) ? [id] : [];
   });
-  const gate = (id: string): Card => full('cover', { entity: id, ...home.named(id) });
-  const fan = (id: string): Card => full('fan', { entity: id, ...home.named(id) });
-  const player = (id: string): Card => full('media', { entity: id, ...home.named(id) });
+  const gateName = cardNames(home, parts.gates);
+  const fanName = cardNames(home, parts.fans);
+  const playerName = cardNames(home, parts.players);
+  const gate = (id: string): Card => full('cover', { entity: id, ...gateName(id) });
+  const fan = (id: string): Card => full('fan', { entity: id, ...fanName(id) });
+  const player = (id: string): Card => full('media', { entity: id, ...playerName(id) });
   const camera = (id: string): Card => full('camera', { entity: id });
   const rows = (title: string, ids: readonly string[], extra: Record<string, unknown> = {}): Card =>
     full('entities', { title, rows: entityRows(home, ids), ...extra });
@@ -390,7 +395,7 @@ export function roomSections(
           [
             full('openings', {
               title: t('strategy.sensors'),
-              entities: [...openings],
+              entities: namedEntries(home, openings),
               ...foldAt(ctx, 'openings', openings),
             }),
           ],

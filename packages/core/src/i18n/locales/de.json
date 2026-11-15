@@ -1588,6 +1588,10 @@
     "dashboard.thermostat_state": "Zustand der Thermostate",
     "dashboard.brief": "Kurz",
     "dashboard.detailed": "Ausführlich",
+    "dashboard.names": "Namen",
+    "dashboard.names_auto": "Automatisch",
+    "dashboard.names_entity": "Entitätsname",
+    "dashboard.names_full": "Vollständiger Name",
     "dashboard.name_lines": "Lange Namen",
     "dashboard.one_line": "Eine Zeile",
     "dashboard.two_lines": "Zwei Zeilen"

@@ -2894,6 +2894,10 @@
     "dashboard.thermostat_state": "サーモスタットの状態",
     "dashboard.brief": "簡易",
     "dashboard.detailed": "詳細",
+    "dashboard.names": "名前",
+    "dashboard.names_auto": "自動",
+    "dashboard.names_entity": "エンティティ名",
+    "dashboard.names_full": "完全な名前",
     "dashboard.name_lines": "長い名前",
     "dashboard.one_line": "1行",
     "dashboard.two_lines": "2行"

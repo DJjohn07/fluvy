@@ -128,6 +128,15 @@ const SCENES = choice('scenes_style', 'dashboard.scenes_style', [
   { value: 'chips', label: 'dashboard.scene_chips' },
 ]);
 const FLOW = choice('flow_style', 'dashboard.flow', words(['stream', 'legs', 'rail']));
+/**
+ * How the dashboard names what it names by entity (#200): as it always has, each by its entity's own name, or by its
+ * friendly name everywhere.
+ */
+const NAMES = choice('names', 'dashboard.names', [
+  { value: 'auto', label: 'dashboard.names_auto' },
+  { value: 'entity', label: 'dashboard.names_entity' },
+  { value: 'full', label: 'dashboard.names_full' },
+]);
 const ROOM = choice('room_variant', 'dashboard.rooms', words(['photo', 'tile', 'row']));
 /** What is a room's photo's alone acts while the rooms may be photos (the default where an area has a picture). */
 const photos = (strategy: Readonly<Record<string, unknown>>): boolean =>
@@ -205,6 +214,7 @@ export const TEMPLATES: readonly Template[] = [
       FLOW,
       ...ROOMS,
       NAME_LINES,
+      NAMES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -230,6 +240,7 @@ export const TEMPLATES: readonly Template[] = [
       SWITCHES,
       SCENES,
       NAME_LINES,
+      NAMES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -262,6 +273,7 @@ export const TEMPLATES: readonly Template[] = [
       HIDE,
       choice('camera_refresh', 'dashboard.refresh', counts([5, 10, 30], 'dashboard.seconds')),
       NAME_LINES,
+      NAMES,
       GREETING_TABS,
       BACKGROUND,
       CAPS,
@@ -289,6 +301,7 @@ export const TEMPLATES: readonly Template[] = [
       THERMOSTAT_STATE,
       choice('scenes_max', 'dashboard.scenes', counts([4, 6, 8], 'dashboard.count')),
       NAME_LINES,
+      NAMES,
       BACKGROUND,
       CAPS,
       EXCLUDE,

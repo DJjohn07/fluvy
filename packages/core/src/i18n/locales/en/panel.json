@@ -476,6 +476,10 @@
     "dashboard.thermostat_state": "Thermostat state",
     "dashboard.brief": "Brief",
     "dashboard.detailed": "Detailed",
+    "dashboard.names": "Names",
+    "dashboard.names_auto": "Automatic",
+    "dashboard.names_entity": "Entity name",
+    "dashboard.names_full": "Full name",
     "dashboard.name_lines": "Long names",
     "dashboard.one_line": "One line",
     "dashboard.two_lines": "Two lines"

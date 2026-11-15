@@ -578,6 +578,14 @@ describe('the dashboard templates', () => {
       expect(strategyOptions({ thermostat_state: true }, templateById(id))).toEqual({});
     }
     expect(strategyOptions({ thermostat_state: 'detailed' }, templateById('energy'))).toEqual({});
+    // how it names what it names by entity (#200): the dashboards that name a tile or a row so, a word they know —
+    // the energy's are named by their devices and their places, whatever is asked
+    for (const id of ['home', 'rooms', 'security', 'wall'] as const) {
+      expect(strategyOptions({ names: 'entity' }, templateById(id))).toEqual({ names: 'entity' });
+      expect(strategyOptions({ names: 'full' }, templateById(id))).toEqual({ names: 'full' });
+      expect(strategyOptions({ names: 'device' }, templateById(id))).toEqual({});
+    }
+    expect(strategyOptions({ names: 'entity' }, templateById('energy'))).toEqual({});
     expect(strategyOptions('nonsense', HOME_TEMPLATE)).toEqual({});
     // the caps: every list whole, or a list's own number or `none`, the lists every template knows
     for (const template of TEMPLATES) {

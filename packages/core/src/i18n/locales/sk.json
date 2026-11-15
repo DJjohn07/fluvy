@@ -2995,6 +2995,10 @@
     "dashboard.thermostat_state": "Stav termostatov",
     "dashboard.brief": "Stručne",
     "dashboard.detailed": "Podrobne",
+    "dashboard.names": "Názvy",
+    "dashboard.names_auto": "Automaticky",
+    "dashboard.names_entity": "Názov entity",
+    "dashboard.names_full": "Celý názov",
     "dashboard.name_lines": "Dlhé názvy",
     "dashboard.one_line": "Jeden riadok",
     "dashboard.two_lines": "Dva riadky"

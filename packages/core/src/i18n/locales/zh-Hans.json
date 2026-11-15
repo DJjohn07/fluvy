@@ -2938,6 +2938,10 @@
     "dashboard.thermostat_state": "恒温器状态",
     "dashboard.brief": "简要",
     "dashboard.detailed": "详细",
+    "dashboard.names": "名称",
+    "dashboard.names_auto": "自动",
+    "dashboard.names_entity": "实体名称",
+    "dashboard.names_full": "完整名称",
     "dashboard.name_lines": "长名称",
     "dashboard.one_line": "一行",
     "dashboard.two_lines": "两行"

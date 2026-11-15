@@ -166,9 +166,20 @@ describe('the form Home Assistant’s pencil opens on an automatic dashboard (#1
       'thermostat_state',
       'scenes_max',
       'name_lines',
+      'names',
     ]);
     expect(wall.fields().data['scenes_max']).toBe('4');
     await wall.change('scenes_max', '8');
+    expect(wall.changes.at(-1)).toEqual({ type: 'custom:fluvy-wall', scenes_max: 8 });
+    // how it names what it names (#200): as the dashboards always did until asked, and no key again once back there
+    expect(wall.fields().data['names']).toBe('auto');
+    await wall.change('names', 'entity');
+    expect(wall.changes.at(-1)).toEqual({
+      type: 'custom:fluvy-wall',
+      scenes_max: 8,
+      names: 'entity',
+    });
+    await wall.change('names', 'auto');
     expect(wall.changes.at(-1)).toEqual({ type: 'custom:fluvy-wall', scenes_max: 8 });
     // the rooms' dashboard: a photo's own options while its rooms may be photos, the next ones once they are tiles
     const rooms = await editorOf('rooms', { type: 'custom:fluvy-rooms' });

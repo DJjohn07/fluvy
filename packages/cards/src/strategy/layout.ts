@@ -58,15 +58,44 @@ export const when = <V, T = Card>(
 ): T[] => (value ? build(value) : []);
 
 /**
- * What each of `ids` shown together is called (its display name) where that improves on its card's own (`named`), two
- * alike told apart (`apart`, #170).
+ * What each of `ids` shown together is called (its display name, or as the dashboard asks: `entityLabel`) where that
+ * improves on its card's own (`named`), two alike told apart (`apart`, #170).
  */
 export const namesOf = (
   home: HomeRegistry,
   ids: readonly string[],
 ): ((id: string) => Record<string, string>) => {
-  const name = home.apart(ids, (id) => home.displayName(id));
+  const name = home.apart(ids, (id) => home.entityLabel(id));
   return (id) => home.named(id, name(id));
+};
+
+/**
+ * What each of the cards built together, a card an entity (a lock, a fan, a gate), is called: each by itself, as they
+ * always were (`named`) — and where the dashboard asks for names (`names`, #200), two alike told apart as a card's
+ * rows are (`namesOf`).
+ */
+export const cardNames = (
+  home: HomeRegistry,
+  ids: readonly string[],
+): ((id: string) => Record<string, string>) =>
+  home.names ? namesOf(home, ids) : (id) => home.named(id);
+
+/** An entity as a list takes it: its id, or with the name the dashboard gives it. */
+const entry = (id: string, said: Record<string, string>): string | Record<string, string> =>
+  said['name'] ? { entity: id, ...said } : id;
+
+/**
+ * The entities of a card that names them itself, as Home Assistant does (a Sensors card's), as the dashboard asks
+ * (`names`, #200): the ids as they are — or, asked for the entities' own names, each with its name where that is not
+ * what its card would say, two alike told apart.
+ */
+export const namedEntries = (
+  home: HomeRegistry,
+  ids: readonly string[],
+): (string | Record<string, string>)[] => {
+  if (home.names !== 'entity') return [...ids];
+  const named = namesOf(home, ids);
+  return ids.map((id) => entry(id, named(id)));
 };
 
 /** Rows of entities, each by its display name, two alike told apart. */
@@ -326,7 +355,8 @@ export const houseScenes = (
  * it, two alike told apart (#170). As the dashboard asks (#189), they are chips (`scenes_style`), and on a view of the
  * whole house (`house`) that groups by room, or draws chips, each room's stand under its name in the house's order of
  * its rooms, what is in none under "Whole home": the card reads their names short there. On a room's own page
- * (`room`: its name) the chips say theirs without it.
+ * (`room`: its name) the chips say theirs without it. Names the dashboard asks for (`names`, #200) are its own to
+ * say: the scenes' own, short under a room's name here, or their friendly ones, whole — the card then shortens none.
  */
 export const scenesCard = (
   ctx: Pick<StrategyContext, 'home' | 't' | 'style'>,
@@ -335,23 +365,35 @@ export const scenesCard = (
   { house = false, room }: { readonly house?: boolean; readonly room?: string } = {},
 ): Card => {
   const { home, style } = ctx;
-  /** A group's scenes as its card takes them: an id, or with the name that tells it apart, or says it short. */
-  const entries = (group: readonly string[]): (string | Record<string, string>)[] => {
-    const name = home.apart(group, (id) => home.name(id));
-    const names = group.map(name);
-    const short = style.sceneChips && room ? shortNames(room, names) : names;
-    return group.map((id, at) => {
-      const said = home.named(id, short[at]);
-      return said['name'] ? { entity: id, ...said } : id;
-    });
+  /**
+   * A group's scenes as its card takes them: an id, or with the name that tells it apart, or says it short (`under`:
+   * the room's name it is said without).
+   */
+  const entries = (
+    group: readonly string[],
+    under?: string,
+  ): (string | Record<string, string>)[] => {
+    const names = group.map(
+      home.apart(group, (id) => home.entityLabel(id, (one) => home.name(one))),
+    );
+    const short = under && home.names !== 'full' ? shortNames(under, names) : names;
+    return group.map((id, at) => entry(id, home.named(id, short[at])));
   };
+  const rooms = house && scenesByRoom(style);
   return full('scenes', {
     title,
     ...(style.sceneChips ? { variant: 'chips' } : {}),
-    scenes:
-      house && scenesByRoom(style)
-        ? sceneRooms(ctx, ids).flatMap(([name, group]) => [{ section: name }, ...entries(group)])
-        : entries(ids),
+    ...(rooms && home.names ? { short_names: false } : {}),
+    scenes: rooms
+      ? sceneRooms(ctx, ids).flatMap(([name, group]) => [
+          { section: name },
+          // a room's own name, never the word over the scenes of no room
+          ...entries(
+            group,
+            home.names && home.areaName(home.areaOf(group[0] ?? '')) === name ? name : undefined,
+          ),
+        ])
+      : entries(ids, style.sceneChips ? room : undefined),
   });
 };
 
@@ -395,7 +437,8 @@ export const lightRooms = (
 /**
  * Lights shown together as rows of tiles (`tileRows`); where the dashboard groups by room (#189), each room's under
  * its quiet label as one block, so a room is never shared out over two columns with half of it under no label, their
- * names short under it (`shortNames`: two alike in a room told apart first).
+ * names short under it (`shortNames`: two alike in a room told apart first) — but the friendly names a dashboard asks
+ * for (`names: full`, #200), whole there too.
  */
 export function lightRows(
   ctx: Pick<StrategyContext, 'home' | 't' | 'style'>,
@@ -404,8 +447,8 @@ export function lightRows(
   const { home, style } = ctx;
   if (!style.byRoom) return tileRows(lightTiles(home, ids, style));
   return lightRooms(ctx, ids).map(([name, group]) => {
-    const said = home.apart(group, (id) => home.displayName(id));
-    const short = shortNames(name, group.map(said));
+    const said = group.map(home.apart(group, (id) => home.entityLabel(id)));
+    const short = home.names === 'full' ? said : shortNames(name, said);
     const rows = tileRows(group.map((id, at) => sizedTile(id, home.named(id, short[at]), style)));
     return [label(name), ...rows.flat()];
   });

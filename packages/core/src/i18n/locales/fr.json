@@ -1588,6 +1588,10 @@
     "dashboard.thermostat_state": "État des thermostats",
     "dashboard.brief": "Bref",
     "dashboard.detailed": "Détaillé",
+    "dashboard.names": "Noms",
+    "dashboard.names_auto": "Automatique",
+    "dashboard.names_entity": "Nom de l’entité",
+    "dashboard.names_full": "Nom complet",
     "dashboard.name_lines": "Noms longs",
     "dashboard.one_line": "Une ligne",
     "dashboard.two_lines": "Deux lignes"

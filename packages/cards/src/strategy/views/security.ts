@@ -1,7 +1,7 @@
 import { byArea, capped, foldAt, moreCard } from '../caps.js';
 import { COLUMNS } from '../context.js';
 import { listed, part } from '../edit.js';
-import { balanced, flowed, full, runsOf } from '../layout.js';
+import { balanced, flowed, full, namedEntries, runsOf } from '../layout.js';
 import type { Card, Section, StrategyContext, ViewSpec } from '../types.js';
 import { securityCards } from './home.js';
 
@@ -60,7 +60,13 @@ function openingsView(ctx: StrategyContext): Section[] {
         ctx,
         id,
         own.length
-          ? [full('openings', { title, entities: [...own], ...foldAt(ctx, 'openings', own) })]
+          ? [
+              full('openings', {
+                title,
+                entities: namedEntries(ctx.home, own),
+                ...foldAt(ctx, 'openings', own),
+              }),
+            ]
           : [],
       );
     }),

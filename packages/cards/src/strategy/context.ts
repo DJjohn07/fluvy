@@ -92,7 +92,12 @@ export async function buildContext(
   hass: HomeAssistant,
   base = `/${(typeof location !== 'undefined' ? location.pathname.split('/')[1] : '') || 'fluvy-home'}`,
 ): Promise<StrategyContext> {
-  const home = new HomeRegistry(hass, config.rooms, config.exclude);
+  const home = new HomeRegistry(
+    hass,
+    config.rooms,
+    config.exclude,
+    config.names === 'entity' || config.names === 'full' ? config.names : undefined,
+  );
   const ctx: StrategyContext = {
     home,
     t: config.language ? wordsIn(config.language) : (key) => home.t(key),

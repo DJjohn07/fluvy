@@ -2673,6 +2673,10 @@
     "dashboard.thermostat_state": "Stan termostatów",
     "dashboard.brief": "Krótko",
     "dashboard.detailed": "Szczegółowo",
+    "dashboard.names": "Nazwy",
+    "dashboard.names_auto": "Automatycznie",
+    "dashboard.names_entity": "Nazwa encji",
+    "dashboard.names_full": "Pełna nazwa",
     "dashboard.name_lines": "Długie nazwy",
     "dashboard.one_line": "Jeden wiersz",
     "dashboard.two_lines": "Dwa wiersze"

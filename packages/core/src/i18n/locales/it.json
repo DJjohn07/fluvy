@@ -1588,6 +1588,10 @@
     "dashboard.thermostat_state": "Stato dei termostati",
     "dashboard.brief": "Breve",
     "dashboard.detailed": "Dettagliato",
+    "dashboard.names": "Nomi",
+    "dashboard.names_auto": "Automatico",
+    "dashboard.names_entity": "Nome dell’entità",
+    "dashboard.names_full": "Nome completo",
     "dashboard.name_lines": "Nomi lunghi",
     "dashboard.one_line": "Una riga",
     "dashboard.two_lines": "Due righe"

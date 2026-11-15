@@ -106,6 +106,16 @@ export interface FluvyStrategyConfig {
    * room on Home and on the Lights view, twelve before their "N more" row.
    */
   scenes_style?: 'tiles' | 'chips';
+  /**
+   * How the dashboard names what it names by entity (1.22, #200) — its tiles, its rows, its scenes, the cards it
+   * builds an entity each, and its Sensors cards: each by its entity's own name (`entity`: "Motion" where Home
+   * Assistant says "Dining table sensor Motion"; its device's where it has none, two alike on one card told apart by
+   * their devices), or by its friendly name everywhere, whole under a room's label too (`full`). Unsaid (`auto`), as
+   * the dashboards always named them: an entity's own name, its device's where that only says a kind of reading, a
+   * Sensors card's as Home Assistant says them. What is named by its device or its place (the batteries, the phones,
+   * the readings, the energy's) keeps its name.
+   */
+  names?: 'auto' | 'entity' | 'full';
   /** How the energy flow draws its lanes (default: stream; 1.3's `ribbons` reads as it). */
   flow_style?: FlowStyle;
   /** The rooms' cards (default: a photo where the area has one, else a tile). */

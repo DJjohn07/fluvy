@@ -1588,6 +1588,10 @@
     "dashboard.thermostat_state": "Status van thermostaten",
     "dashboard.brief": "Kort",
     "dashboard.detailed": "Uitgebreid",
+    "dashboard.names": "Namen",
+    "dashboard.names_auto": "Automatisch",
+    "dashboard.names_entity": "Entiteitsnaam",
+    "dashboard.names_full": "Volledige naam",
     "dashboard.name_lines": "Lange namen",
     "dashboard.one_line": "Eén regel",
     "dashboard.two_lines": "Twee regels"

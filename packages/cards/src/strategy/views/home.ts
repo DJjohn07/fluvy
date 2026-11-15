@@ -1,6 +1,7 @@
 import {
   applianceTiles,
   balanced,
+  cardNames,
   coverTiles,
   deviceRows,
   energyFlow,
@@ -14,6 +15,7 @@ import {
   lightGroups,
   lightRooms,
   lightRows,
+  namedEntries,
   productionCards,
   readoutsCards,
   runsOf,
@@ -299,7 +301,8 @@ export function climateView(ctx: StrategyContext): Section[] {
   const placed = (ids: readonly string[]) => home.apart(ids, (id) => home.placeName(id));
   const humidityName = placed(home.humidities);
   const temperatureName = placed(home.temperatures);
-  const fan = (id: string): Card => full('fan', { entity: id, ...home.named(id) });
+  const fanName = cardNames(home, home.fans);
+  const fan = (id: string): Card => full('fan', { entity: id, ...fanName(id) });
   const humidity = (id: string): Card => {
     const temperature = home.temperatureBeside(id);
     return full('humidity', {
@@ -402,9 +405,12 @@ export function securityCards(
   camerasCard: (ids: readonly string[]) => Card = (ids) => full('cameras', { cameras: [...ids] }),
 ): Loose[] {
   const { home, t } = ctx;
-  const alarm = (id: string): Card => full('alarm', { entity: id, ...home.named(id) });
-  const lock = (id: string): Card => full('lock', { entity: id, ...home.named(id) });
-  const gate = (id: string): Card => full('cover', { entity: id, ...home.named(id) });
+  const alarmName = cardNames(home, home.alarms);
+  const lockName = cardNames(home, home.locks);
+  const gateName = cardNames(home, home.gateways);
+  const alarm = (id: string): Card => full('alarm', { entity: id, ...alarmName(id) });
+  const lock = (id: string): Card => full('lock', { entity: id, ...lockName(id) });
+  const gate = (id: string): Card => full('cover', { entity: id, ...gateName(id) });
   const alarms = capped(
     ctx,
     { key: 'alarms', title: 'strategy.alarms', icon: 'fluvy:shield' },
@@ -440,7 +446,7 @@ export function securityCards(
       when(openings.length, () => [
         full('openings', {
           title: t('strategy.sensors'),
-          entities: [...openings],
+          entities: namedEntries(home, openings),
           ...foldAt(ctx, 'openings', openings),
         }),
       ]),
@@ -459,7 +465,8 @@ export function mediaView(ctx: StrategyContext): Section[] {
   const playing =
     home.players.find((id) => home.state(id) === 'playing') ??
     home.players.find((id) => home.state(id) === 'paused');
-  const player = (id: string): Card => full('media', { entity: id, ...home.named(id) });
+  const named = cardNames(home, home.players);
+  const player = (id: string): Card => full('media', { entity: id, ...named(id) });
   // what plays first, wherever it is in the list
   const players = capped(
     ctx,
@@ -474,7 +481,7 @@ export function mediaView(ctx: StrategyContext): Section[] {
       'media',
       looseAfter(
         players.shown.map((id) =>
-          id === playing ? full('now-playing', { entity: id, ...home.named(id) }) : player(id),
+          id === playing ? full('now-playing', { entity: id, ...named(id) }) : player(id),
         ),
         players,
       ),
@@ -488,7 +495,8 @@ export function agendaView(ctx: StrategyContext): Section[] {
   const calendar = (ids: readonly string[]): Card =>
     full('calendar', { entities: [...ids], variant: 'month-day' });
   const list = (id: string): Card => full('todo', { entity: id });
-  const timer = (id: string): Card => full('timer', { entity: id, ...home.named(id) });
+  const timerName = cardNames(home, home.timers);
+  const timer = (id: string): Card => full('timer', { entity: id, ...timerName(id) });
   const actionsCard = (title: string, ids: readonly string[]): Card =>
     full('actions', { title, entities: [...ids] });
   const calendars = capped(
@@ -594,7 +602,7 @@ export function sensorsView(ctx: StrategyContext): Section[] {
       when(!secured(home) && open.length, () => [
         full('openings', {
           title: t('strategy.sensors'),
-          entities: [...open],
+          entities: namedEntries(home, open),
           ...foldAt(ctx, 'openings', open),
         }),
       ]),

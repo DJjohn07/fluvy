@@ -28,8 +28,8 @@ function wallView(ctx: StrategyContext): Section[] {
     0,
     style.scenes ?? 6,
   );
-  // the scenes' chips, each by its display name, two alike told apart (#170)
-  const chipName = home.apart(scenes, (id) => home.displayName(id));
+  // the scenes' chips, each by its display name (or as the dashboard asks), two alike told apart (#170)
+  const chipName = home.apart(scenes, (id) => home.entityLabel(id));
   const people = listed(ctx, 'people', home.people);
   const rows = (title: string, ids: readonly string[], extra: Record<string, unknown> = {}): Card =>
     full('entities', { title, rows: entityRows(home, ids), ...extra });

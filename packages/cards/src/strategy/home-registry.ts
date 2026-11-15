@@ -15,6 +15,7 @@ import {
   areasInOrder,
   deviceNameOf,
   floorsInOrder,
+  formatName,
   inList,
   isLoad,
   localize,
@@ -257,12 +258,14 @@ export class HomeRegistry {
 
   /**
    * `rooms`: each room's own `include` and `exclude` by its area (the dashboard's `rooms`, #95). `exclude`: what no
-   * view shows nor counts (the dashboard's `exclude`, #141), read as a room's `exclude` is (`inList`).
+   * view shows nor counts (the dashboard's `exclude`, #141), read as a room's `exclude` is (`inList`). `names`: how the
+   * dashboard asks for what it names by entity (its `names`, #200: `entityLabel`), where it asks.
    */
   constructor(
     private readonly house: Registry,
     private readonly rooms: Readonly<Record<string, RoomTuning>> = {},
     exclude?: readonly string[],
+    readonly names?: 'entity' | 'full',
   ) {
     this.left = inList(house, exclude);
     this.hass = Object.keys(house.states).some(this.left)
@@ -395,12 +398,32 @@ export class HomeRegistry {
   private called(id: string, read: () => string): string {
     return this.optional('names', read, this.name(id));
   }
-  /** What a tile or a row calls the entity: its own name, or its device's when the own name only says the kind of reading. */
+  /**
+   * What the dashboards call an entity by themselves: its own name, or its device's when the own name only says the
+   * kind of reading. A tile or a row says it while the dashboard asks for no other (`entityLabel`).
+   */
   displayName(id: string): string {
     return this.called(id, () => {
       const own = this.ownName(id);
       return GENERIC.test(plain(own.trim())) ? (this.deviceName(id) ?? own) : own;
     });
+  }
+  /**
+   * What the dashboard calls an entity it names by itself (a tile, a row, a scene), as it is asked (`names`, #200): its
+   * own name as Home Assistant reads it, whatever it says, its device's where it has none (`entity`); its friendly
+   * name (`full`); unasked, what the dashboards always called it (`usual`: its display name, a scene's friendly one).
+   */
+  entityLabel(id: string, usual: (id: string) => string = (one) => this.displayName(one)): string {
+    if (this.names === 'full') return this.name(id);
+    if (this.names !== 'entity') return usual(id);
+    const state = this.hass.states[id];
+    // read by the id it is listed under, as everything here is (a state need not repeat it)
+    return this.called(
+      id,
+      () =>
+        (state && formatName({ ...state, entity_id: id }, { type: 'entity' }, this.hass)) ||
+        this.name(id),
+    );
   }
   /** What a list row calls a device's reading (a battery, a phone): the device, else the display name. */
   deviceLabel(id: string): string {
@@ -463,7 +486,7 @@ export class HomeRegistry {
     return (id) => said.get(id) ?? label(id);
   }
   /** `name` for a card only when it improves on what the card would show by itself. */
-  named(id: string, name = this.displayName(id)): Record<string, string> {
+  named(id: string, name = this.entityLabel(id)): Record<string, string> {
     return name && name !== this.name(id) ? { name } : {};
   }
 
