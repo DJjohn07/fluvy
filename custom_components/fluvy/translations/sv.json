@@ -1,0 +1,33 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fluvy",
+        "description": "Installerar Fluvys tema, kort och inställningspanel. Det finns inget att konfigurera."
+      }
+    },
+    "abort": {
+      "already_configured": "Fluvy är redan konfigurerat.",
+      "single_instance_allowed": "Fluvy är redan konfigurerat."
+    }
+  },
+  "exceptions": {
+    "frontend_missing": {
+      "message": "Fluvys frontend-filer saknas i custom_components/fluvy/frontend. Installera om Fluvy via HACS (eller kör `pnpm build` i en utvecklingskopia) och starta sedan om Home Assistant."
+    }
+  },
+  "issues": {
+    "legacy_yaml": {
+      "title": "Ta bort Fluvys gamla rader från configuration.yaml",
+      "description": "Fluvy är nu en integration och registrerar sin panel och sin modul själv. Ta bort de här raderna från configuration.yaml (behåll `frontend: themes: !include_dir_merge_named themes`), kontrollera konfigurationen och starta om Home Assistant när det passar:\n\n{lines}"
+    },
+    "theme_not_loaded": {
+      "title": "Fluvys tema är inte inläst",
+      "description": "Fluvy skrev sitt tema till `{path}`, men Home Assistant listar inget tema som heter Fluvy. Lägg till detta i configuration.yaml och kör sedan åtgärden `frontend.reload_themes` (Utvecklarverktyg → Åtgärder); ingen omstart behövs:\n\n{yaml}\n\nOm raderna redan finns där, leta i Inställningar → System → Loggar efter ett tema som inte kunde läsas in."
+    },
+    "resources_yaml_mode": {
+      "title": "Lägg till Fluvys kontrollpanelsresurs",
+      "description": "Dina kontrollpanelsresurser hanteras i YAML, så Fluvy kan inte registrera sin egen. Lägg till detta under `lovelace: resources:` i configuration.yaml och ladda om webbläsaren:\n\n```yaml\n  - url: {url}\n    type: module\n```\n\nFluvy läses redan in på varje sida; med den här resursen kan kontrollpanelerna läsa in det innan de ritas."
+    }
+  }
+}

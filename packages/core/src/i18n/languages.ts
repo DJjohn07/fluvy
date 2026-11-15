@@ -24,6 +24,7 @@ export const LANGUAGE_CODES = [
   'ru',
   'uk',
   'bg',
+  'sv',
 ] as const;
 
 /** A code as Home Assistant reports `hass.language` for it (`pt-BR`, not `pt_BR`). */
@@ -213,6 +214,14 @@ export const LANGUAGES: Readonly<Record<LanguageCode, LanguageInfo>> = {
     // "добро утро" until 11:00, "добър ден" through the day, "добър вечер" from 18:00 until the morning: "лека нощ"
     // is said on parting before sleep, so the night says the evening's greeting
     dayParts: { morning: 5, afternoon: 11, night: 18 },
+  },
+  sv: {
+    code: 'sv',
+    name: 'Svenska',
+    english: 'Swedish',
+    // "god morgon" until 10:00, "god dag" through the day (a late morning is no "eftermiddag"), "god kväll" from 18:00
+    // until the morning: "god natt" is said on parting before sleep, so the night says the evening's greeting
+    dayParts: { morning: 5, afternoon: 10, night: 18 },
   },
 };
 

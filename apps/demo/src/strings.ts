@@ -1379,6 +1379,41 @@ const bg: Table = {
   'themes.mode': 'Режим',
 };
 
+const sv: Table = {
+  'brand.sub': 'Livedemo',
+  'family.home': 'Hem',
+  'family.devices': 'Enheter',
+  'family.climate': 'Klimat',
+  'family.energy': 'Energi',
+  'family.charts': 'Diagram',
+  'family.media': 'Media',
+  'family.time': 'Tid',
+  'family.helpers': 'Hjälpare',
+  'family.vehicles': 'Bilar',
+  'page.panel': 'Inställningar',
+  'page.activity': 'Aktivitet',
+  'page.history': 'Historik',
+  'mode.light': 'Ljust',
+  'mode.dark': 'Mörkt',
+  'device.title': 'Enhet',
+  'device.phone': 'Telefon',
+  'device.phone-l': 'Stor telefon',
+  'device.tablet': 'Surfplatta',
+  'device.desktop': 'Dator',
+  'palette.title': 'Palett',
+  'palette.custom': 'Din egen accentfärg, i inställningspanelen',
+  'language.title': 'Språk',
+  'links.install': 'Installera',
+  'links.github': 'GitHub',
+  'banner.text':
+    'Ett simulerat hem: Martas lägenhet en torsdagskväll. Varje kort, sida och inställning här är den riktiga; Home Assistant ersätts av en liten simulering som ändrar tillstånd 140 ms efter ett åtgärdsanrop. Inget är anslutet.',
+  'banner.ok': 'Uppfattat',
+  'notice.more_info': 'Öppnar detaljerna för {entity} i Home Assistant',
+  'notice.navigate': 'Öppnar {path} i Home Assistant',
+  'notice.auto':
+    'Den automatiska kontrollpanelen byggs i Home Assistant; fliken Kontrollpaneler visar en förhandsvisning av den',
+};
+
 const TABLES: Readonly<Record<LanguageCode, Table>> = {
   en,
   es,
@@ -1399,6 +1434,7 @@ const TABLES: Readonly<Record<LanguageCode, Table>> = {
   ru,
   uk,
   bg,
+  sv,
 };
 
 /** A word of the demo in `language`. */

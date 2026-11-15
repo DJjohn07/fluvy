@@ -157,8 +157,8 @@ describe('stateText', () => {
     // a language Fluvy speaks says it its own way; one it does not falls back to English
     const de = make('de', 'language', 'unavailable');
     expect(stateText(de, resolveEntity(de, 'sensor.x'))).toBe('Nicht verfügbar');
-    const sv = make('sv', 'language', 'unavailable');
-    expect(stateText(sv, resolveEntity(sv, 'sensor.x'))).toBe('Unavailable');
+    const fi = make('fi', 'language', 'unavailable');
+    expect(stateText(fi, resolveEntity(fi, 'sensor.x'))).toBe('Unavailable');
   });
   it('falls back to the raw state when Home Assistant returns nothing usable', () => {
     const h = {

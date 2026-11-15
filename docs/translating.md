@@ -29,6 +29,7 @@ language, so the card starts from Fluvy's.
 | `ru` | Russian | `packages/core/src/i18n/locales/ru.json` | — |
 | `uk` | Ukrainian | `packages/core/src/i18n/locales/uk.json` | — |
 | `bg` | Bulgarian | `packages/core/src/i18n/locales/bg.json` | — |
+| `sv` | Swedish | `packages/core/src/i18n/locales/sv.json` | — |
 
 ## How a language works
 

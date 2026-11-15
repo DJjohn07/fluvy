@@ -55,6 +55,7 @@ const JOINS = new RegExp(
     'w|we|oraz|przy|pod|nad|za|obok|z',
     'и|в|во|във|на|за|у|до|под|над|при|около|і|й|та|під|біля',
     'v|vo|pri|az|és|es|ve',
+    'på|och|vid|av|hos|bredvid|över',
   ].join('|')}|\p{Ll}{1,4}['’]))+$`,
   'u',
 );

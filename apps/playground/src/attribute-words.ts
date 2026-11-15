@@ -199,6 +199,17 @@ export const CLIMATE: Words = {
     'preset_mode.boost': 'Ускорен',
     'preset_mode.sleep': 'Сън',
   },
+  sv: {
+    'fan_mode.auto': 'Auto',
+    'fan_mode.low': 'Låg',
+    'fan_mode.medium': 'Medel',
+    'fan_mode.high': 'Hög',
+    'preset_mode.none': 'Inget',
+    'preset_mode.eco': 'Eko',
+    'preset_mode.comfort': 'Komfort',
+    'preset_mode.boost': 'Boost',
+    'preset_mode.sleep': 'Viloläge',
+  },
 };
 
 /** A Matter fan's presets (`matter`'s), by `attribute.value`. */

@@ -52,16 +52,21 @@ describe('the language registry', () => {
     expect(resolveLanguage('bg')).toBe('bg');
     expect(resolveLanguage('bg-BG')).toBe('bg');
     expect(resolveLanguage('bg_BG')).toBe('bg');
-    expect(resolveLanguage('sv')).toBe('en');
+    expect(resolveLanguage('sv')).toBe('sv');
+    expect(resolveLanguage('sv-SE')).toBe('sv');
+    expect(resolveLanguage('sv_FI')).toBe('sv');
+    expect(resolveLanguage('fi')).toBe('en');
     expect(resolveLanguage(undefined)).toBe('en');
     expect(speaks('de-CH')).toBe(true);
     expect(speaks('ru-RU')).toBe(true);
     expect(speaks('uk-UA')).toBe(true);
     expect(speaks('bg-BG')).toBe(true);
-    expect(speaks('sv')).toBe(false);
+    expect(speaks('sv-SE')).toBe(true);
+    expect(speaks('fi')).toBe(false);
     expect(isCardLanguage('auto')).toBe(true);
     expect(isCardLanguage('fr')).toBe(true);
-    expect(isCardLanguage('sv')).toBe(false);
+    expect(isCardLanguage('sv')).toBe(true);
+    expect(isCardLanguage('fi')).toBe(false);
   });
 
   it('gives Simplified Chinese to a tag written in it, and a Traditional one English', () => {
@@ -123,7 +128,7 @@ describe('the words', () => {
   it('are looked up by the language Home Assistant speaks, resolved, with English behind them', () => {
     setLanguageOverride(undefined);
     expect(localize({ language: 'es-ES' }, 'common.on')).toBe('Encendido');
-    expect(localize({ language: 'sv' }, 'common.on')).toBe('On');
+    expect(localize({ language: 'fi' }, 'common.on')).toBe('On');
     expect(localize(undefined, 'person.count', { home: 2, total: 3 })).toBe('2 of 3 home');
     expect(languageOf({ language: 'pt' })).toBe('pt-PT');
   });

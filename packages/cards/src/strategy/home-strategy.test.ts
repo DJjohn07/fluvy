@@ -523,6 +523,85 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
     }
   });
 
+  it('reads a Swedish house by its compounds whole: its ceiling and floor lamps, its garden and its drive, its appliances’ switches, a child lock that is none', () => {
+    const registry = new HomeRegistry(
+      house([
+        entity('switch.taklampa_kok', 'on', { friendly_name: 'Taklampa kök' }),
+        entity('switch.golvlampa_vardagsrum', 'off', { friendly_name: 'Golvlampa vardagsrum' }),
+        entity('switch.ljusslinga_hall', 'off', { friendly_name: 'Ljusslinga hall' }),
+        entity('switch.tradgardsbelysning', 'off', { friendly_name: 'Trädgårdsbelysning' }),
+        entity('switch.lampa_altanen', 'off', { friendly_name: 'Lampa altanen' }),
+        entity('switch.utebelysning_uppfart', 'off', { friendly_name: 'Utebelysning uppfart' }),
+        entity('switch.tvattmaskin', 'off', { friendly_name: 'Tvättmaskin' }),
+        entity('switch.diskmaskin_barnlas', 'off', { friendly_name: 'Diskmaskin barnlås' }),
+        entity('switch.golvvarmeslinga_badrum', 'off', { friendly_name: 'Golvvärmeslinga badrum' }),
+      ]),
+    );
+    const { lights, appliances } = registry;
+    const lit = [
+      'switch.taklampa_kok',
+      'switch.golvlampa_vardagsrum',
+      'switch.ljusslinga_hall',
+      'switch.tradgardsbelysning',
+      'switch.lampa_altanen',
+      'switch.utebelysning_uppfart',
+    ];
+    expect(lights).toEqual(expect.arrayContaining(lit));
+    for (const id of lit) expect(registry.outdoor(id), id).toBe(lit.indexOf(id) >= 3);
+    // the floor heating's loop (golvvärmeslinga) is no string of lights (ljusslinga), and the hall's is indoors
+    expect(lights).not.toContain('switch.golvvarmeslinga_badrum');
+    expect(lights).not.toContain('switch.tvattmaskin');
+    expect(appliances).toContain('switch.tvattmaskin');
+    expect(appliances).not.toContain('switch.diskmaskin_barnlas');
+  });
+
+  it('names a Swedish house’s energy readings’ roles: the inverter, what is bought and sold, the home battery, the charger, the house', () => {
+    const registry = powerHouse(
+      [
+        power('sensor.vaxelriktare', 'Växelriktare'),
+        power('sensor.kopt_el', 'Köpt el'),
+        power('sensor.sald_el', 'Såld el'),
+        power('sensor.hembatteri', 'Hembatteri'),
+        power('sensor.elbilsladdare', 'Elbilsladdare'),
+        power('sensor.huset', 'Huset'),
+      ],
+      'sv',
+    );
+    expect(findEnergyRoles(registry, null)).toMatchObject({
+      solarPowers: [{ id: 'sensor.vaxelriktare' }],
+      gridPower: 'sensor.kopt_el',
+      gridImport: 'sensor.kopt_el',
+      gridExport: 'sensor.sald_el',
+      batteryPowers: [{ id: 'sensor.hembatteri' }],
+      charger: 'sensor.elbilsladdare',
+      homePower: 'sensor.huset',
+    });
+    // the sun as a Swedish house names its panels (solceller) or its power (solel), the charger by its box, the house
+    // as a home ("Hemmet")
+    for (const [id, name] of Object.entries({
+      'sensor.solceller_effekt': 'Solceller effekt',
+      'sensor.solel_nu': 'Solel nu',
+    }))
+      expect(findEnergyRoles(powerHouse([power(id, name)], 'sv'), null).solarPowers, name).toEqual([
+        expect.objectContaining({ id }),
+      ]);
+    expect(
+      findEnergyRoles(powerHouse([power('sensor.shelly_pro', 'Laddbox')], 'sv'), null).charger,
+    ).toBe('sensor.shelly_pro');
+    expect(
+      findEnergyRoles(powerHouse([power('sensor.shelly_em', 'Hemmet')], 'sv'), null).homePower,
+    ).toBe('sensor.shelly_em');
+    // a home cinema, a network switch, a greenhouse and a sunny side say no role: "hem", "nät", "hus" and the sun are
+    // words of their own
+    for (const name of ['Hemmabio', 'Nätverksswitch', 'Växthus', 'Solsidan']) {
+      const roles = findEnergyRoles(powerHouse([power('sensor.x', name)], 'sv'), null);
+      expect(
+        [roles.solarPowers, roles.gridPower, roles.batteryPowers, roles.homePower],
+        name,
+      ).toEqual([[], undefined, [], undefined]);
+    }
+  });
+
   it('reads every language’s names plain, their marks written or left off, whatever the id says: a place, an energy role, a setting that is no appliance', () => {
     // each name on an id that says nothing, so the name alone is read
     const outdoors: ReadonlyArray<readonly [name: string, outdoor: boolean]> = [
@@ -540,12 +619,18 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ['Dış lamba', true],
       ['Фонарь во дворе', true],
       ['Ліхтар на подвір’ї', true],
+      ['Lampa trädgård', true],
+      ['Lampa tradgard', true],
+      ['Utebelysning', true],
       ['Lys i baghaven', true],
       ['Udendørs lampe', true],
       // Turkish's "dış" (outside) and "çatı" (roof) are words, never the letters of a dishwasher's or a location's
       ['Dishwasher plug', false],
       ['Location display', false],
       ['Kuchyně', false],
+      // a wardrobe (garderob) holds no yard (gård), and Swedish's outdoors (ute) is a word, never utensils'
+      ['Lampa garderob', false],
+      ['Utensil drawer light', false],
       ['Køkken', false],
       ['Lys uden dæmper', false],
     ];
@@ -600,6 +685,12 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       ['tr', 'Toplam tüketim', 'home'],
       ['ru', 'Счётчик электроэнергии', 'grid'],
       ['uk', 'Лічильник енергії', 'grid'],
+      ['sv', 'Elnät', 'grid'],
+      ['sv', 'Elmätare', 'grid'],
+      ['sv', 'Energilager', 'battery'],
+      ['sv', 'Billaddare', 'charger'],
+      ['sv', 'Hela huset', 'home'],
+      ['sv', 'Solcellsanläggning', 'solar'],
       ['da', 'Vekselretter', 'solar'],
       ['da', 'Elmåler', 'grid'],
       ['da', 'Energilager', 'battery'],
@@ -622,6 +713,8 @@ describe('custom:fluvy-home strategy — a house named in Japanese', () => {
       'Dźwięk zmywarki',
       'Çocuk kilidi bulaşık makinesi',
       'Férias máquina de lavar',
+      'Barnlås diskmaskin',
+      'Ekoläge tvättmaskin',
       'Børnesikring vaskemaskine',
       'Tastelås tørretumbler',
     ];
@@ -1100,6 +1193,10 @@ describe('custom:fluvy-home strategy — a place named by its device, no separat
       uk: [
         ['Датчик температури і вологості Вітальня', 'Вітальня'],
         ['Кухня та Вітальня Датчик', 'Кухня та Вітальня'],
+      ],
+      sv: [
+        ['Temperatur och luftfuktighet Kök', 'Kök'],
+        ['Kök och Matsal Termostat', 'Kök och Matsal'],
       ],
       bg: [
         ['Сензор за температура и влажност Всекидневна', 'Всекидневна'],

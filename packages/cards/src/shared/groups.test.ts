@@ -126,6 +126,17 @@ describe('short names inside a group', () => {
     expect(shortNames('Treppe', ['Licht ob Treppe'])).toEqual(['Licht ob Treppe']);
   });
 
+  it('reads Swedish: a compound stays a word, i and på go with the room (sv)', () => {
+    expect(
+      shortNames('Kök', ['Kök taklampa', 'Lampa i Kök', 'Kökslampa', 'Spotlights på Kök']),
+    ).toEqual(['Taklampa', 'Lampa', 'Kökslampa', 'Spotlights']);
+    // the room said with its article (köket) is another word, as a compound is
+    expect(shortNames('Kök', ['Lampa i köket', 'Köksbelysning'])).toEqual([
+      'Lampa i köket',
+      'Köksbelysning',
+    ]);
+  });
+
   it('reads Japanese: no space stands between a room and its thing, の ties them (ja)', () => {
     expect(
       shortNames('キッチン', ['キッチン照明', 'キッチンのペンダント', 'キッチン カウンター']),

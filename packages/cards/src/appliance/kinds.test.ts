@@ -148,7 +148,7 @@ describe('what an appliance is', () => {
     expect(kindOf(signals({ platform: 'matter', tops: [250] }))).toMatchObject({ kind: 'oven' });
   });
 
-  it('reads a name in any of the nineteen languages, accents or none, the more particular kind first', () => {
+  it('reads a name in any of the twenty languages, accents or none, the more particular kind first', () => {
     const names: ReadonlyArray<readonly [string, string]> = [
       ['Washing machine', 'washer'],
       ['Waschmaschine', 'washer'],
@@ -343,6 +343,36 @@ describe('what an appliance is', () => {
       ['Foderautomat', 'feeder'],
       ['Drikkefontæne til katten', 'fountain'],
       ['Kattebakke', 'litter_box'],
+      // Swedish, its compounds whole, with å, ä and ö or as an entity id carries them
+      ['Tvättmaskin', 'washer'],
+      ['tvattmaskin_kallare', 'washer'],
+      ['Tvätt- och torkmaskin', 'washer_dryer'],
+      ['Tvätt/tork', 'washer_dryer'],
+      ['Diskmaskin', 'dishwasher'],
+      ['Torktumlare', 'dryer'],
+      ['Torkskåp', 'dryer'],
+      ['Mikrovågsugn', 'microwave'],
+      ['Ugn', 'oven'],
+      ['Ångugn', 'oven'],
+      ['Induktionshäll', 'hob'],
+      ['Spishäll', 'hob'],
+      ['Köksfläkt', 'hood'],
+      ['Vinkylskåp', 'wine'],
+      ['Kylskåp', 'fridge'],
+      ['Kyl/frys', 'fridge'],
+      ['Kyl', 'fridge'],
+      ['Frysbox', 'freezer'],
+      ['Kaffemaskin', 'coffee'],
+      ['Moccamaster', 'coffee'],
+      ['Vattenkokare', 'kettle'],
+      ['Varmluftsfritös', 'air_fryer'],
+      ['Smörgåsgrill', 'sandwich_maker'],
+      ['Brödrost', 'toaster'],
+      ['Matberedare', 'blender'],
+      ['Foderautomat', 'feeder'],
+      ['Dricksfontän', 'fountain'],
+      ['Kattlåda', 'litter_box'],
+      ['kattoalett', 'litter_box'],
       // Simplified Chinese, its Han anywhere in the name
       ['洗衣机', 'washer'],
       ['洗烘一体机', 'washer_dryer'],
@@ -494,6 +524,10 @@ describe('what an appliance is', () => {
     expect(byWords('Brændeovn')).toEqual({ excluded: 'name' });
     expect(byWords('Panelovn soveværelse')).toEqual({ excluded: 'name' });
     expect(byWords('Stikkontakt gang')).toBeUndefined();
+    // nor, in Swedish, a laundry room (tvättstuga), a hallway (hall: a hob is "häll"), a sauna's stove (bastuugn),
+    // the cooling of a room (kylning) or a calm mode (lugnt)
+    for (const name of ['Tvättstuga uttag', 'Hall', 'Bastuugn', 'Kylning vardagsrum', 'Lugnt läge'])
+      expect(byWords(name), name).toBeUndefined();
   });
 
   it('never takes a vacuum, a charger, a hair dryer or what waits for 1.10 for an appliance', () => {
@@ -543,6 +577,11 @@ describe('what an appliance is', () => {
       'Hårtørrer',
       'Ladeboks',
       'Billader',
+      'Robotdammsugare',
+      'Robotgräsklippare',
+      'Hårtork',
+      'Laddbox',
+      'Elbilsladdare',
     ])
       expect(byWords(name), name).toEqual({ excluded: 'name' });
     // a robot that cleans or mows is never one; the kitchen's (a food processor) is a blender, in every language
