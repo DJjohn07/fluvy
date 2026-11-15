@@ -34,6 +34,7 @@ const englishTables: Record<string, Table> = { ...english };
 const catalogues: Partial<Record<LanguageCode, Loaded>> = { en: englishTables };
 const loading = new Map<LanguageCode, Promise<void>>();
 const listeners = new Set<() => void>();
+const speakers = new Set<(code: LanguageCode) => void>();
 
 /** Each language's catalogue as its own chunk: the loader map is explicit so the bundler sees every one. */
 const LOADERS: Record<Exclude<LanguageCode, 'en'>, () => Promise<{ default: Loaded }>> = {
@@ -69,9 +70,25 @@ export function addEnglish(
 let override: LanguageCode | undefined;
 let hinted: LanguageCode | undefined;
 
+/**
+ * Fluvy speaks `code` on this page: remembered, so the next page load fetches it before `hass` arrives, and told to
+ * whoever says words outside a card (the card picker's list).
+ */
+function hint(code: LanguageCode): void {
+  if (code === hinted) return;
+  hinted = code;
+  try {
+    safeStorage()?.setItem(HINT_KEY, code);
+  } catch {
+    // storage refused: the next load starts in English until hass arrives
+  }
+  for (const speaker of speakers) speaker(code);
+}
+
 /** A person's choice of language for Fluvy's own words (Fluvy's settings); undefined: Home Assistant's. */
 export function setLanguageOverride(language: LanguageCode | undefined): void {
   override = language;
+  if (language) hint(language);
 }
 
 /** The language a person chose, if any. */
@@ -105,15 +122,18 @@ export function markLanguage(host: Element, page: string | undefined): void {
 export function languageOf(hass: Pick<HomeAssistant, 'language'> | undefined): LanguageCode {
   const code = override ?? resolveLanguage(hass?.language);
   if (!catalogues[code]) void ensureLanguage(code);
-  if (code !== hinted) {
-    hinted = code;
-    try {
-      safeStorage()?.setItem(HINT_KEY, code);
-    } catch {
-      // storage refused: the next load starts in English until hass arrives
-    }
-  }
+  // a word asked with neither Home Assistant's language nor the person's is English by default, not the page's
+  if (override || hass?.language) hint(code);
   return code;
+}
+
+/** The language Fluvy speaks on this page: the last one it spoke for Home Assistant or the person, else this browser's. */
+export const pageLanguage = (): LanguageCode => hinted ?? remembered ?? 'en';
+
+/** Runs when Fluvy speaks another language on this page: Home Assistant's changed, or the person chose another. */
+export function onLanguage(speaker: (code: LanguageCode) => void): () => void {
+  speakers.add(speaker);
+  return () => speakers.delete(speaker);
 }
 
 /** The words of a language are here (English always). */

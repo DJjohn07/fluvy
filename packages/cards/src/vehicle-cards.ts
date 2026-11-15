@@ -6,12 +6,10 @@ import { FluvyVehicleCard } from './vehicle/vehicle-card.js';
 
 /**
  * The Vehicle card's element: this module is its own chunk, fetched at start (`index.ts`) and defined as it lands.
- * Its name, description and height live in `vehicle-family.ts`, which every page carries.
+ * Its height lives in `vehicle-family.ts`, which every page carries.
  */
 export const CARDS = VEHICLE_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, FluvyVehicleCard as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, FluvyVehicleCard as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

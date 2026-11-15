@@ -42,7 +42,7 @@ pnpm build
 ```
 
 The bundle is one ES module, `fluvy.js`, that imports `chunks/core-<hash>.js` (everything a page needs) and fetches
-`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,expander,expander-editor,sidebar,slider,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
+`chunks/{activity,history,details-history,panel,customise,sidebar-editor,pages,strategy,house-heights,wall,weather,calendar,media,chart,chart-card,energy-period,energy,history-bars-readings,devices,cameras-sheet,appliances,appliance-art,automations,automations-sheet,alerts,alerts-sheet,template,web,about,expander,expander-editor,sidebar,slider,vacuum,ring,vacuum-drive,climate,remote,app-logos,vehicle,details,items,items-sheet,lights-colour,light-colour,quick-actions,editor,fields,forms,view-icons,glass,quiet,slider-styles,switch-styles,background,dock,groups,icons,shared,lang-*}-<hash>.js`
 on demand — the Activity page, the History page, our history in Home Assistant's details dialog (the first time a dialog
 shows it), the settings panel (and Customise, the first time one of its dashboards is customised; a dashboard's
 sidebar, the first time its section is opened), what they
@@ -55,7 +55,7 @@ card import it from their own chunks), a room's quick actions (fetched as the bu
 core reaches them through `loadQuickActions`; and what says what a thermostat is doing, which a tile and a room's row
 asked to say it reach through `doingReading`, in the Thermostat card's chunk), the weather, calendar, template, Energy period and usage, web page, Expander, Slider, Vacuum, Thermostat, remote, Vehicle, items and
 chart cards and the media, energy, devices, appliances, automations and alerts families (fetched as the bundle starts:
-their cards are announced in core — `src/energy-family.ts` and its siblings, their names and heights — and defined as
+their cards are announced in core — `src/energy-family.ts` and its siblings, their tags and heights — and defined as
 `src/energy-cards.ts` and its siblings land; Home Assistant builds a card again the moment its tag is defined), the
 history bars' readings (the first card that reads a counter by them), the appliances' pictures (the first card that
 draws one), the drive pad (the first Vacuum card that draws a Drive command; its ring is the remote's, a chunk both
@@ -104,6 +104,7 @@ budget (`BUDGETS`; the facts guard in `tools/docs` holds this table to it):
 | `alerts-sheet` | 12 KB | the alerts' sheet |
 | `template` | 8 KB | the template card, the parsers of its templates' answers, its English |
 | `web` | 8 KB | the web page card, its address and rounds rules, its English |
+| `about` | 4 KB | what each card is (1.22, #193): the line the card picker's search reads and Customise's list says under each name, in English; fetched as the bundle starts, with the families |
 | `expander` | 8 KB | the Expander card, what holds the cards it folds, what remembers how it was left, its English |
 | `expander-editor` | 4 KB | the Expander card's editor: its form, Home Assistant's stack editor under it |
 | `sidebar` | 10 KB | a dashboard's own sidebar (1.21, #187): the element beside the views, what reads `fluvy_sidebar:` and puts it in Home Assistant's view row, its English; fetched by the first dashboard whose configuration asks for one |

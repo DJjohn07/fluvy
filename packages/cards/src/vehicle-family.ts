@@ -92,11 +92,4 @@ export const vehicleHeight = (config: LovelaceCardConfig): number => {
   );
 };
 
-export const VEHICLE_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-vehicle-card',
-    'Fluvy · Vehicle',
-    'An electric car: its battery, range and charge limit, when it is full, where it is, and its lock, climate, charging, boot and windows in one row. Tesla, BMW, Renault, Volvo, Kia, Hyundai, Volkswagen, Škoda, Polestar, MG and more.',
-    vehicleHeight,
-  ],
-];
+export const VEHICLE_FAMILY: readonly FamilyEntry[] = [['fluvy-vehicle-card', vehicleHeight]];

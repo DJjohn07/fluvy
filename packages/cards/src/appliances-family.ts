@@ -232,16 +232,6 @@ export const appliancesHeight = (config: LovelaceCardConfig): number => {
 };
 
 export const APPLIANCES_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-appliance-card',
-    'Fluvy · Appliance',
-    'A washer, dryer, dishwasher, oven, hob, fridge, coffee machine, pet feeder, fountain, litter box or small appliance on a plug, pictured: what it does, when it is ready, what it uses, its reminders.',
-    applianceHeight,
-  ],
-  [
-    'fluvy-appliances-card',
-    'Fluvy · Appliances',
-    'The house’s appliances as live rows, or their whole cards side by side: what runs, what is done, what waits.',
-    appliancesHeight,
-  ],
+  ['fluvy-appliance-card', applianceHeight],
+  ['fluvy-appliances-card', appliancesHeight],
 ];

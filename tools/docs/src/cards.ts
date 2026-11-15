@@ -9,6 +9,8 @@
  *   pnpm --filter @fluvy/docs check   fails when the file is not what the code says (what `pnpm check` runs)
  */
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import about from '@fluvy/core/locales/en/cards-about.json';
+import core from '@fluvy/core/locales/en/core.json';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +18,13 @@ import { fileURLToPath } from 'node:url';
 GlobalRegistrator.register();
 
 const CATALOGUE = await (await import('@fluvy/cards')).catalogue();
+const { cardKey } = await import('@fluvy/core');
+
+/** A card's name and what it is, as English says them (the catalogue's `cards` and `cards-about`). */
+function words(tag: string): { name: string; description: string } {
+  const key = cardKey(tag) as keyof typeof core.cards;
+  return { name: core.cards[key], description: about['cards-about'][key] };
+}
 
 type Schema = readonly {
   name: string;
@@ -185,7 +194,7 @@ function row(
     ...(card.aliases?.drop ?? []).map((key) => `\`${key}\` (folded in)`),
   ];
   const cells = [
-    `**${name.replace(/^Fluvy · /, '')}**`,
+    `**${name}**`,
     `\`custom:${tag}\``,
     description,
     options.length ? options.join(', ') : '—',
@@ -196,9 +205,9 @@ function row(
 
 const catalogue = new Map(
   await Promise.all(
-    CATALOGUE.map(async ([tag, element, name, description]) => {
+    CATALOGUE.map(async ([tag, element]) => {
       const card = element as unknown as Contract;
-      return [tag, { card, editor: await card.editor(), name, description }] as const;
+      return [tag, { card, editor: await card.editor(), ...words(tag) }] as const;
     }),
   ),
 );

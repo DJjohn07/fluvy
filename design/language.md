@@ -1388,7 +1388,7 @@ own date card, hidden inside the strip, so the collection is made and fed by Hom
 - **On the automatic Energy dashboard** the bar leads the Today view, across its columns before the first, and the
   day's flow, sankey, score and balance follow it, their chips gone, with the range's Energy usage: the electricity's,
   then the water's and the gas's where the Energy dashboard meters them (1.20, #181).
-- Its chunk is its own (`energy-period`, with the Energy usage card): every page carries only their names and
+- Its chunk is its own (`energy-period`, with the Energy usage card): every page carries only their tags and
   heights (`energy-family.ts`).
 
 ## Energy usage (1.11)
@@ -1784,7 +1784,7 @@ forecast. It is the engine's (§ Charts) in its house's style or its own.
   the picker compares, the range before it lies behind the first series as a ghost, as the Energy usage card's: one
   column a slot, 1.8 × the bar (never wider than its slot less 2), the text's ink at 9 % (14 in dark mode) behind
   columns, a line of 2 in the text's ink at 24 % behind a line; the scale reaches it.
-- Its chunk is its own (`chart-card`, beside the engine's `chart`): every page carries only its name and height
+- Its chunk is its own (`chart-card`, beside the engine's `chart`): every page carries only its tag and height
   (`chart-family.ts`).
 
 ## People (1.6)
@@ -2640,7 +2640,7 @@ the tile card's tile of the same entity, byte for byte.
 - **Editor:** entity (not required), name and icon, the line (a keyword or a template), style and *Shows as on* on one
   row, tone and colour, the card's colour, *Show its colour* only with a colour, readouts only for a large tile, the
   actions; helpers under the name, the line, the icon, *Shows as on* and the colour (a colour template goes in YAML).
-- Its chunk is its own (`template`, 2.1 KB of 8): every page carries only its name and height (`template-family.ts`).
+- Its chunk is its own (`template`, 2.1 KB of 8): every page carries only its tag and height (`template-family.ts`).
 - **Chips (1.13, #87).** A chip of the chips card takes the same templates for its words, its icon and its colour (the
   chip's `entity` is `entity` in them; never JavaScript: `[[[ ]]]` is words), one subscription a template, let go when
   the row leaves the page. Pending, a chip holds its pill with a blank where the words will land; an icon that names no
@@ -2698,7 +2698,7 @@ a card's entrance).
   sandbox; helpers under the look and the sandbox.
 - **Two glyphs**: `external` (an arrow leaving its box by the top end corner) and `refresh` (a circular arrow), in
   the design lab and the set, outlined lazily with the 1.10 glyphs.
-- Its chunk is its own (`web`, 4.5 KB of 8): every page carries only its name and height (`web-family.ts`).
+- Its chunk is its own (`web`, 4.5 KB of 8): every page carries only its tag and height (`web-family.ts`).
 
 ## Items (1.11)
 
@@ -2768,7 +2768,7 @@ The Items card (#66) lists the items of one sensor's list attribute — the airc
   listed".
 - **No per-item tone**: the rows are what the sensor lists, live; their circles rest in the neutral, the card's
   colours are its head's and its sheet's.
-- Its chunks are its own (`items`, 6.9 KB of 12; `items-sheet`, 2.7 KB of 8): every page carries only its name and
+- Its chunks are its own (`items`, 6.9 KB of 12; `items-sheet`, 2.7 KB of 8): every page carries only its tag and
   height (`items-family.ts`) and the value's glyph.
 
 ## Slider (1.11.1)
@@ -2827,7 +2827,7 @@ signed range lit from zero (D), the house's tile (F); no vertical form ("too muc
   control may be a switch, `min` and `max` off a fan (it stops at its speeds); helpers under the control and the other
   entity's switch. Its words are its own part (`slider.json`); `mute` and `switch` are option words of core's, as
   `common.volume` (the tile's).
-- Its chunk is its own (`slider`, 3.8 KB of 8, its editor with the forms): every page carries only its name and height
+- Its chunk is its own (`slider`, 3.8 KB of 8, its editor with the forms): every page carries only its tag and height
   (`slider-family.ts`).
 
 ## Rocker (1.20)
@@ -2944,7 +2944,7 @@ panel) and the controls' row (the map's zone columns as buttons: a circle and it
 - **Heights** by the config alone (`vehicle-family.ts`): full 460 (its picture over the battery 176 more, a ring 68
   more, its tyres 112 more, a row 48, the card's own controls 76 a row more), compact 200, mini 76. A car out of reach
   keeps every part.
-- Its chunk is its own (`vehicle`, 20.2 KB of 24, its editor on its class): every page carries only its name and height.
+- Its chunk is its own (`vehicle`, 20.2 KB of 24, its editor on its class): every page carries only its tag and height.
 
 ## Drive pad (1.20, #178)
 

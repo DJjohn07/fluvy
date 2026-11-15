@@ -23,11 +23,4 @@ export function chartHeight(config: LovelaceCardConfig): number {
   return seriesCount(config) >= 4 && config['show_legend'] !== false ? 364 : 320;
 }
 
-export const CHART_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-chart-card',
-    'Fluvy · Chart',
-    'Any time series on one chart — history, statistics, a list in an attribute (Nordpool’s prices, a solar forecast) or a weather’s forecast — past to future with now marked, thresholds in their colours and the cheapest hours found.',
-    chartHeight,
-  ],
-];
+export const CHART_FAMILY: readonly FamilyEntry[] = [['fluvy-chart-card', chartHeight]];

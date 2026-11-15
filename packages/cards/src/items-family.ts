@@ -38,11 +38,4 @@ export function itemsList(config: LovelaceCardConfig, columns = 2): number {
 /** The Items card at a 360 column: the head and the list's box. */
 export const itemsHeight = (config: LovelaceCardConfig): number => HEAD + itemsList(config);
 
-export const ITEMS_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-items-card',
-    'Fluvy · Items',
-    'The items of a sensor’s list attribute, a row each — flights overhead, departures, deliveries — with a flights preset for FlightRadar24.',
-    itemsHeight,
-  ],
-];
+export const ITEMS_FAMILY: readonly FamilyEntry[] = [['fluvy-items-card', itemsHeight]];

@@ -43,10 +43,5 @@ export const automationsHeight = (config: LovelaceCardConfig): number => {
 };
 
 export const AUTOMATIONS_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-automations-card',
-    'Fluvy · Automations',
-    'Every automation of the house: on or off, run, last and next run; schedules written as native automations, created and edited in a sheet.',
-    automationsHeight,
-  ],
+  ['fluvy-automations-card', automationsHeight],
 ];

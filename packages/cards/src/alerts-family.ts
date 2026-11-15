@@ -50,11 +50,4 @@ export const alertsHeight = (config: LovelaceCardConfig): number => {
   return rows * ((variant === 'mini' ? MINI : TILE) + GAP) - GAP;
 };
 
-export const ALERTS_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-alerts-card',
-    'Fluvy · Alerts',
-    'What needs a look — low batteries, devices gone, doors left open, leaks, updates, repairs — each from one line, as tiles, chips, rows or a banner, hidden while all is clear.',
-    alertsHeight,
-  ],
-];
+export const ALERTS_FAMILY: readonly FamilyEntry[] = [['fluvy-alerts-card', alertsHeight]];

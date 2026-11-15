@@ -80,7 +80,7 @@ const WEATHER = /\/packages\/cards\/src\/(weather-cards\.ts|weather\/)/;
 
 /**
  * The calendar card (its views, what reads its events and its sheet; its editor goes with the forms): fetched as the
- * bundle starts and defined as it lands, as the weather card is (`calendar-family.ts` stays in core: the name, the
+ * bundle starts and defined as it lands, as the weather card is (`calendar-family.ts` stays in core: the tag, the
  * height).
  */
 const CALENDAR =
@@ -89,7 +89,7 @@ const CALENDAR =
 /**
  * The media family (the player and the now-playing strip, what only they share, the player's sheet and their
  * English): fetched as the bundle starts and defined as it lands, as the energy family is (`media-family.ts` stays in
- * core: the names, the heights).
+ * core: the tags, the heights).
  */
 const MEDIA =
   /\/packages\/(cards\/src\/(media-cards\.ts|media\/|now-playing\/|shared\/media\.ts)|ui\/src\/styles\/(generated\/)?media\.ts|core\/src\/i18n\/locales\/en\/media\.json)/;
@@ -110,7 +110,7 @@ const CHART =
 /**
  * The Chart card (the card, what reads its series — history, statistics, a list in an attribute, a forecast — its
  * editor and its English, a part of its own): fetched as the bundle starts and defined as it lands, as the items card
- * is (`chart-family.ts` stays in core: the name, the height). A chunk of its own beside the engine's: the sensor's
+ * is (`chart-family.ts` stays in core: the tag, the height). A chunk of its own beside the engine's: the sensor's
  * chart waits on that one, which stays as small as it can. Named after the engine: the engine's English is its own.
  */
 const CHART_CARD =
@@ -140,7 +140,7 @@ const CAMERAS_SHEET = /\/packages\/cards\/src\/camera\/sheet\//;
  * The devices family (the lock, the alarm and its keypad, the camera and the cameras, the 3D printer, the rows the
  * lock, the alarm and the camera are built on, the job's times the appliances share, the motion sensor a camera's
  * device carries, and their English): fetched as the bundle starts and defined as it lands, as the energy family is
- * (`devices-family.ts` stays in core: the names, the heights). The Entities card reads only a row's type of
+ * (`devices-family.ts` stays in core: the tags, the heights). The Entities card reads only a row's type of
  * `lock/rows.ts`, by an `import type` the build erases: an `import { type … }` it keeps, and every page would load
  * this chunk.
  */
@@ -167,7 +167,7 @@ const AUTOMATIONS_SHEET = /\/packages\/cards\/src\/automations\/sheet\//;
 /**
  * The automations family (the card, its words' layout, the schedule model, the store and the family's English):
  * fetched as the bundle starts and defined as it lands, as the devices family is (`automations-family.ts` stays in
- * core: the name, the height).
+ * core: the tag, the height).
  */
 const AUTOMATIONS =
   /\/packages\/(cards\/src\/(automations-cards\.ts|automations\/)|core\/src\/i18n\/locales\/en\/automations\.json)/;
@@ -181,17 +181,24 @@ const ALERTS =
 
 /**
  * The template card (its card, the parsers of its templates' answers, and its English): fetched as the bundle starts
- * and defined as it lands, as the weather card is (`template-family.ts` stays in core: the name, the height).
+ * and defined as it lands, as the weather card is (`template-family.ts` stays in core: the tag, the height).
  */
 const TEMPLATE =
   /\/packages\/(cards\/src\/(template-cards\.ts|template\/)|core\/src\/i18n\/locales\/en\/template\.json)/;
 
 /**
  * The web page card (its card, what it decides of an address and a plate's rounds, and its English): fetched as the
- * bundle starts and defined as it lands, as the template card is (`web-family.ts` stays in core: the name, the height).
+ * bundle starts and defined as it lands, as the template card is (`web-family.ts` stays in core: the tag, the height).
  */
 const WEB =
   /\/packages\/(cards\/src\/(web-cards\.ts|web\/)|core\/src\/i18n\/locales\/en\/web\.json)/;
+
+/**
+ * What each card is (1.22, #193: the line the card picker's search reads and Customise's list says under each name, in
+ * English, and what hands it to the picker's list): fetched as the bundle starts, with the families. The cards' names
+ * are core's (`cards`), so the list names them from the first.
+ */
+const ABOUT = /\/packages\/(cards\/src\/about\.ts|core\/src\/i18n\/locales\/en\/cards-about\.json)/;
 
 /**
  * The Expander card's editor (1.20, #180: its form, and the element that sets Home Assistant's own stack editor under
@@ -203,7 +210,7 @@ const EXPANDER_EDITOR = /\/packages\/cards\/src\/expander\/expander-editor\.ts$/
 /**
  * The Expander card (1.20, #180: its card, what holds the cards it folds, what remembers how it was left, and its
  * English): fetched as the bundle starts and defined as it lands, as the web page card is (`expander-family.ts` stays
- * in core: the name, the height).
+ * in core: the tag, the height).
  */
 const EXPANDER =
   /\/packages\/(cards\/src\/(expander-cards\.ts|expander\/)|core\/src\/i18n\/locales\/en\/expander\.json)/;
@@ -218,7 +225,7 @@ const SIDEBAR = /\/packages\/(cards\/src\/sidebar\/|core\/src\/i18n\/locales\/en
 /**
  * The Slider card (its card on the tile's and its English; its editor goes with the forms; the ruler, the head, the
  * value row and the scales it reads with are core's, the light card's and the tile's): fetched as the bundle starts and
- * defined as it lands, as the web page card is (`slider-family.ts` stays in core: the name, the height).
+ * defined as it lands, as the web page card is (`slider-family.ts` stays in core: the tag, the height).
  */
 const SLIDER =
   /\/packages\/(cards\/src\/(slider-cards\.ts|slider\/)|core\/src\/i18n\/locales\/en\/slider\.json)/;
@@ -238,7 +245,7 @@ const VACUUM_DRIVE = /\/packages\/cards\/src\/vacuum\/drive\//;
 /**
  * The Vacuum card (the robot's and the mower's card, which robots a hand can drive and how, and the drive pad's
  * English; its editor goes with the forms, its own words are core's: the alerts say one of them): fetched as the
- * bundle starts and defined as it lands, as the Slider card is (`vacuum-family.ts` stays in core: the name, the
+ * bundle starts and defined as it lands, as the Slider card is (`vacuum-family.ts` stays in core: the tag, the
  * height). It left core in 1.20.
  */
 const VACUUM =
@@ -248,7 +255,7 @@ const VACUUM =
  * The Thermostat card (the climate's, the water heater's and the humidifier's card and its rules, what says what a
  * thermostat is doing and what it reads of its valve, its window and its battery, #185; its editor goes with the
  * forms, its words are core's: the gauge and the schedules say some of them): fetched as the bundle starts and
- * defined as it lands, as the Vacuum card is (`climate-family.ts` stays in core: the name, the height, and the way to
+ * defined as it lands, as the Vacuum card is (`climate-family.ts` stays in core: the tag, the height, and the way to
  * that reading for a tile and a room's row asked to say it). It left core in 1.21.
  */
 const CLIMATE =
@@ -264,7 +271,7 @@ const APP_LOGOS = /\/packages\/cards\/src\/app-logos\//;
 /**
  * The TV remote card (1.18, #143: its card, its keys and the integrations' commands for them, the platforms it
  * knows by name, and its English; its editor goes with the forms): fetched as the bundle starts and defined as it
- * lands, as the Slider card is (`remote-family.ts` stays in core: the name, the heights).
+ * lands, as the Slider card is (`remote-family.ts` stays in core: the tag, the heights).
  */
 const REMOTE =
   /\/packages\/(cards\/src\/(remote-cards\.ts|remote\/)|core\/src\/i18n\/locales\/en\/remote\.json)/;
@@ -272,7 +279,7 @@ const REMOTE =
 /**
  * The Vehicle card (its card, what finds a car's entities and folds its integration's words, its glyphs and its
  * English): fetched as the bundle starts and defined as it lands, as the Slider card is (`vehicle-family.ts` stays in
- * core: the name, the height). It reads its charge on the car charger's marked ruler, with the energy family.
+ * core: the tag, the height). It reads its charge on the car charger's marked ruler, with the energy family.
  */
 const VEHICLE =
   /\/packages\/(cards\/src\/(vehicle-cards\.ts|vehicle\/)|core\/src\/i18n\/locales\/en\/vehicle\.json)/;
@@ -289,7 +296,7 @@ const ITEMS_SHEET = /\/packages\/cards\/src\/items\/sheet\//;
 
 /**
  * The Items card (the card, its fields and presets, and its English): fetched as the bundle starts and defined as it
- * lands, as the template card is (`items-family.ts` stays in core: the name, the height).
+ * lands, as the template card is (`items-family.ts` stays in core: the tag, the height).
  */
 const ITEMS =
   /\/packages\/(cards\/src\/(items-cards\.ts|items\/)|core\/src\/i18n\/locales\/en\/items\.json)/;
@@ -407,8 +414,8 @@ const FORMS =
  * page, our history in the details dialog, Customise, a dashboard's sidebar in the panel, the settings panel, the strategy and the heights it counts with the house, the wall, the forms of the cards
  * every page carries, the weather card, the calendar card, the media, the chart engine, the Chart card, the Energy period card, energy
  * (the history bars' readings on their own), devices (the cameras' sheet on its own), appliances (their pictures on
- * their own), automations and alerts families (each sheet on its own), the template card, the web page card, the
- * Expander card (its editor on its own, before the forms), a dashboard's own sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours, a room's quick actions, the cards' editor, the
+ * their own), automations and alerts families (each sheet on its own), the template card, the web page card, what each
+ * card is, the Expander card (its editor on its own, before the forms), a dashboard's own sidebar, the Slider card, the ring, the drive pad, the Vacuum card, the Thermostat card, the platforms' logos, the remote card, the Vehicle card, Fluvy's own details, the items card (its sheet on its own), the light card's colours, a room's quick actions, the cards' editor, the
  * fields every editor is built of, the view icons, what a see-through card wears, what a quiet one wears, the slider
  * styles, the switch styles, the page's background, this device's sidebar beside the page, a list in groups, the icon set's other part, what only the chunks fetched later share, and everything else (Fluvy's packages and Lit) in `core`. The bundle's own entry stays in `fluvy.js`. Rolldown processes the groups in this order; the priorities only say so out loud.
  * @type {readonly Group[]}
@@ -445,6 +452,7 @@ export const GROUPS = [
   { name: 'alerts', test: ALERTS },
   { name: 'template', test: TEMPLATE },
   { name: 'web', test: WEB },
+  { name: 'about', test: ABOUT },
   { name: 'expander', test: EXPANDER },
   { name: 'sidebar', test: SIDEBAR },
   { name: 'slider', test: SLIDER },

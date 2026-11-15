@@ -7,7 +7,7 @@ import { FluvyNowPlayingCard } from './now-playing/now-playing-card.js';
 
 /**
  * The media family's elements: this module is its own chunk, fetched at start (`index.ts`) and defined as it lands.
- * The names, descriptions and heights live in `media-family.ts`, which every page carries.
+ * The heights live in `media-family.ts`, which every page carries.
  */
 const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
   'fluvy-media-card': FluvyMediaCard,
@@ -15,9 +15,7 @@ const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
 };
 
 export const CARDS = MEDIA_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, ELEMENTS[tag] as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, ELEMENTS[tag] as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

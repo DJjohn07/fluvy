@@ -6,7 +6,7 @@ import { FluvyAutomationsCard } from './automations/automations-card.js';
 
 /**
  * The automations family's elements: this module is its own chunk, fetched at start (`index.ts`) and defined as it
- * lands. The name, description and height live in `automations-family.ts`, which every page carries; the schedule
+ * lands. The height lives in `automations-family.ts`, which every page carries; the schedule
  * sheet is a chunk of its own, fetched the first time a schedule is opened.
  */
 const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
@@ -14,9 +14,7 @@ const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
 };
 
 export const CARDS = AUTOMATIONS_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, ELEMENTS[tag] as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, ELEMENTS[tag] as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

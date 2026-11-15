@@ -23,11 +23,4 @@ export const templateHeight = (config: LovelaceCardConfig): number => {
       : 76 + (lines ? NAME_LINE.compact : 0);
 };
 
-export const TEMPLATE_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-template-card',
-    'Fluvy · Template',
-    'A tile whose name, line, icon, colour and fill are templates, with or without an entity; a Mushroom template card pastes in.',
-    templateHeight,
-  ],
-];
+export const TEMPLATE_FAMILY: readonly FamilyEntry[] = [['fluvy-template-card', templateHeight]];

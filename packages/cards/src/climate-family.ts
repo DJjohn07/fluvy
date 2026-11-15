@@ -100,11 +100,4 @@ export function thermostatHeight(
   return height + modes + presets + fans;
 }
 
-export const CLIMATE_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-thermostat-card',
-    'Fluvy · Thermostat',
-    'Climate, water heater or humidifier on a dial, with modes, presets and fan speeds.',
-    thermostatHeight,
-  ],
-];
+export const CLIMATE_FAMILY: readonly FamilyEntry[] = [['fluvy-thermostat-card', thermostatHeight]];

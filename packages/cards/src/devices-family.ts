@@ -154,34 +154,9 @@ export const printerHeight = (config: LovelaceCardConfig): number => {
 };
 
 export const DEVICES_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-lock-card',
-    'Fluvy · Lock',
-    'Slide to unlock, never one accidental tap; codes, jammed state, related rows.',
-    lockHeight,
-  ],
-  [
-    'fluvy-alarm-card',
-    'Fluvy · Alarm',
-    'Arm modes as tiles and the keypad sheet for codes.',
-    alarmHeight,
-  ],
-  [
-    'fluvy-camera-card',
-    'Fluvy · Camera',
-    'A still that refreshes itself, or Home Assistant’s live stream, in the shape you choose; tap for the stream.',
-    cameraHeight,
-  ],
-  [
-    'fluvy-cameras-card',
-    'Fluvy · Cameras',
-    'Several cameras at a glance, each picture live or refreshing itself with its name and what it sees; a sheet of them all.',
-    camerasHeight,
-  ],
-  [
-    'fluvy-printer-card',
-    'Fluvy · 3D printer',
-    'A 3D printer’s job: progress, time left, heaters, layers, filament and the camera; pause, resume and stop. OctoPrint, PrusaLink, Bambu Lab, Moonraker, Creality, Elegoo, Anycubic, Snapmaker and FlashForge.',
-    printerHeight,
-  ],
+  ['fluvy-lock-card', lockHeight],
+  ['fluvy-alarm-card', alarmHeight],
+  ['fluvy-camera-card', cameraHeight],
+  ['fluvy-cameras-card', camerasHeight],
+  ['fluvy-printer-card', printerHeight],
 ];

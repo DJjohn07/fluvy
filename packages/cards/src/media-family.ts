@@ -55,16 +55,6 @@ export const nowPlayingHeight = (config: LovelaceCardConfig): number =>
   mediaControls(config['controls'], NOW_PLAYING_CONTROLS).length ? 212 : 148;
 
 export const MEDIA_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-media-card',
-    'Fluvy · Media',
-    'A media player: artwork, seek bar, transport and volume — full, compact row or hero.',
-    mediaHeight,
-  ],
-  [
-    'fluvy-now-playing-card',
-    'Fluvy · Now playing',
-    'The compact player of the home screen: artwork, thin progress, transport and volume.',
-    nowPlayingHeight,
-  ],
+  ['fluvy-media-card', mediaHeight],
+  ['fluvy-now-playing-card', nowPlayingHeight],
 ];

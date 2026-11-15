@@ -14,11 +14,4 @@ import type { FamilyEntry } from './energy-family.js';
 export const sliderHeight = (config: LovelaceCardConfig): number =>
   config['variant'] === 'tile' ? 168 : config['variant'] === 'compact' ? 188 : 268;
 
-export const SLIDER_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-slider-card',
-    'Fluvy · Slider',
-    'Any value on the precision ruler: a player’s volume with its mute, a number or a helper, a fan’s speed, another entity’s switch in its head.',
-    sliderHeight,
-  ],
-];
+export const SLIDER_FAMILY: readonly FamilyEntry[] = [['fluvy-slider-card', sliderHeight]];

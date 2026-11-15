@@ -25,11 +25,4 @@ export const webHeight = (config: LovelaceCardConfig): number => {
   return variant === 'bare' ? plate : variant === 'frame' ? 40 + plate : HEAD + plate;
 };
 
-export const WEB_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-web-card',
-    'Fluvy · Web page',
-    'A web page on a plate — a map, a chart, a site of your own — under a head, in a frame or bare; sandboxed as Home Assistant’s iframe card is.',
-    webHeight,
-  ],
-];
+export const WEB_FAMILY: readonly FamilyEntry[] = [['fluvy-web-card', webHeight]];

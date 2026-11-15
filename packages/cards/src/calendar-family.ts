@@ -36,11 +36,4 @@ const HEIGHTS: Readonly<Record<CalendarView, number>> = {
 
 export const calendarHeight = (config: LovelaceCardConfig): number => HEIGHTS[viewOf(config)];
 
-export const CALENDAR_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-calendar-card',
-    'Fluvy · Calendar',
-    'Agenda, month, week, month + day, timeline, upcoming or tile.',
-    calendarHeight,
-  ],
-];
+export const CALENDAR_FAMILY: readonly FamilyEntry[] = [['fluvy-calendar-card', calendarHeight]];

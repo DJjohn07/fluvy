@@ -120,6 +120,9 @@ const BUDGETS = {
   template: 8192,
   // the web page card: its card, its address and rounds rules, its English (1.11, #61)
   web: 8192,
+  // what each card is (1.22, #193): the line the card picker's search reads and Customise's list says under each name,
+  // in English, which left core; measured at 3.6 KB
+  about: 4096,
   // the Expander card (1.20, #180): the card, what holds the cards it folds, what remembers how it was left and its
   // English; measured at 5.2 KB
   expander: 8192,

@@ -6,12 +6,10 @@ import { FluvyWebCard } from './web/web-card.js';
 
 /**
  * The web page card's element: this module is its own chunk, fetched at start (`index.ts`) and defined as it lands.
- * Its name, description and height live in `web-family.ts`, which every page carries.
+ * Its height lives in `web-family.ts`, which every page carries.
  */
 export const CARDS = WEB_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, FluvyWebCard as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, FluvyWebCard as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

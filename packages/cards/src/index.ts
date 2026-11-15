@@ -51,192 +51,50 @@ import { loadChartEngine } from './shared/chart-load.js';
 import { WEB_FAMILY } from './web-family.js';
 import { WEATHER_FAMILY } from './weather-family.js';
 
-/** A card of the catalogue: its tag, its element, and what the card picker lists it as. */
-type CatalogueEntry = readonly [
-  tag: string,
-  element: CustomElementConstructor,
-  name: string,
-  description: string,
-];
+/** A card of the catalogue: its tag and its element (its name and what it is are the catalogue's words, `cards`). */
+type CatalogueEntry = readonly [tag: string, element: CustomElementConstructor];
 
 /**
  * The fluvy card catalogue. Registration happens while the module evaluates — never after an
  * await: Home Assistant gives a custom card two seconds to exist before it paints an error in its
- * place. The list reads everyday cards first, the specialised sets after; Home Assistant's card picker
- * sorts custom cards by name, which is why every name starts with "Fluvy ·".
+ * place. The list reads everyday cards first, the specialised sets after.
  */
 const CATALOGUE: readonly CatalogueEntry[] = [
-  [
-    'fluvy-tile-card',
-    FluvyTileCard,
-    'Fluvy · Tile',
-    'A light, switch, cover, fan, player, number or sensor as a tile: large with a precision ruler or two readouts, compact row, or mini.',
-  ],
-  [
-    'fluvy-tiles-card',
-    FluvyTilesCard,
-    'Fluvy · Tiles',
-    'A group of compact or mini tiles, two to four per row, 8 px apart.',
-  ],
-  [
-    'fluvy-light-card',
-    FluvyLightCard,
-    'Fluvy · Light',
-    'The precision dimmer: relative drag, slide away to slow down, hold for the 1 % scale, colour temperature.',
-  ],
-  [
-    'fluvy-lights-card',
-    FluvyLightsCard,
-    'Fluvy · Room lights',
-    'A room’s lights on one card: one tap for the whole room, a round, chip or tile for each light, in its colour.',
-  ],
-  [
-    'fluvy-entities-card',
-    FluvyEntitiesCard,
-    'Fluvy · Entities',
-    'Rows of entities: a switch for what toggles, the value for what is measured.',
-  ],
-  [
-    'fluvy-cover-card',
-    FluvyCoverCard,
-    'Fluvy · Cover',
-    'Blinds, shutters, garage doors and valves: vertical position ruler, tilt, open · stop · close, favourites.',
-  ],
-  [
-    'fluvy-fan-card',
-    FluvyFanCard,
-    'Fluvy · Fan',
-    'Speed ruler with steps, oscillation, direction and presets.',
-  ],
-  [
-    'fluvy-sensor-card',
-    FluvySensorCard,
-    'Fluvy · Sensor',
-    'A sensor with its curve, trend, min, max and average, or up to three sensors on one chart.',
-  ],
-  [
-    'fluvy-readouts-card',
-    FluvyReadoutsCard,
-    'Fluvy · Readouts',
-    'Up to four values side by side with their trends.',
-  ],
-  [
-    'fluvy-people-card',
-    FluvyPeopleCard,
-    'Fluvy · People',
-    'Who is home: avatars, zones, times and phone batteries, each person with a tap of their own.',
-  ],
-  [
-    'fluvy-openings-card',
-    FluvyOpeningsCard,
-    'Fluvy · Openings',
-    'Doors, windows and motion at a glance, with what is open counted.',
-  ],
-  [
-    'fluvy-hello-card',
-    FluvyHelloCard,
-    'Fluvy · Hello',
-    'The greeting: name, date, weather and avatar.',
-  ],
-  [
-    'fluvy-chips-card',
-    FluvyChipsCard,
-    'Fluvy · Chips',
-    'A row of chips that navigate between views or open entities.',
-  ],
-  [
-    'fluvy-heading-card',
-    FluvyHeadingCard,
-    'Fluvy · Heading',
-    'A section title with its count and a link.',
-  ],
-  [
-    'fluvy-scene-card',
-    FluvySceneCard,
-    'Fluvy · Scene',
-    'One scene, script or button as a tile with a done state.',
-  ],
-  ['fluvy-scenes-card', FluvyScenesCard, 'Fluvy · Scenes', 'A grid of scenes and scripts.'],
-  [
-    'fluvy-actions-card',
-    FluvyActionsCard,
-    'Fluvy · Actions',
-    'Buttons and scripts as a list with run buttons.',
-  ],
-  [
-    'fluvy-helpers-card',
-    FluvyHelpersCard,
-    'Fluvy · Helpers',
-    'Numbers, selects, texts, booleans and dates as their own controls.',
-  ],
-  ['fluvy-todo-card', FluvyTodoCard, 'Fluvy · To-do', 'A to-do list: check, add, hide the done.'],
-  [
-    'fluvy-timer-card',
-    FluvyTimerCard,
-    'Fluvy · Timer',
-    'A timer counting down live, with pause and cancel.',
-  ],
-  [
-    'fluvy-updates-card',
-    FluvyUpdatesCard,
-    'Fluvy · Updates',
-    'Pending updates with install buttons and progress.',
-  ],
-  [
-    'fluvy-gauge-card',
-    FluvyGaugeCard,
-    'Fluvy · Gauge',
-    'A ring gauge for any numeric sensor with min, max and average, or centred on zero for a meter that runs both ways.',
-  ],
-  [
-    'fluvy-stat-tiles-card',
-    FluvyStatTilesCard,
-    'Fluvy · Stat tiles',
-    'A headline value and a grid of stat tiles.',
-  ],
-  [
-    'fluvy-bars-card',
-    FluvyBarsCard,
-    'Fluvy · Bars',
-    'Rows with a bar each: plants, batteries, strings, levels.',
-  ],
-  [
-    'fluvy-distribution-card',
-    FluvyDistributionCard,
-    'Fluvy · Distribution',
-    'One stacked bar and a legend: who draws what.',
-  ],
-  [
-    'fluvy-room-card',
-    FluvyRoomCard,
-    'Fluvy · Room',
-    'A room of the house from its area: its picture, its climate, what is on, and its controls.',
-  ],
-  [
-    'fluvy-map-card',
-    FluvyMapCard,
-    'Fluvy · Map',
-    'Where everyone is: the house’s zones as columns of faces, a row a person, or Home Assistant’s map on a plate.',
-  ],
-  [
-    'fluvy-humidity-card',
-    FluvyHumidityCard,
-    'Fluvy · Humidity',
-    'Humidity on a comfort band, with dew point and trend.',
-  ],
-  [
-    'fluvy-clock-card',
-    FluvyClockCard,
-    'Fluvy · Clock',
-    'Analog or digital, hero, side or tile, with or without weather.',
-  ],
+  ['fluvy-tile-card', FluvyTileCard],
+  ['fluvy-tiles-card', FluvyTilesCard],
+  ['fluvy-light-card', FluvyLightCard],
+  ['fluvy-lights-card', FluvyLightsCard],
+  ['fluvy-entities-card', FluvyEntitiesCard],
+  ['fluvy-cover-card', FluvyCoverCard],
+  ['fluvy-fan-card', FluvyFanCard],
+  ['fluvy-sensor-card', FluvySensorCard],
+  ['fluvy-readouts-card', FluvyReadoutsCard],
+  ['fluvy-people-card', FluvyPeopleCard],
+  ['fluvy-openings-card', FluvyOpeningsCard],
+  ['fluvy-hello-card', FluvyHelloCard],
+  ['fluvy-chips-card', FluvyChipsCard],
+  ['fluvy-heading-card', FluvyHeadingCard],
+  ['fluvy-scene-card', FluvySceneCard],
+  ['fluvy-scenes-card', FluvyScenesCard],
+  ['fluvy-actions-card', FluvyActionsCard],
+  ['fluvy-helpers-card', FluvyHelpersCard],
+  ['fluvy-todo-card', FluvyTodoCard],
+  ['fluvy-timer-card', FluvyTimerCard],
+  ['fluvy-updates-card', FluvyUpdatesCard],
+  ['fluvy-gauge-card', FluvyGaugeCard],
+  ['fluvy-stat-tiles-card', FluvyStatTilesCard],
+  ['fluvy-bars-card', FluvyBarsCard],
+  ['fluvy-distribution-card', FluvyDistributionCard],
+  ['fluvy-room-card', FluvyRoomCard],
+  ['fluvy-map-card', FluvyMapCard],
+  ['fluvy-humidity-card', FluvyHumidityCard],
+  ['fluvy-clock-card', FluvyClockCard],
 ];
 
-for (const [tag, element, name, description] of CATALOGUE)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CATALOGUE) registerCard(tag, element);
 
 /**
- * A family: its names and heights, which every page carries, and its chunk — fetched at once, defined as it lands
+ * A family: its tags and heights, which every page carries, and its chunk — fetched at once, defined as it lands
  * (its English first), its cards with their elements.
  */
 type Family = readonly [
@@ -271,20 +129,20 @@ const FAMILIES: readonly Family[] = [
 ];
 
 // the families: listed and measured now, their elements fetched at once and defined as they land
-for (const [entries] of FAMILIES)
-  for (const [tag, name, description, height] of entries)
-    announceCard({ tag, name, description }, height);
+for (const [entries] of FAMILIES) for (const [tag, height] of entries) announceCard(tag, height);
 /**
- * The families defined, the chart engine, the room's quick actions and what says what a thermostat is doing landed
- * (what a test waits on before its page goes; the bundle never waits): they are fetched with the families, so a core
- * card's chart is drawn before its history answers, a room's quick actions with its first render, and a tile asked
- * what its thermostat is doing says so from its first.
+ * The families defined, the chart engine, the room's quick actions, what says what a thermostat is doing and what
+ * says what each card is landed (what a test waits on before its page goes; the bundle never waits): they are fetched
+ * with the families, so a core card's chart is drawn before its history answers, a room's quick actions with its first
+ * render, a tile asked what its thermostat is doing says so from its first, and the card picker describes every card
+ * by the time it is opened.
  */
 export const familiesDefined: Promise<unknown> = Promise.all([
   ...FAMILIES.map(([, chunk]) => chunk()),
   loadChartEngine(),
   loadQuickActions(),
   loadDoing(),
+  import('./about.js'),
 ]);
 
 /** Every card with its element: the eager ones, then each family's (docs, tests), the chart engine landed. */

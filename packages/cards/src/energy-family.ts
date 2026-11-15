@@ -519,86 +519,22 @@ export function usageHeight(config: LovelaceCardConfig): number {
   return HEAD + periodChips(config) + 44 + plot + (rows && 4 + rows * 52);
 }
 
-export type FamilyEntry = readonly [
-  tag: string,
-  name: string,
-  description: string,
-  height: (config: LovelaceCardConfig) => number,
-];
+/** A card of a family: its tag and how tall it is at a 360 column (its name and what it is are the catalogue's). */
+export type FamilyEntry = readonly [tag: string, height: (config: LovelaceCardConfig) => number];
 
 export const ENERGY_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-energy-card',
-    'Fluvy · Energy',
-    'Power right now, the day curve and the energy legend.',
-    energyHeight,
-  ],
-  [
-    'fluvy-energy-flow-card',
-    'Fluvy · Energy flow',
-    'Where the house’s energy comes from and where it goes, live or over a period: import and export at once, every source, lanes in their origin’s colour.',
-    flowHeight,
-  ],
-  [
-    'fluvy-energy-balance-card',
-    'Fluvy · Energy balance',
-    'What comes in against what goes out, live or over a period: the house is the remainder, so the totals agree; each phase of the grid, and the money.',
-    balanceHeight,
-  ],
-  [
-    'fluvy-grid-card',
-    'Fluvy · Grid',
-    'The grid right now: the net import or export, in and out at once, each phase with its voltage, the price and today’s totals.',
-    gridHeight,
-  ],
-  [
-    'fluvy-energy-devices-card',
-    'Fluvy · Energy devices',
-    'Where the energy goes, device by device on one scale: nested circuits, and what no meter measures.',
-    devicesHeight,
-  ],
-  [
-    'fluvy-meters-card',
-    'Fluvy · Water & gas',
-    'Today’s water and gas against a typical day, what flows right now, and a leak sensor or a valve beside them.',
-    metersHeight,
-  ],
-  [
-    'fluvy-production-card',
-    'Fluvy · Production',
-    'Hourly production bars with the forecast behind, stacked per array when there are several.',
-    productionHeight,
-  ],
-  [
-    'fluvy-history-bars-card',
-    'Fluvy · History bars',
-    'A sensor’s last days, weeks or months as bars from its long-term statistics: the total and the average in the head, the value over each bar, and a strip of facts under them — the highest and lowest, or what it comes to in CO₂, trees, kilometres or money.',
-    historyBarsHeight,
-  ],
-  [
-    'fluvy-batteries-card',
-    'Fluvy · Batteries',
-    'The house’s batteries as one: their state of charge, full or empty in, the reserve on the ruler, a row per battery and their mode.',
-    batteriesHeight,
-  ],
-  [
-    'fluvy-ev-charger-card',
-    'Fluvy · Car charger',
-    'The car on its charger: its charge against the target, ready by when, what the session added and how much of it came from the sun, the charging mode.',
-    chargerHeight,
-  ],
-  [
-    'fluvy-energy-sankey-card',
-    'Fluvy · Where it went',
-    'A day, week or month of energy from where to where, in true proportions: the grid, the battery and the sun into the house, the charge and the export, and the house into its devices.',
-    sankeyHeight,
-  ],
-  [
-    'fluvy-energy-score-card',
-    'Fluvy · Energy score',
-    'Self-powered, sun used and low-carbon as rings, the Energy dashboard’s own gauges, over imported, exported and net.',
-    scoreHeight,
-  ],
+  ['fluvy-energy-card', energyHeight],
+  ['fluvy-energy-flow-card', flowHeight],
+  ['fluvy-energy-balance-card', balanceHeight],
+  ['fluvy-grid-card', gridHeight],
+  ['fluvy-energy-devices-card', devicesHeight],
+  ['fluvy-meters-card', metersHeight],
+  ['fluvy-production-card', productionHeight],
+  ['fluvy-history-bars-card', historyBarsHeight],
+  ['fluvy-batteries-card', batteriesHeight],
+  ['fluvy-ev-charger-card', chargerHeight],
+  ['fluvy-energy-sankey-card', sankeyHeight],
+  ['fluvy-energy-score-card', scoreHeight],
 ];
 
 /**
@@ -606,16 +542,6 @@ export const ENERGY_FAMILY: readonly FamilyEntry[] = [
  * family's is.
  */
 export const ENERGY_PERIOD_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-energy-period-card',
-    'Fluvy · Energy period',
-    'The view’s date picker as a strip: ‹ the day, week, month or year › and back to today, Home Assistant’s own, so its energy cards follow it as Fluvy’s do.',
-    periodHeight,
-  ],
-  [
-    'fluvy-energy-usage-card',
-    'Fluvy · Energy usage',
-    'Electricity, water or gas used by the hour, the day or the month, stacked by source or meter.',
-    usageHeight,
-  ],
+  ['fluvy-energy-period-card', periodHeight],
+  ['fluvy-energy-usage-card', usageHeight],
 ];

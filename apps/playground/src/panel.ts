@@ -499,7 +499,7 @@ function withDemoHome(hass: HomeAssistant): HomeAssistant {
 
 /**
  * What a selector finds in the panel, once it is drawn (five seconds at most): the first, the one at a place among
- * them, or the one that says a text (a card's name, the same in every language).
+ * them, or the one that says a text (a card's name, as the card picker says it in the page's language).
  */
 async function find(
   panel: HTMLElement,
@@ -570,7 +570,11 @@ const MOMENTS: Record<
   cards: (panel) => adding(panel, 1),
   new: async (panel) => {
     await adding(panel, 1);
-    (await find(panel, '.cz-sheet .fv-row__title', 'Light'))?.click();
+    // the light card's row, by the name the card picker gives it in the page's language (#193)
+    const light = window.customCards?.find((card) => card.type === 'fluvy-light-card')?.name;
+    (
+      await find(panel, '.cz-sheet .fv-row__title', light?.replace(/^Fluvy · /, '') ?? 'Light')
+    )?.click();
   },
 };
 

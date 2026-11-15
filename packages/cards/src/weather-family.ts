@@ -47,11 +47,4 @@ export function weatherHeight(config: LovelaceCardConfig, features?: number): nu
   );
 }
 
-export const WEATHER_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-weather-card',
-    'Fluvy · Weather',
-    'Condition, temperature, feels-like, wind and the daily or hourly forecast.',
-    weatherHeight,
-  ],
-];
+export const WEATHER_FAMILY: readonly FamilyEntry[] = [['fluvy-weather-card', weatherHeight]];

@@ -9,7 +9,7 @@ import { FluvyEnergyUsageCard } from './energy-usage/energy-usage-card.js';
 
 /**
  * The Energy period and Energy usage cards' elements: this module is their own chunk, fetched at start (`index.ts`)
- * and defined as it lands. Their names, descriptions and heights live in `energy-family.ts`, which every page carries.
+ * and defined as it lands. Their heights live in `energy-family.ts`, which every page carries.
  */
 const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
   'fluvy-energy-period-card': FluvyEnergyPeriodCard,
@@ -17,9 +17,7 @@ const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
 };
 
 export const CARDS = ENERGY_PERIOD_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, ELEMENTS[tag] as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, ELEMENTS[tag] as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

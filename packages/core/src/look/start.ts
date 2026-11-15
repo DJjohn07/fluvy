@@ -12,7 +12,7 @@ import {
 } from '../card.js';
 import { ensureFonts } from '../fonts.js';
 import type { HomeAssistant } from '../ha/types.js';
-import { setLanguageOverride } from '../i18n/index.js';
+import { languageOf, setLanguageOverride } from '../i18n/index.js';
 import { DEVICE_KEY, isLite, readDevice, wornLite } from '../settings/device.js';
 import { cachedSettings, SettingsStore } from '../settings/store.js';
 import {
@@ -347,6 +347,8 @@ export function startLook(): LookHandle | undefined {
     if (!hass || !handle) return;
     console.debug(`[fluvy] ${versionNote()}`);
     frame(); // `<home-assistant>` exists now
+    // the page's language as Home Assistant connects: the card picker's list says it before any card has asked
+    languageOf(hass);
     store.start((next) => {
       const before = current();
       settings = next;

@@ -6,12 +6,10 @@ import { FluvyVacuumCard } from './vacuum/vacuum-card.js';
 
 /**
  * The Vacuum card's element: this module is its own chunk, fetched at start (`index.ts`) and defined as it lands.
- * Its name, description and height live in `vacuum-family.ts`, which every page carries.
+ * Its height lives in `vacuum-family.ts`, which every page carries.
  */
 export const CARDS = VACUUM_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, FluvyVacuumCard as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, FluvyVacuumCard as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

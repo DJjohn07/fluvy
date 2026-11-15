@@ -3,6 +3,7 @@ import type activity from './locales/en/activity.json';
 import type alerts from './locales/en/alerts.json';
 import type appliances from './locales/en/appliances.json';
 import type automations from './locales/en/automations.json';
+import type cardsAbout from './locales/en/cards-about.json';
 import type chart from './locales/en/chart.json';
 import type chartCard from './locales/en/chart-card.json';
 import type customise from './locales/en/customise.json';
@@ -43,6 +44,7 @@ export type Catalogue = typeof core &
   typeof alerts &
   typeof appliances &
   typeof automations &
+  typeof cardsAbout &
   typeof chart &
   typeof chartCard &
   typeof customise &

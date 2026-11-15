@@ -80,11 +80,4 @@ export function vacuumHeight(config: LovelaceCardConfig, does?: RobotDoes): numb
   return 64 + readouts + battery + commands + suction + 20;
 }
 
-export const VACUUM_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-vacuum-card',
-    'Fluvy · Vacuum',
-    'Robot vacuum or mower: battery, start · stop · dock · locate, suction, a drive pad.',
-    vacuumHeight,
-  ],
-];
+export const VACUUM_FAMILY: readonly FamilyEntry[] = [['fluvy-vacuum-card', vacuumHeight]];

@@ -6,12 +6,10 @@ import { FluvyRemoteCard } from './remote/remote-card.js';
 
 /**
  * The TV remote card's element: this module is its own chunk, fetched at start (`index.ts`) and defined as it lands.
- * Its name, description and heights live in `remote-family.ts`, which every page carries.
+ * Its heights live in `remote-family.ts`, which every page carries.
  */
 export const CARDS = REMOTE_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, FluvyRemoteCard as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, FluvyRemoteCard as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

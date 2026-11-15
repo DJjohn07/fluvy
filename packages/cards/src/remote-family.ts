@@ -211,11 +211,4 @@ export function remoteHeight(config: LovelaceCardConfig, house: RemoteHouse = {}
   return height;
 }
 
-export const REMOTE_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-remote-card',
-    'Fluvy · Remote',
-    'A TV remote in Fluvy’s hand: power, sources, a D-pad with OK, playback, volume routed where you like, channels, the apps with their logos, keys of your own.',
-    remoteHeight,
-  ],
-];
+export const REMOTE_FAMILY: readonly FamilyEntry[] = [['fluvy-remote-card', remoteHeight]];

@@ -17,7 +17,7 @@ import { FluvyEnergyScoreCard } from './score/score-card.js';
 
 /**
  * The energy family's elements: this module is its own chunk, fetched at start (`index.ts`) and defined as it
- * lands. The names, descriptions and heights live in `energy-family.ts`, which every page carries.
+ * lands. The heights live in `energy-family.ts`, which every page carries.
  */
 const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
   'fluvy-energy-card': FluvyEnergyCard,
@@ -35,9 +35,7 @@ const ELEMENTS: Readonly<Record<string, CustomElementConstructor>> = {
 };
 
 export const CARDS = ENERGY_FAMILY.map(
-  ([tag, name, description]) =>
-    [tag, ELEMENTS[tag] as CustomElementConstructor, name, description] as const,
+  ([tag]) => [tag, ELEMENTS[tag] as CustomElementConstructor] as const,
 );
 
-for (const [tag, element, name, description] of CARDS)
-  registerCard({ tag, name, description }, element);
+for (const [tag, element] of CARDS) registerCard(tag, element);

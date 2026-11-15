@@ -78,11 +78,4 @@ export function expanderHeight(config: LovelaceCardConfig): number {
   return height;
 }
 
-export const EXPANDER_FAMILY: readonly FamilyEntry[] = [
-  [
-    'fluvy-expander-card',
-    'Fluvy · Expander',
-    'Any cards folded away under a head: a tap opens them, on one surface or each on its own.',
-    expanderHeight,
-  ],
-];
+export const EXPANDER_FAMILY: readonly FamilyEntry[] = [['fluvy-expander-card', expanderHeight]];

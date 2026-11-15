@@ -47,6 +47,12 @@ language, so the card starts from Fluvy's.
   the part that already holds its namespace; a new namespace goes in `core.json` unless only one family says it.
   Every other language is fetched whole the first time it is needed (a chunk of its own), so a dashboard pays for
   the language it speaks and no other.
+- **The cards' names and what they are** (1.22, #193): `cards` (in `core.json`) and `cards-about` (its own part,
+  `cards-about.json`), keyed by the card's type without `fluvy-` and `-card` (`energy-flow`). They are what Home
+  Assistant's card picker lists each card as ("Fluvy · " and the name), what its card editor is titled and what
+  Customise's list of Fluvy's cards says, in the dashboard's language. A name heads a tile of the picker: one to three
+  words, Home Assistant's own where it has the same card (its Tile, Entities, Heading, Gauge, Thermostat); what a card
+  is reads as one line under the name and feeds the picker's search.
 - **The naming words**, `packages/core/src/i18n/words/<code>.json`: the stems the automatic dashboard reads a house
   by (what people call their lights, their garden, the solar inverter, the grid meter, a forecast), and the
   `appliance_*` stems an appliance card tells a washer from a dishwasher by (plain lower-case letters: a name is read
