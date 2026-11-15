@@ -5,7 +5,7 @@ import {
   type LovelaceCardConfig,
   type RootElement,
 } from '@fluvy/core';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sync } from './index.js';
 import type { FluvySidebar } from './sidebar.js';
 import { SIDE_ATTRIBUTE } from './styles.js';
@@ -98,12 +98,44 @@ const width = (px: number): void => {
   Object.defineProperty(window, 'innerWidth', { value: px, configurable: true });
 };
 
+/** A ResizeObserver that says what it watches (and by which box), and answers when a test says a size changed. */
+class Sizes {
+  static made: Sizes[] = [];
+  readonly watched = new Map<Element, ResizeObserverBoxOptions | undefined>();
+  constructor(readonly told: () => void) {
+    Sizes.made.push(this);
+  }
+  observe(target: Element, options?: ResizeObserverOptions): void {
+    this.watched.set(target, options?.box);
+  }
+  unobserve(target: Element): void {
+    this.watched.delete(target);
+  }
+  disconnect(): void {
+    this.watched.clear();
+  }
+  /** These changed size: every observer watching one of them is told. */
+  static change(...targets: Element[]): void {
+    for (const one of Sizes.made) if (targets.some((target) => one.watched.has(target))) one.told();
+  }
+}
+
+/** A box's size as the layout would give it (happy-dom lays nothing out). */
+const sized = (element: Element, sizes: Readonly<Record<string, number>>): void => {
+  for (const [name, value] of Object.entries(sizes))
+    Object.defineProperty(element, name, { value, configurable: true });
+};
+
 beforeEach(() => {
   Wrapper.built = [];
+  Sizes.made = [];
   localStorage.clear();
   width(1400);
 });
-afterEach(() => document.body.replaceChildren());
+afterEach(() => {
+  document.body.replaceChildren();
+  vi.unstubAllGlobals();
+});
 
 describe('a dashboard’s own sidebar in Home Assistant’s page', () => {
   it('stands first in the view row, marked on the root, and stays there as Home Assistant swaps the view', async () => {
@@ -398,6 +430,108 @@ describe('a dashboard’s own sidebar in Home Assistant’s page', () => {
     items[2]!.click();
     await settle();
     expect(calls).toEqual([['light', 'turn_off', {}, undefined]]);
+  });
+
+  it('keeps its head and its foot while they leave the middle a row, and past that scrolls the whole column inside its surface (#195)', async () => {
+    vi.stubGlobal('ResizeObserver', Sizes);
+    const { root, side, settle } = mount({
+      header: { cards: [CLOCK] },
+      menu: 'views',
+      cards: [TILE],
+      footer: { cards: [ALERTS] },
+    });
+    sync(root);
+    await settle();
+    const sr = side()!.shadowRoot!;
+    const [column, head, foot] = ['.sb-column', '.sb-head', '.sb-foot'].map((selector) =>
+      sr.querySelector<HTMLElement>(selector)!,
+    );
+    // what it measures: the column, its head, its foot, and every card it holds (an Expander that opens)
+    expect(Sizes.made.flatMap((one) => [...one.watched.keys()])).toEqual(
+      expect.arrayContaining([column, head, foot, ...side()!.children]),
+    );
+    const scrolls = (): string[] =>
+      [...sr.querySelectorAll('.sb-scroll')].map((one) => one.classList[0]!);
+    // 744 tall: a head of 300 and a foot of 100 leave the middle more than its row (44, its 20 above and below)
+    sized(column!, { clientHeight: 744 });
+    sized(head!, { offsetHeight: 300 });
+    sized(foot!, { offsetHeight: 100 });
+    Sizes.change(head!);
+    await settle();
+    expect(scrolls()).toEqual(['sb-body']);
+    // an Expander opened in the head: 640 and 100 leave it 4, so all of it scrolls and the middle no longer does
+    sized(head!, { offsetHeight: 640 });
+    Sizes.change(head!);
+    await settle();
+    expect(column!.classList.contains('is-whole')).toBe(true);
+    expect(scrolls()).toEqual(['sb-column']);
+    // folded again to exactly a row's room: the head and the foot stay
+    sized(head!, { offsetHeight: 560 });
+    Sizes.change(head!);
+    await settle();
+    expect(column!.classList.contains('is-whole')).toBe(false);
+    expect(scrolls()).toEqual(['sb-body']);
+  });
+
+  it('lets a head and a foot with nothing between them stay while they fit, and scroll as one once they do not', async () => {
+    vi.stubGlobal('ResizeObserver', Sizes);
+    const { root, side, settle } = mount({
+      header: { cards: [CLOCK] },
+      footer: { cards: [ALERTS] },
+    });
+    sync(root);
+    await settle();
+    const sr = side()!.shadowRoot!;
+    const column = sr.querySelector<HTMLElement>('.sb-column')!;
+    sized(column, { clientHeight: 744 });
+    sized(sr.querySelector('.sb-foot')!, { offsetHeight: 140 });
+    const head = sr.querySelector<HTMLElement>('.sb-head')!;
+    sized(head, { offsetHeight: 600 });
+    Sizes.change(head);
+    await settle();
+    expect(column.classList.contains('is-whole')).toBe(false);
+    sized(head, { offsetHeight: 620 });
+    Sizes.change(head);
+    await settle();
+    expect(column.classList.contains('is-whole')).toBe(true);
+  });
+
+  it('fades the middle once a card it holds grows past it, and the column’s ends once the column scrolls whole', async () => {
+    vi.stubGlobal('ResizeObserver', Sizes);
+    const { root, side, settle } = mount({
+      header: { cards: [CLOCK] },
+      cards: [TILE],
+      footer: { cards: [ALERTS] },
+    });
+    sync(root);
+    await settle();
+    const sr = side()!.shadowRoot!;
+    const [column, head, body, foot] = ['.sb-column', '.sb-head', '.sb-body', '.sb-foot'].map(
+      (selector) => sr.querySelector<HTMLElement>(selector)!,
+    );
+    const card = [...side()!.children].find((one) => one.slot === 'cards')!;
+    sized(column!, { clientHeight: 744, scrollTop: 0, scrollHeight: 744 });
+    sized(head!, { offsetHeight: 300 });
+    sized(foot!, { offsetHeight: 100 });
+    sized(body!, { scrollTop: 0, clientHeight: 344, scrollHeight: 344 });
+    Sizes.change(card);
+    await settle();
+    expect(body!.classList.contains('is-over')).toBe(false);
+    // the card opens (an Expander, a tap): the middle holds more than it shows, and says so at its foot
+    sized(body!, { scrollHeight: 900 });
+    Sizes.change(card);
+    await settle();
+    expect([body!.classList.contains('is-under'), body!.classList.contains('is-over')]).toEqual([
+      false,
+      true,
+    ]);
+    // the head grows past the middle's row: the column fades where it goes on, the middle not at all
+    sized(head!, { offsetHeight: 700 });
+    sized(column!, { scrollHeight: 1400 });
+    Sizes.change(head!);
+    await settle();
+    expect(column!.classList.contains('is-over')).toBe(true);
+    expect(body!.classList.contains('is-over')).toBe(false);
   });
 
   it('takes every sidebar off the page when it throws, and hands the throw on', async () => {

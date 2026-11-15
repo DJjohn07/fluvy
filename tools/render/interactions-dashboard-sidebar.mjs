@@ -13,9 +13,12 @@
  * chosen; a fold is remembered by the device; at the end, in a right-to-left page, at another size, on a wall, in the
  * floating frame, in the edit mode and in a subview it stands as it should; the header's tabs give way when asked; a
  * card of Fluvy's it holds stands in its column with no surface of its own; a dashboard without the key fetches
- * nothing.
+ * nothing. Taller than its surface (#195), with a wheel and a finger: a head or a foot that leave the middle no row
+ * (an Expander open in them, a pinned menu on a short tablet, a phone's drawer) scroll with the whole column inside
+ * its surface, the page and the sidebar never moving and the foot always reached; the middle fades once a card it
+ * holds opens.
  */
-import { settle, startSuite } from './lib/suite.mjs';
+import { ENGINE, settle, startSuite, tapHead } from './lib/suite.mjs';
 
 const suite = await startSuite();
 const { check } = suite;
@@ -72,6 +75,69 @@ const read = (page) =>
   });
 
 const near = (a, b, by = 0.5) => Math.abs(a - b) <= by;
+
+/**
+ * The sidebar's column as it scrolls: whether it scrolls whole, what scrolls (the middle or the column), how far and
+ * how far it can, its fades; its parts' boxes; the page's own scroll, its length and the view row's.
+ */
+const column = (page) =>
+  page.evaluate(() => {
+    const sr = document.querySelector('hui-root').shadowRoot;
+    const side = sr.querySelector('fluvy-sidebar');
+    const inner = side.shadowRoot;
+    const scroll = inner.querySelector('.sb-scroll');
+    const box = (el) => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { y: Math.round(r.y), bottom: Math.round(r.bottom) };
+    };
+    return {
+      whole: inner.querySelector('.sb-column')?.classList.contains('is-whole') ?? false,
+      scroller: scroll?.classList[0] ?? null,
+      top: Math.round(scroll?.scrollTop ?? 0),
+      end: Math.round((scroll?.scrollHeight ?? 0) - (scroll?.clientHeight ?? 0)),
+      under: scroll?.classList.contains('is-under') ?? false,
+      over: scroll?.classList.contains('is-over') ?? false,
+      side: box(side),
+      surface: box(inner.querySelector('.sb-surface')),
+      head: box(inner.querySelector('.sb-head')),
+      foot: box(inner.querySelector('.sb-foot')),
+      page: Math.round(window.scrollY),
+      length: document.documentElement.scrollHeight,
+      row: Math.round(sr.querySelector('#view').getBoundingClientRect().height),
+    };
+  });
+
+/** A wheel turned over a point, `dy` px down, as a mouse's. */
+async function wheel(page, x, y, dy = 600) {
+  await page.mouse.move(x, y);
+  await page.mouse.wheel(0, dy);
+  await settle(page, 400);
+}
+
+/** A finger that swipes up from a point, `distance` px: the browser scrolls what it scrolls (Chromium's touch events). */
+async function swipe(page, at, distance = 300) {
+  const cdp = await page.context().newCDPSession(page);
+  const send = (type, touchPoints) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
+  await send('touchStart', [at]);
+  for (let i = 1; i <= 12; i++) {
+    await send('touchMove', [{ x: at.x, y: at.y - (distance * i) / 12 }]);
+    await page.waitForTimeout(16);
+  }
+  await send('touchEnd', []);
+  await cdp.detach();
+  await settle(page, 400);
+}
+
+/** Turns the wheel over a point until what scrolls there is at its end (a few turns at most). */
+async function wheelToEnd(page, x, y) {
+  for (let i = 0; i < 6; i++) {
+    const s = await column(page);
+    if (s.top >= s.end - 1) return s;
+    await wheel(page, x, y, 800);
+  }
+  return column(page);
+}
 
 /* ---------- beside the views, by device ---------- */
 for (const [width, height, expected] of [
@@ -299,6 +365,203 @@ for (const width of [360, 412]) {
       near(within.head.y, before.head.y) &&
       near(within.foot.y, before.foot.y),
     JSON.stringify(middle),
+  );
+  await page.close();
+}
+{
+  // a wheel and a finger over the middle: the middle scrolls, and at its end goes no further, never the page
+  const page = await open('side=long', { width: 1024, height: 768 });
+  const before = await column(page);
+  await wheel(page, 140, 500);
+  const turned = await column(page);
+  const ended = await wheelToEnd(page, 140, 500);
+  await wheel(page, 140, 500);
+  const past = await column(page);
+  check(
+    'a wheel over the middle scrolls the middle alone, to its end and no further: the page, the head and the foot stay',
+    !before.whole &&
+      before.scroller === 'sb-body' &&
+      turned.top > 0 &&
+      turned.under &&
+      near(ended.top, ended.end, 1) &&
+      !ended.over &&
+      past.page === 0 &&
+      near(past.head.y, before.head.y) &&
+      near(past.foot.y, before.foot.y),
+    JSON.stringify({ before: before.top, turned: turned.top, ended, page: past.page }),
+  );
+  await page.close();
+}
+if (ENGINE === 'chromium') {
+  const page = await open('side=long', { width: 1024, height: 768 }, { touch: true });
+  await swipe(page, { x: 140, y: 560 });
+  const s = await column(page);
+  check(
+    'a finger’s swipe over the middle scrolls the middle, never the page',
+    s.scroller === 'sb-body' && s.top > 0 && s.page === 0,
+    JSON.stringify({ top: s.top, page: s.page }),
+  );
+  await page.close();
+}
+
+/* ---------- taller than its surface (#195) ---------- */
+for (const [height, why] of [
+  [800, 'a window shorter than the view'],
+  [1400, 'a window taller than the view, as on the reporter’s tablet'],
+]) {
+  const page = await open('side=tallhead', { width: 1280, height });
+  const before = await column(page);
+  check(
+    `an Expander open in the head, ${why}: the whole column scrolls inside its surface, which stands from under the header to the window’s foot, and the page is no longer than its view`,
+    before.whole &&
+      before.scroller === 'sb-column' &&
+      before.end > 0 &&
+      before.over &&
+      !before.under &&
+      before.side.y === HEADER &&
+      near(before.surface.bottom, height) &&
+      before.length <= Math.max(before.row, height),
+    JSON.stringify(before),
+  );
+  await wheel(page, 140, 400);
+  const turned = await column(page);
+  check(
+    `${height}: a wheel over the head scrolls the column, fading at both ends, and neither the page nor the sidebar moves`,
+    turned.top > 0 &&
+      turned.under &&
+      turned.over &&
+      turned.page === 0 &&
+      turned.side.y === HEADER &&
+      near(turned.surface.bottom, height),
+    JSON.stringify({ top: turned.top, page: turned.page, side: turned.side }),
+  );
+  const ended = await wheelToEnd(page, 140, 400);
+  await wheel(page, 140, 400);
+  const past = await column(page);
+  check(
+    `${height}: at its end the foot stands inside the surface, and a wheel past it goes no further than the column`,
+    near(ended.top, ended.end, 1) &&
+      !ended.over &&
+      ended.foot.bottom <= ended.surface.bottom &&
+      past.page === 0 &&
+      past.side.y === HEADER,
+    JSON.stringify({ foot: ended.foot, surface: ended.surface, page: past.page }),
+  );
+  await page.close();
+}
+if (ENGINE === 'chromium') {
+  const page = await open('side=tallhead', { width: 1280, height: 800 }, { touch: true });
+  await swipe(page, { x: 140, y: 600 }, 400);
+  const s = await column(page);
+  check(
+    'a finger’s swipe over the head scrolls the column, never the page',
+    s.whole && s.top > 0 && s.page === 0 && s.side.y === HEADER,
+    JSON.stringify({ top: s.top, page: s.page, side: s.side }),
+  );
+  await page.close();
+}
+{
+  const page = await open('side=tallfoot', { width: 1280, height: 800 });
+  const before = await column(page);
+  const ended = await wheelToEnd(page, 140, 700);
+  check(
+    'an Expander open at the foot: the whole column scrolls, and the wheel takes it to the foot’s last card, the page still',
+    before.whole &&
+      before.length <= Math.max(before.row, 800) &&
+      ended.top > 0 &&
+      near(ended.top, ended.end, 1) &&
+      ended.foot.bottom <= ended.surface.bottom &&
+      ended.page === 0 &&
+      ended.side.y === HEADER,
+    JSON.stringify({ before: before.whole, ended }),
+  );
+  await page.close();
+}
+{
+  const page = await open('side=tallhead&wall=1', { width: 1024, height: 768 });
+  await wheel(page, 140, 400);
+  const s = await column(page);
+  check(
+    'on a wall, the head taller than the screen: the column scrolls from the screen’s top, the page and the sidebar still',
+    s.whole && s.side.y === 0 && near(s.surface.bottom, 768) && s.top > 0 && s.page === 0,
+    JSON.stringify(s),
+  );
+  await page.close();
+}
+{
+  // ten pages pinned under the clock on a short tablet: the foot below the window until the column scrolls
+  const page = await open('side=menu&sidepinned=1&views=10', { width: 1024, height: 600 });
+  const before = await column(page);
+  const ended = await wheelToEnd(page, 140, 300);
+  check(
+    'a pinned menu of ten pages on a 1024 × 600 tablet: the whole column scrolls, and the foot is reached inside the window',
+    before.whole &&
+      before.foot.y > 600 &&
+      ended.foot.y >= HEADER &&
+      ended.foot.bottom <= 600 &&
+      ended.page === 0,
+    JSON.stringify({ before: before.foot, ended: ended.foot, page: ended.page }),
+  );
+  await page.close();
+}
+{
+  // a folded Expander in the middle, opened by a tap: the middle holds more than it shows, and fades at its foot
+  const page = await open('side=folded', { width: 1024, height: 768 });
+  const before = await column(page);
+  await tapHead(page.locator('fluvy-sidebar fluvy-expander-card'));
+  await settle(page, 600);
+  const opened = await column(page);
+  await wheel(page, 140, 600);
+  const turned = await column(page);
+  check(
+    'an Expander opened by a tap in the middle: the middle fades over the foot at once, and a wheel scrolls it',
+    !before.whole &&
+      !before.over &&
+      !opened.whole &&
+      opened.scroller === 'sb-body' &&
+      opened.over &&
+      turned.top > 0 &&
+      turned.under &&
+      turned.page === 0,
+    JSON.stringify({ before: before.over, opened: opened.over, turned: turned.top }),
+  );
+  await page.close();
+}
+if (ENGINE === 'chromium') {
+  // a phone's drawer whose head is taller than the phone: the menu and the close round are a swipe away
+  const page = await open(
+    'side=tallhead&sidephone=drawer',
+    { width: 390, height: 844 },
+    { touch: true },
+  );
+  const sb = () => page.locator('fluvy-sidebar');
+  const opener = await sb().locator('.sb-open').boundingBox();
+  await page.touchscreen.tap(opener.x + 22, opener.y + 22);
+  await settle(page, 600);
+  const before = await column(page);
+  for (let i = 0; i < 8; i++) {
+    const s = await column(page);
+    if (s.top >= s.end - 1) break;
+    await swipe(page, { x: 160, y: 700 }, 500);
+  }
+  const ended = await column(page);
+  const media = await sb().locator('.sb-item', { hasText: 'Media' }).boundingBox();
+  const close = await sb().locator('.sb-fold button').boundingBox();
+  check(
+    'the drawer, its head taller than the phone: the whole column scrolls inside it, to its last page and its close round',
+    before.whole &&
+      before.top === 0 &&
+      near(ended.top, ended.end, 1) &&
+      media.y >= 0 &&
+      media.y + media.height <= 844 &&
+      close.y + close.height <= 844 - 16 + 0.5,
+    JSON.stringify({ before: before.whole, ended: ended.top, media, close }),
+  );
+  await page.touchscreen.tap(media.x + 60, media.y + 22);
+  await settle(page, 500);
+  check(
+    'the drawer: the last page, reached by the swipe, opens its view',
+    (await page.evaluate(() => window.location.pathname)) === '/fluvy-home/media',
   );
   await page.close();
 }

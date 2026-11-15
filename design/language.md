@@ -1051,7 +1051,13 @@ had always had it: it stands in Home Assistant's view row, under the header, and
 - **Three parts.** A head and a foot that stay, a middle that scrolls between them when it holds more than the
   window: the one place where a column scrolls beside the page, because a clock and an alert must stay in sight. The
   middle shows no scrollbar; it fades 24 px only where it goes on, under the head once scrolled and over the foot
-  while there is more. A hairline in the column parts what stays from what scrolls, 20 from each.
+  while there is more, and it says so the moment a card in it grows (an Expander opened). A hairline in the column
+  parts what stays from what scrolls, 20 from each.
+- **Taller than its surface (1.22, #195).** The head and the foot stay only while they leave the middle one row (44
+  and its padding, 84 on a surface); a head or a foot taller than that (an Expander open in it, ten pages pinned on a
+  1024 × 600 tablet, a phone's drawer) takes the whole column with it: the column scrolls as one inside its surface,
+  fading at its own ends the same 24, and stops at its ends (a finger or a wheel past them moves nothing). The surface
+  never leaves the window, and the page is never made longer by it, so the sidebar never rides up with the page.
 - **Panel** (the default): the card's fill from edge to edge, from the header's foot to the window's, square, closed
   by one hairline laid over its inner edge (`--fluvy-edge`, else the border) — the header's bar and Home Assistant's
   own sidebar turned the corner. Its column is 20 in: 240 in a tablet's 280, 280 in a desktop's 320.

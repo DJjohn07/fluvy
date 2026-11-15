@@ -89,10 +89,10 @@ import { sidebarFor } from './side.js';
  *                 &own={"type":"color","colors":["#1d4ed8"]} the dashboard's own in its strategy; on a wall
  *                 (&wall=1) the wall's own wins unless &bg=dashboard lets the dashboard's through
  *   &side=menu    the dashboard's own sidebar (1.21, #187): `fluvy_sidebar:` in its configuration, as `side.ts` writes
- *                 it for the page (menu | long | cards | drawer | pages, and what follows them there), drawn by the
- *                 bundle's own file, fetched as the root first updates with the key. The root is then handed the whole
- *                 house on every change, as Home Assistant's is, and follows the address as Home Assistant's does: a
- *                 view's path opens it (`/fluvy-home/rooms`), a subview's too
+ *                 it for the page (menu | long | cards | drawer | tallhead | tallfoot | folded | pages, and what
+ *                 follows them there), drawn by the bundle's own file, fetched as the root first updates with the
+ *                 key. The root is then handed the whole house on every change, as Home Assistant's is, and follows
+ *                 the address as Home Assistant's does: a view's path opens it (`/fluvy-home/rooms`), a subview's too
  */
 
 interface View {

@@ -7,6 +7,10 @@
  *   &side=long     the same with more in the middle than a window holds: the middle scrolls, the head and the foot stay
  *   &side=cards    cards alone, no menu: Fluvy's and one of Home Assistant's own
  *   &side=drawer   `menu`, in a drawer on a phone (`phone: drawer`)
+ *   &side=tallhead the head holds the house behind an open Expander, taller than a window: the whole column scrolls
+ *                  inside its surface, never the page (#195; `&sidephone=drawer` the same in a phone's drawer)
+ *   &side=tallfoot the same at the foot, over the alerts
+ *   &side=folded   `menu` with the house folded in the middle, under the menu: a tap opens it, and the middle fades
  *   &side=pages    a menu of pages written by hand: an address, a view by its path, an action
  *   &sidepos=end  &sidestyle=card|plain  &sidephone=top|drawer  &sidefold=1 (collapsible)  &sidetabs=0 (hide_tabs)
  *   &sidepinned=1 (the menu stays under the head)  &sidewidth=24%  &sideviews=home,rooms  &sidesub=0  &sideusers=…
@@ -56,6 +60,29 @@ const ENTITIES = {
 
 const MENU = { items: 'views' };
 
+const EXPANDER = 'custom:fluvy-expander-card';
+
+/** The rest of the house's switches, as the tiles show them. */
+const SWITCHES = {
+  type: 'custom:fluvy-tiles-card',
+  size: 'compact',
+  columns: 1,
+  entities: ['switch.kitchen', 'switch.hall', 'switch.office', 'switch.patio', 'cover.blinds'],
+};
+
+/** Every light, switch and reading of the house behind one fold, open: taller than a window wherever it stands (#195). */
+const HOUSE = {
+  type: EXPANDER,
+  title: 'Around the house',
+  icon: 'fluvy:home',
+  expanded: true,
+  remember: 'off',
+  cards: [LIGHTS, SWITCHES, THERMOSTAT, ENTITIES],
+};
+
+/** The same, folded: what the middle holds until a tap opens it. */
+const FOLDED = { ...HOUSE, expanded: false };
+
 const SIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
   menu: { header: { cards: [CLOCK] }, menu: MENU, footer: { cards: [ALERTS] } },
   long: {
@@ -71,6 +98,14 @@ const SIDES: Readonly<Record<string, Readonly<Record<string, unknown>>>> = {
     cards: [THERMOSTAT],
     footer: { cards: [ALERTS] },
     phone: 'drawer',
+  },
+  tallhead: { header: { cards: [CLOCK, HOUSE] }, menu: MENU, footer: { cards: [ALERTS] } },
+  tallfoot: { header: { cards: [CLOCK] }, menu: MENU, footer: { cards: [HOUSE, ALERTS] } },
+  folded: {
+    header: { cards: [CLOCK] },
+    menu: MENU,
+    cards: [FOLDED],
+    footer: { cards: [ALERTS] },
   },
   pages: {
     menu: {

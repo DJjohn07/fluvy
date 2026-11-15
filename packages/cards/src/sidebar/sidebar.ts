@@ -41,6 +41,8 @@ export interface MenuEntry {
 
 /** Folded to its icons, a sidebar is its circles between 8 a side. */
 const RAIL = 60;
+/** A row of the menu: the room the middle keeps between the head and the foot, its padding with it. */
+const ROW = 44;
 /** How long the drawer takes to leave. */
 const LEAVE = 200;
 
@@ -91,6 +93,7 @@ export class FluvySidebar extends FluvyCard {
     open_: { state: true },
     leaving_: { state: true },
     vacant_: { state: true },
+    whole_: { state: true },
   };
 
   /** What the dashboard asks for. */
@@ -109,12 +112,18 @@ export class FluvySidebar extends FluvyCard {
   declare leaving_: boolean;
   /** The lists whose every card is hidden, by name (`vacate`). */
   declare vacant_: string;
+  /** The head and the foot leave the middle no row: the whole column scrolls as one (`fit`). */
+  declare whole_: boolean;
 
   /** The cards built, list by list, and the configs they were built from. */
   private held: Record<Region, Held[]> = { header: [], cards: [], footer: [] };
   private built: Record<Region, string> = { header: '', cards: '', footer: '' };
   private leaving: number | undefined;
   private remembered = '';
+  /** What the column's room is read by, as each changes size: its own height, its head's, its foot's, its cards'. */
+  private readonly sizes =
+    typeof ResizeObserver === 'function' ? new ResizeObserver(() => this.fit()) : undefined;
+  private measured: readonly Element[] = [];
 
   constructor() {
     super();
@@ -127,6 +136,7 @@ export class FluvySidebar extends FluvyCard {
     this.open_ = false;
     this.leaving_ = false;
     this.vacant_ = '';
+    this.whole_ = false;
     this.config = { type: TAG };
   }
 
@@ -278,6 +288,7 @@ export class FluvySidebar extends FluvyCard {
     this.rule();
     const dialog = this.renderRoot.querySelector('dialog');
     if (dialog && this.open_ && !this.leaving_ && !dialog.open) dialog.showModal?.();
+    this.measure();
     this.fade();
   }
 
@@ -402,13 +413,52 @@ export class FluvySidebar extends FluvyCard {
       : nothing;
   }
 
-  /** The middle fades where it goes on under the head or over the foot: read off its scroll. */
+  /** What scrolls (the middle, or the whole column) fades where it goes on: read off its scroll. */
   private readonly fade = (): void => {
-    const body = this.renderRoot.querySelector<HTMLElement>('.sb-body');
-    if (!body) return;
-    body.classList.toggle('is-under', body.scrollTop > 1);
-    body.classList.toggle('is-over', body.scrollTop + body.clientHeight < body.scrollHeight - 1);
+    const scroll = this.renderRoot.querySelector<HTMLElement>('.sb-scroll');
+    if (!scroll) return;
+    scroll.classList.toggle('is-under', scroll.scrollTop > 1);
+    scroll.classList.toggle(
+      'is-over',
+      scroll.scrollTop + scroll.clientHeight < scroll.scrollHeight - 1,
+    );
   };
+
+  /** The column, its head, its foot and the cards it holds, watched as they change size: anew when they are others. */
+  private measure(): void {
+    const parts = [
+      ...this.renderRoot.querySelectorAll('.sb-column, .sb-head, .sb-foot'),
+      ...this.children,
+    ];
+    if (
+      parts.length === this.measured.length &&
+      parts.every((part, i) => part === this.measured[i])
+    )
+      return;
+    this.sizes?.disconnect();
+    for (const part of parts) this.sizes?.observe(part);
+    this.measured = parts;
+  }
+
+  /**
+   * Whether the head and the foot keep their places: while they leave the middle a row's room (none where it holds
+   * nothing). Past that the whole column scrolls as one inside its surface, never the page (#195); either way the fade
+   * follows what it holds now (an Expander opened in the middle).
+   */
+  private fit(): void {
+    const column = this.renderRoot.querySelector<HTMLElement>('.sb-column');
+    const body = column?.querySelector<HTMLElement>('.sb-body');
+    if (!column || !body || !this.isConnected) return;
+    const tall = (part: string): number =>
+      column.querySelector<HTMLElement>(part)?.offsetHeight ?? 0;
+    const { paddingTop, paddingBottom } = getComputedStyle(body);
+    const floor = body.classList.contains('is-empty')
+      ? 0
+      : ROW + parseFloat(paddingTop) + parseFloat(paddingBottom);
+    const whole = tall('.sb-head') + tall('.sb-foot') + floor > column.clientHeight;
+    if (whole !== this.whole_) this.whole_ = whole;
+    else this.fade();
+  }
 
   /** A round of the sidebar's own at its foot, on a row of its own: the fold's, the drawer's close. */
   private round(
@@ -432,9 +482,13 @@ export class FluvySidebar extends FluvyCard {
     </div>`;
   }
 
-  /** The head, the middle and the foot on their surface: the sidebar beside the views, and the drawer's. */
+  /**
+   * The head, the middle and the foot on their surface: the sidebar beside the views, and the drawer's. The middle
+   * scrolls between the head and the foot, or the whole column does where they leave it no row (`fit`).
+   */
   private column(spec: SidebarSpec, foot: TemplateResult | typeof nothing): TemplateResult {
     const rail = this.rail;
+    const whole = this.whole_;
     const pinned = spec.menu?.pinned === true;
     const menu = this.menu();
     const head = rail ? nothing : this.cards('header');
@@ -444,21 +498,26 @@ export class FluvySidebar extends FluvyCard {
     const filled = middle !== nothing || (!pinned && menu !== nothing);
     const bottom = footer !== nothing || foot !== nothing;
     return html`<div class="sb-surface ${this.carded ? 'fv-card' : ''}">
-      ${
-        top
-          ? html`<div class="sb-head ${filled || bottom ? 'is-ruled' : ''}">
-              ${head}${pinned ? menu : nothing}
-            </div>`
-          : nothing
-      }
-      <div class="sb-body ${filled ? '' : 'is-empty'}" @scroll=${this.fade}>
-        ${pinned ? nothing : menu}${middle}
+      <div class="sb-column ${whole ? 'is-whole sb-scroll' : ''}" @scroll=${this.fade}>
+        ${
+          top
+            ? html`<div class="sb-head ${filled || bottom ? 'is-ruled' : ''}">
+                ${head}${pinned ? menu : nothing}
+              </div>`
+            : nothing
+        }
+        <div
+          class="sb-body ${whole ? '' : 'sb-scroll'} ${filled ? '' : 'is-empty'}"
+          @scroll=${this.fade}
+        >
+          ${pinned ? nothing : menu}${middle}
+        </div>
+        ${
+          bottom
+            ? html`<div class="sb-foot ${top || filled ? 'is-ruled' : ''}">${footer}${foot}</div>`
+            : nothing
+        }
       </div>
-      ${
-        bottom
-          ? html`<div class="sb-foot ${top || filled ? 'is-ruled' : ''}">${footer}${foot}</div>`
-          : nothing
-      }
     </div>`;
   }
 

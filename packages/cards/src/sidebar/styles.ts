@@ -31,9 +31,9 @@ ${has('no-tabs')} .toolbar > .action-items { margin-inline-start: auto; }`;
 /**
  * The sidebar's own rules, on the language's card, circle and round. Its surface is the card's (`panel`: from edge to
  * edge, square, a hairline at its inner edge alone; `card`: one card, the view's gaps round it; `plain`: none), its
- * head and its foot stay and its middle scrolls between them. On a surface the cards it holds wear none and stand in
- * its column, 40 apart with a hairline between, as the Expander's do; with none they keep their own, a section's 16
- * apart. Tokens only.
+ * head and its foot stay while they leave its middle a row and the middle scrolls between them, else the whole column
+ * scrolls. On a surface the cards it holds wear none and stand in its column, 40 apart with a hairline between, as the
+ * Expander's do; with none they keep their own, a section's 16 apart. Tokens only.
  */
 export const sidebarStyles = css`
   :host {
@@ -94,6 +94,15 @@ export const sidebarStyles = css`
   }
 
   /* ---------- the head, the middle, the foot ---------- */
+  /* the column on its surface: the head and the foot stay while they leave the middle a row (one row and its
+     padding), and the middle scrolls between them; past that (is-whole) the whole column scrolls as one, inside its
+     surface and never the page (#195), the middle at its own height in it */
+  .sb-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
   .sb-head,
   .sb-foot {
     position: relative;
@@ -104,6 +113,12 @@ export const sidebarStyles = css`
     flex: 1 1 auto;
     min-height: 0;
     padding: var(--sb-pad);
+  }
+  .is-whole > .sb-body {
+    flex-shrink: 0;
+  }
+  /* what scrolls, the middle or the whole column: a finger or a wheel at its end goes no further, and no bar */
+  .sb-scroll {
     overflow: hidden auto;
     overscroll-behavior: contain;
     scrollbar-width: none;
@@ -122,15 +137,15 @@ export const sidebarStyles = css`
       #0000
     );
   }
-  .sb-body::-webkit-scrollbar {
+  .sb-scroll::-webkit-scrollbar {
     width: 0;
     height: 0;
   }
-  /* it fades only where it goes on: under the head once scrolled, over the foot while there is more */
-  .sb-body.is-under {
+  /* it fades only where it goes on: at its top once scrolled, at its foot while there is more */
+  .sb-scroll.is-under {
     --sb-under: 24px;
   }
-  .sb-body.is-over {
+  .sb-scroll.is-over {
     --sb-over: 24px;
   }
   .sb-body.is-empty {
