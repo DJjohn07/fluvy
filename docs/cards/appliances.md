@@ -118,6 +118,10 @@ An item is a map with `device` and any of these fields.
 | `hold_action` | What a long press on the item does. |
 | `double_tap_action` | What two taps on the item do. |
 
+## Guide
+
+This card is in [the Appliance card’s guide](appliance.md#guide).
+
 <details>
 <summary>Older names the card still reads</summary>
 

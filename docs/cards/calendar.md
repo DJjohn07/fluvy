@@ -98,6 +98,24 @@ An item is an entity id, or a map with `entity` and any of these fields.
 | `tone` | The item’s colour from the palette’s tones. `accent` · `light` · `heat` · `cool` · `dry` · `fan` · `water` · `solar` · `grid` · `media` · `presence` · `armed` · `battery` · `house` · `gas` · `vehicle` (Car) · `neutral` · `ok` (Good) · `warning` · `danger`. |
 | `color` | The item’s colour, in place of the one the card gives it. |
 
+## Guide
+
+The week and the month start on the day `first_weekday` says: a weekday, or `language` (the default: your profile's,
+else your language's).
+
+```yaml
+# the week view as the next seven days
+type: custom:fluvy-calendar-card
+variant: week
+first_weekday: today
+calendars:
+  - calendar.family
+  - calendar.work
+```
+
+`first_weekday: today` makes the week strip today and the six days after it ("Next 7 days"). It rolls over at midnight
+by itself, for a wall dashboard that is never reloaded. A month keeps your week's first day.
+
 <details>
 <summary>Older names the card still reads</summary>
 

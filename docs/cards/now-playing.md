@@ -55,6 +55,10 @@ More about them in [Options every card takes](../customising.md#options-every-ca
 
 </details>
 
+## Guide
+
+This card is in [the Media card’s guide](media.md#guide).
+
 <details>
 <summary>Older names the card still reads</summary>
 

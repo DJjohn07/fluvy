@@ -110,6 +110,36 @@ An item is an entity id, or a map with `entity` and any of these fields.
 | `name` | The item’s own name, in place of the one the card would give it. |
 | `color` | The item’s colour, in place of the one the card gives it. `graph-1` (Series 1) · `graph-2` (Series 2) · `graph-3` (Series 3) · `graph-4` (Series 4) · `graph-5` (Series 5) · `graph-6` (Series 6) · `graph-7` (Series 7) · `graph-8` (Series 8) · `graph-9` (Series 9) · `graph-10` (Series 10) · `graph-11` (Series 11) · `graph-12` (Series 12) · `accent` · `ok` (Good) · `warning` · `danger` · `notice` · `light` · `solar` · `grid` · `battery` · `water` · `gas` · `home` (House), or your own. |
 
+## Guide
+
+The card draws the house's energy as Home Assistant's usage graph does: a column for each hour of a day, each day of a
+week or a month, each month of a year. Above the line, where the house took it from (the sun, the battery, the grid on
+top); below, what went into the battery and out to the grid. The figures are the Energy dashboard's, slot by slot.
+
+```yaml
+type: custom:fluvy-energy-usage-card
+period: week   # day (the default), week, month, year
+compare: true  # last week as ghost columns behind this one
+sources:
+  - { type: solar, name: Roof }
+  - battery
+  - { type: grid, color: '#7c5cff' }
+```
+
+```yaml
+# following a date picker on the dashboard: its range, its Compare
+type: custom:fluvy-energy-usage-card
+collection_key: energy_casa
+variant: compact
+```
+
+- `sources` lists the sources in the order they stack, each with its `name`, `color` (a palette name follows the
+  palette) and `show`. Left out: every source of the Energy dashboard. Past `max_sources` the last fold into "Other".
+- `show_returns: false` leaves out what went out; `show_legend: false` the legend.
+- `variant: compact` is the chart and its axis; `mini` a strip under the head.
+- `mode: flows`, `plot_height` and water or gas (`kind`) are in [the energy cards](../energy.md#the-cards); following
+  a picker in [following Home Assistant's date picker](../energy.md#following-home-assistants-date-picker).
+
 <details>
 <summary>Older names the card still reads</summary>
 
