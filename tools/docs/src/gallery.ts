@@ -17,9 +17,12 @@ import type { LovelaceCardConfig } from '@fluvy/core';
 /**
  * The moment the gallery shows: the pictures' (`pnpm docs:images` holds the playground's clock there), and the clock of
  * every card on the `gallery` sheet that keeps one of its own (`_now`), so the measurer, which draws the sheet at
- * today's time, sees what the pictures show.
+ * today's time, sees what the pictures show. It is 21:50 on the clock of the machine drawing it, as the sheets' own
+ * moment is 21:47 there (`apps/playground/src/now.ts`): a fixed instant would put a card's clock before the states it
+ * reads in another time zone (in UTC, where CI draws, a window opened at 21:27 was not yet open five minutes at 19:50,
+ * and the alerts' rows lost a row). Where the pictures are taken (CEST) it is 19:50Z.
  */
-export const MOMENT = '2026-09-17T19:50:00Z';
+export const MOMENT = new Date(2026, 8, 17, 21, 50, 0).toISOString();
 
 /** One of a card's other layouts: what it needs beside its key, and the columns it is given where they are not the base's. */
 export interface Variant {
