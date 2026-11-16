@@ -66,8 +66,17 @@ type: custom:fluvy-bars-card
 title: Strings & inverter
 subtitle: SolarEdge · 3 strings
 icon: sliders
+variant: full
+show_icon: auto
+show_badge: true
+name_lines: 1
+# chart: classic
 tone: solar
-badge_warn: '{count} shaded'
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 rows:
   - entity: sensor.so_string_east
     icon: sun
@@ -95,6 +104,24 @@ rows:
     tone: solar
     plain: true
     sub_entity: sensor.so_inverter_note
+# show_rows_when:
+names: full
+# badge_ok:
+badge_warn: '{count} shaded'
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

@@ -41,6 +41,53 @@ type: custom:fluvy-remote-card
 entity: media_player.rm_tv
 remote: remote.rm_tv
 volume_entity: media_player.rm_receiver
+# name:
+# icon:
+show_icon: auto
+name_lines: 1
+variant: full
+off_keys: live
+groups:
+  - source
+  - dpad
+  - transport
+  - volume
+  - apps
+dpad: ring
+ok_label: word
+side_keys: auto
+nav:
+  - back
+  - menu
+  - captions
+  - home
+transport:
+  - rewind
+  - play_pause
+  - forward
+volume: auto
+apps_style: circles
+apps_tint: open
+# commands:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# apps:
 ```
 
 ## Options

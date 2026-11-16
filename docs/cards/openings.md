@@ -51,6 +51,37 @@ rows:
     name: Garage
     color: purple
   - binary_sensor.am_hallway_motion
+names: full
+# title:
+# subtitle:
+# icon:
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+variant: rows
+max_rows: 4
+show_count: true
+show_time: true
+# since_pattern:
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

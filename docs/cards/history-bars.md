@@ -35,8 +35,59 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-history-bars-card
 entity: sensor.hb_solar
+# name:
+# subtitle:
 icon: sun
+variant: full
+show_icon: auto
+name_lines: 1
+# tone:
 color: '#C9A063'
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+days: 7
+period: day
+stat: state
+reset: auto
+source: auto
+date_format: date
+# negative_color:
+# current_color:
+include_today: false
+show_head: true
+show_values: true
+show_axis: true
+show_grid: true
+show_dates: true
+show_facts: true
+head:
+  - average
+  - highest
+facts:
+  - highest
+  - lowest
+  - average
+co2_factor: 0.4
+# price:
+# chart: classic
+# animate: true
+# unit: auto
+decimals: 1
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# entities:
 ```
 
 ## Options

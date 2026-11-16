@@ -29,15 +29,47 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-grid-card
+# title:
+# subtitle:
+# power:
 phases:
   - sensor.bl_l1
   - sensor.bl_l2
   - sensor.bl_l3
+# import:
+# export:
+invert: false
 voltages:
   - sensor.bl_v1
   - sensor.bl_v2
   - sensor.bl_v3
 price: sensor.bl_price
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# readouts:
+# collection_key:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

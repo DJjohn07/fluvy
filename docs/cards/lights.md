@@ -36,7 +36,37 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-lights-card
+# area:
+names: full
 name: Living room
+# icon:
+show_icon: auto
+variant: row
+show_brightness: false
+show_count: true
+show_level: true
+show_color: false
+# light_colors: true
+light_whites: temperature
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# tap_action:
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 lights:
   - light.lt_ceiling
   - light.lt_floor

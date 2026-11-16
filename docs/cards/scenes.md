@@ -42,6 +42,9 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-scenes-card
+# title:
+variant: tiles
+columns: auto
 scenes:
   - entity: scene.am_morning
     icon: sun
@@ -53,6 +56,20 @@ scenes:
   - entity: scene.am_away
     icon: away
     subtitle: Lock & arm
+names: full
+group_by: none
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'on'
+# empty_text:
+hide_empty: false
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

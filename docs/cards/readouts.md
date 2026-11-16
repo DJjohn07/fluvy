@@ -39,6 +39,18 @@ rows:
   - sensor.living_temperature
   - sensor.living_humidity
   - sensor.home_power
+names: full
+# hours: 6
+variant: grid
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# unit: auto
+# decimals: auto
 ```
 
 ## Options

@@ -39,6 +39,34 @@ people:
   - person.am_marta
   - person.am_pau
   - person.am_ona
+# title:
+# icon:
+show_icon: auto
+name_lines: 1
+variant: grid
+# map_path:
+show_zone: true
+show_time: true
+show_battery: false
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

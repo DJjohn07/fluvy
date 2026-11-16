@@ -34,7 +34,54 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-vehicle-card
 device: d-niro
+# entity:
+scan: true
+# name:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+variant: full
 energy: hybrid
+# tank_size:
+# image:
+show_range: true
+show_limit: true
+show_status: true
+show_controls: true
+show_rows: true
+show_tyres: false
+# low_range:
+stale_after: 30
+range_unit: auto
+range_decimals: auto
+power_unit: auto
+power_decimals: auto
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# hero_tap_action:
+# hero_hold_action:
+# hero_double_tap_action:
+#   action: none
+# controls:
+# rows:
+# roles:
 ```
 
 ## Options

@@ -34,7 +34,45 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-room-card
 area: rm_living
+# name:
+# icon:
+show_icon: auto
+variant: photo
+controls: rows
+name_position: bottom
+show_climate: true
+show_count: true
+readout_style: row
+readout_labels: auto
+show_quick_actions: true
+show_arrow: true
+show_quick_states: false
+# quick_actions:
+# picture:
 path: /fluvy-auto/room-rm_living
+# lights:
+# temperature_entity:
+# humidity_entity:
+# include:
+# exclude:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# light_colors: false
+# tap_action:
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

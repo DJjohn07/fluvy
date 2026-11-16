@@ -35,8 +35,43 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-production-card
 entity: sensor.so_energy_today
+# name:
+# subtitle:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+day: today
 forecast_entity: sensor.so_forecast_today
 peak_entity: sensor.so_peak_today
+show_forecast: true
+show_peak: true
+badge: day
+variant: full
+# collection_key:
+# chart: classic
+# animate: true
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# arrays:
 ```
 
 ## Options

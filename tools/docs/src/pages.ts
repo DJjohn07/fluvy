@@ -292,14 +292,9 @@ function layoutsSection(card: CardDoc, pictures: Manifest): string[] {
   ];
 }
 
-/**
- * The YAML under "All options": every option the card takes, each with its default.
- *
- * TODO(options.ts): the example's YAML stands in until `options.ts` writes a card's every option from its editor;
- * this is the one place to call it from.
- */
+/** The YAML under "All options": every option the card's editor shows, each with its default (`options.ts`). */
 const allOptionsYaml = (card: CardDoc): string =>
-  toYaml(card.example?.config ?? { type: `custom:${card.tag}` });
+  card.allOptions ?? toYaml(card.example?.config ?? { type: `custom:${card.tag}` });
 
 /** A card's guide: the one written by hand for it, or a line to the card's whose guide is its own too. */
 function guideSection(card: CardDoc, guides: Guides): string[] {

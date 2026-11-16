@@ -43,6 +43,39 @@ entities:
   - person.am_ona
   - person.am_jan
   - person.am_noa
+# zones:
+# title:
+# icon:
+show_icon: auto
+name_lines: 1
+variant: zones
+map_shape: wide
+# hours_to_show:
+# default_zoom:
+fit_zones: false
+show_empty: false
+show_distance: false
+# map_path:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

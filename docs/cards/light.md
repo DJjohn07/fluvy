@@ -33,6 +33,45 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-light-card
 entity: light.ceiling
+# name:
+# icon:
+show_icon: auto
+name_lines: 1
+show_brightness: true
+variant: auto
+show_stepper: true
+live_update: false
+slider_style: house
+show_temperature: true
+show_color: true
+colors:
+  - red
+  - orange
+  - green
+  - blue
+  - purple
+  - pink
+temperature_tint: true
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'off'
+light_whites: temperature
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

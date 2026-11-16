@@ -61,13 +61,40 @@ The picture above, on the demo house: put your own entities in place of its.
 type: custom:fluvy-expander-card
 title: Garden
 icon: leaf
+# subtitle:
 entities:
   - light.ex_terrace
   - light.ex_path
   - light.ex_pergola
   - switch.ex_lawn
   - switch.ex_beds
+show_summary: true
+style: card
+columns: 1
+gap: 40
+show_icon: auto
+name_lines: 1
+show_chevron: true
+chevron_position: end
+chevron_size: regular
+expanded: true
 remember: 'off'
+# open_when:
+close_after: 0
+# id:
+# tone:
+# color:
+# icon_color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# head_cards:
 cards:
   - type: custom:fluvy-light-card
     entity: light.ex_terrace
@@ -86,7 +113,6 @@ cards:
       - sensor.ex_soil
       - sensor.ex_garden_temperature
       - sensor.ex_rain
-expanded: true
 ```
 
 ## Options

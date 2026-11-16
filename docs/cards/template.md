@@ -35,8 +35,31 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-template-card
 entity: light.tp_desk
+# name:
 icon: '{{ ''mdi:lamp'' if is_state(entity, ''on'') else ''mdi:lamp-outline'' }}'
 secondary: '{{ states(''sensor.tp_temperature'') }} °C here'
+# since:
+variant: compact
+active: auto
+name_lines: 1
+switch_style: toggle
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'on'
+# tap_action:
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

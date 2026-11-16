@@ -48,8 +48,46 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-energy-flow-card
+# title:
 subtitle: Live · 5 s ago
+# icon:
 home: sensor.ef_house_power
+show_icon: auto
+name_lines: 1
+variant: rows
+flow_style: stream
+motion: full
+# max_power:
+badge: solar
+period: live
+show_period: true
+readouts:
+  - entity: sensor.ef_self_use
+    name: Self-use
+  - entity: sensor.ef_exported_today
+    name: Exported
+  - entity: sensor.ef_imported_today
+    name: Imported
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 sources:
   - type: solar
     power: sensor.ef_solar_power
@@ -58,13 +96,7 @@ sources:
   - type: battery
     power: sensor.ef_battery_power
     level: sensor.ef_battery_level
-readouts:
-  - entity: sensor.ef_self_use
-    name: Self-use
-  - entity: sensor.ef_exported_today
-    name: Exported
-  - entity: sensor.ef_imported_today
-    name: Imported
+# consumers:
 ```
 
 ## Options

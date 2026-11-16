@@ -22,6 +22,32 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-todo-card
 entity: todo.groceries
+# name:
+# subtitle:
+# icon:
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+show_completed: true
+show_add: true
+show_due: true
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

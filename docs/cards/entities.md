@@ -46,7 +46,15 @@ type: custom:fluvy-entities-card
 title: Kitchen
 subtitle: '7 devices'
 icon: grid
-show_count: true
+variant: rows
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 rows:
   - switch.kitchen_light
   - switch.washer
@@ -55,6 +63,25 @@ rows:
   - sensor.hall_temperature
   - lock.front_door
   - switch.ghost
+# show_rows_when:
+names: full
+show_count: true
+# more:
+# more_path:
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

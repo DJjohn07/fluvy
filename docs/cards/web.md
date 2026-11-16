@@ -35,8 +35,40 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-web-card
 url: /web/radar.html
+variant: plate
 title: Lightning
+# icon:
+show_icon: auto
+name_lines: 1
 subtitle: Live strikes
+aspect_ratio: '16:9'
+# height:
+scale: 1
+refresh: 0
+look: page
+sandbox: standard
+allow_open_top_navigation: false
+allow: fullscreen
+show_open: true
+show_fullscreen: true
+show_reload: false
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

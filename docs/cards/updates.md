@@ -27,13 +27,41 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-updates-card
+# title:
+# subtitle:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+show_up_to_date: false
 entities:
   - update.core
   - update.plug
   - update.vacuum
   - update.router
+names: full
 toggle: input_boolean.auto_update
 toggle_secondary: '03:00 · backup first'
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

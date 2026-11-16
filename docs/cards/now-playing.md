@@ -22,6 +22,27 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-now-playing-card
 entity: media_player.den
+# name:
+# icon:
+show_volume: true
+show_power: true
+controls:
+  - previous
+  - play
+  - next
+  - volume
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

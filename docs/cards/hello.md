@@ -26,6 +26,16 @@ type: custom:fluvy-hello-card
 name: Marta
 person: person.marta
 weather: weather.flat
+show_weather: true
+show_date: true
+show_avatar: true
+# color:
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

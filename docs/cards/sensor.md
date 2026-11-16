@@ -37,6 +37,44 @@ type: custom:fluvy-sensor-card
 entity: sensor.am_living_temperature
 name: Living room
 subtitle: Temperature
+# icon:
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+variant: chart
+# hours: 12
+show_stats: true
+# label:
+# chart: classic
+# points: auto
+# curve: smooth
+# fill: gradient
+# line_width: regular
+# show_points: end
+show_grid: auto
+show_axis: true
+# animate: true
+# thresholds:
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# entities:
 ```
 
 ## Options

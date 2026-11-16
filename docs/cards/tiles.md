@@ -41,6 +41,22 @@ tiles:
     readouts:
       - sensor.desk_plug_power
   - entity: switch.patio
+names: full
+size: compact
+columns: 2
+group_by: none
+name_lines: 1
+switch_style: toggle
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'on'
+readouts_layout: line
+# empty_text:
+hide_empty: false
 ```
 
 ## Options

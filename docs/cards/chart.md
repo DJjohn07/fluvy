@@ -46,19 +46,51 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-chart-card
 title: Electricity price
+# subtitle:
 icon: bolt
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 series:
   - entity: sensor.ch_nordpool
     tone: ok
+# collection_key:
 span: today+tomorrow
-chart: step
+variant: full
+show_head: true
+highlight: both
+highlight_hours: 2
 thresholds:
   - tone: warning
     value: 0.18
   - tone: danger
     value: 0.26
-highlight: both
-highlight_hours: 2
+chart: step
+# points: auto
+# fill: flat
+# line_width: regular
+# show_points: none
+show_grid: auto
+show_axis: true
+# show_now: true
+# animate: true
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

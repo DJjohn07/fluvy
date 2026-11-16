@@ -30,14 +30,40 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-ev-charger-card
 entity: sensor.st_wallbox
+# name:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+invert: false
 level: sensor.st_car_level
 target: 80
 ready_by: '07:00'
-session_energy: sensor.st_session
 status: sensor.st_wallbox_status
-vehicle: Model 3
+session_energy: sensor.st_session
 solar_share: sensor.st_solar_share
+vehicle: Model 3
 mode: select.st_wallbox_mode
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

@@ -57,6 +57,32 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-alerts-card
+# title:
+# subtitle:
+variant: tiles
+columns: 2
+# icon:
+show_icon: auto
+show_count: true
+show_culprit: true
+show_duration: true
+compact: false
+order: severity
+rotate: 6
+snooze: user
+# max_alerts:
+# empty_text:
+hide_empty: true
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+# hold_action:
+# double_tap_action:
+#   action: none
 alerts:
   - preset: hazards
     id: hazards

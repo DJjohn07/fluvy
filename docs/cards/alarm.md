@@ -36,9 +36,38 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-alarm-card
 entity: alarm_control_panel.house
+# name:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# subtitle:
+variant: tiles
+# modes:
+show_rows: true
 rows:
   - binary_sensor.living_motion
   - binary_sensor.back_door
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'off'
+# state_colors:
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

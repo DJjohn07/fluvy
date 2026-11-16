@@ -37,12 +37,48 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-cameras-card
+title: Outside
+# subtitle:
+# icon:
+show_icon: auto
+name_lines: 1
+# area:
 cameras:
   - camera.cm_driveway
   - camera.cm_garden
   - camera.cm_terrace
   - camera.cm_garage
-title: Outside
+names: full
+variant: grid
+columns: auto
+camera_view: auto
+refresh: 10
+aspect_ratio: '16:9'
+fit_mode: cover
+show_status: true
+status: auto
+show_live: true
+show_fullscreen: true
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

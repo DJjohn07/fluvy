@@ -37,8 +37,22 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-energy-period-card
+variant: row
 collection_key: energy_pg
+periods:
+  - day
+  - week
+  - month
+  - year
+  - custom
+show_today: true
 show_compare: true
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 ```
 
 ## Options

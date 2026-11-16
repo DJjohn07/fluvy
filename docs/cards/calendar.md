@@ -52,6 +52,15 @@ calendars:
   - calendar.ona
   - calendar.personal
   - calendar.services
+variant: agenda
+# title:
+show_icon: auto
+name_lines: 1
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 first_weekday: monday
 ```
 

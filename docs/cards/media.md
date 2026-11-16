@@ -33,6 +33,31 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-media-card
 entity: media_player.kitchen
+# name:
+# icon:
+# secondary:
+# image:
+variant: full
+source_style: full
+show_source: true
+show_volume: true
+show_power: true
+controls:
+  - play
+  - next
+slider_style: house
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

@@ -23,7 +23,21 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-scene-card
 entity: scene.evening
+# name:
 icon: moon
+# subtitle:
+show_subtitle: true
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

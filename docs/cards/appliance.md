@@ -38,7 +38,83 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-appliance-card
 device: miele-washer
+# entity:
+kind: auto
+variant: full
 name: Washer
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+unit: both
+picture: art
+# image:
+picture_min: auto
+show_power: true
+# power_action:
+show_notify: true
+show_hero: true
+show_progress: true
+progress_style: auto
+time: both
+show_zones: true
+setpoint_style: readout
+show_drinks: true
+show_rows: true
+# drinks:
+row_values: inline
+readouts:
+  - temperature
+  - spin
+  - energy
+show_maintenance: true
+show_modes: false
+modes_style: chips
+# modes:
+show_controls: false
+show_programs: false
+controls:
+  - start
+  - pause
+  - stop
+  - power
+confirm:
+  - stop
+  - 'off'
+  - feed
+  - clean
+  - level
+unload_reminder: true
+unload_after: 30
+done_for: 120
+door_alert: 0
+low_level: 20
+running_power: 5
+finished_after: 3
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+scan: true
+# rows:
+# sensors:
+# maintenance:
+# zones:
+# roles:
 ```
 
 ## Options

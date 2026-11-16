@@ -37,9 +37,17 @@ The picture above, on the demo house: put your own entities in place of its.
 type: custom:fluvy-helpers-card
 title: Helpers
 subtitle: Living room · 4 inputs
-tap_action:
-  action: navigate
-  navigation_path: /config/helpers
+# icon:
+options_style: full
+show_icon: auto
+name_lines: 1
+slider_style: house
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 rows:
   - entity: input_number.brightness
     secondary: Living room lights
@@ -50,6 +58,22 @@ rows:
   - entity: input_boolean.guest
     icon: moon
     secondary: Since Monday
+names: full
+# empty_text:
+hide_empty: false
+tap_action:
+  action: navigate
+  navigation_path: /config/helpers
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

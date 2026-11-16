@@ -33,6 +33,32 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-tile-card
 entity: light.ceiling
+# name:
+# icon:
+size: large
+show_switch: true
+switch_style: toggle
+# since:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'on'
+# light_colors: false
+# readouts:
+# tap_action:
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# thresholds:
 ```
 
 ## Options

@@ -29,6 +29,7 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-chips-card
+# name:
 chips:
   - name: All
     path: /
@@ -38,6 +39,9 @@ chips:
     path: /fluvy-home/kitchen
   - name: Bedroom
     path: /fluvy-home/bedroom
+# tint: 'on'
+# empty_text:
+hide_empty: false
 ```
 
 ## Options

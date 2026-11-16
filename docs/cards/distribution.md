@@ -36,11 +36,42 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-distribution-card
+# title:
+# subtitle:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 entities:
   - sensor.so_heat_pump_power
   - sensor.so_dishwasher_power
   - sensor.so_media_power
   - sensor.so_fridge_power
+names: full
+# max_rows:
+variant: stack
+# chart: classic
+# total:
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

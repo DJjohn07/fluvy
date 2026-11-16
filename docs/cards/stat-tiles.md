@@ -62,9 +62,16 @@ type: custom:fluvy-stat-tiles-card
 title: Total capacity
 subtitle: '18 panels · 5.4 kWp'
 icon: bolt
+show_icon: auto
+name_lines: 1
 tone: solar
-badge_entity: sensor.so_health
-badge_label: Health
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+variant: full
+columns: 2
 tiles:
   - entity: sensor.so_solar_power
     name: Solar output
@@ -83,10 +90,31 @@ tiles:
     name: To battery
     icon: battery
     tone: water
+# entity:
+# name:
+badge_entity: sensor.so_health
+badge_label: Health
 rows:
   - entity: sensor.so_co2
     icon: leaf
     secondary: This month
+names: full
+# empty_text:
+hide_empty: false
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

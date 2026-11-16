@@ -46,8 +46,26 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-energy-card
 entity: sensor.ef_house_power
+invert: false
 name: Energy
+# subtitle:
+# icon:
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+variant: full
+# hours: 12
+# collection_key:
+show_soc: true
+show_house: true
+stack: true
 cost_entity: sensor.ef_cost_now
+show_cost: true
 legend:
   - entity: sensor.ef_grid_today
     name: Grid
@@ -55,6 +73,29 @@ legend:
     name: Solar
   - entity: sensor.ef_peak_today
     name: Peak
+# chart: classic
+# points: auto
+# curve: smooth
+# fill: gradient
+# line_width: regular
+# show_points: end
+show_grid: auto
+show_axis: true
+# animate: true
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

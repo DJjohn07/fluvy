@@ -31,6 +31,26 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-clock-card
+face: analog
+variant: hero
+numerals: none
+# title:
+show_seconds: true
+hour12: true
+show_date: true
+show_week: false
+# weather:
+show_forecast: false
+# time_zone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# tap_action:
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
 ```
 
 ## Options

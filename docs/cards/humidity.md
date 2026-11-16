@@ -36,9 +36,37 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-humidity-card
 entity: sensor.so_living_humidity
+# name:
 subtitle: Living room
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# low:
+# high:
+# gauge: ticks
 temperature_entity: sensor.so_living_temperature
 humidifier_entity: humidifier.so_living
+# hours:
+show_trend: true
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

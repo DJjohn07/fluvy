@@ -39,6 +39,20 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-automations-card
+# title:
+# subtitle:
+# icon:
+variant: rows
+show_icon: auto
+name_lines: 1
+show: all
+sort: name
+show_add: true
+show_switch: true
+show_last: true
+show_next: true
+show_filters: false
+max_rows: 6
 entities:
   - automation.blinds
   - automation.good_morning
@@ -47,6 +61,37 @@ entities:
   - automation.broken
   - automation.vacation_lights
   - automation.weekend_heating
+# area:
+# workday:
+time_step: 5
+domains:
+  - light
+  - switch
+  - input_boolean
+  - fan
+  - cover
+  - climate
+  - scene
+  - script
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# targets:
 ```
 
 ## Options

@@ -39,12 +39,40 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-lock-card
 entity: lock.front_door
+# name:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+# subtitle:
+variant: full
+show_rows: true
 rows:
   - entity: switch.auto_lock
     icon: clock
   - binary_sensor.front_door
   - entity: input_text.guest_code
     icon: key
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'off'
+# state_colors:
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

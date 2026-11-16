@@ -20,6 +20,36 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-energy-sankey-card
+# title:
+# subtitle:
+# icon:
+period: day
+show_icon: auto
+name_lines: 1
+# collection_key:
+show_period: true
+max_devices: 4
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: none
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# devices:
 ```
 
 ## Options

@@ -34,7 +34,39 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-fan-card
 entity: fan.ceiling
+# name:
+# icon:
+show_icon: auto
+name_lines: 1
 subtitle: Bedroom
+variant: full
+show_stepper: true
+show_presets: true
+preset_style: full
+show_oscillation: true
+show_direction: true
+when_off: all
+slider_style: house
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'off'
+# state_colors:
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

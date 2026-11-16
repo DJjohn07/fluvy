@@ -39,6 +39,18 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-swipe-card
+style: card
+columns: 1
+gap: 40
+start: 1
+show_indicators: true
+loop: false
+remember: session
+autoplay: 0
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
 cards:
   - type: custom:fluvy-room-card
     area: rm_living

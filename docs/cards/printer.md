@@ -33,6 +33,44 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-printer-card
 device: d-p1s
+# entity:
+# name:
+# icon:
+show_icon: auto
+show_badge: true
+name_lines: 1
+variant: full
+readouts:
+  - nozzle
+  - bed
+  - chamber
+  - layer
+show_image: true
+image: auto
+camera_view: auto
+fit_mode: cover
+aspect_ratio: '16:9'
+show_filament: true
+show_controls: true
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
+# sensors:
+# roles:
 ```
 
 ## Options

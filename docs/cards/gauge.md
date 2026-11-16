@@ -36,9 +36,46 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-gauge-card
 entity: sensor.so_solar_power
-icon: sun
+# name:
 subtitle: South roof · 5.4 kWp
+icon: sun
+variant: ring
+# gauge: ticks
+show_icon: auto
+show_badge: true
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# min:
+# max:
 max_entity: sensor.so_solar_capacity
+# label:
+# badge:
+show_stats: true
+# hours:
+stats:
+  - min
+  - max
+  - average
+# thresholds:
+# unit: auto
+# decimals: auto
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

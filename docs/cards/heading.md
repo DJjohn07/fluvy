@@ -36,9 +36,13 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-heading-card
 title: Living room
+heading_style: subtitle
 icon: fluvy:home
+variant: bar
 subtitle: '4 devices'
 path: /fluvy-home/living
+# entities:
+# tap_action:
 ```
 
 ## Options

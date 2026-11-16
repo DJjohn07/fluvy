@@ -11,8 +11,9 @@ import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import type { HaFormSchemaItem, LovelaceCardConfig, LovelaceConfigForm } from '@fluvy/core';
 import about from '@fluvy/core/locales/en/cards-about.json';
 import core from '@fluvy/core/locales/en/core.json';
-import { drawn, GALLERY, shortName, type Drawn, type Example } from './gallery.js';
+import { drawn, GALLERY, layoutKey, shortName, type Drawn, type Example } from './gallery.js';
 import { MEANINGS } from './meanings.js';
+import type { OptionsCard } from './options.js';
 
 // the cards and core read the DOM as they load
 if (!GlobalRegistrator.isRegistered) GlobalRegistrator.register();
@@ -133,6 +134,11 @@ export interface CardDoc {
   /** Its example from the gallery, and that example as it is drawn: the base, then each other layout. */
   readonly example?: Example;
   readonly drawn: readonly Drawn[];
+  /**
+   * Its example with every option its editor shows for it, as YAML (`options.ts`): the keys left out written at their
+   * defaults, those that follow the house or have none said as comments, in the layout the picture shows.
+   */
+  readonly allOptions?: string;
   /** Every key a configuration of it may carry: the form's and the lists', with the older names of its lists. */
   readonly known: ReadonlySet<string>;
   /** Its configuration as the card reads it: the older names moved to the newer ones. */
@@ -408,10 +414,11 @@ const byKey = (
 
 /** Every card of the catalogue as the docs say it, in the index's order. */
 export async function readCards(): Promise<readonly CardDoc[]> {
-  const [{ catalogue }, rows, shared] = await Promise.all([
+  const [{ catalogue }, rows, shared, options] = await Promise.all([
     import('@fluvy/cards'),
     import('../../../packages/cards/src/shared/rows-editor.js'),
     import('../../../packages/cards/src/shared/config.js'),
+    import('./options.js'),
   ]);
   const word = (key: string | undefined): string | undefined =>
     key ? form.editorWord(key as Parameters<typeof form.editorWord>[0]) : undefined;
@@ -534,6 +541,18 @@ export async function readCards(): Promise<readonly CardDoc[]> {
           : {}),
         ...(example ? { example } : {}),
         drawn: example ? drawn(tag, example) : [],
+        ...(example
+          ? {
+              // the layout the picture shows where the example's card takes one by itself (a room with a picture)
+              allOptions: options.optionsYaml(
+                await options.cardOptions(card as unknown as OptionsCard, {
+                  ...example.config,
+                  ...(example.own ? { [layoutKey(example)]: example.own } : {}),
+                }),
+                true,
+              ),
+            }
+          : {}),
         known: new Set(['type', ...names, ...listed]),
         normalise: (given) => shared.normaliseConfig(given, ...specs),
       });

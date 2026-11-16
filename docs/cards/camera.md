@@ -28,12 +28,39 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-camera-card
 entity: camera.driveway
+# name:
+# icon:
+show_icon: auto
+name_lines: 1
 subtitle: Front of house · 1080p
+camera_view: auto
+# refresh:
+aspect_ratio: '16:9'
+fit_mode: cover
+show_rows: true
 rows:
   - entity: binary_sensor.person
     icon: person
   - entity: binary_sensor.vehicle
     icon: car
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

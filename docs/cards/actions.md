@@ -32,9 +32,18 @@ The picture above, on the demo house: put your own entities in place of its.
 
 ```yaml
 type: custom:fluvy-actions-card
-tap_action:
-  action: navigate
-  navigation_path: /config/scene/dashboard
+# title:
+# subtitle:
+# icon:
+# columns:
+show_icon: auto
+name_lines: 1
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
 rows:
   - entity: scene.morning
     secondary: Lights & blinds
@@ -44,6 +53,22 @@ rows:
     secondary: Core & add-ons
   - entity: script.backup
     secondary: Full backup
+names: full
+# empty_text:
+hide_empty: false
+tap_action:
+  action: navigate
+  navigation_path: /config/scene/dashboard
+# hold_action:
+#   action: none
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

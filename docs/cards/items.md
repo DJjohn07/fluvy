@@ -33,6 +33,48 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-items-card
 entity: sensor.it_flights
+# title:
+# subtitle:
+# icon:
+show_icon: auto
+name_lines: 1
+attribute: auto
+preset: auto
+# item_name:
+# item_secondary:
+# item_value:
+# item_unit:
+# item_icon:
+# item_image:
+# item_url:
+# items_template:
+# sort:
+sort_order: ascending
+variant: rows
+max_rows: 5
+show_count: true
+show_image: true
+item_tap: sheet
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# empty_text:
+hide_empty: false
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options

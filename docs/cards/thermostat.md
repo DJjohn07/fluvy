@@ -33,6 +33,53 @@ The picture above, on the demo house: put your own entities in place of its.
 ```yaml
 type: custom:fluvy-thermostat-card
 entity: climate.living
+# name:
+# icon:
+# image:
+# subtitle:
+show_icon: auto
+show_badge: true
+name_lines: 1
+variant: dial
+show_stepper: true
+show_modes: true
+modes_style: tiles
+# modes:
+show_current: true
+show_presets: true
+preset_style: full
+show_fan: true
+fan_style: full
+when_off: all
+# state_entity:
+show_valve: false
+# valve_entity:
+# valve_attribute:
+show_window: false
+# window_entity:
+show_battery: false
+# battery_entity:
+# humidity_entity:
+# tone:
+# color:
+# card_color:
+# card_opacity: 100
+# card_border: true
+# unavailable: dashed
+# tint: 'off'
+# state_colors:
+# tap_action:
+#   action: more-info
+# hold_action:
+#   action: more-info
+# double_tap_action:
+#   action: none
+# icon_tap_action:
+#   action: none
+# icon_hold_action:
+#   action: none
+# icon_double_tap_action:
+#   action: none
 ```
 
 ## Options
