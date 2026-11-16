@@ -5,6 +5,14 @@ and the versions follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Czech says what Home Assistant says where Home Assistant names the same thing, read from a Czech instance: a tap is
+  "klepnutí", a dashboard an "ovládací panel" (shortened to "panel" where a title, a tab or a 152 px row cannot hold
+  the pair), solar is "Solární", the openings take their device class's "Otevření" and the greeting is formal. Four
+  sentences that read as English carried over word for word are rewritten. The alarm keeps "Zastřeženo" and
+  "Odstřeženo", the Czech security trade's words, where Home Assistant says "Zabezpečeno" and "Odbezpečeno".
+
 ## [1.22.0] — 2026-11-16
 
 ### Visible on upgrade
