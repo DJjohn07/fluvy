@@ -4,7 +4,8 @@
  * choice's values), its lists with their item's fields, the older names it still reads, and its example from the
  * gallery with each of its layouts. Everything `docs/` says about a card is made from this (`pages.ts`) and held to
  * it (`build.ts --check`), so the docs cannot drift from the editors' contract (`Card` in the cards' `shared/base.ts`).
- * What a key does is said in a sentence of the docs' own (`meanings.ts`) before the editor's helper.
+ * What a key does is said in a sentence of the docs' own (`meanings.ts`): the pages print that one, and the data
+ * keeps the editor's helper beside it.
  */
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import type { HaFormSchemaItem, LovelaceCardConfig, LovelaceConfigForm } from '@fluvy/core';
@@ -322,11 +323,17 @@ function typeOf(field: HaFormSchemaItem): string {
   }
 }
 
+/** From where a bound of a number's field bounds nothing: the form's guard against a slip, far past any reading. */
+const NO_BOUND = 100_000;
+
 /** A number's range as its field holds it; none where it takes any. */
 function rangeOf(field: HaFormSchemaItem): string | undefined {
   const [kind, options] = selectorOf(field);
   if (kind !== 'number') return undefined;
-  const { min, max, step, unit_of_measurement: unit } = options;
+  const { step, unit_of_measurement: unit } = options;
+  const [min, max] = [options['min'], options['max']].map((bound) =>
+    typeof bound === 'number' && Math.abs(bound) >= NO_BOUND ? undefined : bound,
+  );
   const of = (value: unknown): string => `${String(value)}${unit ? ` ${String(unit)}` : ''}`;
   const span =
     min !== undefined && max !== undefined
@@ -337,7 +344,8 @@ function rangeOf(field: HaFormSchemaItem): string | undefined {
           ? `up to ${of(max)}`
           : '';
   const steps = typeof step === 'number' && step !== 1 ? `in steps of ${step}` : '';
-  return [span, steps].filter(Boolean).join(', ') || undefined;
+  // a step alone is the form's, not a range
+  return span ? [span, steps].filter(Boolean).join(', ') : undefined;
 }
 
 /**
